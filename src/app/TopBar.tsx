@@ -10,8 +10,9 @@ import { ThemeSwitcher } from '@/theme/ThemeSwitcher';
 import { listRecent, type RecentEntry } from './persistence/db';
 import { openRecent, useSession } from './persistence/session';
 import { setPrefs, showBottomTab, usePrefs } from './prefs';
-import { LogoIcon, SearchIcon, SettingsIcon } from './ui/icons';
+import { LogoIcon, PlayIcon, SearchIcon, SettingsIcon } from './ui/icons';
 import {
+  Button,
   IconButton,
   Menu,
   MenuCheckItem,
@@ -336,6 +337,18 @@ export function TopBar() {
         <Title />
       </div>
       <ProblemsIndicator />
+      {/* Start the simulation (the simulation bar replaces this bar while it runs). */}
+      <Tip label={t('commands.simulate.start')} keys="F5" side="bottom">
+        <Button
+          size="sm"
+          aria-label={t('simulation.simulateLabel')}
+          onClick={() => runCommand('sim.toggle')}
+          className="gap-1.5"
+        >
+          <PlayIcon size={12} className="text-success" />
+          {t('simulation.simulate')}
+        </Button>
+      </Tip>
       <Tip label={t('commands.view.palette')} keys={formatKeys('Mod+K')} side="bottom">
         <IconButton label={t('commands.view.palette')} onClick={() => runCommand('view.palette')}>
           <SearchIcon size={16} />

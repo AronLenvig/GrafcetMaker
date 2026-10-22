@@ -16,6 +16,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- A Simulate button (F5) in the top bar starts the simulation.
 - Welcome screen: on a first visit it no longer offers to continue the empty starting project;
   its button reads "Start drawing".
 - Delete a grafcet with `Del` on its tab; pick several tabs with Ctrl/Cmd+click or Shift+click to

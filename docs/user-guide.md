@@ -227,7 +227,7 @@ exact definitions are in `docs/semantics.md`.
 
 ## Simulation
 
-Press `F5` (or **Simulate › Start simulation**). The diagram is locked for editing, the top bar
+Press `F5`, the **Simulate** button of the top bar, or **Simulate › Start simulation**. The diagram is locked for editing, the top bar
 turns into the simulation bar and the **Simulation** tab opens.
 
 - **Inputs**: switch a BOOL input on/off, or hold its **Hold** button for a momentary press

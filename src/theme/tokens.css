@@ -1,0 +1,91 @@
+/*
+ * Design tokens. Every color in the app comes from here; components never hard-code colors.
+ * data-theme is always resolved to "light" or "dark" by the inline bootstrap script in index.html
+ * (System mode follows prefers-color-scheme live via src/theme/theme.ts).
+ * Contrast targets: text >= 4.5:1 and lines >= 3:1 against their surfaces in both themes.
+ */
+:root {
+  color-scheme: light;
+
+  /* App chrome */
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #f0f2f5;
+  --surface-3: #e4e7ec;
+  --border: #d0d5dd;
+  --border-strong: #8a94a6;
+  --text: #101828;
+  --text-muted: #475467;
+  --accent: #1d4ed8;
+  --accent-hover: #1e40af;
+  --accent-fg: #ffffff;
+  --accent-soft: #dbe7ff;
+  --danger: #b42318;
+  --danger-soft: #fee4e2;
+  --warning: #9a3f07;
+  --warning-soft: #fef0c7;
+  --info: #175cd3;
+  --info-soft: #d1e9ff;
+  --success: #067647;
+  --success-soft: #dcfae6;
+  --focus: #1d4ed8;
+  --overlay: rgb(16 24 40 / 0.45);
+  --shadow-color: rgb(16 24 40 / 0.16);
+
+  /* Diagram */
+  --canvas: #ffffff;
+  --grid: #d9dde4;
+  --ink: #101828;
+  --ink-muted: #475467;
+  --step-active: #d3f8df;
+  --token: #067647;
+  --selection: #1d4ed8;
+  --selection-fill: rgb(29 78 216 / 0.08);
+  --link-target: #067647;
+  --enabled: #9a3f07;
+  --fired: #f79009;
+  --comment-bg: #fffaeb;
+  --comment-border: #b5891a;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #0b0d12;
+  --surface: #12151c;
+  --surface-2: #1a1e27;
+  --surface-3: #252a36;
+  --border: #2e3442;
+  --border-strong: #6b7488;
+  --text: #e6e9ef;
+  --text-muted: #a3acbd;
+  --accent: #7aa2ff;
+  --accent-hover: #9bb8ff;
+  --accent-fg: #0b0d12;
+  --accent-soft: #1b2a4d;
+  --danger: #ff8a80;
+  --danger-soft: #3d1715;
+  --warning: #fdb022;
+  --warning-soft: #3a2a0c;
+  --info: #84caff;
+  --info-soft: #102a43;
+  --success: #6ce9a6;
+  --success-soft: #0f2e20;
+  --focus: #7aa2ff;
+  --overlay: rgb(0 0 0 / 0.6);
+  --shadow-color: rgb(0 0 0 / 0.5);
+
+  --canvas: #0f1218;
+  --grid: #2a303d;
+  --ink: #e6e9ef;
+  --ink-muted: #a3acbd;
+  --step-active: #133d27;
+  --token: #6ce9a6;
+  --selection: #7aa2ff;
+  --selection-fill: rgb(122 162 255 / 0.12);
+  --link-target: #6ce9a6;
+  --enabled: #fdb022;
+  --fired: #fdb022;
+  --comment-bg: #2a2410;
+  --comment-border: #c9a43a;
+}

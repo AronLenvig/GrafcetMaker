@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    .i { stroke: #101828; fill: none; stroke-width: 4; }
+    .b { fill: #101828; }
+    .t { fill: #ffffff; }
+    @media (prefers-color-scheme: dark) {
+      .i { stroke: #e6e9ef; }
+      .b { fill: #e6e9ef; }
+      .t { fill: #0f1218; }
+    }
+  </style>
+  <rect class="t" x="0" y="0" width="64" height="64" rx="12" />
+  <rect class="i" x="16" y="6" width="32" height="32" />
+  <rect class="i" x="22" y="12" width="20" height="20" />
+  <line class="i" x1="32" y1="38" x2="32" y2="62" />
+  <rect class="b" x="20" y="48" width="24" height="5" />
+</svg>

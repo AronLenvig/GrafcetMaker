@@ -1,9 +1,29 @@
 # GrafcetMaker — Build Spec
 
-Browser GRAFCET (IEC 60848) editor + simulator for professional automation engineers. Priorities: correct semantics > UX speed > features. Production-ready, offline-capable, no backend in v1.
+Browser GRAFCET (IEC 60848) editor + simulator for professional automation engineers. Priorities: correct semantics > UX speed > features. Production-ready, offline-capable.
+
+## Decisions
+- Open source, MIT license. Repo ships `LICENSE`, `README.md` (features, self-host steps), `CONTRIBUTING.md`.
+- One static build serves both the public website and on-premise installs. No backend, accounts or telemetry. All assets bundled (no CDNs, external fonts or runtime network calls) so it works air-gapped. Relative base path so it runs under any sub-path. Docker/nginx image for on-prem.
+- Saving, importing and exporting must be effortless (see Persistence).
+
+## Autonomous mode (the owner wants minimal involvement)
+- Work through phases 0→9 in order without waiting for approval. Never stop to ask; decide, document, continue.
+- Track progress in `PROGRESS.md`: current phase, done items, decisions made, known gaps. Read it first in every session and resume from it.
+- Per phase: plan briefly in your head → implement → `tsc`/lint/build/tests pass → self-review the diff for bugs (phases 1, 3, 5, 7 more thoroughly) → update `PROGRESS.md` and docs → `git commit` (message `phase N: <summary>`). Never push.
+- If something fails 3 times, take the simplest correct approach, log it under "Known gaps" in `PROGRESS.md`, and move on.
+- Never break a committed phase: if a change goes wrong, `git restore` to the last commit and retry.
+
+## Working rules (do it right first time, save tokens)
+- Plan before coding; settle the design of each module before writing it. Read existing code before changing it; follow its patterns.
+- Write complete, final code: no TODO stubs, placeholders or speculative abstractions. Keep diffs focused on the current phase.
+- Verify every phase with `tsc --noEmit`, lint and `vite build`. Run the app only to check UI behaviour that changed.
+- Tests only where breakage is likely or costly (see Tests). Don't test trivial UI, getters or glue code.
+- Keep context small: don't re-read unchanged files, don't print large outputs, use targeted searches.
+- When the spec is ambiguous, pick the option closest to IEC 60848 and common engineering practice, note it in `docs/semantics.md` or this file, and continue.
 
 ## Stack (fixed)
-TypeScript strict · Vite · React 18 · Zustand + Immer (patches → undo/redo) · custom SVG renderer (no React Flow/JointJS) · Radix UI · Tailwind + CSS variables · Zod · Dexie (IndexedDB) · i18next (EN first) · svg2pdf.js + jsPDF · vite-plugin-pwa · Vitest + fast-check · Playwright + axe-core · ESLint + Prettier.
+TypeScript strict · Vite · React 18 · Zustand + Immer (patches → undo/redo) · custom SVG renderer (no React Flow/JointJS) · Radix UI · Tailwind + CSS variables · Zod · Dexie (IndexedDB) · i18next (EN first) · svg2pdf.js + jsPDF · vite-plugin-pwa · Vitest · Playwright · ESLint + Prettier.
 
 ## Architecture
 ```
@@ -77,23 +97,32 @@ Top bar (File/Edit/View/Simulate/theme/help) · left tools · center canvas with
 - Exports default black-on-white; option "export in current theme".
 
 ## Persistence & export
-Autosave to IndexedDB per command (debounce 500 ms), local snapshot history, crash-restore prompt. File System Access API with download/upload fallback. Exports: SVG (sanitized), PNG 1/2/4×, vector PDF A4/A3 with title block + tiling, variables CSV, Structured Text, PLCopen TC6 XML. Lazy-load PDF/codegen/chronogram.
+- Autosave to IndexedDB per command (debounce 500 ms), local snapshot history, crash-restore prompt. Unsaved-changes dot in title + `beforeunload` warning.
+- Save: `Ctrl/Cmd+S` saves to the same file (File System Access API) or downloads `<name>.grafcet.json` where unsupported; `Ctrl/Cmd+Shift+S` Save As. `Ctrl/Cmd+O` open.
+- Import: open dialog, drag-and-drop a file anywhere on the window, recent files list. Clear error for invalid or newer files; never lose the current project.
+- Export: one Export dialog (`Ctrl/Cmd+E`) with format picker, live preview, settings remembered per project. Formats: SVG (sanitized), PNG 1/2/4×, vector PDF A4/A3 with title block + tiling, variables CSV (import too), Structured Text, PLCopen TC6 XML. "Copy as SVG/PNG" to clipboard for pasting into documents.
+- Lazy-load PDF/codegen/chronogram.
 
 ## Codegen (vendor-neutral, header "generated – review before use")
 ST pattern: compute all `Tn := Xpre AND cond` first, then `Xn := (Xn AND NOT Tout) OR Tin [OR init]`, then timers/edges (TON, R_TRIG), then outputs. Note: one clearing level per scan (no stability search) — document; optional loop variant.
 SFC qualifiers: continuous→N, on activation→P1/S, on deactivation→P0, time-limited→L, delayed→D; forcing→generated ST; macro-steps inlined. Vendor profiles (TIA, CODESYS, TwinCAT, Rockwell) later as adapters.
 
 ## Non-functional
-WCAG 2.2 AA; full keyboard; outline tree view as accessible canvas alternative. Latest 2 versions Chrome/Edge/Firefox/Safari. FMP <1.5 s; initial JS <300 kB gz; validation <50 ms. CSP without unsafe-eval; imported files untrusted (Zod, size caps, escape text). Error boundary with "download recovery file". Opt-in error reporting without diagram content. Static hosting + Docker/nginx on-prem build. SW update prompt, in-app changelog, semver + Keep a Changelog.
+WCAG 2.2 AA; full keyboard; outline tree view as accessible canvas alternative. Latest 2 versions Chrome/Edge/Firefox/Safari. FMP <1.5 s; initial JS <300 kB gz; validation <50 ms. CSP without unsafe-eval; imported files untrusted (Zod, size caps, escape text). Error boundary with "download recovery file". SW update prompt, in-app changelog, semver + Keep a Changelog.
 
-## Tests
-- Unit (≥90% `core/`): parser per rule + precedence + error positions + print↔parse property test; each validation rule pass/fail fixture; codegen snapshots; all historical file versions migrate.
-- Simulation golden suite (~30 hand-verified charts): fixture + input scenario → expected active steps/outputs per cycle; cover all 5 rules, transient evolution, edges, timers, forcing.
-- Playwright (Chromium/Firefox/WebKit): keyboard-built sequence, undo/redo, copy/paste, link constraints; screenshots in light + dark; axe no critical violations.
-- CI gates: tsc, lint, unit+coverage, e2e, bundle budget, Lighthouse perf ≥90 / a11y ≥95.
+## Tests (risk-based, keep lean)
+Write tests only for:
+- Simulation engine: golden suite (~30 small hand-verified charts → expected active steps/outputs per cycle) covering the 5 rules, transient evolution, edges, timers, forcing.
+- Expression parser: precedence, all operators, error positions.
+- File IO: save→load round-trip identical; migrations; invalid/newer file rejection.
+- Undo/redo patches and delete-with-heal.
+- Codegen: one snapshot per construct.
+- Validation: only rules with graph logic (reachability, transient loop, exclusivity).
+Playwright: one smoke test (create sequence, save, reopen, simulate) on Chromium only. Accessibility and visual checks once in phase 9, not every phase.
+CI (GitHub Actions): tsc, lint, unit tests, build, smoke test.
 
 ## Phases (each ends usable; v1.0 = 0–6)
-0 scaffold, theme, CI, model+schema · 1 core editor, undo, shortcuts, save/open · 2 parser, variables, autocomplete · 3 OR/AND structures, loops, source/sink, auto-layout · 4 validation · 5 simulation · 6 exports · 7 hierarchy (partial, macro, enclosing, forcing) · 8 codegen · 9 onboarding, examples, i18n, a11y audit, PWA, perf.
+0 scaffold, theme, CI, model+schema, LICENSE/README · 1 core editor, undo, shortcuts, save/open/import (drag-drop), autosave · 2 parser, variables, autocomplete · 3 OR/AND structures, loops, source/sink, auto-layout · 4 validation · 5 simulation · 6 exports · 7 hierarchy (partial, macro, enclosing, forcing) · 8 codegen · 9 onboarding, examples, i18n, a11y audit, PWA, perf.
 
 ## Definition of done
-Keyboard + mouse · correct in light/dark/system · undoable · save→reload identical · unit + e2e test · actionable error messages · translatable strings with standard terminology · axe clean · user guide updated.
+Keyboard + mouse · correct in light/dark/system · undoable · save→reload identical · tsc/lint/build pass · tests where risk warrants · actionable error messages · translatable strings with standard terminology · user guide updated.

@@ -13,7 +13,8 @@ import {
 } from '@/editor/commands/edit';
 import { doc, getProject, useActiveGrafcet, useDoc } from '@/editor/store/document';
 import { ui, useUi } from '@/editor/store/uiStore';
-import { CheckField, CommitField, Section, SelectField } from './fields';
+import { actionTextKind } from '@/core/expr/check';
+import { CheckField, CommitField, ExpressionField, Section, SelectField } from './fields';
 
 const ACTION_KINDS: ActionKind[] = [
   'continuous',
@@ -87,18 +88,18 @@ function ActionEditor({ action, index, count }: { action: Action; index: number;
         options={ACTION_KINDS.map((k) => ({ value: k, label: t(`actionKinds.${k}`) }))}
         onChange={(kind) => update((a) => void (a.kind = kind))}
       />
-      <CommitField
+      <ExpressionField
+        kind={actionTextKind(action.kind)}
         label={t(`props.action.textLabel.${action.kind}`)}
         value={action.text}
-        mono
         placeholder={t(`props.action.textPlaceholder.${action.kind}`)}
         onCommit={(v) => update((a) => void (a.text = v.trim()))}
       />
       {action.kind !== 'forcing' && (
-        <CommitField
+        <ExpressionField
+          kind="condition"
           label={conditionLabel}
           value={action.condition ?? ''}
-          mono
           placeholder={
             action.kind === 'storedOnEvent' ? '↑b' : t('props.action.conditionPlaceholder')
           }
@@ -187,10 +188,10 @@ function TransitionProps({ g, transition }: { g: Grafcet; transition: Transition
   const list = (ids: Id[]) => (ids.length ? ids.map((id) => stepName(g, id)).join(', ') : '—');
   return (
     <Section title={t('props.transition.title')}>
-      <CommitField
+      <ExpressionField
+        kind="condition"
         label={t('props.transition.receptivity')}
         value={transition.receptivity}
-        mono
         placeholder="a * /b"
         onCommit={(v) => update((tr) => void (tr.receptivity = v.trim()))}
         hint={<span className="text-xs text-muted">{t('props.transition.receptivityHint')}</span>}

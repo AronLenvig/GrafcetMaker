@@ -1,5 +1,8 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import type { ExpressionKind } from '@/core/expr/check';
 import { cx, Field, inputClass } from '@/app/ui/primitives';
+import { useUi } from '@/editor/store/uiStore';
+import { ExpressionInput } from './ExpressionInput';
 
 /**
  * Text input that commits on Enter or blur (one undo entry per edit) and reverts on Escape.
@@ -173,5 +176,54 @@ export function Section({
       </div>
       {children}
     </section>
+  );
+}
+
+/** Labelled expression input (receptivity, action text, condition) with live diagnostics. */
+export function ExpressionField({
+  label,
+  kind,
+  value,
+  onCommit,
+  placeholder,
+  hint,
+}: {
+  label: string;
+  kind: ExpressionKind;
+  value: string;
+  onCommit: (v: string) => void;
+  placeholder?: string;
+  hint?: ReactNode;
+}) {
+  const gid = useUi((s) => s.activeGrafcetId);
+  const [draft, setDraft] = useState(value);
+  const focused = useRef(false);
+  useEffect(() => {
+    if (!focused.current) setDraft(value);
+  }, [value]);
+  const commit = () => {
+    if (draft !== value) onCommit(draft);
+  };
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-xs font-medium text-muted">{label}</span>
+      <ExpressionInput
+        kind={kind}
+        grafcetId={gid}
+        value={draft}
+        label={label}
+        placeholder={placeholder}
+        className="h-7"
+        onChange={setDraft}
+        onCommit={commit}
+        onCancel={() => setDraft(value)}
+        onFocus={() => (focused.current = true)}
+        onBlur={() => {
+          focused.current = false;
+          commit();
+        }}
+      />
+      {hint}
+    </div>
   );
 }

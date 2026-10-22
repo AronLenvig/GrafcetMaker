@@ -8,3 +8,6 @@ test-results
 .DS_Store
 .vite
 .claude/settings.local.json
+
+# local probe scripts
+scripts/_*

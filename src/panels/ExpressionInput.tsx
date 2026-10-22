@@ -1,0 +1,355 @@
+import {
+  forwardRef,
+  useId,
+  useImperativeHandle,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  analyze,
+  buildEnv,
+  type Diagnostic,
+  type ExprEnv,
+  type ExpressionKind,
+} from '@/core/expr/check';
+import type { Id, Variable } from '@/core/model/types';
+import { cx } from '@/app/ui/primitives';
+import { tDynamic } from '@/i18n/dynamic';
+import { createVariable } from '@/editor/commands/variables';
+import { useDoc } from '@/editor/store/document';
+
+export function useExprEnv(grafcetId: Id | null): ExprEnv {
+  const variables = useDoc((s) => s.project.variables);
+  const grafcets = useDoc((s) => s.project.grafcets);
+  // Rebuilt only when names or steps can have changed.
+  return useMemo(
+    () => buildEnv({ variables, grafcets }, grafcetId),
+    [variables, grafcets, grafcetId],
+  );
+}
+
+interface Suggestion {
+  text: string;
+  detail: string;
+}
+
+const IDENT_CHAR = /[A-Za-z0-9_]/;
+
+function identifierAt(
+  value: string,
+  caret: number,
+): { start: number; end: number; prefix: string } | null {
+  let start = caret;
+  while (start > 0 && IDENT_CHAR.test(value[start - 1]!)) start--;
+  let end = caret;
+  while (end < value.length && IDENT_CHAR.test(value[end]!)) end++;
+  const prefix = value.slice(start, caret);
+  if (!prefix || /^\d/.test(prefix)) return null;
+  // Not the unit of a duration (3s) or number.
+  if (start > 0 && /[0-9.]/.test(value[start - 1]!)) return null;
+  return { start, end, prefix };
+}
+
+function rank(v: Variable, kind: ExpressionKind): number {
+  if (kind === 'condition') return v.type === 'BOOL' ? 0 : 1;
+  if (kind === 'output') return v.type === 'BOOL' && v.direction !== 'input' ? 0 : 2;
+  if (kind === 'assignment') return v.direction !== 'input' ? 0 : 2;
+  return 1;
+}
+
+export interface ExpressionInputHandle {
+  focus: () => void;
+  select: () => void;
+}
+
+/**
+ * Text input for expressions with live diagnostics (caret position, hint, quick fixes) and
+ * identifier autocomplete. Never blocks committing: invalid text is kept and reported.
+ */
+export const ExpressionInput = forwardRef<
+  ExpressionInputHandle,
+  {
+    kind: ExpressionKind;
+    grafcetId: Id | null;
+    value: string;
+    onChange: (v: string) => void;
+    onCommit: () => void;
+    onCancel: () => void;
+    onBlur?: () => void;
+    onFocus?: () => void;
+    label: string;
+    style?: CSSProperties;
+    className?: string;
+    floating?: boolean;
+    /** Open suggestions and diagnostics above the input (when it sits low in its container). */
+    dropUp?: boolean;
+    placeholder?: string;
+  }
+>(function ExpressionInput(
+  {
+    kind,
+    grafcetId,
+    value,
+    onChange,
+    onCommit,
+    onCancel,
+    onBlur,
+    onFocus,
+    label,
+    style,
+    className,
+    floating,
+    dropUp,
+    placeholder,
+  },
+  ref,
+) {
+  const { t } = useTranslation();
+  const env = useExprEnv(grafcetId);
+  const steps = useDoc((s) => (grafcetId ? s.project.grafcets[grafcetId]?.steps : undefined));
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [caret, setCaret] = useState(value.length);
+  const [active, setActive] = useState(0);
+  const [popupClosed, setPopupClosed] = useState(false);
+  // Caret to restore after a programmatic edit; applied before the browser handles the next key.
+  const pendingCaret = useRef<number | null>(null);
+  useLayoutEffect(() => {
+    if (pendingCaret.current === null) return;
+    inputRef.current?.setSelectionRange(pendingCaret.current, pendingCaret.current);
+    pendingCaret.current = null;
+  }, [value]);
+  const listId = useId();
+  const errId = useId();
+
+  useImperativeHandle(ref, () => ({
+    focus: () => inputRef.current?.focus({ preventScroll: true }),
+    select: () => inputRef.current?.select(),
+  }));
+
+  const diagnostics: Diagnostic[] = useMemo(
+    () => (value.trim() ? analyze(kind, value, env).diagnostics : []),
+    [kind, value, env],
+  );
+
+  const ident = kind === 'forcing' ? null : identifierAt(value, caret);
+  const suggestions: Suggestion[] = useMemo(() => {
+    if (!ident) return [];
+    const p = ident.prefix.toLowerCase();
+    const vars = [...env.variables.values()]
+      .filter((v) => v.name.toLowerCase().startsWith(p) && v.name.toLowerCase() !== p)
+      .sort((a, b) => rank(a, kind) - rank(b, kind) || a.name.localeCompare(b.name))
+      .map((v) => ({
+        text: v.name,
+        detail: `${v.type} · ${t(`variables.directions.${v.direction}`)}`,
+      }));
+    const stepRefs =
+      kind === 'condition' && /^x\d*$/i.test(ident.prefix) && steps
+        ? Object.values(steps)
+            .map((s) => `X${s.number}`)
+            .filter((x) => x.toLowerCase().startsWith(p) && x.toLowerCase() !== p)
+            .sort((a, b) => a.length - b.length || a.localeCompare(b))
+            .map((x) => ({ text: x, detail: t('expr.stepActivity') }))
+        : [];
+    return [...vars, ...stepRefs].slice(0, 8);
+  }, [ident, env, steps, kind, t]);
+  const open = !popupClosed && suggestions.length > 0;
+
+  const replaceRange = (start: number, end: number, text: string) => {
+    const next = value.slice(0, start) + text + value.slice(end);
+    onChange(next);
+    const pos = start + text.length;
+    setCaret(pos);
+    pendingCaret.current = pos;
+  };
+
+  const accept = (s: Suggestion | undefined) => {
+    if (!s || !ident) return;
+    replaceRange(ident.start, ident.end, s.text);
+    setPopupClosed(true);
+  };
+
+  const first = diagnostics[0];
+
+  return (
+    <div className={cx(!floating && 'relative', className)} style={style}>
+      <input
+        ref={inputRef}
+        value={value}
+        placeholder={placeholder}
+        aria-label={label}
+        aria-invalid={!!first}
+        aria-describedby={first ? errId : undefined}
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded={open}
+        aria-controls={open ? listId : undefined}
+        aria-activedescendant={open ? `${listId}-${active}` : undefined}
+        spellCheck={false}
+        autoComplete="off"
+        className={cx(
+          'h-full w-full rounded border bg-surface px-1.5 font-mono text-text outline-none focus:ring-2 focus:ring-focus',
+          first
+            ? 'border-danger'
+            : floating
+              ? 'border-accent'
+              : 'border-border focus:border-accent',
+          floating && 'shadow-pop',
+        )}
+        onChange={(e) => {
+          onChange(e.target.value);
+          setCaret(e.target.selectionStart ?? e.target.value.length);
+          setPopupClosed(false);
+          setActive(0);
+        }}
+        onSelect={(e) => setCaret(e.currentTarget.selectionStart ?? 0)}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        onKeyDown={(e) => {
+          e.stopPropagation();
+          if (open && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+            e.preventDefault();
+            setActive(
+              (a) =>
+                (a + (e.key === 'ArrowDown' ? 1 : suggestions.length - 1)) % suggestions.length,
+            );
+          } else if (open && (e.key === 'Tab' || e.key === 'Enter')) {
+            e.preventDefault();
+            accept(suggestions[active]);
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            if (open) setPopupClosed(true);
+            else onCancel();
+          } else if (e.key === 'Enter') {
+            e.preventDefault();
+            onCommit();
+          }
+        }}
+      />
+      {open && (
+        <ul
+          id={listId}
+          role="listbox"
+          aria-label={t('expr.suggestions')}
+          onMouseDown={(e) => e.preventDefault()}
+          className={cx(
+            'absolute left-0 z-30 max-h-60 min-w-48 overflow-auto rounded-md border border-border bg-surface p-1 text-sm shadow-pop',
+            dropUp ? 'bottom-full mb-1' : 'top-full mt-1',
+          )}
+        >
+          {suggestions.map((s, i) => (
+            <li
+              key={s.text}
+              id={`${listId}-${i}`}
+              role="option"
+              aria-selected={i === active}
+              onMouseMove={() => setActive(i)}
+              onClick={() => accept(s)}
+              className={cx(
+                'flex cursor-default items-center gap-3 rounded px-2 py-1',
+                i === active && 'bg-accent-soft',
+              )}
+            >
+              <span className="font-mono">{s.text}</span>
+              <span className="ml-auto text-xs text-muted">{s.detail}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {first && !open && (
+        <DiagnosticBox
+          id={errId}
+          d={first}
+          more={diagnostics.length - 1}
+          source={value}
+          floating={!!floating}
+          dropUp={!!dropUp}
+          onReplace={replaceRange}
+        />
+      )}
+    </div>
+  );
+});
+
+function DiagnosticBox({
+  id,
+  d,
+  more,
+  source,
+  floating,
+  dropUp,
+  onReplace,
+}: {
+  id: string;
+  d: Diagnostic;
+  more: number;
+  source: string;
+  floating: boolean;
+  dropUp: boolean;
+  onReplace: (start: number, end: number, text: string) => void;
+}) {
+  const { t } = useTranslation();
+  const params: Record<string, string> = { ...d.params };
+  if (d.create) {
+    params.type = d.create.type;
+    params.direction = t(`variables.directions.${d.create.direction}`).toLowerCase();
+  }
+  const end = Math.max(d.end, d.start + 1);
+  return (
+    <div
+      id={id}
+      role="alert"
+      onMouseDown={(e) => e.preventDefault()}
+      className={cx(
+        'z-20 mt-1 flex flex-col gap-1 rounded-md border border-danger bg-surface p-2 text-xs text-text',
+        floating ? 'absolute left-0 w-max max-w-[440px] shadow-pop' : '',
+        floating && (dropUp ? 'bottom-full mb-1' : 'top-full'),
+      )}
+    >
+      <p className="font-medium text-danger">{tDynamic(t, `expr.errors.${d.code}`, params)}</p>
+      {source && (
+        <pre className="overflow-x-auto font-mono whitespace-pre">
+          {source.slice(0, d.start)}
+          <mark className="rounded-sm bg-danger-soft text-danger underline decoration-wavy">
+            {source.slice(d.start, end) || ' '}
+          </mark>
+          {source.slice(end)}
+        </pre>
+      )}
+      {d.hint && <p className="text-muted">{tDynamic(t, `expr.hints.${d.hint}`, params)}</p>}
+      <div className="flex flex-wrap gap-1">
+        {d.code === 'unknownIdentifier' && d.params.suggestion && (
+          <button
+            type="button"
+            className="rounded border border-border px-2 py-0.5 hover:bg-surface-2"
+            onClick={() => onReplace(d.start, d.end, d.params.suggestion!)}
+          >
+            {t('expr.fixes.use', { name: d.params.suggestion })}
+          </button>
+        )}
+        {d.create && (
+          <button
+            type="button"
+            className="rounded border border-border px-2 py-0.5 hover:bg-surface-2"
+            onClick={() => createVariable(d.create!.name, d.create!.type, d.create!.direction)}
+          >
+            {tDynamic(t, 'expr.fixes.create', params)}
+          </button>
+        )}
+        {d.code === 'empty' && d.hint === 'useOne' && (
+          <button
+            type="button"
+            className="rounded border border-border px-2 py-0.5 hover:bg-surface-2"
+            onClick={() => onReplace(0, source.length, '1')}
+          >
+            {t('expr.fixes.useOne')}
+          </button>
+        )}
+      </div>
+      {more > 0 && <p className="text-muted">{t('expr.more', { count: more })}</p>}
+    </div>
+  );
+}

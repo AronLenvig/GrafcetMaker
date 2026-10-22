@@ -7,6 +7,7 @@ import {
   saveProjectAs,
   downloadCopy,
 } from '@/app/persistence/session';
+import { showBottomTab } from '@/panels/BottomPanel';
 import { useTheme } from '@/theme/theme';
 import { fitToContent, setZoom, zoomBy } from '../canvas/viewport';
 import { doc } from '../store/document';
@@ -346,6 +347,18 @@ export const COMMANDS: Command[] = [
     label: 'view.themeDark',
     group: 'view',
     run: () => useTheme.getState().setMode('dark'),
+  },
+  {
+    id: 'view.toggleTextbook',
+    label: 'view.toggleTextbook',
+    group: 'view',
+    run: () => setPrefs({ textbookNotation: !usePrefs.getState().textbookNotation }),
+  },
+  {
+    id: 'view.showVariables',
+    label: 'view.showVariables',
+    group: 'view',
+    run: () => showBottomTab('variables'),
   },
   {
     id: 'view.palette',

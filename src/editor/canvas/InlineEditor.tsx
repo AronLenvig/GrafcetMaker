@@ -9,9 +9,12 @@ import {
   transitionTextAnchor,
   type GrafcetGeometry,
 } from '@/core/layout/geometry';
+import { actionTextKind, type ExpressionKind } from '@/core/expr/check';
 import type { Grafcet } from '@/core/model/types';
+import { ExpressionInput, type ExpressionInputHandle } from '@/panels/ExpressionInput';
 import { editActive } from '../commands/edit';
 import { ui, useUi, type EditTarget, type Viewport } from '../store/uiStore';
+import { canvasSize } from './viewport';
 
 function focusCanvas(): void {
   document.querySelector<HTMLElement>('[data-canvas]')?.focus({ preventScroll: true });
@@ -177,6 +180,14 @@ function placement(
   return null;
 }
 
+/** Expression kind edited by a field, or null for plain text (numbers, labels, comments). */
+function expressionKind(g: Grafcet, t: EditTarget): ExpressionKind | null {
+  if (t.field === 'receptivity' || t.field === 'condition') return 'condition';
+  const a = g.actions[t.id];
+  if (a && t.field === 'text') return actionTextKind(a.kind);
+  return null;
+}
+
 function EditorField({
   g,
   geom,
@@ -195,9 +206,17 @@ function EditorField({
   const inputRef = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
   const done = useRef(false);
 
+  const exprRef = useRef<ExpressionInputHandle>(null);
+
   useEffect(() => {
-    inputRef.current?.focus();
-    inputRef.current?.select();
+    // preventScroll: the canvas container must never scroll to reveal the editor.
+    if (inputRef.current) {
+      inputRef.current.focus({ preventScroll: true });
+      inputRef.current.select();
+    } else {
+      exprRef.current?.focus();
+      exprRef.current?.select();
+    }
   }, []);
 
   const place = placement(g, geom, target, viewport, value);
@@ -259,6 +278,33 @@ function EditorField({
     spellCheck: false,
     autoComplete: 'off',
   };
+
+  const exprKind = expressionKind(g, target);
+  if (exprKind) {
+    return (
+      <ExpressionInput
+        ref={exprRef}
+        kind={exprKind}
+        grafcetId={g.id}
+        value={value}
+        onChange={setValue}
+        onCommit={() => finish(true)}
+        onCancel={() => finish(false)}
+        onBlur={common.onBlur}
+        label={common['aria-label']}
+        floating
+        dropUp={place.top > canvasSize.height / 2}
+        className="absolute z-10"
+        style={{
+          left: place.left,
+          top: place.top,
+          width: place.width,
+          height: place.height,
+          fontSize: style.fontSize,
+        }}
+      />
+    );
+  }
 
   return (
     <>

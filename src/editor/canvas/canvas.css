@@ -158,3 +158,17 @@
 .gm-canvas[data-tool='comment'] {
   cursor: copy;
 }
+
+/* Expression overbars (NOT) and the marker under unparseable expressions. */
+.gm-bar {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.1;
+}
+
+.gm-invalid {
+  fill: none;
+  stroke: var(--danger);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 2;
+}

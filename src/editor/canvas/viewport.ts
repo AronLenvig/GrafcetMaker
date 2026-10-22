@@ -7,6 +7,7 @@ export const MIN_ZOOM = 0.1;
 export const MAX_ZOOM = 4;
 const DEFAULT_VIEWPORT: Viewport = { x: 0, y: 0, zoom: 1 };
 const FIT_PADDING = 40;
+const REVEAL_MARGIN = 80;
 
 /** Size of the canvas element in CSS px, kept up to date by the Canvas' ResizeObserver. */
 export const canvasSize = { width: 800, height: 600 };
@@ -81,8 +82,13 @@ export function revealElements(gid: Id, ids: Iterable<Id>): void {
   const v = getViewport(gid);
   const vw = canvasSize.width / v.zoom;
   const vh = canvasSize.height / v.zoom;
+  // Keep a margin so editors and popups next to the element stay on screen.
+  const m = REVEAL_MARGIN / v.zoom;
   const inside =
-    r.x >= v.x && r.y >= v.y && r.x + r.width <= v.x + vw && r.y + r.height <= v.y + vh;
+    r.x >= v.x + m &&
+    r.y >= v.y + m &&
+    r.x + r.width <= v.x + vw - m &&
+    r.y + r.height <= v.y + vh - m;
   if (inside) return;
   if (r.width + (2 * FIT_PADDING) / v.zoom <= vw && r.height + (2 * FIT_PADDING) / v.zoom <= vh) {
     setViewport(gid, { ...v, x: r.x + r.width / 2 - vw / 2, y: r.y + r.height / 2 - vh / 2 });

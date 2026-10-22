@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
 
 async function appendStep(page: Page, receptivity: string) {
   await page.keyboard.press('Enter');
-  await expect(page.getByRole('textbox', { name: 'Receptivity' })).toBeFocused();
+  await expect(page.getByRole('combobox', { name: 'Receptivity' })).toBeFocused();
   await page.keyboard.type(receptivity);
   await page.keyboard.press('Enter');
 }
@@ -58,7 +58,7 @@ test('create a sequence, save it, reopen it', async ({ page }, testInfo) => {
   await page.keyboard.press('Control+o');
   await (await chooserPromise).setFiles(path);
   await expect(page.locator('[data-el="step"]')).toHaveCount(3);
-  await expect(page.locator('[data-el="transition"]').first()).toContainText('start * /stop');
+  await expect(page.locator('[data-el="transition"]').first()).toContainText('start·stop'); // textbook notation: NOT drawn as an overbar
 });
 
 test('unsaved work is offered back after a reload', async ({ page }) => {

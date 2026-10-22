@@ -56,6 +56,32 @@ Choose the kind of each action in the properties panel:
 - **Forcing order**: forces another partial grafcet into a situation, e.g. `G2{8}`. Drawn with a
   double frame.
 
+### Receptivities and expressions
+
+Type receptivities in plain ASCII: `*` for AND, `+` for OR, `/` for NOT, e.g. `start * /stop`.
+Also available: edges `↑a` / `RE a`, `↓a` / `FE a`, step activity `X3`, timers `3s/X2`
+(true 3 s after step 2 became active) and `2s/a/5s`, comparisons `C >= 10`, and constants `1`
+(always true) and `0`. By default the diagram shows the **textbook notation** (`·`, `+`, NOT as
+an overbar); turn it off in **View › Textbook notation** to see exactly what you typed.
+
+While you type, the editor:
+
+- suggests variables (and `Xn` step references) — use the arrow keys and `Enter` or `Tab`;
+- explains any problem right under the input, marks where it is, and offers fixes:
+  **Use “Start”** for a misspelt name, **Create BOOL input “Start”** for a new one.
+
+You can always commit an expression with a problem; it is shown with a dashed red underline. See
+`docs/semantics.md` for the exact grammar.
+
+### Variables
+
+The **Variables** tab of the bottom panel lists inputs, outputs and internal variables with their
+type (BOOL, INT, REAL, TIME), initial value, PLC address and comment, and how many expressions use
+each one. Edit any cell in place (`Enter` or leaving the cell commits, `Escape` reverts).
+Renaming a variable updates every receptivity, action and condition that uses it, in one undo
+step. Names are not case-sensitive. Copying elements to another project brings the variables they
+use along.
+
 ### Partial grafcets
 
 Use the `+` next to the tabs to add a partial grafcet; its first step number continues after the

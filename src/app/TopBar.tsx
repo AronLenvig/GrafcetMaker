@@ -144,6 +144,12 @@ export function TopBar() {
           <Item id="view.fitSelection" />
           <MenuSeparator />
           <MenuCheckItem
+            checked={prefs.textbookNotation}
+            onCheckedChange={(v) => setPrefs({ textbookNotation: v })}
+          >
+            {t('commands.view.textbook')}
+          </MenuCheckItem>
+          <MenuCheckItem
             checked={prefs.showGrid}
             onCheckedChange={(v) => setPrefs({ showGrid: v })}
           >
@@ -168,6 +174,7 @@ export function TopBar() {
             {t('commands.view.showProperties')}
           </MenuCheckItem>
           <MenuSeparator />
+          <Item id="view.showVariables" />
           <Item id="view.palette" />
         </Menu>
         <Menu label={t('menu.help')}>

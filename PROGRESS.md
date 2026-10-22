@@ -4,7 +4,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 
 ## Current phase
 
-**Phase 2** — expression parser, variables, autocomplete.
+**Phase 3** — OR/AND structures, loops, source/sink, auto-layout.
 
 ## Phases
 
@@ -12,7 +12,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 | ----- | -------------------------------------------------------------------- | ------ |
 | 0     | Scaffold, theme, CI, model + schema, LICENSE/README                  | done   |
 | 1     | Core editor, undo, shortcuts, save/open/import (drag-drop), autosave | done   |
-| 2     | Expression parser, variables, autocomplete                           |        |
+| 2     | Expression parser, variables, autocomplete                           | done   |
 | 3     | OR/AND structures, loops, source/sink, auto-layout                   |        |
 | 4     | Validation                                                           |        |
 | 5     | Simulation                                                           |        |
@@ -53,6 +53,21 @@ Autonomous build log. Read this first in every session and resume from **Current
   download/input fallbacks, drag-and-drop open, recent files, beforeunload warning, dirty dot.
 - Playwright smoke: create sequence, save (download), reopen (file input), crash-restore, theme.
 
+### Phase 2
+
+- `core/expr`: lexer (ASCII + textbook symbols), Pratt parser with arithmetic-comparison
+  backtracking, AST with spans and ids for stateful nodes (edges/timers), parsers for
+  assignments, output names and forcing orders, memoized by source; checker with case-insensitive
+  resolution, types, `Xn` resolution across grafcets, did-you-mean (OSA distance) and
+  create-variable hints; textbook formatter (runs with stacked overbars); rename refactor.
+  Tests: precedence, every operator spelling, error positions and hints, resolution, formatting.
+- `core/model/variables.ts`: name validation, usage counts, referenced variables (copy/paste),
+  rename-everywhere, initial value parsing.
+- UI: textbook rendering with overbars drawn from monospace metrics, dashed underline for
+  unparseable text; ExpressionInput (combobox autocomplete, diagnostics with highlighted span,
+  quick fixes) in the inline editor and properties panel; bottom panel with Variables table
+  (inline editing, filter, uses, delete confirm); View › Textbook notation.
+
 ## Decisions
 
 - TypeScript pinned to 6.0.x: typescript-eslint does not support TS 7 (native port) yet.
@@ -67,6 +82,9 @@ Autonomous build log. Read this first in every session and resume from **Current
 - New partial grafcets start numbering at the next multiple of 10 so cross-grafcet `Xn`
   references stay unambiguous.
 - Clipboard: JSON text via copy/paste events (no permission prompt), in-memory fallback.
+- Comparisons read greedily (`a + C > 3` = `(a + C) > 3`, flagged with a fix hint); see
+  `docs/semantics.md`.
+- Expressions with problems can always be committed; they are reported, never blocked.
 - Commits go directly to `main` (greenfield repo, as instructed by the build spec); never pushed.
 
 ## Known gaps

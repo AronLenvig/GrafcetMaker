@@ -173,6 +173,11 @@ export function Canvas({ readOnly = false }: { readOnly?: boolean }) {
       aria-roledescription={t('canvas.roleDescription')}
       onKeyDown={handlers.onKeyDown}
       onKeyUp={handlers.onKeyUp}
+      // Browsers scroll overflow:hidden boxes to reveal focused children; the viewport owns panning.
+      onScroll={(e) => {
+        e.currentTarget.scrollTop = 0;
+        e.currentTarget.scrollLeft = 0;
+      }}
       data-canvas
     >
       <svg

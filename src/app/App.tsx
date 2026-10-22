@@ -7,6 +7,7 @@ import { installShortcuts } from '@/editor/commands/shortcuts';
 import { doc } from '@/editor/store/document';
 import { isDirty } from '@/editor/store/documentStore';
 import { Toolbar } from '@/editor/tools/Toolbar';
+import { BottomPanel } from '@/panels/BottomPanel';
 import { PropertiesPanel } from '@/panels/PropertiesPanel';
 import { CommandPalette } from './CommandPalette';
 import { DialogHost } from './dialogs/DialogHost';
@@ -94,6 +95,23 @@ export function App() {
             <GrafcetTabs />
             <div className="min-h-0 flex-1">
               <Canvas />
+            </div>
+            {!prefs.bottomCollapsed && (
+              <Splitter
+                orientation="horizontal"
+                value={prefs.bottomHeight}
+                min={120}
+                max={Math.max(160, window.innerHeight - 220)}
+                sign={-1}
+                label={t('panels.resize')}
+                onChange={(v) => setPrefs({ bottomHeight: v })}
+              />
+            )}
+            <div
+              className="shrink-0"
+              style={{ height: prefs.bottomCollapsed ? 32 : prefs.bottomHeight }}
+            >
+              <BottomPanel />
             </div>
           </main>
           {!prefs.rightCollapsed && (

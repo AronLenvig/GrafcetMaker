@@ -5,6 +5,8 @@ import {
   HandIcon,
   PointerIcon,
   RedoIcon,
+  FeedbackIcon,
+  HelpIcon,
   StepIcon,
   TransitionIcon,
   UndoIcon,
@@ -80,6 +82,26 @@ export function Toolbar() {
           <RedoIcon size={18} />
         </IconButton>
       </Tip>
+      <RailFooter />
     </nav>
+  );
+}
+
+/** Bottom of the left rail (also shown while simulating): help and feedback. */
+export function RailFooter() {
+  const { t } = useTranslation();
+  return (
+    <div className="mt-auto flex flex-col items-center gap-1">
+      <Tip label={t('commands.help.open')} keys="F1">
+        <IconButton label={t('commands.help.open')} onClick={() => runCommand('help.open')}>
+          <HelpIcon size={18} />
+        </IconButton>
+      </Tip>
+      <Tip label={t('commands.help.feedback')}>
+        <IconButton label={t('commands.help.feedback')} onClick={() => runCommand('help.feedback')}>
+          <FeedbackIcon size={18} />
+        </IconButton>
+      </Tip>
+    </div>
   );
 }

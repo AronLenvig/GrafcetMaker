@@ -40,6 +40,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Code generation: Structured Text (IEC 61131-3 function block, optional search for stability per
   scan) and PLCopen TC6 XML (SFC programs with N/P1/P0/S/R/D/L qualifiers), from the Export dialog,
   with a list of what the target cannot express.
+- Split view (Ctrl+\\): two grafcets side by side or stacked, each pane with its own grafcet
+  picker; both show the simulation live.
+- Send feedback: a form in the bottom-left corner that opens a prefilled email to the author
+  (configurable with `VITE_FEEDBACK_EMAIL`); nothing is sent by the app.
 - Help center (F1): getting-started tutorial, GRAFCET basics with diagrams, guides for
   expressions, actions, editing, variables, simulation, hierarchy and files, glossary and
   troubleshooting; search; shareable `#help/<page>` links.

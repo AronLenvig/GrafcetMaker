@@ -285,3 +285,17 @@ export const ArrowLeftIcon = (p: IconProps) => (
     <path d="M19 12H5M11 6l-6 6 6 6" />
   </Icon>
 );
+
+export const FeedbackIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.6A8 8 0 1 1 21 12z" />
+    <path d="M9 10.5h6M9 13.5h4" />
+  </Icon>
+);
+
+export const HelpIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8M12 17.2v.3" />
+  </Icon>
+);

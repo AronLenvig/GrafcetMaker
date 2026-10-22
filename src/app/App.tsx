@@ -1,12 +1,12 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { lazy, Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Canvas } from '@/editor/canvas/Canvas';
+import { CanvasArea } from '@/editor/canvas/CanvasArea';
 import { GrafcetTabs } from '@/editor/canvas/GrafcetTabs';
 import { installShortcuts } from '@/editor/commands/shortcuts';
 import { doc } from '@/editor/store/document';
 import { isDirty } from '@/editor/store/documentStore';
-import { Toolbar } from '@/editor/tools/Toolbar';
+import { RailFooter, Toolbar } from '@/editor/tools/Toolbar';
 import { startValidation } from '@/editor/validation/problems';
 import { BottomPanel } from '@/panels/BottomPanel';
 import { RightPanel } from '@/panels/RightPanel';
@@ -97,15 +97,21 @@ export function App() {
       <div className="flex h-full flex-col">
         {simulating ? <SimBar /> : <TopBar />}
         <div className="flex min-h-0 flex-1">
-          {!prefs.leftCollapsed && !simulating && (
+          {!prefs.leftCollapsed && (
             <div className="w-12 shrink-0 border-r border-border bg-surface">
-              <Toolbar />
+              {simulating ? (
+                <div className="flex h-full flex-col items-center py-2">
+                  <RailFooter />
+                </div>
+              ) : (
+                <Toolbar />
+              )}
             </div>
           )}
           <main className="flex min-w-0 flex-1 flex-col" aria-label={t('canvas.region')}>
             <GrafcetTabs />
             <div className="min-h-0 flex-1">
-              <Canvas />
+              <CanvasArea />
             </div>
             {!prefs.bottomCollapsed && (
               <Splitter

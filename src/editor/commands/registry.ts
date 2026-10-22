@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { closeSplit, focusOtherPane, openSplit, swapPanes } from './split';
 import { openHelp, toggleHelp } from '@/app/help/helpStore';
 import { setPrefs, showBottomTab, usePrefs } from '@/app/prefs';
 import {
@@ -64,7 +65,8 @@ export interface Command {
 }
 
 /** App-level dialogs opened by commands. */
-export type AppDialog = 'localHistory' | 'shortcuts' | 'about' | 'export' | 'settings' | null;
+export type AppDialog =
+  'localHistory' | 'shortcuts' | 'about' | 'export' | 'settings' | 'feedback' | null;
 export const useAppDialog = create<{ open: AppDialog }>(() => ({ open: null }));
 export const openAppDialog = (open: AppDialog) => useAppDialog.setState({ open });
 
@@ -512,6 +514,43 @@ export const COMMANDS: Command[] = [
     run: () => showBottomTab('variables'),
   },
   {
+    id: 'view.splitRight',
+    label: 'view.splitRight',
+    group: 'view',
+    keys: ['Mod+\\'],
+    global: true,
+    run: () => openSplit('columns'),
+  },
+  {
+    id: 'view.splitDown',
+    label: 'view.splitDown',
+    group: 'view',
+    run: () => openSplit('rows'),
+  },
+  {
+    id: 'view.closeSplit',
+    label: 'view.closeSplit',
+    group: 'view',
+    run: closeSplit,
+    enabled: () => !!useUi.getState().split,
+  },
+  {
+    id: 'view.focusOtherPane',
+    label: 'view.focusOtherPane',
+    group: 'view',
+    keys: ['Mod+Alt+\\'],
+    global: true,
+    run: focusOtherPane,
+    enabled: () => !!useUi.getState().split,
+  },
+  {
+    id: 'view.swapPanes',
+    label: 'view.swapPanes',
+    group: 'view',
+    run: swapPanes,
+    enabled: () => !!useUi.getState().split,
+  },
+  {
     id: 'view.toggleHints',
     label: 'view.toggleHints',
     group: 'view',
@@ -612,6 +651,12 @@ export const COMMANDS: Command[] = [
     run: () => openAppDialog('shortcuts'),
   },
   { id: 'help.about', label: 'help.about', group: 'help', run: () => openAppDialog('about') },
+  {
+    id: 'help.feedback',
+    label: 'help.feedback',
+    group: 'help',
+    run: () => openAppDialog('feedback'),
+  },
   {
     id: 'file.settings',
     label: 'file.settings',

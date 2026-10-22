@@ -16,7 +16,7 @@ import type { Grafcet } from '@/core/model/types';
 import { ExpressionInput, type ExpressionInputHandle } from '@/panels/ExpressionInput';
 import { editActive } from '../commands/edit';
 import { ui, useUi, type EditTarget, type Viewport } from '../store/uiStore';
-import { canvasSize } from './viewport';
+import { canvasSizeOf } from './viewport';
 
 function focusCanvas(): void {
   document.querySelector<HTMLElement>('[data-canvas]')?.focus({ preventScroll: true });
@@ -314,11 +314,11 @@ function EditorField({
           onBlur={onBlur}
           label={label}
           floating
-          dropUp={box.top > canvasSize.height / 2}
+          dropUp={box.top > canvasSizeOf(g.id).height / 2}
           className="absolute z-10"
           style={style}
         />
-        {box.top <= canvasSize.height / 2 ? null : hint}
+        {box.top <= canvasSizeOf(g.id).height / 2 ? null : hint}
       </>
     );
   }

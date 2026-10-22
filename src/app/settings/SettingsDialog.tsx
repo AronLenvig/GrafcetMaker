@@ -330,6 +330,17 @@ function About({ onClose }: { onClose: () => void }) {
           {t('settings.open')}
         </Button>
       </Row>
+      <Row label={t('commands.help.feedback')} help={t('settings.feedbackHelp')}>
+        <Button
+          size="sm"
+          onClick={() => {
+            onClose();
+            openAppDialog('feedback');
+          }}
+        >
+          {t('settings.open')}
+        </Button>
+      </Row>
       <Row label={t('settings.privacy')} help={t('settings.privacyHelp')}>
         <span />
       </Row>

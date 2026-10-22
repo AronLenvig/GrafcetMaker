@@ -258,6 +258,13 @@ export function TopBar() {
           <Item id="view.zoomReset" />
           <Item id="view.fit" />
           <Item id="view.fitSelection" />
+          <SubMenu label={t('split.menu')}>
+            <Item id="view.splitRight" />
+            <Item id="view.splitDown" />
+            <Item id="view.focusOtherPane" />
+            <Item id="view.swapPanes" />
+            <Item id="view.closeSplit" />
+          </SubMenu>
           <Item id="view.openChild" />
           <Item id="view.goToParent" />
           <MenuSeparator />
@@ -316,6 +323,7 @@ export function TopBar() {
           <Item id="help.expressions" />
           <MenuSeparator />
           <Item id="help.shortcuts" />
+          <Item id="help.feedback" />
           <Item id="help.about" />
         </Menu>
       </nav>

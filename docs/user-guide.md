@@ -258,6 +258,12 @@ for each row) before anything changes, and the import is one undo step.
 
 ## Navigating
 
+- **Split view** (`Ctrl+\`, **View › Split view**, or right-click a tab › **Open to the side** /
+  **Open below**) shows two grafcets at once, side by side or one above the other. Each pane has a
+  header to choose its grafcet; the pane you click becomes the active one (highlighted header):
+  the tabs, the selection, the keyboard and the properties panel act on it. The other pane still
+  pans, zooms and shows the simulation live, so you can watch two grafcets interact. `Ctrl+Alt+\`
+  focuses the other pane; ⇄ swaps them; × closes one. Drag the bar between them to resize.
 - Scroll to pan, `Ctrl`+scroll (or pinch) to zoom around the pointer, `Space`+drag or the middle
   mouse button to pan, or use the pan tool (`H`).
 - `+` / `-` zoom, `Shift+1` fits everything, `Shift+2` fits the selection, `Shift+0` is 100 %.
@@ -277,6 +283,14 @@ for each row) before anything changes, and the import is one undo step.
 - **File › Local history** lists snapshots kept in the browser (taken on save, every few minutes of
   editing and before a project is closed). Restoring one opens it as unsaved changes.
 - **File › Download a copy** downloads the project without changing which file Save writes to.
+
+## Feedback
+
+**Help › Send feedback…** (or the speech-bubble button at the bottom left) composes a message —
+idea, problem, question or praise — and opens it in your email app, addressed to the author, for
+you to review and send. Optionally it adds the app version and browser details; it never includes
+project data. GrafcetMaker itself sends nothing. Self-hosted builds can change the address with
+`VITE_FEEDBACK_EMAIL` at build time.
 
 ## Settings
 

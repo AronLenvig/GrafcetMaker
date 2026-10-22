@@ -158,6 +158,12 @@ Autonomous build log. Read this first in every session and resume from **Current
   Settings.
 - Settings dialog (Ctrl+,): appearance, editor, simulation defaults (speed, flash, step timers),
   data and storage (usage, backup, clear history / recents, reset preferences), about.
+- Split view: `useUi.split` (two panes, focus, orientation) kept in sync with
+  `activeGrafcetId`; Canvas takes its grafcet as a prop, canvas sizes per grafcet; pane headers
+  with grafcet picker, swap, close; tab context menu; View › Split view; ratio in prefs.
+- Feedback: dialog composing a mailto: to `FEEDBACK_EMAIL` (`src/app/config.ts`, overridable with
+  `VITE_FEEDBACK_EMAIL`), copy fallback, optional app/browser details; rail footer with Help and
+  Feedback (also shown while simulating).
 - Help center (F1, `#help/<page>`): docked panel, Markdown pages in `docs/help` rendered by a safe
   subset parser, real diagrams drawn by the SVG exporter, search, prev/next; tests check links,
   anchors and figures.
@@ -202,6 +208,9 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Help pages are plain Markdown in `docs/help` (readable on GitHub too), bundled into the lazy
   help chunk; figures are named builders in `app/help/figures.ts` (`<!-- figure: id | caption -->`),
   shown as `<img>` of exporter SVG so no HTML is ever injected.
+- Feedback uses mailto: (no backend, no network calls, nothing sent without the user's email app).
+- Split view keeps one active grafcet (the focused pane) so every command, the properties panel and
+  validation navigation work unchanged.
 - The help center is a docked, non-modal panel so beginners can follow a tutorial while drawing.
 - Variable table windowing: fixed 34 px rows above 120 rows; a cell scrolled out of the window
   commits its pending edit.

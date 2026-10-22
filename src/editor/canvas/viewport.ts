@@ -9,8 +9,19 @@ const DEFAULT_VIEWPORT: Viewport = { x: 0, y: 0, zoom: 1 };
 const FIT_PADDING = 40;
 const REVEAL_MARGIN = 80;
 
-/** Size of the canvas element in CSS px, kept up to date by the Canvas' ResizeObserver. */
-export const canvasSize = { width: 800, height: 600 };
+/** Size in CSS px of the canvas showing each grafcet, kept up to date by its ResizeObserver. */
+const sizes = new Map<Id, { width: number; height: number }>();
+let lastSize = { width: 800, height: 600 };
+
+export function setCanvasSize(gid: Id, size: { width: number; height: number }): void {
+  sizes.set(gid, size);
+  lastSize = size;
+}
+
+/** The size of the canvas showing `gid` (or of the last canvas measured, before it is shown). */
+export function canvasSizeOf(gid: Id): { width: number; height: number } {
+  return sizes.get(gid) ?? lastSize;
+}
 
 const clampZoom = (z: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z));
 
@@ -39,7 +50,8 @@ export function zoomAt(gid: Id, factor: number, screen: Point): void {
 }
 
 export function zoomBy(gid: Id, factor: number): void {
-  zoomAt(gid, factor, { x: canvasSize.width / 2, y: canvasSize.height / 2 });
+  const size = canvasSizeOf(gid);
+  zoomAt(gid, factor, { x: size.width / 2, y: size.height / 2 });
 }
 
 export function setZoom(gid: Id, zoom: number): void {
@@ -52,6 +64,7 @@ export function panBy(gid: Id, dxScreen: number, dyScreen: number): void {
 }
 
 function showRect(gid: Id, r: Rect, maxZoom: number): void {
+  const canvasSize = canvasSizeOf(gid);
   const w = Math.max(1, canvasSize.width - 2 * FIT_PADDING);
   const h = Math.max(1, canvasSize.height - 2 * FIT_PADDING);
   const zoom = clampZoom(Math.min(w / Math.max(r.width, 1), h / Math.max(r.height, 1), maxZoom));
@@ -80,6 +93,7 @@ export function revealElements(gid: Id, ids: Iterable<Id>): void {
   const r = boundsOf(gid, ids);
   if (!r) return;
   const v = getViewport(gid);
+  const canvasSize = canvasSizeOf(gid);
   const vw = canvasSize.width / v.zoom;
   const vh = canvasSize.height / v.zoom;
   // Keep a margin so editors and popups next to the element stay on screen.
@@ -100,5 +114,6 @@ export function revealElements(gid: Id, ids: Iterable<Id>): void {
 /** Center of the visible area in diagram coordinates. */
 export function viewCenter(gid: Id): Point {
   const v = getViewport(gid);
-  return screenToDiagram(v, { x: canvasSize.width / 2, y: canvasSize.height / 2 });
+  const size = canvasSizeOf(gid);
+  return screenToDiagram(v, { x: size.width / 2, y: size.height / 2 });
 }

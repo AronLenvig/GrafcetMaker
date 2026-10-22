@@ -1,4 +1,5 @@
 import * as ContextMenu from '@radix-ui/react-context-menu';
+import { openSplit } from '../commands/split';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Id } from '@/core/model/types';
@@ -159,6 +160,21 @@ export function GrafcetTabs() {
                     onSelect={() => moveGrafcet(gid, 1)}
                   >
                     {t('grafcet.moveRight')}
+                  </ContextMenu.Item>
+                  <ContextMenu.Separator className="my-1 h-px bg-border" />
+                  <ContextMenu.Item
+                    className={itemClass}
+                    disabled={gid === active}
+                    onSelect={() => openSplit('columns', gid)}
+                  >
+                    {t('split.openToSide')}
+                  </ContextMenu.Item>
+                  <ContextMenu.Item
+                    className={itemClass}
+                    disabled={gid === active}
+                    onSelect={() => openSplit('rows', gid)}
+                  >
+                    {t('split.openBelow')}
                   </ContextMenu.Item>
                   <ContextMenu.Separator className="my-1 h-px bg-border" />
                   <ContextMenu.Item

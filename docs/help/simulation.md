@@ -46,6 +46,11 @@ stability: transitions cleared, steps activated and deactivated. Transient evolu
 crossed without stopping) are visible there. Click a cycle to see the diagram as it was at that
 moment.
 
+## Watching several grafcets
+
+In a split view (<kbd>Ctrl+\</kbd>) both panes show the simulation live: watch a production grafcet
+and its safety grafcet, or a macro-step and its expansion, side by side.
+
 ## Chronogram
 
 The **Chronogram** tab draws every variable and the steps of the open grafcet over time. Click or

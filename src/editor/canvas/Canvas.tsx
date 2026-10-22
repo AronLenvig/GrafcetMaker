@@ -9,6 +9,7 @@ import {
   type Rect,
 } from '@/core/layout/geometry';
 import { usePrefs } from '@/app/prefs';
+import type { Id } from '@/core/model/types';
 import { stateAt, useSim } from '../simulation/simStore';
 import { useDoc } from '../store/document';
 import { useUi } from '../store/uiStore';
@@ -29,7 +30,7 @@ import { Overlay } from './Overlay';
 import { SimOverlay } from './SimOverlay';
 import { pointsToPath } from './svg';
 import { useCanvasInteraction } from './useCanvasInteraction';
-import { canvasSize } from './viewport';
+import { canvasSizeOf, setCanvasSize } from './viewport';
 import { HintBar } from './HintBar';
 import { ZoomControls } from './ZoomControls';
 import './canvas.css';
@@ -64,13 +65,24 @@ function useSimDisplay() {
   }, [on, activeKey, valuesKey, executingKey, cursor, cycles]);
 }
 
-export function Canvas() {
+/**
+ * The diagram of one grafcet. In a split view the pane that is not focused still renders (and
+ * pans, zooms and simulates); its first click or focus makes it the active pane.
+ */
+export function Canvas({
+  gid,
+  focused = true,
+  onActivate,
+}: {
+  gid: Id | null;
+  focused?: boolean;
+  onActivate?: () => void;
+}) {
   const { t } = useTranslation();
   const readOnly = useUi((s) => s.mode === 'simulate');
   const sim = useSimDisplay();
   const snapshot = useSim((s) => s.snapshot);
   const cursor = useSim((s) => s.cursor);
-  const gid = useUi((s) => s.activeGrafcetId);
   const g = useDoc((s) => (gid ? s.project.grafcets[gid] : undefined));
   const viewport = useUi((s) => (gid ? s.viewports[gid] : undefined)) ?? DEFAULT_VIEWPORT;
   const tool = useUi((s) => s.tool);
@@ -78,23 +90,26 @@ export function Canvas() {
   const panning = useInteraction((s) => s.panning);
   const pending = useUi((s) => s.pending);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ width: canvasSize.width, height: canvasSize.height });
+  const [size, setSize] = useState(() => (gid ? canvasSizeOf(gid) : { width: 800, height: 600 }));
   const handlers = useCanvasInteraction(containerRef, gid, readOnly);
+  const activate = () => {
+    if (!focused) onActivate?.();
+  };
 
   useLayoutEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const update = () => {
       const r = el.getBoundingClientRect();
-      canvasSize.width = r.width;
-      canvasSize.height = r.height;
-      setSize({ width: r.width, height: r.height });
+      const next = { width: r.width, height: r.height };
+      if (gid) setCanvasSize(gid, next);
+      setSize(next);
     };
     update();
     const ro = new ResizeObserver(update);
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [gid]);
 
   const geom = useMemo(() => (g ? computeGeometry(g) : null), [g]);
 
@@ -252,6 +267,7 @@ export function Canvas() {
       aria-roledescription={t('canvas.roleDescription')}
       onKeyDown={handlers.onKeyDown}
       onKeyUp={handlers.onKeyUp}
+      onFocus={activate}
       // Browsers scroll overflow:hidden boxes to reveal focused children; the viewport owns panning.
       onScroll={(e) => {
         e.currentTarget.scrollTop = 0;
@@ -264,12 +280,18 @@ export function Canvas() {
         data-tool={tool}
         data-panning={panning}
         viewBox={`${viewport.x} ${viewport.y} ${w} ${h}`}
-        onPointerDown={handlers.onPointerDown}
+        onPointerDown={(e) => {
+          activate();
+          handlers.onPointerDown(e);
+        }}
         onPointerMove={handlers.onPointerMove}
         onPointerUp={handlers.onPointerUp}
         onPointerCancel={handlers.onPointerCancel}
         onPointerLeave={handlers.onPointerLeave}
-        onDoubleClick={handlers.onDoubleClick}
+        onDoubleClick={(e) => {
+          activate();
+          handlers.onDoubleClick(e);
+        }}
         onContextMenu={(e) => e.preventDefault()}
       >
         {showGrid && (
@@ -311,12 +333,12 @@ export function Canvas() {
             activatedAt={cursor === null ? (snapshot?.activatedAt ?? null) : null}
           />
         )}
-        {g && geom && <Overlay g={g} geom={geom} readOnly={readOnly} />}
+        {focused && g && geom && <Overlay g={g} geom={geom} readOnly={readOnly} />}
       </svg>
-      {g && geom && <InlineEditor g={g} geom={geom} viewport={viewport} />}
+      {focused && g && geom && <InlineEditor g={g} geom={geom} viewport={viewport} />}
       {gid && <ZoomControls gid={gid} zoom={viewport.zoom} />}
-      <HintBar />
-      {pending && (
+      {focused && <HintBar />}
+      {focused && pending && (
         <div
           role="status"
           className="pointer-events-none absolute top-2 left-1/2 -translate-x-1/2 rounded-md border border-accent bg-surface px-3 py-1.5 text-text shadow-pop"

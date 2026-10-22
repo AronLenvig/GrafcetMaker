@@ -33,6 +33,15 @@ npm run build
 Serve `index.html`, `sw.js` and `manifest.webmanifest` with `Cache-Control: no-cache`; files in
 `assets/` are fingerprinted and can be cached forever. See [`deploy/nginx.conf`](deploy/nginx.conf).
 
+### Configuration
+
+**Help › Send feedback** opens the user's email app with a message to the address set at build
+time (default: the author). Point it at your own team with:
+
+```sh
+VITE_FEEDBACK_EMAIL=plc-team@example.com npm run build
+```
+
 ### Docker
 
 ```sh

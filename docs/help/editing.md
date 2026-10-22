@@ -82,6 +82,14 @@ Divergences and convergences are never drawn by hand; they follow from the links
 - Double-click the project name at the top to rename the project, and a grafcet tab to rename the
   grafcet.
 
+## Two grafcets at once
+
+Press <kbd>Ctrl+\</kbd> (or **View › Split view**) to show a second grafcet next to the first, or
+right-click a tab and choose **Open to the side** or **Open below**. Each pane has its own grafcet
+picker at the top. Click in a pane to work in it: its header is highlighted, and the tabs,
+keyboard and Properties panel follow it. Drag the bar between the panes to resize them; × closes a
+pane.
+
 ## The side panel
 
 The right panel has two tabs: **Properties** of the selection (or of the grafcet and project when

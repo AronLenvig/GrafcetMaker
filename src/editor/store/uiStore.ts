@@ -17,6 +17,15 @@ export interface EditTarget {
   field: EditField;
 }
 
+/** Two grafcets side by side (columns) or one above the other (rows). */
+export interface SplitView {
+  /** Grafcet of each pane: left / top, then right / bottom. */
+  panes: [Id, Id];
+  /** The pane showing the active grafcet (where selection and commands apply). */
+  focus: 0 | 1;
+  orientation: 'columns' | 'rows';
+}
+
 export interface UiState {
   activeGrafcetId: Id | null;
   /** Selected element ids within the active grafcet. */
@@ -37,6 +46,8 @@ export interface UiState {
   mode: 'edit' | 'simulate';
   /** Variable opened in the side panel's variable list. */
   focusedVariable: Id | null;
+  /** Split view, or null for a single canvas. */
+  split: SplitView | null;
 }
 
 export const useUi = create<UiState>(() => ({
@@ -52,7 +63,24 @@ export const useUi = create<UiState>(() => ({
   pending: null,
   mode: 'edit',
   focusedVariable: null,
+  split: null,
 }));
+
+// The focused pane always shows the active grafcet: switching grafcets (tabs, navigation from
+// Problems, opening a macro-step…) changes that pane, or focuses the other one if it shows it.
+useUi.subscribe((s, prev) => {
+  if (!s.split || s.activeGrafcetId === prev.activeGrafcetId) return;
+  const { panes, focus } = s.split;
+  const gid = s.activeGrafcetId;
+  if (!gid) useUi.setState({ split: null });
+  else if (gid === panes[1 - focus])
+    useUi.setState({ split: { ...s.split, focus: focus === 0 ? 1 : 0 } });
+  else if (gid !== panes[focus]) {
+    const next: [Id, Id] = [...panes];
+    next[focus] = gid;
+    useUi.setState({ split: { ...s.split, panes: next } });
+  }
+});
 
 export const ui = {
   get: useUi.getState,

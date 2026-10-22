@@ -25,6 +25,9 @@ export function useActiveGrafcet(): Grafcet | undefined {
 
 /** Keeps UI state consistent with the document (after undo, load, delete...). */
 function reconcile(project: Project): void {
+  // A split pane whose grafcet was deleted (or a new project) closes the split.
+  const split = useUi.getState().split;
+  if (split && !split.panes.every((id) => project.grafcets[id])) useUi.setState({ split: null });
   const s = useUi.getState();
   let active = s.activeGrafcetId;
   if (!active || !project.grafcets[active]) active = project.grafcetOrder[0] ?? null;

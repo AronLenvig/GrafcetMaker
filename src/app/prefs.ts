@@ -17,6 +17,8 @@ export interface Prefs {
   snapToGrid: boolean;
   /** Contextual hints at the bottom of the canvas. */
   showHints: boolean;
+  /** Split view: share of the first pane. */
+  splitRatio: number;
   /** Simulation speed used when a simulation starts ("fast" or a factor such as "1"). */
   simSpeed: string;
   /** Simulation: briefly highlight transitions as they clear (never with reduced motion). */
@@ -40,6 +42,7 @@ export const DEFAULT_PREFS: Prefs = {
   showGrid: true,
   snapToGrid: true,
   showHints: true,
+  splitRatio: 0.5,
   simSpeed: '1',
   simFlash: true,
   simStepTimers: true,

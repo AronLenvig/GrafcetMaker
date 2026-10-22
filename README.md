@@ -78,8 +78,10 @@ To enable the feedback endpoint:
 1. Create a **private** GitHub repository for feedback, e.g. `grafcetmaker-feedback`.
 2. Create a fine-grained personal access token limited to that repository with
    **Issues: Read and write** (and nothing else).
-3. In the Worker › Settings › Variables and Secrets, add `GITHUB_REPO` (`owner/name`, text) and
-   `GITHUB_TOKEN` (secret). Deploys keep them (`keep_vars`).
+3. Set `GITHUB_REPO` (`owner/name`) under `vars` in `wrangler.jsonc`, and add the token as the
+   secret `GITHUB_TOKEN` in the Worker › Settings › Variables and Secrets (or
+   `npx wrangler secret put GITHUB_TOKEN`). Secrets survive deploys; plain variables set only in
+   the dashboard do not.
 4. Recommended: a Cloudflare rate-limiting rule on `/api/feedback` (e.g. 5 requests per minute per
    IP) against spam.
 

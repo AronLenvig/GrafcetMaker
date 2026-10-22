@@ -5,9 +5,10 @@
  * address is published and senders need no account. Nothing is stored here and the sender's IP
  * address is not forwarded.
  *
- * Settings (Worker › Settings › Variables and Secrets):
- *   GITHUB_REPO   owner/name of the private repository that receives the issues
- *   GITHUB_TOKEN  fine-grained token with "Issues: read and write" on that repository only (secret)
+ * Settings:
+ *   GITHUB_REPO   owner/name of the private repository that receives the issues (wrangler.jsonc)
+ *   GITHUB_TOKEN  fine-grained token with "Issues: read and write" on that repository only
+ *                 (secret: Worker › Settings › Variables and Secrets)
  *
  * The app asks GET first and only offers "Send" when this answers { ok: true }; on any other host
  * (on-premise, air-gapped, plain static hosting) it falls back to email or copying.

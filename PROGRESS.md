@@ -248,8 +248,8 @@ Autonomous build log. Read this first in every session and resume from **Current
   project reopens automatically on reload (dirty flag kept), autosave flushes on page hide.
 - Feedback (owner decision, after 1.0.0): anonymous, without the owner's email in the app. The
   hosted site runs as a Cloudflare Worker with static assets (`wrangler.jsonc`; `worker/index.ts`
-  runs only for `/api/*`, `worker/feedback.ts` is the endpoint, same origin, CSP unchanged) that files each message as an issue in a private GitHub repository (`GITHUB_REPO`,
-  `GITHUB_TOKEN` secrets). The app probes `GET api/feedback` once per session and falls back to
+  runs only for `/api/*`, `worker/feedback.ts` is the endpoint, same origin, CSP unchanged) that files each message as an issue in a private GitHub repository (`GITHUB_REPO` in
+  `wrangler.jsonc`, `GITHUB_TOKEN` secret). The app probes `GET api/feedback` once per session and falls back to
   mailto (`VITE_FEEDBACK_EMAIL`, empty by default) or Copy, so the static build still runs
   anywhere, air-gapped included.
 - Split view keeps one active grafcet (the focused pane) so every command, the properties panel and

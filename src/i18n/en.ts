@@ -84,6 +84,13 @@ export const en = {
     edit: 'Edit',
     editProject: 'Edit project',
     link: 'Link',
+    parallel: 'Add parallel branch',
+    alternative: 'Add alternative branch',
+    loop: 'Add loop',
+    layout: 'Auto-layout',
+    layoutSelection: 'Auto-layout selection',
+    renumber: 'Renumber steps',
+    route: 'Move loop',
     addVariable: 'Add variable',
     renameVariable: 'Rename variable',
     editVariable: 'Edit variable',
@@ -115,6 +122,7 @@ export const en = {
     region: 'Diagram',
     label: 'Grafcet {{name}}',
     roleDescription: 'GRAFCET diagram editor',
+    loopHint: 'Click the step to loop back to. Esc cancels.',
   },
   view: {
     zoomIn: 'Zoom in',
@@ -165,6 +173,16 @@ export const en = {
       action: 'Add action to step',
       step: 'Add step',
       grafcet: 'Add partial grafcet',
+      parallel: 'Parallel branch (AND)',
+      alternative: 'Alternative branch (OR)',
+      loop: 'Loop back to a step…',
+      source: 'Source transition above step',
+      sink: 'Sink transition below step',
+    },
+    arrange: {
+      layout: 'Auto-layout grafcet',
+      layoutSelection: 'Auto-layout selection',
+      renumber: 'Renumber steps',
     },
     tools: {
       select: 'Select',
@@ -321,6 +339,16 @@ export const en = {
       'GrafcetMaker hit an unexpected error. Your project is still in memory: download a recovery file, then reload.',
     download: 'Download recovery file',
     reload: 'Reload',
+  },
+  structure: {
+    loopNeedsSource:
+      'Select a step, or a transition that does not lead anywhere yet, then press L.',
+    renumberConflictTitle: 'Steps not renumbered',
+    renumberConflict:
+      'Renumbering would change what {{numbers}} refers to in another grafcet (that grafcet has its own step with the new number). Renumber or rename those steps first.',
+    renumberNothing: 'Steps are already numbered in order.',
+    renumbered_one: '{{count}} step renumbered; references updated.',
+    renumbered_other: '{{count}} steps renumbered; references updated.',
   },
   panels: {
     label: 'Panels',

@@ -42,7 +42,36 @@ A new project contains grafcet `G1` with initial step 0.
   menu names the change that will be undone.
 
 Upward links (loops) are routed along the left side and drawn with an arrow, as IEC 60848
-requires.
+requires. Drag a loop link sideways to move its lane.
+
+### Divergences, convergences and loops
+
+Divergences and convergences are never drawn by hand: they follow from the links.
+
+- **Alternative branch (OR)** — `O`. On a step: adds another outgoing transition with its own
+  step (single-line OR divergence). On a transition: adds an alternative transition between the
+  same steps (OR divergence and convergence, e.g. a bypass).
+- **Parallel branch (AND)** — `P`. On a step: adds a step in parallel with it, started by the
+  same transition and joined by the next one (double-line AND divergence and convergence). On a
+  transition: adds one more step it activates.
+- **Loop** — `L`, then click the step to go back to. From a step, a new transition is added next
+  to the existing ones; from a transition that leads nowhere yet, it is linked to the step.
+  `Esc` cancels.
+- **Source / sink transitions** (Edit menu): a transition without upstream step (above a step) or
+  without downstream step (below a step).
+- Linking by hand also creates structures: linking a second step into a transition makes an AND
+  convergence, a second transition into a step an OR convergence.
+
+### Arrange
+
+- **Edit › Auto-layout grafcet** places steps in rows (a convergence always comes after all its
+  branches), centers branches under their divergence, puts merges back in line and routes loops
+  on the left. **Auto-layout selection** does the same for the selected elements only. Layout is
+  never applied automatically and is one undo step.
+- **Edit › Renumber steps** numbers the steps of the active grafcet consecutively along the flow,
+  starting from its lowest number, and updates every `Xn` reference and forcing order that points
+  to them — in all grafcets. If that would change the meaning of a reference in another grafcet,
+  nothing is renumbered and the conflicting numbers are listed.
 
 ### Actions
 

@@ -13,6 +13,16 @@ import { fitToContent, setZoom, zoomBy } from '../canvas/viewport';
 import { doc } from '../store/document';
 import { ui, useUi, type Tool } from '../store/uiStore';
 import {
+  alternativeBranch,
+  autoLayoutActive,
+  cancelPending,
+  parallelBranch,
+  renumberActive,
+  sinkTransition,
+  sourceTransition,
+  startLoop,
+} from './structure';
+import {
   addActionToSelection,
   addGrafcet,
   addStepAtCenter,
@@ -238,6 +248,7 @@ export const COMMANDS: Command[] = [
     keys: ['Escape'],
     hidden: true,
     run: () => {
+      if (useUi.getState().pending) return cancelPending();
       ui.setTool('select');
       ui.clearSelection();
     },
@@ -259,6 +270,58 @@ export const COMMANDS: Command[] = [
     enabled: singleSelection,
   },
   { id: 'insert.step', label: 'insert.step', group: 'insert', run: addStepAtCenter },
+  {
+    id: 'insert.parallel',
+    label: 'insert.parallel',
+    group: 'insert',
+    keys: ['P'],
+    run: parallelBranch,
+    enabled: singleSelection,
+  },
+  {
+    id: 'insert.alternative',
+    label: 'insert.alternative',
+    group: 'insert',
+    keys: ['O'],
+    run: alternativeBranch,
+    enabled: singleSelection,
+  },
+  {
+    id: 'insert.loop',
+    label: 'insert.loop',
+    group: 'insert',
+    keys: ['L'],
+    run: startLoop,
+    enabled: singleSelection,
+  },
+  {
+    id: 'insert.source',
+    label: 'insert.source',
+    group: 'insert',
+    run: sourceTransition,
+    enabled: singleSelection,
+  },
+  {
+    id: 'insert.sink',
+    label: 'insert.sink',
+    group: 'insert',
+    run: sinkTransition,
+    enabled: singleSelection,
+  },
+  {
+    id: 'arrange.layout',
+    label: 'arrange.layout',
+    group: 'edit',
+    run: () => autoLayoutActive(false),
+  },
+  {
+    id: 'arrange.layoutSelection',
+    label: 'arrange.layoutSelection',
+    group: 'edit',
+    run: () => autoLayoutActive(true),
+    enabled: hasSelection,
+  },
+  { id: 'arrange.renumber', label: 'arrange.renumber', group: 'edit', run: renumberActive },
   { id: 'insert.grafcet', label: 'insert.grafcet', group: 'insert', run: () => void addGrafcet() },
 
   tool('select', 'V'),

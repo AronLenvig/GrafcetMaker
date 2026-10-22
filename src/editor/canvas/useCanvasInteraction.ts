@@ -25,6 +25,7 @@ import {
 import { doc, getProject } from '../store/document';
 import { ui, useUi } from '../store/uiStore';
 import { useInteraction, type LinkDrag } from './interactionStore';
+import { cancelPending, completeLoop } from '../commands/structure';
 import { getViewport, panBy, screenToDiagram, zoomAt } from './viewport';
 import { portPosition } from '@/core/layout/geometry';
 
@@ -34,7 +35,9 @@ type Gesture =
   | { kind: 'press'; id: Id; start: Point; startD: Point; reselect: boolean }
   | { kind: 'move'; startD: Point; applied: Point; ids: Id[] }
   | { kind: 'marquee'; startD: Point; additive: boolean }
-  | { kind: 'link'; drag: LinkDrag };
+  | { kind: 'link'; drag: LinkDrag }
+  /** Dragging the side lane of a loop link (sets the transition's routing.sideX). */
+  | { kind: 'route'; transitionId: Id; startX: number; startSide: number; moved: boolean };
 
 const DRAG_THRESHOLD = 3;
 
@@ -86,7 +89,7 @@ export function useCanvasInteraction(
 
   const cancelGesture = useCallback(() => {
     const g = gesture.current;
-    if (g.kind === 'move') doc.cancel();
+    if (g.kind === 'move' || (g.kind === 'route' && g.moved)) doc.cancel();
     gesture.current = { kind: 'idle' };
     useInteraction.setState({ marquee: null, link: null, moving: false, panning: false });
   }, []);
@@ -151,8 +154,17 @@ export function useCanvasInteraction(
     }
 
     const hit = elementAt(target);
+    const pending = useUi.getState().pending;
+    if (pending) {
+      // No compatibility mousedown: it would move focus away from the editor this opens.
+      e.preventDefault();
+      if (pending.kind === 'loop' && hit?.kind === 'step' && hit.id) completeLoop(hit.id);
+      else cancelPending();
+      return;
+    }
     if (!readOnly && (tool === 'step' || tool === 'transition' || tool === 'comment')) {
       if (!hit) {
+        e.preventDefault();
         const at = snapPoint(d);
         if (tool === 'step') addStepAt(at);
         else if (tool === 'transition') addTransitionAt(at);
@@ -163,6 +175,17 @@ export function useCanvasInteraction(
     }
     if (hit?.kind === 'link' && hit.key) {
       ui.set({ selection: {}, selectedLink: hit.key });
+      const link = computeGeometry(g).links.find((l) => l.key === hit.key);
+      if (!readOnly && link?.arrow) {
+        gesture.current = {
+          kind: 'route',
+          transitionId: link.transitionId,
+          startX: d.x,
+          startSide: link.arrow.x,
+          moved: false,
+        };
+        capture();
+      }
       return;
     }
     if (hit?.id) {
@@ -238,6 +261,20 @@ export function useCanvasInteraction(
       case 'marquee':
         useInteraction.setState({ marquee: rectFrom(g0.startD, toDiagram(p)) });
         return;
+      case 'route': {
+        const d = toDiagram(p);
+        const sideX = snap(g0.startSide + d.x - g0.startX);
+        if (!g0.moved) {
+          if (Math.abs(d.x - g0.startX) * getViewport(gid).zoom < DRAG_THRESHOLD) return;
+          g0.moved = true;
+          doc.begin('history.route');
+        }
+        doc.update((proj) => {
+          const tr = proj.grafcets[gid]?.transitions[g0.transitionId];
+          if (tr && tr.routing?.sideX !== sideX) tr.routing = { sideX };
+        });
+        return;
+      }
       case 'link': {
         const d = toDiagram(p);
         const g = getProject().grafcets[gid];
@@ -313,6 +350,9 @@ export function useCanvasInteraction(
       }
       case 'pan':
         useInteraction.setState({ panning: false });
+        break;
+      case 'route':
+        if (g0.moved) doc.commit();
         break;
       case 'idle':
         break;

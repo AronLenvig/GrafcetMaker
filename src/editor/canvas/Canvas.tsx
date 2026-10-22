@@ -41,6 +41,7 @@ export function Canvas({ readOnly = false }: { readOnly?: boolean }) {
   const tool = useUi((s) => s.tool);
   const showGrid = usePrefs((s) => s.showGrid);
   const panning = useInteraction((s) => s.panning);
+  const pending = useUi((s) => s.pending);
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: canvasSize.width, height: canvasSize.height });
   const handlers = useCanvasInteraction(containerRef, gid, readOnly);
@@ -225,6 +226,14 @@ export function Canvas({ readOnly = false }: { readOnly?: boolean }) {
       </svg>
       {g && geom && <InlineEditor g={g} geom={geom} viewport={viewport} />}
       {gid && <ZoomControls gid={gid} zoom={viewport.zoom} />}
+      {pending && (
+        <div
+          role="status"
+          className="pointer-events-none absolute top-2 left-1/2 -translate-x-1/2 rounded-md border border-accent bg-surface px-3 py-1.5 text-text shadow-pop"
+        >
+          {t('canvas.loopHint')}
+        </div>
+      )}
     </div>
   );
 }

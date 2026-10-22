@@ -22,3 +22,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   hints and quick fixes, autocomplete.
 - Variable table (inputs, outputs, internals; BOOL/INT/REAL/TIME) with rename refactoring and
   usage counts.
+- Structures: parallel (AND) and alternative (OR) branches, loops with movable lanes, source and
+  sink transitions; on-demand auto-layout (whole grafcet or selection); step renumbering that
+  updates all references.

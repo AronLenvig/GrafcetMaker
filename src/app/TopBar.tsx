@@ -135,6 +135,16 @@ export function TopBar() {
           <Item id="insert.action" />
           <Item id="insert.step" />
           <Item id="insert.grafcet" />
+          <MenuSeparator />
+          <Item id="insert.parallel" />
+          <Item id="insert.alternative" />
+          <Item id="insert.loop" />
+          <Item id="insert.source" />
+          <Item id="insert.sink" />
+          <MenuSeparator />
+          <Item id="arrange.layout" />
+          <Item id="arrange.layoutSelection" />
+          <Item id="arrange.renumber" />
         </Menu>
         <Menu label={t('menu.view')}>
           <Item id="view.zoomIn" />

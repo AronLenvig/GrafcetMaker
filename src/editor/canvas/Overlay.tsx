@@ -59,11 +59,12 @@ export function Overlay({
   const selection = useUi((s) => s.selection);
   const selectedLink = useUi((s) => s.selectedLink);
   const flash = useUi((s) => s.flash);
+  const pending = useUi((s) => s.pending);
   const { marquee, link, hover, moving } = useInteraction();
 
   const ids = Object.keys(selection);
   const handleIds = new Set<Id>();
-  if (!readOnly && !moving && !marquee) {
+  if (!readOnly && !moving && !marquee && !pending) {
     if (ids.length === 1 && (g.steps[ids[0]!] || g.transitions[ids[0]!])) handleIds.add(ids[0]!);
     if (hover && (g.steps[hover] || g.transitions[hover])) handleIds.add(hover);
     if (link) handleIds.clear();
@@ -76,7 +77,10 @@ export function Overlay({
       link.fromKind === 'step'
         ? Object.keys(g.transitions)
         : Object.keys(g.steps).filter((id) => id !== link.from);
+  } else if (pending?.kind === 'loop') {
+    targets = Object.keys(g.steps);
   }
+  const hotTarget = link ? link.target : pending ? hover : null;
 
   return (
     <g className="gm-overlay">
@@ -88,7 +92,7 @@ export function Overlay({
       {targets.map((id) => {
         const r = elementBounds(g, geom, id);
         if (!r) return null;
-        const hot = link?.target === id;
+        const hot = hotTarget === id;
         return (
           <g key={id}>
             <SelectionRect r={r} className={hot ? 'gm-target-hot' : 'gm-target'} />

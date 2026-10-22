@@ -4,7 +4,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 
 ## Current phase
 
-**Phase 3** — OR/AND structures, loops, source/sink, auto-layout.
+**Phase 4** — validation.
 
 ## Phases
 
@@ -13,7 +13,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 | 0     | Scaffold, theme, CI, model + schema, LICENSE/README                  | done   |
 | 1     | Core editor, undo, shortcuts, save/open/import (drag-drop), autosave | done   |
 | 2     | Expression parser, variables, autocomplete                           | done   |
-| 3     | OR/AND structures, loops, source/sink, auto-layout                   |        |
+| 3     | OR/AND structures, loops, source/sink, auto-layout                   | done   |
 | 4     | Validation                                                           |        |
 | 5     | Simulation                                                           |        |
 | 6     | Exports                                                              |        |
@@ -68,6 +68,17 @@ Autonomous build log. Read this first in every session and resume from **Current
   quick fixes) in the inline editor and properties panel; bottom panel with Variables table
   (inline editing, filter, uses, delete confirm); View › Textbook notation.
 
+### Phase 3
+
+- `core/model/structure.ts`: P (parallel), O (alternative / bypass), L (loop), source/sink
+  transitions; new branches never overlap existing elements.
+- `core/model/renumber.ts`: flow-order renumbering rewriting `Xn` (resolution-aware, across
+  grafcets) and forcing orders; refuses when a reference would change meaning. Tests.
+- `core/layout/autoLayout.ts`: DFS back-edge removal, longest-path rows, structured column walk
+  (blocks centered under divergences, merges in line), selection-only mode. Test.
+- Editor: P/O/L shortcuts, loop pick mode with target highlighting and hint banner, drag loop
+  lanes (`routing.sideX`), Edit menu structure/arrange items.
+
 ## Decisions
 
 - TypeScript pinned to 6.0.x: typescript-eslint does not support TS 7 (native port) yet.
@@ -85,6 +96,10 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Comparisons read greedily (`a + C > 3` = `(a + C) > 3`, flagged with a fix hint); see
   `docs/semantics.md`.
 - Expressions with problems can always be committed; they are reported, never blocked.
+- Auto-layout keeps the current left-to-right order of branches; without a merge point the
+  longest branch stays in the column ("continue or loop back" stays straight).
+- Renumbering starts at the grafcet's lowest number and refuses on reference conflicts rather
+  than silently changing meaning.
 - Commits go directly to `main` (greenfield repo, as instructed by the build spec); never pushed.
 
 ## Known gaps

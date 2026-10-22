@@ -31,6 +31,8 @@ export interface UiState {
   paletteOpen: boolean;
   /** Paste counter: successive pastes cascade. */
   pasteCount: number;
+  /** Two-step command waiting for a click on the canvas (`L` then click the loop target). */
+  pending: { kind: 'loop'; from: Id } | null;
 }
 
 export const useUi = create<UiState>(() => ({
@@ -43,6 +45,7 @@ export const useUi = create<UiState>(() => ({
   flash: null,
   paletteOpen: false,
   pasteCount: 0,
+  pending: null,
 }));
 
 export const ui = {

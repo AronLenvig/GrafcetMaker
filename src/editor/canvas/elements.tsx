@@ -20,13 +20,21 @@ import type { Action, Comment, Step, Transition } from '@/core/model/types';
 import { ExprText } from './ExprText';
 import { baseline } from './svg';
 
-export const StepView = memo(function StepView({ step }: { step: Step }) {
+/** `active` (simulation): filled box plus a token dot, so activity never relies on color alone. */
+export const StepView = memo(function StepView({ step, active }: { step: Step; active?: boolean }) {
   const { x, y } = step.position;
   const r = STEP_HALF;
   const label = step.label ? stepLabelAnchor(step) : null;
   return (
-    <g data-el="step" data-id={step.id}>
-      <rect className="gm-box" x={x - r} y={y - r} width={2 * r} height={2 * r} />
+    <g data-el="step" data-id={step.id} aria-current={active ? 'step' : undefined}>
+      <rect
+        className={active ? 'gm-box gm-box-active' : 'gm-box'}
+        x={x - r}
+        y={y - r}
+        width={2 * r}
+        height={2 * r}
+      />
+      {active && <circle className="gm-token" cx={x} cy={y + r - 8} r={3.5} />}
       {step.kind === 'initial' && (
         <rect
           className="gm-thin"
@@ -124,6 +132,8 @@ export const ActionView = memo(function ActionView({
   width,
   height,
   first,
+  on,
+  live,
 }: {
   action: Action;
   x: number;
@@ -131,6 +141,10 @@ export const ActionView = memo(function ActionView({
   width: number;
   height: number;
   first: boolean;
+  /** Simulation: the continuous action is being executed. */
+  on?: boolean;
+  /** Simulation: current value of the variable it writes. */
+  live?: string;
 }) {
   const stored = action.kind === 'storedOnActivation' || action.kind === 'storedOnDeactivation';
   const textX = x + ACTION_PAD + (stored ? 14 : action.kind === 'forcing' ? 3 : 0);
@@ -138,7 +152,19 @@ export const ActionView = memo(function ActionView({
   return (
     <g data-el="action" data-id={action.id}>
       {first && <path className="gm-line" d={`M${x - ACTION_GAP} ${cy}H${x}`} />}
-      <rect className="gm-box" x={x} y={y} width={width} height={height} />
+      <rect
+        className={on ? 'gm-box gm-box-on' : 'gm-box'}
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+      />
+      {on && <path className="gm-on-mark" d={`M${x + width - 13} ${y + 9}l3 3l6 -6`} />}
+      {live !== undefined && (
+        <text className="gm-label gm-live" x={x + width - 4} y={y + height + 11} textAnchor="end">
+          = {live}
+        </text>
+      )}
       {action.kind === 'forcing' && (
         <rect className="gm-thin" x={x + 3} y={y + 3} width={width - 6} height={height - 6} />
       )}

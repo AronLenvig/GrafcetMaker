@@ -18,7 +18,9 @@ export type RuleId =
   | 'transientLoop'
   | 'parallelOutput'
   | 'macroEntryExit'
-  | 'unusedVariable';
+  | 'unusedVariable'
+  /** Runtime problem reported by the simulator (transient loop). */
+  | 'simulation';
 
 export type QuickFix =
   | { kind: 'setReceptivity'; grafcetId: Id; transitionId: Id; value: string }

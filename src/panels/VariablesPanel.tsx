@@ -12,6 +12,7 @@ import {
   updateVariable,
 } from '@/editor/commands/variables';
 import { useDoc } from '@/editor/store/document';
+import { useUi } from '@/editor/store/uiStore';
 
 const TYPES: VariableType[] = ['BOOL', 'INT', 'REAL', 'TIME'];
 const DIRECTIONS: VariableDirection[] = ['input', 'output', 'internal'];
@@ -248,9 +249,10 @@ export function VariablesPanel() {
       );
   }, [variables, filter]);
   const total = Object.keys(variables).length;
+  const locked = useUi((s) => s.mode === 'simulate');
 
   return (
-    <div className="flex h-full flex-col">
+    <fieldset disabled={locked} className="flex h-full min-w-0 flex-col">
       <div className="flex items-center gap-2 border-b border-border px-2 py-1.5">
         <Button size="sm" onClick={() => setNewId(addVariable())}>
           <PlusIcon size={14} /> {t('variables.add')}
@@ -302,6 +304,6 @@ export function VariablesPanel() {
           </table>
         )}
       </div>
-    </div>
+    </fieldset>
   );
 }

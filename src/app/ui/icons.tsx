@@ -206,3 +206,41 @@ export const InfoIcon = (p: IconProps) => (
     <path d="M12 11v6M12 7.5v.5" />
   </Icon>
 );
+
+export const PlayIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M7 4l13 8-13 8z" fill="currentColor" />
+  </Icon>
+);
+
+export const PauseIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M7 4h3v16H7zM14 4h3v16h-3z" fill="currentColor" />
+  </Icon>
+);
+
+export const StepForwardIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M5 4l10 8-10 8z" fill="currentColor" />
+    <path d="M18 4v16" strokeWidth={3} />
+  </Icon>
+);
+
+export const ResetIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+    <path d="M3 3v5h5" />
+  </Icon>
+);
+
+export const RecordIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="6" fill="currentColor" />
+  </Icon>
+);
+
+export const StopIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="6" y="6" width="12" height="12" fill="currentColor" />
+  </Icon>
+);

@@ -33,6 +33,8 @@ export interface UiState {
   pasteCount: number;
   /** Two-step command waiting for a click on the canvas (`L` then click the loop target). */
   pending: { kind: 'loop'; from: Id } | null;
+  /** Simulation mode locks editing. */
+  mode: 'edit' | 'simulate';
 }
 
 export const useUi = create<UiState>(() => ({
@@ -46,6 +48,7 @@ export const useUi = create<UiState>(() => ({
   paletteOpen: false,
   pasteCount: 0,
   pending: null,
+  mode: 'edit',
 }));
 
 export const ui = {

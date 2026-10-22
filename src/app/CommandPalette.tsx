@@ -1,7 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { COMMANDS, formatKeys, type Command } from '@/editor/commands/registry';
+import { COMMANDS, formatKeys, isAvailable, type Command } from '@/editor/commands/registry';
 import { setActiveGrafcet } from '@/editor/commands/edit';
 import { useDoc } from '@/editor/store/document';
 import { ui, useUi } from '@/editor/store/uiStore';
@@ -39,15 +39,13 @@ export function CommandPalette() {
 
   const entries = useMemo<Entry[]>(() => {
     if (!open) return [];
-    const cmds = COMMANDS.filter((c: Command) => !c.hidden && (!c.enabled || c.enabled())).map(
-      (c) => ({
-        key: c.id,
-        label: t(`commands.${c.label}` as 'commands.file.new'),
-        group: t(`commands.groups.${c.group}`),
-        keys: c.keys?.[0] ? formatKeys(c.keys[0]) : undefined,
-        run: () => void c.run(),
-      }),
-    );
+    const cmds = COMMANDS.filter((c: Command) => !c.hidden && isAvailable(c)).map((c) => ({
+      key: c.id,
+      label: t(`commands.${c.label}` as 'commands.file.new'),
+      group: t(`commands.groups.${c.group}`),
+      keys: c.keys?.[0] ? formatKeys(c.keys[0]) : undefined,
+      run: () => void c.run(),
+    }));
     const tabs = order.flatMap((gid) => {
       const g = grafcets[gid];
       return g

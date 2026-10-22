@@ -44,10 +44,11 @@ const DRAG_THRESHOLD = 3;
 function elementAt(
   el: Element | null,
 ): { kind: string; id: string | null; key: string | null } | null {
-  const hit = el?.closest('[data-el]');
+  // Problem badges stand for the element they are attached to.
+  const hit = el?.closest('[data-el],[data-badge]');
   if (!hit) return null;
   return {
-    kind: hit.getAttribute('data-el') ?? '',
+    kind: hit.getAttribute('data-el') ?? hit.getAttribute('data-badge') ?? '',
     id: hit.getAttribute('data-id'),
     key: hit.getAttribute('data-key'),
   };

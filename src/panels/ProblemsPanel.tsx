@@ -4,6 +4,7 @@ import type { Issue, Severity } from '@/core/validation/types';
 import { AlertIcon, ErrorIcon, InfoIcon } from '@/app/ui/icons';
 import { Button, cx } from '@/app/ui/primitives';
 import { useDoc } from '@/editor/store/document';
+import { useUi } from '@/editor/store/uiStore';
 import {
   applyQuickFix,
   issueLocation,
@@ -11,6 +12,8 @@ import {
   revealIssue,
 } from '@/editor/validation/actions';
 import { useProblems } from '@/editor/validation/problems';
+import { formatSimTime } from '@/editor/canvas/SimOverlay';
+import { useSim } from '@/editor/simulation/simStore';
 import { tDynamic } from '@/i18n/dynamic';
 
 const TONE: Record<Severity, string> = {
@@ -36,7 +39,8 @@ export function SeverityIcon({ severity, size = 15 }: { severity: Severity; size
 
 export function QuickFixButton({ issue }: { issue: Issue }) {
   const { t } = useTranslation();
-  if (!issue.quickFix) return null;
+  const locked = useUi((s) => s.mode === 'simulate');
+  if (!issue.quickFix || locked) return null;
   const key = issue.ruleId === 'nonExclusiveOr' ? 'prioritize' : issue.quickFix.kind;
   return (
     <Button size="sm" onClick={() => applyQuickFix(issue.quickFix!)}>
@@ -81,6 +85,21 @@ export function ProblemsPanel() {
     warning: true,
     info: true,
   });
+  const simError = useSim((s) => s.snapshot?.error ?? null);
+  const simIssue: Issue | null = useMemo(() => {
+    if (!simError) return null;
+    const gid =
+      order.find((id) => simError.transitions.some((tid) => grafcets[id]?.transitions[tid])) ??
+      null;
+    return {
+      ruleId: 'simulation',
+      severity: 'error',
+      messageKey: 'problems.messages.simTransientLoop',
+      params: { time: formatSimTime(simError.time) },
+      grafcetId: gid,
+      elementIds: simError.transitions,
+    };
+  }, [simError, order, grafcets]);
 
   const groups = useMemo(() => {
     const visible = issues.filter((i) => show[i.severity]);
@@ -119,7 +138,17 @@ export function ProblemsPanel() {
         ))}
       </div>
       <div className="min-h-0 flex-1 overflow-auto">
-        {groups.length === 0 ? (
+        {simIssue && (
+          <section aria-label={t('panels.simulation')}>
+            <h3 className="sticky top-0 z-10 bg-surface px-2 py-1 text-xs font-semibold text-muted">
+              {t('panels.simulation')}
+            </h3>
+            <ul>
+              <IssueRow issue={simIssue} />
+            </ul>
+          </section>
+        )}
+        {groups.length === 0 && !simIssue ? (
           <p className="p-4 text-muted">
             {issues.length ? t('problems.allHidden') : t('problems.none')}
           </p>

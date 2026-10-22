@@ -28,3 +28,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Continuous validation in a Web Worker: Problems panel with jump-to-element and quick fixes,
   on-diagram badges, counters in the top bar. Includes reachability, dead ends, exclusivity of
   alternative branches, possible transient loops and outputs driven from parallel branches.
+- Simulation (IEC 60848): deterministic virtual time (real time ×N, fast, step), search for
+  stability with transient-loop detection, edges, timers, stored/event actions, forcing; tokens,
+  enabled/cleared markers and live values on the diagram; inputs panel (toggle, momentary,
+  numeric); evolution log; chronogram with time travel; scenario record and replay.

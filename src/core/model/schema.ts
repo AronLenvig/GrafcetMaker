@@ -107,6 +107,19 @@ export const grafcetSchema = z.object({
   comments: z.record(z.string(), commentSchema),
 });
 
+/** Recorded input changes, replayed by the simulator (virtual time in ms from the start). */
+export const scenarioEventSchema = z.object({
+  t: z.number().min(0),
+  name: identifier,
+  value: z.union([z.boolean(), z.number()]),
+});
+
+export const scenarioSchema = z.object({
+  id,
+  name: shortText,
+  events: z.array(scenarioEventSchema).max(100_000),
+});
+
 export const projectMetaSchema = z.object({
   author: shortText,
   company: shortText,
@@ -123,6 +136,7 @@ const projectShape = z.object({
   variables: z.record(z.string(), variableSchema),
   grafcets: z.record(z.string(), grafcetSchema),
   grafcetOrder: z.array(id),
+  scenarios: z.record(z.string(), scenarioSchema).optional(),
 });
 
 type ProjectShape = z.infer<typeof projectShape>;
@@ -188,6 +202,9 @@ function checkIntegrity(p: ProjectShape, ctx: z.RefinementCtx): void {
       if (cid !== c.id)
         issue(`Comment key "${cid}" does not match its id`, [...at, 'comments', cid]);
     }
+  }
+  for (const [key, sc] of Object.entries(p.scenarios ?? {})) {
+    if (key !== sc.id) issue(`Scenario key "${key}" does not match its id`, ['scenarios', key]);
   }
   if (elements > LIMITS.elements) issue(`Too many elements (${elements} > ${LIMITS.elements})`, []);
 }

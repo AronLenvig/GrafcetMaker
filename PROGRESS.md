@@ -4,7 +4,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 
 ## Current phase
 
-**Phase 5** — simulation.
+**Phase 6** — exports.
 
 ## Phases
 
@@ -15,7 +15,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 | 2     | Expression parser, variables, autocomplete                           | done   |
 | 3     | OR/AND structures, loops, source/sink, auto-layout                   | done   |
 | 4     | Validation                                                           | done   |
-| 5     | Simulation                                                           |        |
+| 5     | Simulation                                                           | done   |
 | 6     | Exports                                                              |        |
 | 7     | Hierarchy (partial, macro, enclosing, forcing)                       |        |
 | 8     | Codegen                                                              |        |
@@ -89,6 +89,19 @@ Autonomous build log. Read this first in every session and resume from **Current
 - UI: Problems panel (grouped by grafcet, severity filters, jump + flash, quick fixes), canvas
   badges (shape-coded), top-bar counters, problems of the selection in the properties panel.
 
+### Phase 5
+
+- `core/simulation`: compiler (indexed program, resolved `Xn`, forcing levels), stateful evaluator
+  (edges per iteration, timers with exact deadlines), `Simulator` (rules 1–5, stability search,
+  1000-iteration cap, forcing per level, outputs on the stable situation), `SimSession` protocol.
+  Golden suite: 35 hand-verified charts.
+- Simulation worker; main-thread store with virtual clock (×0.25–×10, fast jump, step), inputs,
+  scenario record/replay (saved in `project.scenarios`), cycle history (time travel).
+- UI: simulation bar, locked editing, tokens + fill, enabled markers, cleared flash, step timers,
+  live action states/values, Simulation panel (inputs, values, evolution log, scenarios),
+  lazy-loaded chronogram with scrub cursor, simulation inspector, transient loop in Problems.
+- E2E smoke extended: declare inputs, simulate, toggle an input, stop.
+
 ## Decisions
 
 - TypeScript pinned to 6.0.x: typescript-eslint does not support TS 7 (native port) yet.
@@ -112,6 +125,9 @@ Autonomous build log. Read this first in every session and resume from **Current
   than silently changing meaning.
 - Validation severities follow the spec; extra checker diagnostics (types, ambiguous `Xn`) are
   errors. Dead-end ignores steps without upstream transitions (a lone new step is not noise).
+- Simulation interpretation choices are all in `docs/semantics.md` (Simulation). Notable: a
+  first stability search at t = 0; clearing without effect ends the search; edge memories advance
+  per grafcet; forced grafcets observe the end-of-cycle state.
 - Commits go directly to `main` (greenfield repo, as instructed by the build spec); never pushed.
 
 ## Known gaps

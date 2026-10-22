@@ -1,6 +1,6 @@
 import { isDialogOpen } from '@/app/dialogs/dialogStore';
 import { useUi } from '../store/uiStore';
-import { COMMANDS, isApple, type Command } from './registry';
+import { COMMANDS, isApple, isAvailable, type Command } from './registry';
 import { copySelection, cutSelection, pasteText } from './edit';
 
 function comboOf(e: KeyboardEvent): string {
@@ -51,13 +51,18 @@ function onKeyDown(e: KeyboardEvent): void {
     e.target.closest('button,a,[role="button"]')
   )
     return;
-  if (cmd.enabled && !cmd.enabled()) return;
+  if (!isAvailable(cmd)) return;
   e.preventDefault();
   void cmd.run();
 }
 
 function canvasHasFocusContext(e: Event): boolean {
-  return !isTextField(e.target) && !isDialogOpen() && !useUi.getState().paletteOpen;
+  return (
+    !isTextField(e.target) &&
+    !isDialogOpen() &&
+    !useUi.getState().paletteOpen &&
+    useUi.getState().mode === 'edit'
+  );
 }
 
 /** Installs global keyboard shortcuts and clipboard handlers. Returns an uninstaller. */

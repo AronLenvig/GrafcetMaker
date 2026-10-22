@@ -65,6 +65,7 @@ export function GrafcetTabs() {
   const grafcets = useDoc((s) => s.project.grafcets);
   const active = useUi((s) => s.activeGrafcetId);
   const [renaming, setRenaming] = useState<Id | null>(null);
+  const locked = useUi((s) => s.mode === 'simulate');
 
   const confirmDelete = async (gid: Id) => {
     const g = grafcets[gid];
@@ -105,16 +106,16 @@ export function GrafcetTabs() {
           const selected = gid === active;
           return (
             <ContextMenu.Root key={gid}>
-              <ContextMenu.Trigger asChild>
+              <ContextMenu.Trigger asChild disabled={locked}>
                 <div
                   id={`gtab-${gid}`}
                   role="tab"
                   aria-selected={selected}
                   tabIndex={selected ? 0 : -1}
                   onClick={() => setActiveGrafcet(gid)}
-                  onDoubleClick={() => setRenaming(gid)}
+                  onDoubleClick={() => !locked && setRenaming(gid)}
                   onKeyDown={(e) => {
-                    if (e.key === 'F2') setRenaming(gid);
+                    if (e.key === 'F2' && !locked) setRenaming(gid);
                     onKeyDown(e, i);
                   }}
                   className={cx(
@@ -165,6 +166,7 @@ export function GrafcetTabs() {
         })}
       </div>
       <IconButton
+        disabled={locked}
         label={t('commands.insert.grafcet')}
         title={t('commands.insert.grafcet')}
         className="mb-0.5 h-7 w-7"

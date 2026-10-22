@@ -196,3 +196,40 @@
   stroke-width: 1.8;
   stroke-linecap: round;
 }
+
+/* Simulation */
+.gm-box-active {
+  fill: var(--step-active);
+}
+
+.gm-token {
+  fill: var(--token);
+}
+
+.gm-box-on {
+  fill: var(--step-active);
+}
+
+.gm-on-mark {
+  fill: none;
+  stroke: var(--token);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.gm-canvas text.gm-live,
+.gm-canvas text.gm-timer {
+  fill: var(--ink-muted);
+}
+
+.gm-enabled {
+  fill: var(--enabled);
+}
+
+.gm-fired {
+  fill: none;
+  stroke: var(--fired);
+  stroke-width: 3;
+  animation: gm-flash 0.9s ease-out 1 forwards;
+}

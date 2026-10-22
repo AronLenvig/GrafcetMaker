@@ -44,6 +44,12 @@ Project {
   variables: Record<Id, Variable>
   grafcets: Record<Id, Grafcet>
   grafcetOrder: Id[]          // tab order; must list every grafcet exactly once
+  scenarios?: Record<Id, Scenario>
+}
+
+Scenario {
+  id; name
+  events: { t: number; name: string; value: boolean | number }[]   // virtual ms from start
 }
 
 Variable {

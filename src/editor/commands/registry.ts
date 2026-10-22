@@ -9,6 +9,14 @@ import {
 } from '@/app/persistence/session';
 import { useTheme } from '@/theme/theme';
 import { fitToContent, setZoom, zoomBy } from '../canvas/viewport';
+import {
+  nextEvent,
+  resetSimulation,
+  startSimulation,
+  stopSimulation,
+  togglePlay,
+  useSim,
+} from '../simulation/simStore';
 import { doc } from '../store/document';
 import { ui, useUi, type Tool } from '../store/uiStore';
 import {
@@ -36,7 +44,7 @@ import {
   toggleInitialStep,
 } from './edit';
 
-export type CommandGroup = 'file' | 'edit' | 'insert' | 'view' | 'tools' | 'help';
+export type CommandGroup = 'file' | 'edit' | 'insert' | 'view' | 'tools' | 'simulate' | 'help';
 
 export interface Command {
   id: string;
@@ -430,6 +438,57 @@ export const COMMANDS: Command[] = [
     global: true,
     run: () => ui.set({ paletteOpen: true }),
   },
+  {
+    id: 'view.showProblems',
+    label: 'view.showProblems',
+    group: 'view',
+    run: () => showBottomTab('problems'),
+  },
+  {
+    id: 'view.showSimulation',
+    label: 'view.showSimulation',
+    group: 'view',
+    run: () => showBottomTab('simulation'),
+  },
+  {
+    id: 'view.showChronogram',
+    label: 'view.showChronogram',
+    group: 'view',
+    run: () => showBottomTab('chronogram'),
+  },
+
+  {
+    id: 'sim.toggle',
+    label: 'simulate.toggle',
+    group: 'simulate',
+    keys: ['F5'],
+    global: true,
+    run: () => (useSim.getState().on ? togglePlay() : startSimulation()),
+  },
+  {
+    id: 'sim.stop',
+    label: 'simulate.stop',
+    group: 'simulate',
+    keys: ['Shift+F5'],
+    global: true,
+    run: stopSimulation,
+    enabled: () => useSim.getState().on,
+  },
+  {
+    id: 'sim.step',
+    label: 'simulate.step',
+    group: 'simulate',
+    keys: ['F10'],
+    run: nextEvent,
+    enabled: () => useSim.getState().on,
+  },
+  {
+    id: 'sim.reset',
+    label: 'simulate.reset',
+    group: 'simulate',
+    run: resetSimulation,
+    enabled: () => useSim.getState().on,
+  },
 
   {
     id: 'help.shortcuts',
@@ -449,9 +508,19 @@ export function getCommand(id: string): Command {
   return c;
 }
 
+/** Editing commands are unavailable while simulating (the diagram is locked). */
+export function isAvailable(c: Command): boolean {
+  if (useUi.getState().mode === 'simulate') {
+    if (c.group === 'insert' || c.group === 'tools' || c.id.startsWith('arrange.')) return false;
+    if (c.group === 'edit' && c.id !== 'edit.escape' && c.id !== 'edit.selectAll') return false;
+    if (c.id === 'file.new' || c.id === 'file.open') return false;
+  }
+  return !c.enabled || c.enabled();
+}
+
 export function runCommand(id: string): void {
   const c = getCommand(id);
-  if (c.enabled && !c.enabled()) return;
+  if (!isAvailable(c)) return;
   void c.run();
 }
 

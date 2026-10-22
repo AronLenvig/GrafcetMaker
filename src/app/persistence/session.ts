@@ -11,6 +11,7 @@ import {
 import { fitToContent } from '@/editor/canvas/viewport';
 import { doc, getProject } from '@/editor/store/document';
 import { isDirty } from '@/editor/store/documentStore';
+import { stopSimulation } from '@/editor/simulation/simStore';
 import { useUi } from '@/editor/store/uiStore';
 import { showDialog } from '../dialogs/dialogStore';
 import { addSnapshot, db, safely, touchRecent, type RecentEntry, type Snapshot } from './db';
@@ -61,6 +62,7 @@ async function loadIntoEditor(
   opts: { dirty?: boolean; fileName?: string | null; handle?: FileSystemFileHandle | null } = {},
 ): Promise<void> {
   await flushAutosave();
+  stopSimulation();
   doc.load(project, { dirty: opts.dirty });
   fileHandle = opts.handle ?? null;
   useSession.setState({ fileName: opts.fileName ?? null });

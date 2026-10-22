@@ -7,6 +7,8 @@ import type {
   grafcetSchema,
   projectMetaSchema,
   projectSchema,
+  scenarioEventSchema,
+  scenarioSchema,
   stepKindSchema,
   stepSchema,
   transitionSchema,
@@ -34,6 +36,8 @@ export type GrafcetKind = z.infer<typeof grafcetKindSchema>;
 export type Grafcet = z.infer<typeof grafcetSchema>;
 export type ProjectMeta = z.infer<typeof projectMetaSchema>;
 export type Project = z.infer<typeof projectSchema>;
+export type ScenarioEvent = z.infer<typeof scenarioEventSchema>;
+export type Scenario = z.infer<typeof scenarioSchema>;
 
 /** Kinds of selectable diagram elements inside one grafcet. */
 export type ElementKind = 'step' | 'transition' | 'action' | 'comment';

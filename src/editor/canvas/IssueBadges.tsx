@@ -55,7 +55,7 @@ const Badge = memo(function Badge({
   return (
     <g
       className={`gm-badge gm-badge-${severity}`}
-      data-el={kind}
+      data-badge={kind}
       data-id={id}
       transform={`translate(${x} ${y})`}
     >

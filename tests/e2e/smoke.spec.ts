@@ -59,6 +59,24 @@ test('create a sequence, save it, reopen it', async ({ page }, testInfo) => {
   await (await chooserPromise).setFiles(path);
   await expect(page.locator('[data-el="step"]')).toHaveCount(3);
   await expect(page.locator('[data-el="transition"]').first()).toContainText('start·stop'); // textbook notation: NOT drawn as an overbar
+
+  // Simulate: declare the inputs, start the simulation and drive an input.
+  await page.getByRole('tab', { name: 'Variables' }).click();
+  for (const name of ['start', 'stop']) {
+    await page.getByRole('button', { name: 'Add variable' }).click();
+    await page.keyboard.type(name);
+    await page.keyboard.press('Enter');
+  }
+  const step = (n: number) =>
+    page.locator('[data-el="step"]').filter({ hasText: new RegExp(`^${n}$`) });
+  await page.keyboard.press('F5');
+  await expect(page.getByText('SIMULATION', { exact: true })).toBeVisible();
+  await expect(step(0)).toHaveAttribute('aria-current', 'step');
+  await page.getByRole('switch', { name: 'Input start' }).click();
+  await expect(step(1)).toHaveAttribute('aria-current', 'step');
+  await expect(step(0)).not.toHaveAttribute('aria-current', 'step');
+  await page.keyboard.press('Shift+F5');
+  await expect(page.getByText('SIMULATION', { exact: true })).toHaveCount(0);
 });
 
 test('unsaved work is offered back after a reload', async ({ page }) => {

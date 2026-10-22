@@ -10,6 +10,9 @@ import { Toolbar } from '@/editor/tools/Toolbar';
 import { startValidation } from '@/editor/validation/problems';
 import { BottomPanel } from '@/panels/BottomPanel';
 import { PropertiesPanel } from '@/panels/PropertiesPanel';
+import { SimInspector } from '@/panels/SimInspector';
+import { useSim } from '@/editor/simulation/simStore';
+import { SimBar } from './SimBar';
 import { CommandPalette } from './CommandPalette';
 import { DialogHost } from './dialogs/DialogHost';
 import { DropOverlay } from './DropOverlay';
@@ -82,13 +85,14 @@ function Toasts() {
 export function App() {
   const { t } = useTranslation();
   const prefs = usePrefs();
+  const simulating = useSim((s) => s.on);
   useAppLifecycle();
   return (
     <Tooltip.Provider>
       <div className="flex h-full flex-col">
-        <TopBar />
+        {simulating ? <SimBar /> : <TopBar />}
         <div className="flex min-h-0 flex-1">
-          {!prefs.leftCollapsed && (
+          {!prefs.leftCollapsed && !simulating && (
             <div className="w-12 shrink-0 border-r border-border bg-surface">
               <Toolbar />
             </div>
@@ -128,7 +132,7 @@ export function App() {
                 onChange={(v) => setPrefs({ rightWidth: v })}
               />
               <div className="shrink-0 bg-surface" style={{ width: prefs.rightWidth }}>
-                <PropertiesPanel />
+                {simulating ? <SimInspector /> : <PropertiesPanel />}
               </div>
             </>
           )}

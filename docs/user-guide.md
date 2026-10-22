@@ -137,6 +137,33 @@ exclusive, loops that could be crossed endlessly in one evolution, outputs drive
 branches, macro-step expansions without one entry and one exit step, and unused variables. The
 exact definitions are in `docs/semantics.md`.
 
+## Simulation
+
+Press `F5` (or **Simulate › Start simulation**). The diagram is locked for editing, the top bar
+turns into the simulation bar and the **Simulation** tab opens.
+
+- **Inputs**: switch a BOOL input on/off, or hold its **Hold** button for a momentary press
+  (keyboard: hold `Space` on the button). Type values for INT, REAL and TIME inputs.
+- **Clock**: `F5` runs and pauses; speed ×0.25 to ×10 or **Fast**, which jumps from one timer
+  expiry to the next. `F10` (Step) jumps to the next timer expiry. ⟲ restarts from the initial
+  situation. The bar shows the virtual time, the cycle number and the next timer.
+- **On the diagram**: active steps are filled and carry a token dot, with the time they have been
+  active; enabled transitions have a ▶ marker; transitions that just cleared flash; continuous
+  actions being executed show a ✓ and stored actions show the current value of their variable.
+- **Evolution log**: every cycle with its trigger and each iteration (transitions cleared, steps
+  activated / deactivated), so transient evolutions are visible. Click a cycle to see the diagram
+  as it was then.
+- **Chronogram** tab: waveforms of all variables and of the steps of the open grafcet. Click or drag
+  in it to move the cursor back in time (the diagram follows); **Back to live** returns.
+- **Scenarios**: **Record** restarts the simulation and records your input changes with their
+  times; stop to save the scenario in the project. **Replay** restarts and plays it back exactly.
+- Select a step or transition to see its live state in the right panel.
+- `Shift+F5` stops the simulation.
+
+If the evolution never becomes stable (e.g. a loop of transitions that are all true), the
+simulator stops after 1000 iterations and reports a transient loop. The exact rules are in
+`docs/semantics.md`.
+
 ## Navigating
 
 - Scroll to pan, `Ctrl`+scroll (or pinch) to zoom around the pointer, `Space`+drag or the middle

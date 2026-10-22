@@ -9,6 +9,7 @@ import {
   type Rect,
 } from '@/core/layout/geometry';
 import { usePrefs } from '@/app/prefs';
+import { stateAt, useSim } from '../simulation/simStore';
 import { useDoc } from '../store/document';
 import { useUi } from '../store/uiStore';
 import {
@@ -24,6 +25,7 @@ import { InlineEditor } from './InlineEditor';
 import { IssueBadges } from './IssueBadges';
 import { useInteraction } from './interactionStore';
 import { Overlay } from './Overlay';
+import { SimOverlay } from './SimOverlay';
 import { pointsToPath } from './svg';
 import { useCanvasInteraction } from './useCanvasInteraction';
 import { canvasSize } from './viewport';
@@ -34,8 +36,38 @@ const DEFAULT_VIEWPORT = { x: 0, y: 0, zoom: 1 };
 /** Above this many elements, only what is (nearly) visible is rendered. */
 const CULL_THRESHOLD = 1000;
 
-export function Canvas({ readOnly = false }: { readOnly?: boolean }) {
+/** What the simulation shows on the diagram: live state, or the past state under the cursor. */
+function useSimDisplay() {
+  const on = useSim((s) => s.on);
+  const snapshot = useSim((s) => s.snapshot);
+  const cursor = useSim((s) => s.cursor);
+  const cycles = useSim((s) => s.cycles.length);
+  const activeKey = snapshot ? snapshot.active.join(',') : '';
+  const valuesKey = snapshot ? JSON.stringify(snapshot.values) : '';
+  const executingKey = snapshot ? snapshot.executing.join(',') : '';
+  return useMemo(() => {
+    if (!on || !snapshot) return null;
+    if (cursor !== null) {
+      const past = stateAt(cursor);
+      if (past)
+        return { active: past.active, values: past.values, executing: null as Set<string> | null };
+    }
+    return {
+      active: new Set(snapshot.active),
+      values: snapshot.values,
+      executing: new Set(snapshot.executing),
+    };
+    // Keys stand for the snapshot fields that change what is drawn (not the clock).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [on, activeKey, valuesKey, executingKey, cursor, cycles]);
+}
+
+export function Canvas() {
   const { t } = useTranslation();
+  const readOnly = useUi((s) => s.mode === 'simulate');
+  const sim = useSimDisplay();
+  const snapshot = useSim((s) => s.snapshot);
+  const cursor = useSim((s) => s.cursor);
   const gid = useUi((s) => s.activeGrafcetId);
   const g = useDoc((s) => (gid ? s.project.grafcets[gid] : undefined));
   const viewport = useUi((s) => (gid ? s.viewports[gid] : undefined)) ?? DEFAULT_VIEWPORT;
@@ -144,24 +176,59 @@ export function Canvas({ readOnly = false }: { readOnly?: boolean }) {
         {steps
           .filter((s) => inView(s.id))
           .map((s) => (
-            <StepView key={s.id} step={s} />
+            <StepView key={s.id} step={s} active={sim?.active.has(s.id)} />
           ))}
-        {actionBoxes.map(({ box, first }) => (
-          <ActionView
-            key={box.id}
-            action={g.actions[box.id]!}
-            x={box.x}
-            y={box.y}
-            width={box.width}
-            height={box.height}
-            first={first}
-          />
-        ))}
+        {actionBoxes.map(({ box, first }) => {
+          const action = g.actions[box.id]!;
+          const stepActive = !!sim?.active.has(action.stepId);
+          const on =
+            action.kind === 'continuous' && stepActive
+              ? sim!.executing
+                ? sim!.executing.has(action.id)
+                : sim!.values[action.text.trim().toLowerCase()] === true
+              : undefined;
+          const target = action.text.split(':=')[0]!.trim().toLowerCase();
+          const value =
+            sim && action.kind !== 'continuous' && action.kind !== 'forcing'
+              ? sim.values[target]
+              : undefined;
+          return (
+            <ActionView
+              key={box.id}
+              action={action}
+              x={box.x}
+              y={box.y}
+              width={box.width}
+              height={box.height}
+              first={first}
+              on={on}
+              live={
+                value === undefined
+                  ? undefined
+                  : typeof value === 'boolean'
+                    ? value
+                      ? '1'
+                      : '0'
+                    : String(value)
+              }
+            />
+          );
+        })}
       </>
     );
     // cull is derived from cullKey; listing it would re-render on every pan.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [g, geom, cullKey]);
+  }, [g, geom, cullKey, sim]);
+
+  const enabled = useMemo(() => {
+    if (!sim || !g) return new Set<string>();
+    if (cursor === null && snapshot) return new Set(snapshot.enabled);
+    return new Set(
+      Object.values(g.transitions)
+        .filter((tr) => tr.from.every((s) => sim.active.has(s)))
+        .map((tr) => tr.id),
+    );
+  }, [sim, g, cursor, snapshot]);
 
   const gridStep = viewport.zoom < 0.5 ? 50 : 10;
 
@@ -223,7 +290,17 @@ export function Canvas({ readOnly = false }: { readOnly?: boolean }) {
           </>
         )}
         <g>{content}</g>
-        {g && geom && <IssueBadges g={g} geom={geom} />}
+        {g && geom && !readOnly && <IssueBadges g={g} geom={geom} />}
+        {g && geom && sim && (
+          <SimOverlay
+            g={g}
+            geom={geom}
+            active={sim.active}
+            enabled={enabled}
+            time={cursor ?? snapshot?.time ?? 0}
+            activatedAt={cursor === null ? (snapshot?.activatedAt ?? null) : null}
+          />
+        )}
         {g && geom && <Overlay g={g} geom={geom} readOnly={readOnly} />}
       </svg>
       {g && geom && <InlineEditor g={g} geom={geom} viewport={viewport} />}

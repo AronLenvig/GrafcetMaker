@@ -1,0 +1,45 @@
+.gm-chrono {
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.gm-chrono text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--text);
+}
+
+.gm-chrono .gm-chrono-axis {
+  fill: var(--text-muted);
+}
+
+.gm-chrono-grid {
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+
+.gm-chrono-row {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.gm-chrono-trace {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.gm-chrono-high {
+  fill: var(--step-active);
+}
+
+.gm-chrono-cursor {
+  stroke: var(--selection);
+  stroke-width: 2;
+}
+
+.gm-chrono-now {
+  stroke: var(--enabled);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}

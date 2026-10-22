@@ -210,7 +210,14 @@ export function TopBar() {
           </MenuCheckItem>
           <MenuSeparator />
           <Item id="view.showVariables" />
+          <Item id="view.showProblems" />
           <Item id="view.palette" />
+        </Menu>
+        <Menu label={t('menu.simulate')}>
+          <Item id="sim.toggle" label={t('commands.simulate.start')} />
+          <MenuSeparator />
+          <Item id="view.showSimulation" />
+          <Item id="view.showChronogram" />
         </Menu>
         <Menu label={t('menu.help')}>
           <Item id="help.shortcuts" />

@@ -1,23 +1,36 @@
 import * as Tabs from '@radix-ui/react-tabs';
-import type { ComponentType } from 'react';
+import { lazy, Suspense, type ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { setPrefs, usePrefs } from '@/app/prefs';
 import { ChevronDownIcon, ChevronUpIcon } from '@/app/ui/icons';
 import { IconButton } from '@/app/ui/primitives';
 import { useProblems } from '@/editor/validation/problems';
 import { ProblemsPanel } from './ProblemsPanel';
+import { SimulationPanel } from './SimulationPanel';
+
+// Loaded on first use: the chronogram is only needed while simulating.
+const LazyChronogram = lazy(() => import('./ChronogramPanel'));
+function ChronogramPanel() {
+  return (
+    <Suspense fallback={null}>
+      <LazyChronogram />
+    </Suspense>
+  );
+}
 import { VariablesPanel } from './VariablesPanel';
 
 export interface BottomTab {
   id: string;
   /** i18n key under `panels.` */
-  label: 'variables' | 'problems';
+  label: 'variables' | 'problems' | 'simulation' | 'chronogram';
   Component: ComponentType;
 }
 
 export const BOTTOM_TABS: BottomTab[] = [
   { id: 'variables', label: 'variables', Component: VariablesPanel },
   { id: 'problems', label: 'problems', Component: ProblemsPanel },
+  { id: 'simulation', label: 'simulation', Component: SimulationPanel },
+  { id: 'chronogram', label: 'chronogram', Component: ChronogramPanel },
 ];
 
 function ProblemCount() {

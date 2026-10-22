@@ -16,6 +16,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- Reloading or reopening the app restores the last work without asking (then shows the start
+  screen), and there is no "leave page?" confirmation any more: autosave keeps everything.
 - Stored actions accept a BOOL variable alone: `M1` means `M1 := TRUE`.
 - The kind of an action is chosen with picture buttons showing its symbol (continuous,
   conditional, activation ↑, deactivation ↓, event, forcing). "Conditional" is a kind of its own:

@@ -302,8 +302,9 @@ for each row) before anything changes, and the import is one undo step.
 
 ## Saving and opening
 
-- **Autosave**: every change is kept in your browser within half a second. If the tab closes or
-  the browser crashes with unsaved changes, you are offered to restore them on the next visit.
+- **Autosave**: every change is kept in your browser within half a second (and at once when the
+  tab is hidden or closed). Reloading, closing the tab or a crash never loses work and never asks:
+  the next visit reopens the project as you left it, unsaved changes included.
 - **Save** (`Ctrl+S`) writes back to the file you opened, in Chrome and Edge. In other browsers
   (and the first time) it downloads `<project name>.grafcet.json`. **Save as** (`Ctrl+Shift+S`)
   picks a new file.

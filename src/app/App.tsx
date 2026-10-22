@@ -4,8 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { CanvasArea } from '@/editor/canvas/CanvasArea';
 import { GrafcetTabs } from '@/editor/canvas/GrafcetTabs';
 import { installShortcuts } from '@/editor/commands/shortcuts';
-import { doc } from '@/editor/store/document';
-import { isDirty } from '@/editor/store/documentStore';
 import { RailFooter, Toolbar } from '@/editor/tools/Toolbar';
 import { openAppDialog } from '@/editor/commands/registry';
 import { startValidation } from '@/editor/validation/problems';
@@ -38,13 +36,8 @@ let started = false;
 function useAppLifecycle() {
   const { t } = useTranslation();
   useEffect(() => {
+    // No "leave page?" confirmation: autosave keeps the work and the next visit reopens it.
     const uninstall = installShortcuts();
-    const beforeUnload = (e: BeforeUnloadEvent) => {
-      if (!isDirty(doc.store.getState())) return;
-      e.preventDefault();
-      e.returnValue = '';
-    };
-    window.addEventListener('beforeunload', beforeUnload);
     if (!started) {
       started = true;
       let warned = false;
@@ -63,10 +56,7 @@ function useAppLifecycle() {
           openAppDialog('start');
       });
     }
-    return () => {
-      uninstall();
-      window.removeEventListener('beforeunload', beforeUnload);
-    };
+    return uninstall;
   }, [t]);
 }
 

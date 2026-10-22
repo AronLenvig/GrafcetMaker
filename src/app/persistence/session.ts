@@ -262,7 +262,10 @@ export async function restoreSnapshot(snapshot: Snapshot): Promise<void> {
   });
 }
 
-/** On launch: reopen the last project; if it had unsaved changes (crash, closed tab) ask first. */
+/**
+ * On launch: reopen the last project as it was, unsaved changes included (crash, reload, closed
+ * tab): the browser copy is always the latest; Save writes it to a file.
+ */
 export async function startup(): Promise<void> {
   const lastId = readLastProject();
   let stored = lastId ? await safely(() => db.projects.get(lastId)) : undefined;
@@ -274,21 +277,6 @@ export async function startup(): Promise<void> {
     return;
   }
   const recent = await safely(() => db.recent.get(stored.id));
-  if (stored.dirty) {
-    const choice = await showDialog({
-      title: t('dialogs.restore.title'),
-      message: t('dialogs.restore.message', {
-        name: stored.name,
-        time: new Date(stored.updatedAt).toLocaleString(),
-      }),
-      actions: [
-        { id: 'new', label: t('dialogs.restore.startNew') },
-        { id: 'restore', label: t('dialogs.restore.restore'), variant: 'primary' },
-      ],
-      cancelId: 'restore',
-    });
-    if (choice !== 'restore') return;
-  }
   await loadIntoEditor(project, {
     dirty: stored.dirty,
     fileName: stored.fileName,

@@ -4,9 +4,9 @@ Everything happens on your computer: there is no account and nothing is uploaded
 
 ## Autosave and recovery
 
-Every change is kept in your browser half a second after you make it. If the tab closes or the
-browser crashes before you saved, GrafcetMaker offers to restore your work the next time you open
-it. A dot `●` next to the project name means there are changes not yet saved to a file.
+Every change is kept in your browser half a second after you make it. You can reload or close the
+tab at any time without being asked: the next time you open GrafcetMaker, your project is back as
+you left it, unsaved changes included. A dot `●` next to the project name means there are changes not yet saved to a file.
 
 **File › Local history** lists snapshots kept in the browser: taken when you save, every few minutes
 while you edit and before a project is closed. Restoring one opens it as unsaved changes.

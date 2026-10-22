@@ -88,16 +88,19 @@ test('create a sequence, save it, reopen it', async ({ page }, testInfo) => {
   await expect(page.getByText('SIMULATION', { exact: true })).toHaveCount(0);
 });
 
-test('unsaved work is offered back after a reload', async ({ page }) => {
+test('unsaved work is back after a reload, without asking', async ({ page }) => {
   await page.goto('./');
   await closeStartScreen(page);
   await appendStep(page, 'go');
   await expect(page.getByLabel('Unsaved changes')).toBeVisible();
   await page.waitForTimeout(800); // autosave debounce
-  page.on('dialog', (d) => void d.accept());
+  // No "leave page?" confirmation (a dialog here would fail the test) and no restore prompt.
+  page.on('dialog', () => {
+    throw new Error('unexpected browser dialog');
+  });
   await page.reload();
-  await page.getByRole('button', { name: 'Restore' }).click();
   await closeStartScreen(page);
+  await expect(page.getByLabel('Unsaved changes')).toBeVisible();
   await expect(page.locator('[data-el="step"]')).toHaveCount(2);
   await expect(page.locator('[data-el="transition"]')).toContainText('go');
 });

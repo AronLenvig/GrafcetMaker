@@ -73,8 +73,8 @@ keep it for later.
 **A transition clears again and again.** If its receptivity stays true, the grafcet goes round as
 fast as it can. Use an edge `↑a` to react once per press.
 
-**I lost my work.** Look in **File › Local history**: snapshots are kept in the browser. Reopening the
-app after a crash also offers to restore unsaved changes.
+**I lost my work.** Look in **File › Local history**: snapshots are kept in the browser. After a reload
+or a crash, GrafcetMaker reopens your last project automatically, unsaved changes included.
 
 **The file does not open.** Only `.grafcet.json` files saved by GrafcetMaker can be opened. A file
 saved by a newer version needs that newer version.

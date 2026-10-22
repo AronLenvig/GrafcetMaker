@@ -97,7 +97,7 @@ Top bar (File/Edit/View/Simulate/theme/help) · left tools · center canvas with
 - Exports default black-on-white; option "export in current theme".
 
 ## Persistence & export
-- Autosave to IndexedDB per command (debounce 500 ms), local snapshot history, crash-restore prompt. Unsaved-changes dot in title + `beforeunload` warning.
+- Autosave to IndexedDB per command (debounce 500 ms, flushed when the page is hidden), local snapshot history. On reload or after a crash the last work reopens automatically (no restore prompt), then the start screen. Unsaved-changes dot in title; no `beforeunload` warning (owner decision).
 - Save: `Ctrl/Cmd+S` saves to the same file (File System Access API) or downloads `<name>.grafcet.json` where unsupported; `Ctrl/Cmd+Shift+S` Save As. `Ctrl/Cmd+O` open.
 - Import: open dialog, drag-and-drop a file anywhere on the window, recent files list. Clear error for invalid or newer files; never lose the current project.
 - Export: one Export dialog (`Ctrl/Cmd+E`) with format picker, live preview, settings remembered per project. Formats: SVG (sanitized), PNG 1/2/4×, vector PDF A4/A3 with title block + tiling, variables CSV (import too), Structured Text, PLCopen TC6 XML. "Copy as SVG/PNG" to clipboard for pasting into documents.

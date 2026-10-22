@@ -244,6 +244,8 @@ Autonomous build log. Read this first in every session and resume from **Current
 - The start screen opens at every launch by default (one click to continue, can be turned off):
   examples and the tour stay discoverable for beginners.
 - PWA in prompt mode: an update never reloads by itself; the user chooses when.
+- Owner decision (after 1.0.0): no restore prompt and no `beforeunload` confirmation. The last
+  project reopens automatically on reload (dirty flag kept), autosave flushes on page hide.
 - Feedback uses mailto: (no backend, no network calls, nothing sent without the user's email app).
 - Split view keeps one active grafcet (the focused pane) so every command, the properties panel and
   validation navigation work unchanged.

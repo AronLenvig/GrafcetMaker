@@ -65,12 +65,6 @@ export const en = {
       save: 'Save',
       discard: 'Don’t save',
     },
-    restore: {
-      title: 'Restore unsaved work?',
-      message: '“{{name}}” has changes from {{time}} that were never saved to a file.',
-      restore: 'Restore',
-      startNew: 'Start a new project',
-    },
   },
   history: {
     append: 'Append step',

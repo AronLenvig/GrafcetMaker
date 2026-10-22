@@ -65,6 +65,7 @@ Always review generated code before it runs on a machine.
 
 ## Settings
 
-**Settings** (<kbd>Ctrl+,</kbd>, or the gear at the top right) holds the theme, notation, grid,
+**Settings** (<kbd>Ctrl+,</kbd>, or the gear at the top right) holds the theme, notation, welcome
+screen, grid,
 hints and simulation preferences, and shows how much browser storage is used. You can clear the
 local history and the recent files list there.

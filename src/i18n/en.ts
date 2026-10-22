@@ -822,6 +822,9 @@ export const en = {
     textbookHelp:
       'Show NOT as an overbar and AND as ·, as in textbooks. You always type ASCII, e.g. /a * b.',
     snapHelp: 'Elements snap to the 10-unit grid while you drag them.',
+    welcome: 'Welcome screen at startup',
+    welcomeHelp:
+      'Shows examples, recent projects and the tour when GrafcetMaker opens. Always available from Help › Start screen and examples.',
     hintsHelp:
       'Shows at the bottom of the canvas what you can do with the selection, tool or gesture.',
     autosave: 'Autosave',

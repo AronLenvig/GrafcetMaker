@@ -328,7 +328,7 @@ project data. GrafcetMaker itself sends nothing. Self-hosted builds can change t
 **Settings** (`Ctrl+,`, the gear in the top bar, or **File › Settings…**) are applied at once and
 remembered on this device:
 
-- **Appearance**: theme, textbook notation.
+- **Appearance**: theme, textbook notation, welcome screen at startup.
 - **Editor**: grid, snap to grid, hints. Autosave is always on.
 - **Simulation**: the speed a simulation starts with (changing the speed in the simulation bar
   updates it), highlighting of cleared transitions, step timers.

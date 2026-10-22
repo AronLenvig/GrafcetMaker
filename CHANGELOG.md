@@ -16,6 +16,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- Settings › Appearance: turn the welcome screen at startup on or off.
 - Reloading or reopening the app restores the last work without asking (then shows the start
   screen), and there is no "leave page?" confirmation any more: autosave keeps everything.
 - Stored actions accept a BOOL variable alone: `M1` means `M1 := TRUE`.

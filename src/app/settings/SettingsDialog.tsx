@@ -67,6 +67,7 @@ function Appearance() {
   const mode = useTheme((s) => s.mode);
   const setMode = useTheme((s) => s.setMode);
   const textbook = usePrefs((s) => s.textbookNotation);
+  const welcome = usePrefs((s) => s.showStartScreen);
   return (
     <>
       <Row label={t('theme.label')} help={t('settings.themeHelp')}>
@@ -97,6 +98,12 @@ function Appearance() {
         help={t('settings.textbookHelp')}
         value={textbook}
         onChange={(v) => setPrefs({ textbookNotation: v })}
+      />
+      <SwitchRow
+        label={t('settings.welcome')}
+        help={t('settings.welcomeHelp')}
+        value={welcome}
+        onChange={(v) => setPrefs({ showStartScreen: v })}
       />
     </>
   );

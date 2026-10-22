@@ -200,6 +200,10 @@ Autonomous build log. Read this first in every session and resume from **Current
   outputs with always-active drivers). Tests in `tests/unit/actions.test.ts`.
 - Fix: placing tools switched back to Select after creating the element, which closed the editor
   a new comment opened.
+- Share links (`src/core/io/shareLink.ts`): File › Copy share link puts the project in
+  `#share=<base64url(deflate-raw(compact JSON))>`; opening one (launch or `hashchange`) goes
+  through `parseProjectFile`, asks about unsaved changes and clears the hash. Tests in
+  `tests/unit/shareLink.test.ts`.
 
 ## Decisions
 
@@ -248,10 +252,17 @@ Autonomous build log. Read this first in every session and resume from **Current
   project reopens automatically on reload (dirty flag kept), autosave flushes on page hide.
 - Feedback (owner decision, after 1.0.0): anonymous, without the owner's email in the app. The
   hosted site runs as a Cloudflare Worker with static assets (`wrangler.jsonc`; `worker/index.ts`
-  runs only for `/api/*`, `worker/feedback.ts` is the endpoint, same origin, CSP unchanged) that files each message as an issue in a private GitHub repository (`GITHUB_REPO` in
-  `wrangler.jsonc`, `GITHUB_TOKEN` secret). The app probes `GET api/feedback` once per session and falls back to
-  mailto (`VITE_FEEDBACK_EMAIL`, empty by default) or Copy, so the static build still runs
-  anywhere, air-gapped included.
+  runs only for `/api/*`, `worker/feedback.ts` is the endpoint, same origin, CSP unchanged)
+  that files each message as an issue in a private GitHub repository (`GITHUB_REPO` in
+  `wrangler.jsonc`, `GITHUB_TOKEN` secret). The app probes `GET api/feedback` once per session
+  and falls back to mailto (`VITE_FEEDBACK_EMAIL`, empty by default) or Copy, so the static build
+  still runs anywhere, air-gapped included.
+- Share links use the URL fragment, not the path or query: it never reaches the server (no server
+  URL limits or logs, works on static/on-prem/offline hosts, and the relative base path keeps
+  working). Compression is the native `CompressionStream` (no dependency). The address bar is not
+  kept in sync while editing (help links share the fragment, and browser history would fill with
+  projects); the link is made on demand and removed after opening. Same project id as the sender,
+  like a file: an existing dirty copy with that id is snapshotted before being replaced.
 - Split view keeps one active grafcet (the focused pane) so every command, the properties panel and
   validation navigation work unchanged.
 - The help center is a docked, non-modal panel so beginners can follow a tutorial while drawing.

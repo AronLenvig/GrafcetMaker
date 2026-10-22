@@ -32,6 +32,15 @@ The authoritative definition is the Zod schema in
 
 Unknown keys are dropped. All text is rendered as text (never as HTML).
 
+## Share links
+
+**File › Copy share link** puts the project in the URL fragment:
+`<app URL>#share=<data>`, where `<data>` is the compact (unindented) project JSON, compressed
+with raw DEFLATE (`CompressionStream('deflate-raw')`) and encoded as base64url without padding
+([`src/core/io/shareLink.ts`](../src/core/io/shareLink.ts)). The fragment is never sent to the
+server. On open, the data is inflated with the 10 MB file limit enforced while inflating, then
+loaded exactly like a file (migrations, validation, newer versions rejected).
+
 ## Structure
 
 Collections are normalized maps keyed by id (ids are random 12-character strings); the key must

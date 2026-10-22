@@ -197,6 +197,7 @@ export function TopBar() {
           <Item id="file.save" />
           <Item id="file.saveAs" />
           <Item id="file.downloadCopy" />
+          <Item id="file.copyLink" />
           <MenuSeparator />
           <Item id="file.export" />
           <SubMenu label={t('commands.file.exportAs')}>

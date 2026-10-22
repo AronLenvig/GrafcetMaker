@@ -32,6 +32,21 @@ in the corner offers to reload: your work is kept.
 
 `.grafcet.json` files are readable text, well suited to version control (Git) and code review.
 
+## Share a link
+
+**File › Copy share link** copies a web address that contains the whole project, compressed. Paste
+it into a chat, an email or a ticket: whoever opens it gets their own copy of the project, with all
+its grafcets and variables, and can change it without affecting yours.
+
+- The project travels inside the link (after the `#`), which browsers never send to the web
+  server: nothing is uploaded, and links also work offline and on in-house installations.
+- Anyone who has the link can read the project, so share it like the file itself.
+- A link is a snapshot: later changes need a new link.
+- Small charts give links of one or two thousand characters. If GrafcetMaker warns that a link is
+  long, some chat and email apps may cut it; send the `.grafcet.json` file instead.
+- Opening a link works like opening a file: if your project has unsaved changes you are asked
+  first, and a damaged link is rejected with an explanation without touching your project.
+
 ## Export
 
 **File › Export…** (<kbd>Ctrl+E</kbd>) opens one dialog for every format, with a live preview. Its

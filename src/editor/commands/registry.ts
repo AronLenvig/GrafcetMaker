@@ -9,6 +9,7 @@ import {
   saveProject,
   saveProjectAs,
   downloadCopy,
+  copyShareLink,
 } from '@/app/persistence/session';
 import { useTheme } from '@/theme/theme';
 import { fitToContent, setZoom, zoomBy } from '../canvas/viewport';
@@ -127,6 +128,7 @@ export const COMMANDS: Command[] = [
     run: saveProjectAs,
   },
   { id: 'file.downloadCopy', label: 'file.downloadCopy', group: 'file', run: () => downloadCopy() },
+  { id: 'file.copyLink', label: 'file.copyLink', group: 'file', run: copyShareLink },
   {
     id: 'insert.macroStep',
     label: 'insert.macroStep',

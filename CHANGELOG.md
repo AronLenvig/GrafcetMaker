@@ -13,6 +13,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   is always active: a continuous action follows its assignment condition, a stored action runs on
   its event (on activation: once at start), a forcing order is always in force. Simulated and
   generated (Structured Text; PLCopen XML through a GRAFCET_Always program).
+- Share links: **File › Copy share link** copies a URL that contains the whole project
+  (compressed, after the `#`, never sent to the server). Opening it gives the recipient their own
+  copy; damaged links are rejected with an explanation.
 
 ### Changed
 

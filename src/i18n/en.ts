@@ -56,6 +56,15 @@ export const en = {
         'This project was saved by a newer version of GrafcetMaker (file format {{version}}). Update GrafcetMaker to open it.',
       invalid: 'The project file is damaged or was edited by hand incorrectly. Problems found:',
       unknown: 'An unexpected error occurred while reading the file.',
+      brokenLink:
+        'The link is damaged or incomplete: it may have been cut off when it was copied. Ask for the link again, or for the project file.',
+    },
+    share: {
+      copied: 'Share link copied. Anyone who opens it gets their own copy of this project.',
+      copiedLong:
+        'Share link copied ({{count}} characters). Some chat and email apps cut long links: if it arrives broken, send the project file instead.',
+      opened: 'Opened “{{name}}” from a shared link.',
+      openTitle: 'Could not open the shared link',
     },
   },
   dialogs: {
@@ -168,6 +177,7 @@ export const en = {
       save: 'Save',
       saveAs: 'Save as…',
       downloadCopy: 'Download a copy',
+      copyLink: 'Copy share link',
       localHistory: 'Local history…',
       export: 'Export…',
       exportAs: 'Export as',

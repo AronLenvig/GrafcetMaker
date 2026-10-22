@@ -318,6 +318,11 @@ for each row) before anything changes, and the import is one undo step.
 - **File › Local history** lists snapshots kept in the browser (taken on save, every few minutes of
   editing and before a project is closed). Restoring one opens it as unsaved changes.
 - **File › Download a copy** downloads the project without changing which file Save writes to.
+- **File › Copy share link** copies a URL that holds the whole project (compressed, after the
+  `#`, so it never reaches the server). Opening it gives the recipient their own copy; the link is
+  then removed from the address bar, so a reload keeps their edits. A damaged or cut-off link is
+  rejected with an explanation. Links over 8000 characters trigger a warning, since some apps cut
+  long links.
 
 ## Feedback
 

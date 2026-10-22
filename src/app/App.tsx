@@ -21,7 +21,7 @@ import { UpdateBanner } from './UpdateBanner';
 import { openHelpFromHash, useHelp } from './help/helpStore';
 import { startAutosave } from './persistence/autosave';
 import { onStorageError } from './persistence/db';
-import { startup, useSession } from './persistence/session';
+import { openSharedLink, startup, useSession } from './persistence/session';
 import { setPrefs, usePrefs } from './prefs';
 import { toast, useToasts } from './toasts';
 import { TopBar } from './TopBar';
@@ -49,7 +49,10 @@ function useAppLifecycle() {
       startAutosave(() => useSession.getState().fileName ?? undefined);
       startValidation();
       startPwa();
-      void startup().then(() => {
+      // A share link pasted into the address bar of an open tab only changes the hash.
+      window.addEventListener('hashchange', () => void openSharedLink());
+      void startup().then(async () => {
+        if (await openSharedLink()) return;
         openHelpFromHash();
         // The start screen greets every launch unless turned off (not over a help link or a dialog).
         if (usePrefs.getState().showStartScreen && !useHelp.getState().open && !isDialogOpen())

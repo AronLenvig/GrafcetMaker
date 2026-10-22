@@ -6,7 +6,7 @@ export const FILE_EXTENSION = '.grafcet.json';
 export const FILE_MIME = 'application/json';
 
 export type ProjectFileErrorCode =
-  'tooLarge' | 'notJson' | 'notProject' | 'newerVersion' | 'invalid';
+  'tooLarge' | 'notJson' | 'notProject' | 'newerVersion' | 'invalid' | 'brokenLink';
 
 /** Load failure with a stable code (translated by the UI) and human-readable details. */
 export class ProjectFileError extends Error {
@@ -22,13 +22,14 @@ export class ProjectFileError extends Error {
 }
 
 /**
- * Pretty-printed, canonical JSON (keys in schema order), so save → load → save is byte-identical.
- * Never throws: if the in-memory project somehow fails validation, the raw object is written so
- * the user's work is never lost.
+ * Pretty-printed, canonical JSON (keys in schema order), so save → load → save is byte-identical;
+ * `compact` leaves out the whitespace (share links). Never throws: if the in-memory project somehow
+ * fails validation, the raw object is written so the user's work is never lost.
  */
-export function serializeProject(project: Project): string {
+export function serializeProject(project: Project, { compact = false } = {}): string {
   const parsed = projectSchema.safeParse(project);
-  return JSON.stringify(parsed.success ? parsed.data : project, null, 2) + '\n';
+  const data = parsed.success ? parsed.data : project;
+  return compact ? JSON.stringify(data) : JSON.stringify(data, null, 2) + '\n';
 }
 
 export function suggestedFileName(project: Project): string {

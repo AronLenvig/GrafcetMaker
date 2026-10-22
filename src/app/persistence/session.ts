@@ -8,12 +8,14 @@ import {
   serializeProject,
   suggestedFileName,
 } from '@/core/io/projectFile';
+import { decodeShareHash, encodeShareHash, SHARE_PREFIX } from '@/core/io/shareLink';
 import { fitToContent } from '@/editor/canvas/viewport';
 import { doc, getProject } from '@/editor/store/document';
 import { isDirty } from '@/editor/store/documentStore';
 import { stopSimulation } from '@/editor/simulation/simStore';
 import { useUi } from '@/editor/store/uiStore';
 import { showDialog } from '../dialogs/dialogStore';
+import { toast } from '../toasts';
 import { addSnapshot, db, safely, touchRecent, type RecentEntry, type Snapshot } from './db';
 import {
   downloadBlob,
@@ -138,6 +140,60 @@ export async function openFile(file: File, handle?: FileSystemFileHandle): Promi
   const existing = await safely(() => db.projects.get(project.id));
   if (existing?.dirty) await addSnapshot(existing.project, 'beforeReplace');
   await loadIntoEditor(project, { fileName: file.name, handle: handle ?? null });
+}
+
+/** Links longer than this may be cut by some chat and email apps; the user is told so. */
+const LONG_LINK = 8000;
+
+/** File › Copy share link: a URL holding the whole project (see core/io/shareLink). */
+export async function copyShareLink(): Promise<void> {
+  const link = encodeShareHash(getProject()).then(
+    (hash) => location.href.replace(/#.*$/, '') + hash,
+  );
+  let ok = true;
+  try {
+    // A pending clipboard item keeps the click's permission while the project is compressed
+    // (required by Safari); browsers without it fall back to writeText.
+    const blob = link.then((l) => new Blob([l], { type: 'text/plain' }));
+    await navigator.clipboard.write([new ClipboardItem({ 'text/plain': blob })]);
+  } catch {
+    ok = await link
+      .then((l) => navigator.clipboard.writeText(l))
+      .then(
+        () => true,
+        () => false,
+      );
+  }
+  const length = (await link).length;
+  if (!ok) toast(t('export.copyFailed'), 'error');
+  else if (length > LONG_LINK)
+    toast(t('file.share.copiedLong', { count: length }), 'warning', 8000);
+  else toast(t('file.share.copied'), 'success', 5000);
+}
+
+/**
+ * Opens the project of a share link in the address bar (on launch, or pasted into an open tab)
+ * and removes the link from the URL, so a reload restores the user's own work. Returns false
+ * when the URL holds no share link.
+ */
+export async function openSharedLink(): Promise<boolean> {
+  const hash = location.hash;
+  if (!hash.startsWith(SHARE_PREFIX)) return false;
+  history.replaceState(null, '', location.pathname + location.search);
+  let project: Project;
+  try {
+    project = await decodeShareHash(hash);
+  } catch (e) {
+    const { message, details } = loadErrorMessage(e);
+    await showError(t('file.share.openTitle'), message, details);
+    return true;
+  }
+  if (!(await confirmDiscardIfDirty())) return true;
+  const existing = await safely(() => db.projects.get(project.id));
+  if (existing?.dirty) await addSnapshot(existing.project, 'beforeReplace');
+  await loadIntoEditor(project);
+  toast(t('file.share.opened', { name: project.name }), 'success', 5000);
+  return true;
 }
 
 export async function openProjectDialog(): Promise<void> {

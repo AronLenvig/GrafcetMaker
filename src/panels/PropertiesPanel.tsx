@@ -263,10 +263,8 @@ function GrafcetAndProjectProps({ g }: { g: Grafcet }) {
           onCommit={(v) => renameGrafcet(g.id, v.trim())}
         />
         <p className="text-muted">
-          {t('props.grafcet.stats', {
-            steps: Object.keys(g.steps).length,
-            transitions: Object.keys(g.transitions).length,
-          })}
+          {t('props.grafcet.steps', { count: Object.keys(g.steps).length })},{' '}
+          {t('props.grafcet.transitions', { count: Object.keys(g.transitions).length })}
         </p>
         <p>{t(`props.grafcet.kinds.${g.kind}`)}</p>
         {parent && (

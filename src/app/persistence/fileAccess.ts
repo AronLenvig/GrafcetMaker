@@ -39,14 +39,13 @@ export interface PickedFile {
 
 export interface FileKind {
   description: string;
-  mime: string;
-  extensions: string[];
+  /** MIME type → file extensions. */
+  accept: Record<string, string[]>;
 }
 
 export const PROJECT_FILE: FileKind = {
   description: 'GRAFCET project',
-  mime: 'application/json',
-  extensions: ['.json'],
+  accept: { 'application/json': ['.json'] },
 };
 
 const isAbort = (e: unknown) => e instanceof DOMException && e.name === 'AbortError';
@@ -55,7 +54,9 @@ function pickWithInput(kind: FileKind): Promise<PickedFile | null> {
   return new Promise((resolve) => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = [...kind.extensions, kind.mime].join(',');
+    input.accept = Object.entries(kind.accept)
+      .flatMap(([mime, exts]) => [...exts, mime])
+      .join(',');
     input.style.display = 'none';
     input.addEventListener('change', () => {
       const file = input.files?.[0];
@@ -77,7 +78,7 @@ export async function pickFile(kind: FileKind = PROJECT_FILE): Promise<PickedFil
     try {
       const [handle] = await fsWindow.showOpenFilePicker!({
         id: 'grafcetmaker',
-        types: [{ description: kind.description, accept: { [kind.mime]: kind.extensions } }],
+        types: [{ description: kind.description, accept: kind.accept }],
       });
       if (!handle) return null;
       return { file: await handle.getFile(), handle };
@@ -99,7 +100,7 @@ export async function pickSaveHandle(
     return await fsWindow.showSaveFilePicker!({
       id: 'grafcetmaker',
       suggestedName,
-      types: [{ description: kind.description, accept: { [kind.mime]: kind.extensions } }],
+      types: [{ description: kind.description, accept: kind.accept }],
     });
   } catch (e) {
     if (isAbort(e)) return null;

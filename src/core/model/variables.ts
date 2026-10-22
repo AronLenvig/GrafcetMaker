@@ -129,3 +129,36 @@ export function formatInitialValue(v: Variable): string {
   }
   return String(v.initialValue);
 }
+
+export interface VariableReference {
+  grafcetId: Id;
+  /** Transition (receptivity) or action (text / condition). */
+  elementId: Id;
+  field: 'receptivity' | 'text' | 'condition';
+  source: string;
+  /** The expression assigns the variable (continuous or stored action). */
+  writes: boolean;
+}
+
+/** Every expression that reads or writes a variable (lower-cased name), in grafcet order. */
+export function variableReferences(p: Project, name: string): VariableReference[] {
+  const lower = name.toLowerCase();
+  const out: VariableReference[] = [];
+  for (const gid of p.grafcetOrder) {
+    const g = p.grafcets[gid];
+    if (!g) continue;
+    const env = buildEnv(p, g.id);
+    for (const e of grafcetExpressions(g)) {
+      const a = analyze(e.kind, e.source, env);
+      if (!a.references.has(lower)) continue;
+      out.push({
+        grafcetId: g.id,
+        elementId: e.ownerId,
+        field: e.field,
+        source: e.source,
+        writes: a.writes === lower,
+      });
+    }
+  }
+  return out;
+}

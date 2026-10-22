@@ -96,7 +96,7 @@ export function SimBar() {
           onChange={(e) =>
             setSpeed((e.target.value === 'fast' ? 'fast' : Number(e.target.value)) as Speed)
           }
-          className="h-7 rounded border border-border bg-surface px-1 text-text"
+          className="gm-input gm-input-sm w-auto pr-2"
         >
           {SPEEDS.map((s) => (
             <option key={String(s)} value={String(s)}>

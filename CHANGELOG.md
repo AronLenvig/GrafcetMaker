@@ -37,3 +37,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Import variables from CSV (menu or drag-and-drop) with a preview of changes and row errors.
 - Hierarchy: macro-steps with expansion grafcets (E/S), enclosing steps with enclosed grafcets (*),
   navigation between levels, simulation of both, validation of the hierarchy and forcing cycles.
+- Help center (F1): getting-started tutorial, GRAFCET basics with diagrams, guides for
+  expressions, actions, editing, variables, simulation, hierarchy and files, glossary and
+  troubleshooting; search; shareable `#help/<page>` links.
+- Contextual hint bar showing the keys and gestures available for the selection, tool or drag.
+- Settings dialog (Ctrl+,): theme, notation, grid, hints, simulation defaults, storage usage,
+  backup, clearing local history and recent files, resetting preferences.
+- Variables: Excel (.xlsx) export and import, a searchable, grouped variable list in the side
+  panel with where-used and jump-to, a sortable, filterable table that stays fast with thousands
+  of variables.
+- Export as WebP; File › Export as shortcuts to each format.
+- Rising / falling edges are easy to enter: type `^`, press Alt+↑ / Alt+↓, or use the symbol bar.
+- Rename the project in place by double-clicking its title.
+- Warning for a stored action on event without an event.
+
+### Changed
+
+- Stored actions on activation are drawn with an ↑ above the box, on deactivation with an ↓ below
+  it, and actions on an event with a flag at the top right (previously arrows inside the box and no
+  mark for events).
+- Restyled text inputs and the inline editor on the canvas.

@@ -97,6 +97,19 @@ function expressionRules(g: Grafcet, env: ExprEnv, used: Set<string>, out: Issue
       });
     }
   }
+  // An action stored on an event without an event never executes.
+  for (const a of Object.values(g.actions)) {
+    if (a.kind !== 'storedOnEvent' || a.condition?.trim()) continue;
+    out.push({
+      ruleId: 'missingEvent',
+      severity: 'warning',
+      messageKey: 'problems.messages.missingEvent',
+      params: { text: a.text },
+      grafcetId: g.id,
+      elementIds: [a.id],
+      field: 'condition',
+    });
+  }
 }
 
 function topmost(steps: Step[]): Step | undefined {

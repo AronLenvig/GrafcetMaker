@@ -4,6 +4,7 @@ import { COMMANDS, formatKeys, useAppDialog } from '@/editor/commands/registry';
 import { getProject, useDoc } from '@/editor/store/document';
 import { listSnapshots, type Snapshot } from '../persistence/db';
 import { restoreSnapshot } from '../persistence/session';
+import { SettingsDialog } from '../settings/SettingsDialog';
 import { Button, Modal } from '../ui/primitives';
 import { closeDialog, useDialogs } from './dialogStore';
 
@@ -157,6 +158,7 @@ export function DialogHost() {
       {open === 'localHistory' && <LocalHistoryDialog onClose={close} />}
       {open === 'shortcuts' && <ShortcutsDialog onClose={close} />}
       {open === 'about' && <AboutDialog onClose={close} />}
+      {open === 'settings' && <SettingsDialog onClose={close} />}
       {open === 'export' && (
         <Suspense fallback={null}>
           <ExportDialog onClose={close} />

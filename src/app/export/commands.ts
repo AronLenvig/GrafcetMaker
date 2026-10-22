@@ -1,24 +1,51 @@
 import i18next from 'i18next';
-import { applyVariableImport, planVariableImport } from '@/core/io/csv';
+import {
+  applyVariableImport,
+  planVariableImport,
+  planVariableImportRows,
+  variablesToCsv,
+  variablesToXlsx,
+} from '@/core/io/csv';
+import { readXlsx } from '@/core/io/xlsx';
 import { doc, getActiveGrafcet, getProject } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
 import { showDialog } from '../dialogs/dialogStore';
-import { pickFile, type FileKind } from '../persistence/fileAccess';
+import { downloadBlob, pickFile, type FileKind } from '../persistence/fileAccess';
 import { toast } from '../toasts';
-import { copyToClipboard, loadExportSettings, renderSvg, svgToPng } from './exporters';
+import {
+  copyToClipboard,
+  loadExportSettings,
+  renderSvg,
+  safeFileName,
+  svgToPng,
+} from './exporters';
 
 const t = i18next.t.bind(i18next);
 
-export const CSV_FILE: FileKind = { description: 'CSV', mime: 'text/csv', extensions: ['.csv'] };
-const MAX_CSV_BYTES = 2 * 1024 * 1024;
+export const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+export const VARIABLES_FILE: FileKind = {
+  description: 'Variables (CSV or Excel)',
+  accept: { 'text/csv': ['.csv'], [XLSX_MIME]: ['.xlsx'] },
+};
+const MAX_BYTES = 5 * 1024 * 1024;
 
-/** Imports variables from a CSV file after showing what will change. One undo step. */
+export const isVariablesFile = (name: string) => /\.(csv|xlsx)$/i.test(name);
+
+/** Imports variables from a CSV or Excel file after showing what will change. One undo step. */
 export async function importVariablesFile(file: File): Promise<void> {
-  if (file.size > MAX_CSV_BYTES) {
+  if (file.size > MAX_BYTES) {
     toast(t('csv.tooLarge'), 'error');
     return;
   }
-  const plan = planVariableImport(getProject(), await file.text());
+  let plan;
+  try {
+    plan = /\.xlsx$/i.test(file.name)
+      ? planVariableImportRows(getProject(), readXlsx(new Uint8Array(await file.arrayBuffer())))
+      : planVariableImport(getProject(), await file.text());
+  } catch {
+    toast(t('csv.unreadable', { name: file.name }), 'error', 6000);
+    return;
+  }
   const header = plan.errors.find((e) => e.code === 'noHeader');
   if (header) {
     await showDialog({
@@ -56,7 +83,7 @@ export async function importVariablesFile(file: File): Promise<void> {
 }
 
 export async function importVariablesDialog(): Promise<void> {
-  const picked = await pickFile(CSV_FILE);
+  const picked = await pickFile(VARIABLES_FILE);
   if (picked) await importVariablesFile(picked.file);
 }
 
@@ -77,4 +104,13 @@ export async function copyDiagram(kind: 'png' | 'svg'): Promise<void> {
   } catch (e) {
     toast(t('export.failed', { message: String((e as Error).message ?? e) }), 'error');
   }
+}
+
+/** Downloads the variable table as CSV or Excel. */
+export function exportVariables(format: 'csv' | 'xlsx'): void {
+  const p = getProject();
+  const name = safeFileName(p.name, t('export.variablesFile'));
+  if (format === 'csv') downloadBlob(variablesToCsv(p), `${name}.csv`, 'text/csv');
+  else
+    downloadBlob(new Blob([variablesToXlsx(p) as BlobPart], { type: XLSX_MIME }), `${name}.xlsx`);
 }

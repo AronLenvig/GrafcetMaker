@@ -130,7 +130,7 @@ const InputRow = memo(function InputRow({
         onChange={(e) => setDraft(e.target.value)}
         onBlur={commit}
         onKeyDown={(e) => e.key === 'Enter' && commit()}
-        className="h-6 w-24 rounded border border-border bg-surface px-1 text-right font-mono"
+        className="gm-input gm-input-sm gm-input-mono w-28 text-right"
       />
       <span className="w-8 text-xs text-muted">{v.type === 'TIME' ? 'ms' : ''}</span>
     </li>

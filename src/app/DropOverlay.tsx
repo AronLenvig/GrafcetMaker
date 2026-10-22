@@ -35,8 +35,8 @@ export function DropOverlay() {
       setActive(false);
       const file = e.dataTransfer?.files[0];
       if (!file) return;
-      // A CSV file is a variable list to import; anything else is opened as a project.
-      if (/\.csv$/i.test(file.name))
+      // A CSV or Excel file is a variable list to import; anything else is opened as a project.
+      if (/\.(csv|xlsx)$/i.test(file.name))
         void import('./export/commands').then((m) => m.importVariablesFile(file));
       else void openFile(file);
     };

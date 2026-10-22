@@ -35,6 +35,8 @@ export interface UiState {
   pending: { kind: 'loop'; from: Id } | null;
   /** Simulation mode locks editing. */
   mode: 'edit' | 'simulate';
+  /** Variable opened in the side panel's variable list. */
+  focusedVariable: Id | null;
 }
 
 export const useUi = create<UiState>(() => ({
@@ -49,6 +51,7 @@ export const useUi = create<UiState>(() => ({
   pasteCount: 0,
   pending: null,
   mode: 'edit',
+  focusedVariable: null,
 }));
 
 export const ui = {

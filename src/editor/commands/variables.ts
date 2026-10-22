@@ -1,4 +1,6 @@
 import i18next from 'i18next';
+import { showDialog } from '@/app/dialogs/dialogStore';
+import { setPrefs } from '@/app/prefs';
 import { toast } from '@/app/toasts';
 import { newId } from '@/core/model/factory';
 import type { Id, Variable, VariableDirection, VariableType } from '@/core/model/types';
@@ -7,9 +9,11 @@ import {
   renameVariableEverywhere,
   uniqueVariableName,
   validateVariableName,
+  variableUsage,
   type VariableNameError,
 } from '@/core/model/variables';
 import { doc, getProject } from '../store/document';
+import { useUi } from '../store/uiStore';
 import { clipboardHooks } from './edit';
 
 // Copy/paste brings along the variables the copied expressions use.
@@ -56,4 +60,32 @@ export function updateVariable(id: Id, recipe: (v: Variable) => void): void {
 
 export function deleteVariable(id: Id): void {
   doc.execute('history.deleteVariable', (p) => void delete p.variables[id]);
+}
+
+/** Opens a variable in the side panel's variable list. */
+export function showVariable(id: Id | null): void {
+  setPrefs({ rightTab: 'variables', rightCollapsed: false });
+  useUi.setState({ focusedVariable: id });
+}
+
+/** Deletes a variable, asking first when expressions still use it. */
+export async function confirmDeleteVariable(id: Id): Promise<void> {
+  const p = getProject();
+  const v = p.variables[id];
+  if (!v) return;
+  const uses = variableUsage(p).get(v.name.toLowerCase()) ?? 0;
+  if (uses > 0) {
+    const choice = await showDialog({
+      title: i18next.t('variables.deleteTitle', { name: v.name }),
+      message: i18next.t('variables.deleteUsed', { count: uses }),
+      actions: [
+        { id: 'cancel', label: i18next.t('common.cancel') },
+        { id: 'delete', label: i18next.t('common.delete'), variant: 'danger' },
+      ],
+      cancelId: 'cancel',
+    });
+    if (choice !== 'delete') return;
+  }
+  deleteVariable(id);
+  if (useUi.getState().focusedVariable === id) useUi.setState({ focusedVariable: null });
 }

@@ -304,3 +304,13 @@ export function setActiveGrafcet(gid: Id): void {
   if (useUi.getState().activeGrafcetId === gid) return;
   ui.set({ activeGrafcetId: gid, selection: {}, selectedLink: null, editing: null });
 }
+
+/** Switches to a grafcet, selects elements there, pans/zooms to them and flashes them. */
+export function revealInGrafcet(gid: Id, ids: Id[]): void {
+  setActiveGrafcet(gid);
+  ui.select(ids.slice(0, 1));
+  requestAnimationFrame(() => {
+    revealElements(gid, ids);
+    ui.flash(ids);
+  });
+}

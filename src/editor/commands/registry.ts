@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { openHelp, toggleHelp } from '@/app/help/helpStore';
 import { setPrefs, showBottomTab, usePrefs } from '@/app/prefs';
 import {
   newProject,
@@ -63,7 +64,7 @@ export interface Command {
 }
 
 /** App-level dialogs opened by commands. */
-export type AppDialog = 'localHistory' | 'shortcuts' | 'about' | 'export' | null;
+export type AppDialog = 'localHistory' | 'shortcuts' | 'about' | 'export' | 'settings' | null;
 export const useAppDialog = create<{ open: AppDialog }>(() => ({ open: null }));
 export const openAppDialog = (open: AppDialog) => useAppDialog.setState({ open });
 
@@ -152,6 +153,28 @@ export const COMMANDS: Command[] = [
     keys: ['Mod+E'],
     global: true,
     run: () => openAppDialog('export'),
+  },
+  ...(['pdf', 'svg', 'png', 'webp'] as const).map((f): Command => ({
+    id: `file.export${f[0]!.toUpperCase()}${f.slice(1)}`,
+    label: `file.export${f[0]!.toUpperCase()}${f.slice(1)}`,
+    group: 'file',
+    run: () =>
+      import('@/app/export/exporters').then((m) => {
+        m.requestExportFormat(f);
+        openAppDialog('export');
+      }),
+  })),
+  {
+    id: 'file.exportVariablesXlsx',
+    label: 'file.exportVariablesXlsx',
+    group: 'file',
+    run: () => import('@/app/export/commands').then((m) => m.exportVariables('xlsx')),
+  },
+  {
+    id: 'file.exportVariablesCsv',
+    label: 'file.exportVariablesCsv',
+    group: 'file',
+    run: () => import('@/app/export/commands').then((m) => m.exportVariables('csv')),
   },
   {
     id: 'file.importVariables',
@@ -489,6 +512,18 @@ export const COMMANDS: Command[] = [
     run: () => showBottomTab('variables'),
   },
   {
+    id: 'view.toggleHints',
+    label: 'view.toggleHints',
+    group: 'view',
+    run: () => setPrefs({ showHints: !usePrefs.getState().showHints }),
+  },
+  {
+    id: 'view.variableList',
+    label: 'view.variableList',
+    group: 'view',
+    run: () => setPrefs({ rightTab: 'variables', rightCollapsed: false }),
+  },
+  {
     id: 'view.palette',
     label: 'view.palette',
     group: 'view',
@@ -549,6 +584,27 @@ export const COMMANDS: Command[] = [
   },
 
   {
+    id: 'help.open',
+    label: 'help.open',
+    group: 'help',
+    keys: ['F1'],
+    global: true,
+    run: toggleHelp,
+  },
+  {
+    id: 'help.gettingStarted',
+    label: 'help.gettingStarted',
+    group: 'help',
+    run: () => openHelp('getting-started'),
+  },
+  { id: 'help.basics', label: 'help.basics', group: 'help', run: () => openHelp('grafcet-basics') },
+  {
+    id: 'help.expressions',
+    label: 'help.expressions',
+    group: 'help',
+    run: () => openHelp('expressions'),
+  },
+  {
     id: 'help.shortcuts',
     label: 'help.shortcuts',
     group: 'help',
@@ -556,6 +612,14 @@ export const COMMANDS: Command[] = [
     run: () => openAppDialog('shortcuts'),
   },
   { id: 'help.about', label: 'help.about', group: 'help', run: () => openAppDialog('about') },
+  {
+    id: 'file.settings',
+    label: 'file.settings',
+    group: 'file',
+    keys: ['Mod+,'],
+    global: true,
+    run: () => openAppDialog('settings'),
+  },
 ];
 
 const byId = new Map(COMMANDS.map((c) => [c.id, c]));
@@ -599,6 +663,7 @@ export function formatKeys(combo: string): string {
       if (k === 'ArrowLeft') return '←';
       if (k === 'ArrowRight') return '→';
       if (k === 'Delete') return isApple ? '⌦' : 'Del';
+      if (k === 'Escape') return 'Esc';
       return k;
     })
     .join(isApple ? '' : '+');

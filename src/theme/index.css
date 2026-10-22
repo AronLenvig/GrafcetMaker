@@ -84,3 +84,138 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+/*
+ * Form controls. One look everywhere: calm at rest, clear on hover, an accent ring on focus,
+ * a red ring and message when invalid. `gm-input-ghost` reads as plain text until hovered
+ * (dense tables); `gm-inline-editor` is the in-place editor on the diagram.
+ */
+@layer components {
+  .gm-input {
+    display: block;
+    width: 100%;
+    height: 32px;
+    padding: 0 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    line-height: 30px;
+    transition:
+      border-color 0.12s,
+      box-shadow 0.12s,
+      background-color 0.12s;
+  }
+
+  .gm-input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.75;
+  }
+
+  .gm-input:hover {
+    border-color: var(--border-strong);
+  }
+
+  .gm-input:focus,
+  .gm-input:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .gm-input[aria-invalid='true'] {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px var(--danger-soft);
+  }
+
+  .gm-input:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .gm-input-sm {
+    height: 28px;
+    line-height: 26px;
+    padding: 0 8px;
+  }
+
+  .gm-input-mono {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+  }
+
+  textarea.gm-input {
+    height: auto;
+    min-height: 84px;
+    padding: 6px 10px;
+    line-height: 1.45;
+    resize: vertical;
+  }
+
+  select.gm-input {
+    appearance: none;
+    padding-right: 28px;
+    cursor: pointer;
+  }
+
+  .gm-input-ghost {
+    border-color: transparent;
+    background: transparent;
+  }
+
+  .gm-input-ghost:hover {
+    border-color: transparent;
+    background: var(--surface-2);
+  }
+
+  .gm-input-ghost:focus,
+  .gm-input-ghost:focus-visible {
+    background: var(--surface);
+  }
+
+  .gm-inline-editor {
+    position: absolute;
+    z-index: 10;
+    margin: 0;
+    padding: 0 6px;
+    border: 0;
+    border-radius: 5px;
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    box-shadow:
+      0 0 0 2px var(--accent),
+      0 6px 18px var(--shadow-color);
+  }
+
+  .gm-inline-editor:focus {
+    outline: none;
+  }
+
+  .gm-inline-editor[aria-invalid='true'] {
+    box-shadow:
+      0 0 0 2px var(--danger),
+      0 6px 18px var(--shadow-color);
+  }
+
+  textarea.gm-inline-editor {
+    padding: 4px 6px;
+    resize: none;
+    line-height: 1.25;
+  }
+
+  .gm-kbd {
+    display: inline-block;
+    min-width: 1.4em;
+    padding: 0 4px;
+    border: 1px solid var(--border);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    line-height: 16px;
+    text-align: center;
+  }
+}

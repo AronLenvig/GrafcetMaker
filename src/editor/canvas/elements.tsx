@@ -11,6 +11,7 @@ import {
   STEP_HALF,
   TRANSITION_THICKNESS,
   TRANSITION_WIDTH,
+  actionDecor,
   commentRect,
   stepLabelAnchor,
   transitionHitRect,
@@ -130,25 +131,6 @@ export const TransitionView = memo(function TransitionView({
   );
 });
 
-const ARROW = 5;
-
-function QualifierArrow({ x, y, h, up }: { x: number; y: number; h: number; up: boolean }) {
-  const ax = x + 8;
-  const top = y + 8;
-  const bottom = y + h - 8;
-  const tip = up ? top : bottom;
-  const dir = up ? 1 : -1;
-  return (
-    <g>
-      <path className="gm-thin" d={`M${ax} ${bottom}V${top}`} />
-      <path
-        className="gm-fill"
-        d={`M${ax} ${tip}L${ax - ARROW / 1.4} ${tip + dir * ARROW}L${ax + ARROW / 1.4} ${tip + dir * ARROW}Z`}
-      />
-    </g>
-  );
-}
-
 export const ActionView = memo(function ActionView({
   action,
   x,
@@ -170,9 +152,9 @@ export const ActionView = memo(function ActionView({
   /** Simulation: current value of the variable it writes. */
   live?: string;
 }) {
-  const stored = action.kind === 'storedOnActivation' || action.kind === 'storedOnDeactivation';
-  const textX = x + ACTION_PAD + (stored ? 14 : action.kind === 'forcing' ? 3 : 0);
+  const textX = x + ACTION_PAD + (action.kind === 'forcing' ? 3 : 0);
   const cy = y + height / 2;
+  const decor = actionDecor(action, { x, y, width, height });
   return (
     <g data-el="action" data-id={action.id}>
       {first && <path className="gm-line" d={`M${x - ACTION_GAP} ${cy}H${x}`} />}
@@ -192,17 +174,18 @@ export const ActionView = memo(function ActionView({
       {action.kind === 'forcing' && (
         <rect className="gm-thin" x={x + 3} y={y + 3} width={width - 6} height={height - 6} />
       )}
-      {stored && (
-        <QualifierArrow x={x} y={y} h={height} up={action.kind === 'storedOnActivation'} />
-      )}
       <text className="gm-text" x={textX} y={baseline(cy, FONT_SIZE)}>
         {action.text}
       </text>
-      {action.condition !== undefined && action.condition !== '' && (
-        <g>
-          <path className="gm-thin" d={`M${x + 12} ${y}V${y - 10}`} />
-          <ExprText source={action.condition} x={x + 16} y={y - 9} />
-        </g>
+      {decor.stem && <path className="gm-thin" d={decor.stem} />}
+      {decor.mark && <path className="gm-fill" d={decor.mark} />}
+      {decor.text && (
+        <ExprText
+          source={decor.text.source}
+          x={decor.text.x}
+          y={decor.text.y}
+          anchor={decor.text.anchor}
+        />
       )}
     </g>
   );

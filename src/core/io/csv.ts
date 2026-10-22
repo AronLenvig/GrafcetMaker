@@ -1,9 +1,10 @@
 /**
- * Variables as CSV (RFC 4180): export, and import that adds new variables and updates existing
- * ones by name. The delimiter is detected (comma, semicolon as written by Excel in many locales,
+ * Variables as CSV (RFC 4180) or Excel: export, and import that adds new variables and updates
+ * existing ones by name. The delimiter is detected (comma, semicolon as written by Excel in many locales,
  * or tab), so spreadsheets round-trip.
  */
 import { newId } from '../model/factory';
+import { writeXlsx } from './xlsx';
 import type { Project, Variable, VariableDirection, VariableType } from '../model/types';
 import { formatInitialValue, parseInitialValue, validateVariableName } from '../model/variables';
 
@@ -59,12 +60,13 @@ export function toCsv(rows: string[][]): string {
   return rows.map((r) => r.map(cell).join(',')).join('\r\n') + '\r\n';
 }
 
-export function variablesToCsv(p: Pick<Project, 'variables'>): string {
+/** The variable table as rows (header first), inputs then outputs then internals. */
+export function variableRows(p: Pick<Project, 'variables'>): string[][] {
   const order: Record<VariableDirection, number> = { input: 0, output: 1, internal: 2 };
   const vars = Object.values(p.variables).sort(
     (a, b) => order[a.direction] - order[b.direction] || a.name.localeCompare(b.name),
   );
-  return toCsv([
+  return [
     [...VARIABLE_COLUMNS],
     ...vars.map((v) => [
       v.name,
@@ -74,7 +76,23 @@ export function variablesToCsv(p: Pick<Project, 'variables'>): string {
       v.address ?? '',
       v.comment ?? '',
     ]),
-  ]);
+  ];
+}
+
+export function variablesToCsv(p: Pick<Project, 'variables'>): string {
+  return toCsv(variableRows(p));
+}
+
+/** The variable table as an Excel workbook, with drop-down lists for type and direction. */
+export function variablesToXlsx(p: Pick<Project, 'variables'>): Uint8Array {
+  return writeXlsx(variableRows(p), {
+    name: 'Variables',
+    widths: [24, 9, 11, 12, 14, 48],
+    lists: [
+      { column: 1, values: ['BOOL', 'INT', 'REAL', 'TIME'] },
+      { column: 2, values: ['input', 'output', 'internal'] },
+    ],
+  });
 }
 
 const TYPE_ALIASES: Record<string, VariableType> = {
@@ -120,8 +138,12 @@ export interface CsvImportPlan {
 
 /** Validates a CSV file against the project; nothing is changed until the plan is applied. */
 export function planVariableImport(p: Project, text: string): CsvImportPlan {
+  return planVariableImportRows(p, parseCsv(text));
+}
+
+/** Validates rows (header first, from CSV or a spreadsheet) against the project. */
+export function planVariableImportRows(p: Project, rows: string[][]): CsvImportPlan {
   const plan: CsvImportPlan = { added: [], updated: [], unchanged: 0, errors: [] };
-  const rows = parseCsv(text);
   const header = (rows[0] ?? []).map((h) => h.trim().toLowerCase());
   const col = (name: string) => header.indexOf(name);
   if (col('name') < 0 || col('type') < 0) {

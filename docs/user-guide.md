@@ -3,15 +3,26 @@
 GrafcetMaker is a GRAFCET (IEC 60848) editor and simulator that runs in your browser. Nothing is
 uploaded: projects live in your browser storage and in the files you save.
 
+This guide is the complete reference. For a gentler introduction, open the in-app **Help center**
+(`F1`): a getting-started tutorial, GRAFCET basics with diagrams, and task-oriented pages. Its
+pages are the Markdown files in [`docs/help/`](help/index.md).
+
 ## Screen layout
 
-- **Top bar**: File, Edit, View and Help menus, the project name (a dot `●` means unsaved
-  changes), the command palette button and the System / Light / Dark theme switch.
+- **Top bar**: File, Edit, View, Simulate and Help menus, the project name (a dot `●` means
+  unsaved changes; double-click it to rename the project), the problem counters, the command
+  palette button, the System / Light / Dark theme switch and **Settings** (gear, `Ctrl+,`).
 - **Left rail**: tools (select, pan, place step, place transition, place comment), add action,
   undo and redo.
 - **Center**: the diagram of the active partial grafcet, with one tab per grafcet above it.
-- **Right panel**: properties of the selection, or of the grafcet and project when nothing is
-  selected. Drag its left edge to resize it (or focus the edge and use the arrow keys).
+- **Right panel**: two tabs. **Properties** of the selection (or of the grafcet and project when
+  nothing is selected; the live inspector while simulating) and **Variables**, a searchable list
+  of all variables. Drag its left edge to resize it (or focus the edge and use the arrow keys).
+- **Hint bar** (bottom left of the canvas): the keys and gestures available for the current
+  selection, tool or drag, with a **Learn more** link to the help. Hide it with its `×`, and show
+  it again from **View › Hints** or Settings.
+- **Help center** (`F1`): docked on the right so you can read and draw at the same time; search,
+  contents, previous / next. Links like `#help/expressions` open a page directly.
 
 ## Drawing a grafcet
 
@@ -80,8 +91,11 @@ Choose the kind of each action in the properties panel:
 - **Continuous action**: the output is true while the step is active (and its assignment
   condition, if any, is true). Text: the output name, e.g. `M1`.
 - **Stored action on activation / on deactivation**: an assignment executed once when the step
-  becomes active / inactive, e.g. `C := C + 1`. Drawn with an ↑ / ↓ arrow.
+  becomes active / inactive, e.g. `C := C + 1`. Drawn with an arrow ↑ above the box (activation)
+  or ↓ below it (deactivation); an optional condition is written next to the arrow.
 - **Stored action on event**: executed when the event (e.g. `↑b`) occurs while the step is active.
+  Drawn with a flag at the top right of the box, the event written to its left. An action on event
+  without an event is reported as a warning.
 - **Forcing order**: forces another partial grafcet into a situation, e.g. `G2{8}`. Drawn with a
   double frame.
 
@@ -92,6 +106,11 @@ Also available: edges `↑a` / `RE a`, `↓a` / `FE a`, step activity `X3`, time
 (true 3 s after step 2 became active) and `2s/a/5s`, comparisons `C >= 10`, and constants `1`
 (always true) and `0`. By default the diagram shows the **textbook notation** (`·`, `+`, NOT as
 an overbar); turn it off in **View › Textbook notation** to see exactly what you typed.
+
+To enter an edge, type `^` before a name (`^start` becomes `↑start`), or put the cursor on a name
+and press `Alt+↑` (rising) or `Alt+↓` (falling); pressing it again removes or swaps the edge.
+While a receptivity or condition is edited, a symbol bar above it offers ↑ ↓ NOT AND OR,
+parentheses (wrapping the selection), a timer template and a link to the expression help.
 
 While you type, the editor:
 
@@ -104,9 +123,20 @@ You can always commit an expression with a problem; it is shown with a dashed re
 
 ### Variables
 
-The **Variables** tab of the bottom panel lists inputs, outputs and internal variables with their
-type (BOOL, INT, REAL, TIME), initial value, PLC address and comment, and how many expressions use
-each one. Edit any cell in place (`Enter` or leaving the cell commits, `Escape` reverts).
+Variables have a name, a type (BOOL, INT, REAL, TIME), a direction (input, output, internal), an
+initial value, a PLC address and a comment. There are two views:
+
+- **Variables tab of the right panel**: a compact list for long lists. Search by name, address or
+  comment; filter with the **Inputs / Outputs / Internal** chips (with counts); fold the direction
+  groups. Click a variable (or `Enter`; `↑` `↓` move, `Esc` closes) to edit all its fields and
+  see **where it is used**: every receptivity and action, with read or write; click one to jump to
+  it on the diagram.
+- **Variables tab of the bottom panel**: a table with every field. Edit any cell in place (`Enter`
+  or leaving the cell commits, `Escape` reverts), sort by any column header, filter by text,
+  direction and type. Click the **Uses** count to open the variable in the side panel. Long
+  tables render only the visible rows, so thousands of variables stay fast.
+
+Both have a `⋯` menu to import and export the table (Excel or CSV).
 Renaming a variable updates every receptivity, action and condition that uses it, in one undo
 step. Names are not case-sensitive. Copying elements to another project brings the variables they
 use along.
@@ -155,7 +185,7 @@ for warnings, a circle with `i` for information. Hover it for the details. The p
 also lists the problems of the selected element.
 
 Checked: missing initial step, duplicate step numbers, empty or invalid receptivities and
-actions, unknown variables, type errors, actions that assign inputs, forcing orders that target
+actions, stored actions on events without an event, unknown variables, type errors, actions that assign inputs, forcing orders that target
 nothing, unreachable steps, dead-end steps, alternative branches whose receptivities are not
 exclusive, loops that could be crossed endlessly in one evolution, outputs driven from parallel
 branches, macro-step expansions without one entry and one exit step, and unused variables. The
@@ -200,14 +230,20 @@ remembered per project on this device.
 - **SVG image**: vector, ideal for documents and the web; optionally embeds the diagram font so it
   looks the same everywhere.
 - **PNG image**: 1×, 2× or 4× resolution, optionally with a transparent background.
+- **WebP image**: like PNG with smaller files, with a quality setting.
+- **Variables (Excel)**: an `.xlsx` workbook with a frozen, filterable header and drop-down lists
+  for type and direction.
 - **Variables (CSV)**: the variable table for spreadsheets and PLC tools.
+
+**File › Export as** opens the dialog on a given format directly.
 
 Exports are black on white by default; choose **Current theme** to keep the screen colors, and
 untick **Textbook notation** to print expressions as typed. **Copy** puts an SVG or PNG on the
 clipboard; **File › Copy diagram as PNG / SVG** does it in one step for the selection (or the
 whole grafcet), ready to paste into a report.
 
-**File › Import variables (CSV)…**, or dropping a `.csv` file on the window, adds and updates
+**File › Variables › Import variables (CSV or Excel)…**, or dropping a `.csv` or `.xlsx` file on
+the window, adds and updates
 variables by name (columns `name`, `type`, `direction`, `initial`, `address`, `comment`; comma,
 semicolon or tab separated). You see what will be added, updated or rejected (with the reason
 for each row) before anything changes, and the import is one undo step.
@@ -218,7 +254,7 @@ for each row) before anything changes, and the import is one undo step.
   mouse button to pan, or use the pan tool (`H`).
 - `+` / `-` zoom, `Shift+1` fits everything, `Shift+2` fits the selection, `Shift+0` is 100 %.
 - `Ctrl+K` opens the command palette: type any command or grafcet name.
-- `?` lists all keyboard shortcuts.
+- `?` lists all keyboard shortcuts; `F1` opens the help center.
 
 ## Saving and opening
 
@@ -233,6 +269,19 @@ for each row) before anything changes, and the import is one undo step.
 - **File › Local history** lists snapshots kept in the browser (taken on save, every few minutes of
   editing and before a project is closed). Restoring one opens it as unsaved changes.
 - **File › Download a copy** downloads the project without changing which file Save writes to.
+
+## Settings
+
+**Settings** (`Ctrl+,`, the gear in the top bar, or **File › Settings…**) are applied at once and
+remembered on this device:
+
+- **Appearance**: theme, textbook notation.
+- **Editor**: grid, snap to grid, hints. Autosave is always on.
+- **Simulation**: the speed a simulation starts with (changing the speed in the simulation bar
+  updates it), highlighting of cleared transitions, step timers.
+- **Data and storage**: browser storage used, download a backup of the open project, clear the
+  local history or the recent files list, reset preferences.
+- **About**: version, keyboard shortcuts, privacy.
 
 ## Theme
 

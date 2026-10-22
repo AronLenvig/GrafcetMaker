@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { usePrefs } from '@/app/prefs';
 import {
   LABEL_FONT_SIZE,
   STEP_HALF,
@@ -36,6 +37,8 @@ export function SimOverlay({
 }) {
   const { t } = useTranslation();
   const flash = useSim((s) => s.flash);
+  const showFlash = usePrefs((s) => s.simFlash);
+  const showTimers = usePrefs((s) => s.simStepTimers);
   return (
     <g className="gm-overlay">
       {Object.values(g.transitions).map((tr) => {
@@ -53,6 +56,7 @@ export function SimOverlay({
         );
       })}
       {flash &&
+        showFlash &&
         flash.ids.map((id) => {
           const tr = g.transitions[id];
           if (!tr) return null;
@@ -69,6 +73,7 @@ export function SimOverlay({
           );
         })}
       {activatedAt &&
+        showTimers &&
         Object.values(g.steps).map((s) => {
           if (!active.has(s.id) || activatedAt[s.id] === undefined) return null;
           const x = s.position.x + STEP_HALF + 4;

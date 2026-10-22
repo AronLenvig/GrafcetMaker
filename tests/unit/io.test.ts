@@ -3,7 +3,16 @@ import { createProject, createStep } from '@/core/model/factory';
 import { SCHEMA_VERSION } from '@/core/model/schema';
 import { MigrationError, migrate, type Migration } from '@/core/io/migrations';
 import { ProjectFileError, parseProjectFile, serializeProject } from '@/core/io/projectFile';
-import { applyVariableImport, planVariableImport, variablesToCsv } from '@/core/io/csv';
+import { strToU8, zipSync } from 'fflate';
+import {
+  applyVariableImport,
+  planVariableImport,
+  planVariableImportRows,
+  variableRows,
+  variablesToCsv,
+  variablesToXlsx,
+} from '@/core/io/csv';
+import { readXlsx, XlsxError } from '@/core/io/xlsx';
 
 function sampleProject() {
   const p = createProject('Sample', new Date('2026-01-01T00:00:00Z'));
@@ -189,5 +198,54 @@ describe('variables CSV', () => {
 
   it('rejects files without a name/type header', () => {
     expect(planVariableImport(sampleProject(), 'foo,bar\n1,2\n').errors[0]!.code).toBe('noHeader');
+  });
+});
+
+describe('variables Excel', () => {
+  it('round-trips the variable table through .xlsx', () => {
+    const p = sampleProject();
+    p.variables.v3 = {
+      id: 'v3',
+      name: 'Count',
+      type: 'INT',
+      direction: 'internal',
+      initialValue: 5,
+      comment: 'Parts <ok> & "good"',
+    };
+    const bytes = variablesToXlsx(p);
+    expect(readXlsx(bytes)).toEqual(variableRows(p));
+    expect(planVariableImportRows(p, readXlsx(bytes))).toMatchObject({
+      added: [],
+      updated: [],
+      unchanged: 3,
+      errors: [],
+    });
+  });
+
+  it('reads shared strings, numbers, booleans and sparse cells written by spreadsheet apps', () => {
+    const sheet =
+      '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>' +
+      '<row r="1"><c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c><c r="D1" t="s"><v>2</v></c></row>' +
+      '<row r="3"><c r="A3" t="s"><v>3</v></c><c r="B3" t="s"><v>4</v></c><c r="D3"><v>2.5</v></c><c r="E3" t="b"><v>1</v></c></row>' +
+      '</sheetData></worksheet>';
+    const sst =
+      '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+      '<si><t>name</t></si><si><t>type</t></si><si><t>initial</t></si>' +
+      '<si><r><t>Le</t></r><r><t xml:space="preserve">vel</t></r></si><si><t>REAL</t></si></sst>';
+    const workbook =
+      '<workbook xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="S" sheetId="1" r:id="rId7"/></sheets></workbook>';
+    const rels =
+      '<Relationships><Relationship Id="rId7" Type="worksheet" Target="worksheets/data.xml"/></Relationships>';
+    const bytes = zipSync({
+      'xl/workbook.xml': strToU8(workbook),
+      'xl/_rels/workbook.xml.rels': strToU8(rels),
+      'xl/worksheets/data.xml': strToU8(sheet),
+      'xl/sharedStrings.xml': strToU8(sst),
+    });
+    expect(readXlsx(bytes)).toEqual([
+      ['name', 'type', '', 'initial', ''],
+      ['Level', 'REAL', '', '2.5', 'TRUE'],
+    ]);
+    expect(() => readXlsx(strToU8('not a zip'))).toThrow(XlsxError);
   });
 });

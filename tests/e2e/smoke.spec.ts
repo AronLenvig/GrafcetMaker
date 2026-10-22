@@ -61,7 +61,7 @@ test('create a sequence, save it, reopen it', async ({ page }, testInfo) => {
   await expect(page.locator('[data-el="transition"]').first()).toContainText('start·stop'); // textbook notation: NOT drawn as an overbar
 
   // Simulate: declare the inputs, start the simulation and drive an input.
-  await page.getByRole('tab', { name: 'Variables' }).click();
+  await page.getByRole('tab', { name: 'Variables', exact: true }).click();
   for (const name of ['start', 'stop']) {
     await page.getByRole('button', { name: 'Add variable' }).click();
     await page.keyboard.type(name);

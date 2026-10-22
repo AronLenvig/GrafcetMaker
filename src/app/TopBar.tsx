@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatKeys, getCommand, runCommand } from '@/editor/commands/registry';
-import { useDoc } from '@/editor/store/document';
+import { doc, useDoc } from '@/editor/store/document';
+import { useUi } from '@/editor/store/uiStore';
 import { isDirty } from '@/editor/store/documentStore';
 import { useProblems } from '@/editor/validation/problems';
 import { SeverityIcon } from '@/panels/ProblemsPanel';
@@ -9,7 +10,7 @@ import { ThemeSwitcher } from '@/theme/ThemeSwitcher';
 import { listRecent, type RecentEntry } from './persistence/db';
 import { openRecent, useSession } from './persistence/session';
 import { setPrefs, showBottomTab, usePrefs } from './prefs';
-import { LogoIcon, SearchIcon } from './ui/icons';
+import { LogoIcon, SearchIcon, SettingsIcon } from './ui/icons';
 import {
   IconButton,
   Menu,
@@ -75,14 +76,37 @@ function RecentMenu() {
   );
 }
 
+/** Project name; double-click (or Enter / F2 when focused) renames it in place. */
 function Title() {
   const { t } = useTranslation();
   const name = useDoc((s) => s.project.name);
   const dirty = useDoc(isDirty);
   const fileName = useSession((s) => s.fileName);
+  const locked = useUi((s) => s.mode === 'simulate');
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(name);
+  const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     document.title = `${dirty ? '● ' : ''}${name} — ${t('app.name')}`;
   }, [dirty, name, t]);
+  useEffect(() => {
+    if (!editing) return;
+    inputRef.current?.focus();
+    inputRef.current?.select();
+  }, [editing]);
+
+  const start = () => {
+    if (locked) return;
+    setDraft(name);
+    setEditing(true);
+  };
+  const finish = (save: boolean) => {
+    setEditing(false);
+    const next = draft.trim();
+    if (save && next && next !== name)
+      doc.execute('history.editProject', (p) => void (p.name = next.slice(0, 200)));
+  };
+
   return (
     <div className="flex min-w-0 items-center gap-1.5" title={fileName ?? undefined}>
       {dirty && (
@@ -90,8 +114,44 @@ function Title() {
           ●
         </span>
       )}
-      <span className="truncate font-medium">{name}</span>
-      {fileName && <span className="hidden truncate text-muted md:inline">— {fileName}</span>}
+      {editing ? (
+        <input
+          ref={inputRef}
+          value={draft}
+          aria-label={t('props.project.name')}
+          aria-invalid={!draft.trim()}
+          maxLength={200}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={() => finish(true)}
+          onKeyDown={(e) => {
+            e.stopPropagation();
+            if (e.key === 'Enter') finish(true);
+            if (e.key === 'Escape') finish(false);
+          }}
+          className="gm-input gm-input-sm w-64 text-center font-medium"
+          style={{ width: `${Math.max(16, draft.length + 4)}ch` }}
+        />
+      ) : (
+        <button
+          type="button"
+          onDoubleClick={start}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === 'F2') {
+              e.preventDefault();
+              e.stopPropagation();
+              start();
+            }
+          }}
+          title={t('file.renameHint')}
+          aria-label={t('file.renameProject', { name })}
+          className="max-w-[40vw] cursor-text truncate rounded px-1.5 py-0.5 font-medium hover:bg-surface-2"
+        >
+          {name}
+        </button>
+      )}
+      {fileName && !editing && (
+        <span className="hidden truncate text-muted md:inline">— {fileName}</span>
+      )}
     </div>
   );
 }
@@ -136,11 +196,22 @@ export function TopBar() {
           <Item id="file.downloadCopy" />
           <MenuSeparator />
           <Item id="file.export" />
+          <SubMenu label={t('commands.file.exportAs')}>
+            <Item id="file.exportPdf" />
+            <Item id="file.exportSvg" />
+            <Item id="file.exportPng" />
+            <Item id="file.exportWebp" />
+          </SubMenu>
           <Item id="file.copyPng" />
           <Item id="file.copySvg" />
-          <Item id="file.importVariables" />
+          <SubMenu label={t('commands.file.variables')}>
+            <Item id="file.importVariables" />
+            <Item id="file.exportVariablesXlsx" />
+            <Item id="file.exportVariablesCsv" />
+          </SubMenu>
           <MenuSeparator />
           <Item id="file.localHistory" />
+          <Item id="file.settings" />
         </Menu>
         <Menu label={t('menu.edit')}>
           <UndoRedoItems />
@@ -206,6 +277,12 @@ export function TopBar() {
             {t('commands.view.snapToGrid')}
           </MenuCheckItem>
           <MenuCheckItem
+            checked={prefs.showHints}
+            onCheckedChange={(v) => setPrefs({ showHints: v })}
+          >
+            {t('commands.view.hints')}
+          </MenuCheckItem>
+          <MenuCheckItem
             checked={!prefs.leftCollapsed}
             onCheckedChange={(v) => setPrefs({ leftCollapsed: !v })}
           >
@@ -219,6 +296,7 @@ export function TopBar() {
           </MenuCheckItem>
           <MenuSeparator />
           <Item id="view.showVariables" />
+          <Item id="view.variableList" />
           <Item id="view.showProblems" />
           <Item id="view.palette" />
         </Menu>
@@ -229,6 +307,11 @@ export function TopBar() {
           <Item id="view.showChronogram" />
         </Menu>
         <Menu label={t('menu.help')}>
+          <Item id="help.open" />
+          <Item id="help.gettingStarted" />
+          <Item id="help.basics" />
+          <Item id="help.expressions" />
+          <MenuSeparator />
           <Item id="help.shortcuts" />
           <Item id="help.about" />
         </Menu>
@@ -243,6 +326,11 @@ export function TopBar() {
         </IconButton>
       </Tip>
       <ThemeSwitcher />
+      <Tip label={t('commands.file.settings')} keys={formatKeys('Mod+,')} side="bottom">
+        <IconButton label={t('commands.file.settings')} onClick={() => runCommand('file.settings')}>
+          <SettingsIcon size={16} />
+        </IconButton>
+      </Tip>
     </header>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { variablesToCsv } from '@/core/io/csv';
+import { variablesToCsv, variablesToXlsx } from '@/core/io/csv';
 import type { Id } from '@/core/model/types';
 import { useDoc } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
@@ -13,14 +13,20 @@ import {
   renderSvg,
   safeFileName,
   saveExportSettings,
+  requestedFormat,
+  requestExportFormat,
+  svgToImage,
   svgToPng,
+  UnsupportedFormatError,
   type ExportFormat,
   type ExportSettings,
   type Target,
 } from './exporters';
 import { planPages, renderPage } from './pages';
 
-const FORMATS: ExportFormat[] = ['pdf', 'svg', 'png', 'csv'];
+const FORMATS: ExportFormat[] = ['pdf', 'svg', 'png', 'webp', 'csv', 'xlsx'];
+const isVariables = (f: ExportFormat) => f === 'csv' || f === 'xlsx';
+const isRaster = (f: ExportFormat): f is 'png' | 'webp' => f === 'png' || f === 'webp';
 
 function Radio<T extends string | number>({
   name,
@@ -83,7 +89,12 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
   const gid = useUi((s) => s.activeGrafcetId);
   const selection = useUi((s) => s.selection);
   const selected = useMemo(() => new Set(Object.keys(selection) as Id[]), [selection]);
-  const [settings, setSettings] = useState<ExportSettings>(() => loadExportSettings(project.id));
+  const [settings, setSettings] = useState<ExportSettings>(() => {
+    const s = loadExportSettings(project.id);
+    const format = requestedFormat;
+    requestExportFormat(null);
+    return format ? { ...s, format } : s;
+  });
   const [preview, setPreview] = useState<{ url?: string; text?: string; info: string } | null>(
     null,
   );
@@ -117,7 +128,7 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
     let url: string | undefined;
     const run = async () => {
       const target = targets[0];
-      if (settings.format === 'csv') {
+      if (isVariables(settings.format)) {
         const csv = variablesToCsv(project);
         if (!cancelled)
           setPreview({
@@ -140,11 +151,11 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
       const res = await renderSvg(
         target,
         settings,
-        settings.format === 'png' || settings.svg.embedFont,
-        settings.format === 'png' && settings.png.transparent,
+        isRaster(settings.format) || settings.svg.embedFont,
+        isRaster(settings.format) && settings[settings.format].transparent,
       );
       url = URL.createObjectURL(new Blob([res.svg], { type: 'image/svg+xml' }));
-      const scale = settings.format === 'png' ? settings.png.scale : 1;
+      const scale = isRaster(settings.format) ? settings[settings.format].scale : 1;
       const info = t('export.sizeInfo', {
         w: Math.round(res.box.width * scale),
         h: Math.round(res.box.height * scale),
@@ -173,6 +184,25 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
       case 'png': {
         const res = await renderSvg(target, settings, true, settings.png.transparent);
         return { blob: await svgToPng(res, settings.png.scale), name: `${baseName}.png` };
+      }
+      case 'webp': {
+        const res = await renderSvg(target, settings, true, settings.webp.transparent);
+        const blob = await svgToImage(
+          res,
+          settings.webp.scale,
+          'image/webp',
+          settings.webp.quality,
+        );
+        return { blob, name: `${baseName}.webp` };
+      }
+      case 'xlsx': {
+        const bytes = variablesToXlsx(project);
+        return {
+          blob: new Blob([bytes as BlobPart], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          }),
+          name: `${safeFileName(project.name, t('export.variablesFile'))}.xlsx`,
+        };
       }
       case 'pdf': {
         const { buildPdf } = await import('./pdf');
@@ -207,7 +237,8 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
         toast(ok ? t('export.copied') : t('export.copyFailed'), ok ? 'success' : 'error');
       }
     } catch (e) {
-      toast(t('export.failed', { message: String((e as Error).message ?? e) }), 'error', 8000);
+      if (e instanceof UnsupportedFormatError) toast(t('export.webpUnsupported'), 'error', 8000);
+      else toast(t('export.failed', { message: String((e as Error).message ?? e) }), 'error', 8000);
     } finally {
       setBusy(false);
     }
@@ -232,6 +263,36 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
             />
           </>
         );
+      case 'webp':
+        return (
+          <>
+            <Radio
+              name="webp-scale"
+              label={t('export.resolution')}
+              value={settings.webp.scale}
+              onChange={(v) => update({ webp: { ...settings.webp, scale: v } })}
+              options={[1, 2, 4].map((v) => ({ value: v as 1 | 2 | 4, label: `${v}×` }))}
+            />
+            <Radio
+              name="webp-quality"
+              label={t('export.quality')}
+              value={String(settings.webp.quality)}
+              onChange={(v) => update({ webp: { ...settings.webp, quality: Number(v) } })}
+              options={[
+                { value: '0.8', label: t('export.qualities.small') },
+                { value: '0.92', label: t('export.qualities.high') },
+                { value: '1', label: t('export.qualities.max') },
+              ]}
+            />
+            <Check
+              label={t('export.transparent')}
+              checked={settings.webp.transparent}
+              onChange={(v) => update({ webp: { ...settings.webp, transparent: v } })}
+            />
+          </>
+        );
+      case 'xlsx':
+        return <p className="text-muted">{t('export.xlsxHint')}</p>;
       case 'svg':
         return (
           <Check
@@ -290,7 +351,7 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
     }
   })();
 
-  const canCopy = settings.format !== 'pdf';
+  const canCopy = settings.format !== 'pdf' && settings.format !== 'xlsx';
 
   return (
     <Modal open title={t('export.title')} onOpenChange={(o) => !o && onClose()} width={900}>
@@ -319,7 +380,7 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
           ))}
         </div>
         <div className="flex min-w-0 flex-col gap-3">
-          {settings.format !== 'csv' && (
+          {!isVariables(settings.format) && (
             <>
               <Radio
                 name="scope"

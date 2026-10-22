@@ -8,7 +8,7 @@ import {
 } from '@/core/io/svgExport';
 import type { Grafcet, Id, Project } from '@/core/model/types';
 
-export type ExportFormat = 'svg' | 'png' | 'pdf' | 'csv';
+export type ExportFormat = 'pdf' | 'svg' | 'png' | 'webp' | 'csv' | 'xlsx';
 export type ExportScope = 'grafcet' | 'selection' | 'all';
 
 export interface ExportSettings {
@@ -18,6 +18,7 @@ export interface ExportSettings {
   theme: 'print' | 'current';
   textbook: boolean;
   png: { scale: 1 | 2 | 4; transparent: boolean };
+  webp: { scale: 1 | 2 | 4; quality: number; transparent: boolean };
   svg: { embedFont: boolean };
   pdf: PageOptions;
 }
@@ -28,6 +29,7 @@ export const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
   theme: 'print',
   textbook: true,
   png: { scale: 2, transparent: false },
+  webp: { scale: 2, quality: 0.92, transparent: false },
   svg: { embedFont: true },
   pdf: { paper: 'A4', orientation: 'portrait', scale: 'fit', titleBlock: true },
 };
@@ -44,6 +46,7 @@ export function loadExportSettings(projectId: Id): ExportSettings {
       ...DEFAULT_EXPORT_SETTINGS,
       ...s,
       png: { ...DEFAULT_EXPORT_SETTINGS.png, ...s.png },
+      webp: { ...DEFAULT_EXPORT_SETTINGS.webp, ...s.webp },
       svg: { ...DEFAULT_EXPORT_SETTINGS.svg, ...s.svg },
       pdf: { ...DEFAULT_EXPORT_SETTINGS.pdf, ...s.pdf },
     };
@@ -117,7 +120,18 @@ export async function renderSvg(
 /** Largest canvas side browsers reliably allocate. */
 const MAX_CANVAS = 16_000;
 
-export async function svgToPng(res: SvgResult, scale: number): Promise<Blob> {
+export class UnsupportedFormatError extends Error {}
+
+/**
+ * Rasterizes an SVG at a scale. WebP is encoded by the browser; browsers that cannot encode it
+ * silently return PNG, which is reported as UnsupportedFormatError.
+ */
+export async function svgToImage(
+  res: SvgResult,
+  scale: number,
+  type: 'image/png' | 'image/webp' = 'image/png',
+  quality?: number,
+): Promise<Blob> {
   const s = Math.min(scale, MAX_CANVAS / Math.max(res.box.width, res.box.height));
   const url = URL.createObjectURL(new Blob([res.svg], { type: 'image/svg+xml' }));
   try {
@@ -130,12 +144,15 @@ export async function svgToPng(res: SvgResult, scale: number): Promise<Blob> {
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Canvas 2D context unavailable');
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    return await new Promise<Blob>((resolve, reject) =>
+    const blob = await new Promise<Blob>((resolve, reject) =>
       canvas.toBlob(
-        (b) => (b ? resolve(b) : reject(new Error('PNG encoding failed'))),
-        'image/png',
+        (b) => (b ? resolve(b) : reject(new Error('Image encoding failed'))),
+        type,
+        quality,
       ),
     );
+    if (blob.type !== type) throw new UnsupportedFormatError(type);
+    return blob;
   } finally {
     URL.revokeObjectURL(url);
   }
@@ -178,4 +195,14 @@ export function titleInfo(project: Project, grafcet: Grafcet) {
     revision: project.meta.revision,
     date: new Date().toISOString().slice(0, 10),
   };
+}
+
+export function svgToPng(res: SvgResult, scale: number): Promise<Blob> {
+  return svgToImage(res, scale, 'image/png');
+}
+
+/** Format the Export dialog opens on (set by "Export as …" menu entries). */
+export let requestedFormat: ExportFormat | null = null;
+export function requestExportFormat(f: ExportFormat | null): void {
+  requestedFormat = f;
 }

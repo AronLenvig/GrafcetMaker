@@ -1,9 +1,14 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import {
+  forwardRef,
+  type ButtonHTMLAttributes,
+  type ReactNode,
+  type SelectHTMLAttributes,
+} from 'react';
 import { useTranslation } from 'react-i18next';
-import { CloseIcon } from './icons';
+import { ChevronDownIcon, CloseIcon, ErrorIcon } from './icons';
 
 export function cx(...parts: (string | false | null | undefined)[]): string {
   return parts.filter(Boolean).join(' ');
@@ -180,6 +185,34 @@ export function Menu({ label, children }: { label: string; children: ReactNode }
   );
 }
 
+/** Drop-down menu opened from an icon button (panel toolbars). */
+export function IconMenu({
+  label,
+  icon,
+  children,
+  disabled,
+}: {
+  label: string;
+  icon: ReactNode;
+  children: ReactNode;
+  disabled?: boolean;
+}) {
+  return (
+    <DropdownMenu.Root modal={false}>
+      <DropdownMenu.Trigger asChild disabled={disabled}>
+        <IconButton label={label} title={label} className="data-[state=open]:bg-surface-2">
+          {icon}
+        </IconButton>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content className={menuContentClass} align="end" sideOffset={4}>
+          {children}
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
+  );
+}
+
 // ---- Dialogs ----
 
 export function Modal({
@@ -233,27 +266,63 @@ export function Modal({
 
 // ---- Form fields ----
 
-export const inputClass =
-  'h-7 w-full rounded border border-border bg-surface px-2 text-text outline-none focus:border-accent focus:ring-1 focus:ring-focus aria-[invalid=true]:border-danger';
+/** Standard text input look (see .gm-input in theme/index.css). */
+export const inputClass = 'gm-input';
 
+/** Label above a control, with an optional hint or error below. */
 export function Field({
   label,
   htmlFor,
   children,
   hint,
+  error,
 }: {
   label: string;
   htmlFor: string;
   children: ReactNode;
   hint?: ReactNode;
+  error?: string | null;
 }) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1.5">
       <label htmlFor={htmlFor} className="text-xs font-medium text-muted">
         {label}
       </label>
       {children}
-      {hint}
+      {error ? (
+        <p
+          id={htmlFor + '-error'}
+          role="alert"
+          className="flex items-start gap-1 text-xs text-danger"
+        >
+          <ErrorIcon size={13} className="mt-px shrink-0" />
+          {error}
+        </p>
+      ) : (
+        hint && <div className="text-xs text-muted">{hint}</div>
+      )}
     </div>
   );
 }
+
+/** Native select styled like the text inputs, with a chevron. */
+export const Select = forwardRef<
+  HTMLSelectElement,
+  SelectHTMLAttributes<HTMLSelectElement> & { small?: boolean; ghost?: boolean }
+>(function Select({ className, small, ghost, children, ...rest }, ref) {
+  return (
+    <span className="relative block">
+      <select
+        ref={ref}
+        className={cx('gm-input', small && 'gm-input-sm', ghost && 'gm-input-ghost', className)}
+        {...rest}
+      >
+        {children}
+      </select>
+      <ChevronDownIcon
+        size={14}
+        className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-muted"
+      />
+    </span>
+  );
+});

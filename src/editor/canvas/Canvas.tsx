@@ -30,6 +30,7 @@ import { SimOverlay } from './SimOverlay';
 import { pointsToPath } from './svg';
 import { useCanvasInteraction } from './useCanvasInteraction';
 import { canvasSize } from './viewport';
+import { HintBar } from './HintBar';
 import { ZoomControls } from './ZoomControls';
 import './canvas.css';
 
@@ -314,6 +315,7 @@ export function Canvas() {
       </svg>
       {g && geom && <InlineEditor g={g} geom={geom} viewport={viewport} />}
       {gid && <ZoomControls gid={gid} zoom={viewport.zoom} />}
+      <HintBar />
       {pending && (
         <div
           role="status"

@@ -44,7 +44,7 @@ function RenameInput({ gid, initial, onDone }: { gid: Id; initial: string; onDon
           if (e.key === 'Enter') commit();
           if (e.key === 'Escape') onDone();
         }}
-        className="h-6 w-24 rounded border border-accent bg-surface px-1 font-mono outline-none"
+        className="gm-input gm-input-sm gm-input-mono w-28"
       />
       {error && (
         <span

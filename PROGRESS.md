@@ -127,6 +127,28 @@ Autonomous build log. Read this first in every session and resume from **Current
   sub-grafcet, Alt+↑ to the parent, tab badges, grafcet kind and parent in properties.
 - Fixed: double-click hit-testing under pointer capture (it created a step instead of editing).
 
+### Owner requests after phase 7 (not a numbered phase)
+
+- Text fields: one `gm-input` style (sizes, mono, ghost, select, textarea), auto-growing inline
+  editor on the canvas with key hints, commit/revert hints in the properties panel.
+- Export: WebP (quality, transparency), direct **File › Export as** entries, Excel variables.
+- Variables: pure `.xlsx` reader/writer (`core/io/xlsx.ts`, fflate), Excel/CSV import and export;
+  right-panel **Variables** tab (search, direction chips, groups, keyboard, details with where-used
+  and jump-to); bottom table redesign (sort, filters, windowed rows, uses → details).
+- Project title renamed in place (double-click).
+- Action marks: stored-on-activation ↑ above the box, on-deactivation ↓ below it, event flag at
+  the top right with the event; shared `actionDecor` geometry for canvas and exports; warning for
+  an action on event without event; action badges moved to the bottom-right corner.
+- Edges in expressions: `^` types ↑, Alt+↑ / Alt+↓ toggle an edge on the operand at the caret
+  (`core/expr/edges.ts`, tested), symbol bar with ↑ ↓ NOT AND OR ( ) timer and help link.
+- Contextual hint bar on the canvas (selection, tool, gesture, simulation), toggle in View and
+  Settings.
+- Settings dialog (Ctrl+,): appearance, editor, simulation defaults (speed, flash, step timers),
+  data and storage (usage, backup, clear history / recents, reset preferences), about.
+- Help center (F1, `#help/<page>`): docked panel, Markdown pages in `docs/help` rendered by a safe
+  subset parser, real diagrams drawn by the SVG exporter, search, prev/next; tests check links,
+  anchors and figures.
+
 ## Decisions
 
 - TypeScript pinned to 6.0.x: typescript-eslint does not support TS 7 (native port) yet.
@@ -160,6 +182,12 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Enclosed grafcets reuse step kind `initial` for the * steps; a step cannot be both initial and
   macro/enclosing (kind is a single value), so initial enclosing steps are not supported.
 - Commits go directly to `main` (greenfield repo, as instructed by the build spec); never pushed.
+- Help pages are plain Markdown in `docs/help` (readable on GitHub too), bundled into the lazy
+  help chunk; figures are named builders in `app/help/figures.ts` (`<!-- figure: id | caption -->`),
+  shown as `<img>` of exporter SVG so no HTML is ever injected.
+- The help center is a docked, non-modal panel so beginners can follow a tutorial while drawing.
+- Variable table windowing: fixed 34 px rows above 120 rows; a cell scrolled out of the window
+  commits its pending edit.
 
 ## Known gaps
 

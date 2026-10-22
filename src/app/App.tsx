@@ -1,5 +1,5 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Canvas } from '@/editor/canvas/Canvas';
 import { GrafcetTabs } from '@/editor/canvas/GrafcetTabs';
@@ -9,13 +9,13 @@ import { isDirty } from '@/editor/store/documentStore';
 import { Toolbar } from '@/editor/tools/Toolbar';
 import { startValidation } from '@/editor/validation/problems';
 import { BottomPanel } from '@/panels/BottomPanel';
-import { PropertiesPanel } from '@/panels/PropertiesPanel';
-import { SimInspector } from '@/panels/SimInspector';
+import { RightPanel } from '@/panels/RightPanel';
 import { useSim } from '@/editor/simulation/simStore';
 import { SimBar } from './SimBar';
 import { CommandPalette } from './CommandPalette';
 import { DialogHost } from './dialogs/DialogHost';
 import { DropOverlay } from './DropOverlay';
+import { openHelpFromHash, useHelp } from './help/helpStore';
 import { startAutosave } from './persistence/autosave';
 import { onStorageError } from './persistence/db';
 import { startup, useSession } from './persistence/session';
@@ -24,6 +24,9 @@ import { toast, useToasts } from './toasts';
 import { TopBar } from './TopBar';
 import { cx } from './ui/primitives';
 import { Splitter } from './ui/Splitter';
+
+// The help center (pages, figures, search) is loaded when first opened.
+const HelpPanel = lazy(() => import('./help/HelpPanel'));
 
 let started = false;
 
@@ -48,6 +51,7 @@ function useAppLifecycle() {
       startAutosave(() => useSession.getState().fileName ?? undefined);
       startValidation();
       void startup();
+      openHelpFromHash();
     }
     return () => {
       uninstall();
@@ -86,6 +90,7 @@ export function App() {
   const { t } = useTranslation();
   const prefs = usePrefs();
   const simulating = useSim((s) => s.on);
+  const helpOpen = useHelp((s) => s.open);
   useAppLifecycle();
   return (
     <Tooltip.Provider>
@@ -132,9 +137,16 @@ export function App() {
                 onChange={(v) => setPrefs({ rightWidth: v })}
               />
               <div className="shrink-0 bg-surface" style={{ width: prefs.rightWidth }}>
-                {simulating ? <SimInspector /> : <PropertiesPanel />}
+                <RightPanel />
               </div>
             </>
+          )}
+          {helpOpen && (
+            <div className="w-[min(440px,40vw)] min-w-72 shrink-0">
+              <Suspense fallback={null}>
+                <HelpPanel />
+              </Suspense>
+            </div>
           )}
         </div>
       </div>

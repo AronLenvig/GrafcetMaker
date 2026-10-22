@@ -16,7 +16,9 @@ import {
   type ExprEnv,
   type ExpressionKind,
 } from '@/core/expr/check';
+import { toggleEdge, type Edge } from '@/core/expr/edges';
 import type { Id, Variable } from '@/core/model/types';
+import { openHelp } from '@/app/help/helpStore';
 import { cx } from '@/app/ui/primitives';
 import { tDynamic } from '@/i18n/dynamic';
 import { createVariable } from '@/editor/commands/variables';
@@ -53,6 +55,17 @@ function identifierAt(
   if (start > 0 && /[0-9.]/.test(value[start - 1]!)) return null;
   return { start, end, prefix };
 }
+
+/** Symbols offered under condition inputs; `insert` is typed at the caret (`|` = caret). */
+const SYMBOLS: { id: string; shown: string; insert?: string; edge?: Edge }[] = [
+  { id: 'rising', shown: '↑', edge: '↑' },
+  { id: 'falling', shown: '↓', edge: '↓' },
+  { id: 'not', shown: '¬', insert: '/' },
+  { id: 'and', shown: '·', insert: ' * ' },
+  { id: 'or', shown: '+', insert: ' + ' },
+  { id: 'paren', shown: '( )', insert: '(|)' },
+  { id: 'timer', shown: 't/X', insert: '1s/|' },
+];
 
 function rank(v: Variable, kind: ExpressionKind): number {
   if (kind === 'condition') return v.type === 'BOOL' ? 0 : 1;
@@ -158,13 +171,34 @@ export const ExpressionInput = forwardRef<
   }, [ident, env, steps, kind, t]);
   const open = !popupClosed && suggestions.length > 0;
 
-  const replaceRange = (start: number, end: number, text: string) => {
+  const replaceRange = (start: number, end: number, text: string, caretAt = text.length) => {
     const next = value.slice(0, start) + text + value.slice(end);
     onChange(next);
-    const pos = start + text.length;
+    const pos = start + caretAt;
     setCaret(pos);
     pendingCaret.current = pos;
   };
+
+  const applyEdge = (edge: Edge) => {
+    const el = inputRef.current;
+    const r = toggleEdge(value, el?.selectionStart ?? caret, edge);
+    onChange(r.text);
+    setCaret(r.caret);
+    pendingCaret.current = r.caret;
+  };
+
+  /** Inserts a symbol at the caret; a selection is wrapped by parentheses. */
+  const insertSymbol = (insert: string) => {
+    const el = inputRef.current;
+    const from = el?.selectionStart ?? caret;
+    const to = el?.selectionEnd ?? from;
+    const [before, after = ''] = insert.split('|');
+    if (insert === '(|)' && to > from) replaceRange(from, to, `(${value.slice(from, to)})`);
+    else replaceRange(from, to, before! + after, before!.length);
+  };
+
+  const [focused, setFocused] = useState(false);
+  const symbols = kind === 'condition' && focused;
 
   const accept = (s: Suggestion | undefined) => {
     if (!s || !ident) return;
@@ -190,27 +224,34 @@ export const ExpressionInput = forwardRef<
         aria-activedescendant={open ? `${listId}-${active}` : undefined}
         spellCheck={false}
         autoComplete="off"
-        className={cx(
-          'h-full w-full rounded border bg-surface px-1.5 font-mono text-text outline-none focus:ring-2 focus:ring-focus',
-          first
-            ? 'border-danger'
-            : floating
-              ? 'border-accent'
-              : 'border-border focus:border-accent',
-          floating && 'shadow-pop',
-        )}
+        className={floating ? 'gm-inline-editor static h-full w-full' : 'gm-input gm-input-mono'}
         onChange={(e) => {
-          onChange(e.target.value);
-          setCaret(e.target.selectionStart ?? e.target.value.length);
+          // ^ is not part of the grammar: typed (also as a dead key) it becomes a rising edge.
+          const raw = e.target.value;
+          const pos = e.target.selectionStart ?? raw.length;
+          const next = kind === 'condition' ? raw.replaceAll('^', '↑') : raw;
+          // Same length, but a changed value would move the caret to the end: keep it in place.
+          if (next !== raw) pendingCaret.current = pos;
+          onChange(next);
+          setCaret(pos);
           setPopupClosed(false);
           setActive(0);
         }}
         onSelect={(e) => setCaret(e.currentTarget.selectionStart ?? 0)}
-        onBlur={onBlur}
-        onFocus={onFocus}
+        onBlur={() => {
+          setFocused(false);
+          onBlur?.();
+        }}
+        onFocus={() => {
+          setFocused(true);
+          onFocus?.();
+        }}
         onKeyDown={(e) => {
           e.stopPropagation();
-          if (open && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+          if (kind === 'condition' && e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+            e.preventDefault();
+            applyEdge(e.key === 'ArrowUp' ? '↑' : '↓');
+          } else if (open && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
             e.preventDefault();
             setActive(
               (a) =>
@@ -229,6 +270,46 @@ export const ExpressionInput = forwardRef<
           }
         }}
       />
+      {symbols && (
+        <div
+          role="toolbar"
+          aria-label={t('expr.symbols.label')}
+          onMouseDown={(e) => e.preventDefault()}
+          className={cx(
+            'z-20 flex items-center gap-0.5 rounded-md border border-border bg-surface p-0.5 shadow-pop',
+            floating
+              ? cx('absolute left-0 w-max', dropUp ? 'top-full mt-1' : 'bottom-full mb-1')
+              : 'absolute right-1 bottom-full mb-1',
+          )}
+        >
+          {SYMBOLS.map((sym) => {
+            const name = tDynamic(t, `expr.symbols.${sym.id}`);
+            return (
+              <button
+                key={sym.id}
+                type="button"
+                tabIndex={-1}
+                title={name}
+                aria-label={name}
+                onClick={() => (sym.edge ? applyEdge(sym.edge) : insertSymbol(sym.insert!))}
+                className="h-6 min-w-6 rounded px-1.5 font-mono text-[13px] text-text hover:bg-accent-soft"
+              >
+                {sym.shown}
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            tabIndex={-1}
+            title={t('help.learnMore')}
+            aria-label={t('help.learnMore')}
+            onClick={() => openHelp('expressions', 'operators')}
+            className="h-6 min-w-6 rounded px-1.5 text-[13px] font-medium text-accent hover:bg-accent-soft"
+          >
+            ?
+          </button>
+        </div>
+      )}
       {open && (
         <ul
           id={listId}

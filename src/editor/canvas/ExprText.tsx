@@ -28,22 +28,29 @@ function bars(runs: Run[], x: number, by: number) {
 }
 
 /**
- * An expression (receptivity, condition) drawn as SVG text, vertically centered on y. In textbook
+ * An expression (receptivity, condition) drawn as SVG text, vertically centered on y, starting at x
+ * or, with anchor "end", ending at x. In textbook
  * notation NOT is an overbar; bars are drawn as lines from the monospace metrics so they match
  * exports exactly. Unparseable text is shown as typed, with a dashed underline.
  */
 export const ExprText = memo(function ExprText({
   source,
-  x,
+  x: at,
   y,
+  anchor = 'start',
 }: {
   source: string;
   x: number;
   y: number;
+  anchor?: 'start' | 'end';
 }) {
   const textbook = usePrefs((s) => s.textbookNotation);
   const by = baseline(y, FONT_SIZE);
   const parsed = source.trim() ? cachedBool(source) : null;
+  const runs = parsed?.ok && textbook ? formatTextbook(parsed.value) : null;
+  // Monospace: the drawn width is known exactly, so "end" is a plain shift.
+  const shown = runs ? runs.map((r) => r.text).join('') : source;
+  const x = anchor === 'end' ? at - [...shown].length * CW : at;
   if (parsed && !parsed.ok) {
     return (
       <g>
@@ -57,18 +64,17 @@ export const ExprText = memo(function ExprText({
       </g>
     );
   }
-  if (!parsed || !textbook) {
+  if (!runs) {
     return (
       <text className="gm-text" x={x} y={by}>
         {source}
       </text>
     );
   }
-  const runs = formatTextbook(parsed.value);
   return (
     <g>
       <text className="gm-text" x={x} y={by}>
-        {runs.map((r) => r.text).join('')}
+        {shown}
       </text>
       {bars(runs, x, by).map((b, i) => (
         <path key={i} className="gm-bar" d={`M${b.x1 + 0.5} ${b.y}H${b.x2 - 0.5}`} />

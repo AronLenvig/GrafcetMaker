@@ -29,7 +29,8 @@ function anchor(g: Grafcet, geom: GrafcetGeometry, id: Id): { at: Point; kind: s
     const step = g.steps[act.stepId];
     const box =
       step && layoutActions(step, geom.index.actions.get(step.id) ?? []).find((b) => b.id === id);
-    return box ? { at: { x: box.x + box.width, y: box.y }, kind: 'action' } : null;
+    // Bottom right: the top edge carries the condition, stored-action arrow or event flag.
+    return box ? { at: { x: box.x + box.width, y: box.y + box.height }, kind: 'action' } : null;
   }
   const c = g.comments[id];
   if (c) {

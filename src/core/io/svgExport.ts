@@ -9,6 +9,7 @@ import { formatTextbook, type Run } from '../expr/format';
 import {
   ACTION_GAP,
   ACTION_PAD,
+  actionDecor,
   CHAR_WIDTH_EM,
   DOUBLE_BAR_GAP,
   FONT_SIZE,
@@ -161,15 +162,18 @@ class Writer {
   }
 
   /** A receptivity or condition, in textbook or typed form, left-aligned at x, centered on y. */
-  expr(source: string, x: number, y: number): void {
+  /** An expression starting at x or, with anchor "end", ending at x (monospace: exact width). */
+  expr(source: string, at: number, y: number, anchor: 'start' | 'end' = 'start'): void {
     const parsed = this.opts.textbook && source.trim() ? cachedBool(source) : null;
+    const cw = FONT_SIZE * CHAR_WIDTH_EM;
     if (!parsed || !parsed.ok) {
-      this.text(source, x, y, FONT_SIZE);
+      this.text(source, anchor === 'end' ? at - [...source].length * cw : at, y, FONT_SIZE);
       return;
     }
     const runs: Run[] = formatTextbook(parsed.value, { asciiComparisons: this.opts.latin1 });
-    this.text(runs.map((r) => r.text).join(''), x, y, FONT_SIZE);
-    const cw = FONT_SIZE * CHAR_WIDTH_EM;
+    const shown = runs.map((r) => r.text).join('');
+    const x = anchor === 'end' ? at - [...shown].length * cw : at;
+    this.text(shown, x, y, FONT_SIZE);
     const by = baseline(y, FONT_SIZE);
     let col = 0;
     for (const r of runs) {
@@ -290,29 +294,11 @@ function render(w: Writer, g: Grafcet, only: ReadonlySet<Id> | undefined): void 
           pal.ink,
           1,
         );
-      const stored = act.kind === 'storedOnActivation' || act.kind === 'storedOnDeactivation';
-      if (stored) {
-        const ax = box.x + 8;
-        const top = box.y + 8;
-        const bottom = box.y + box.height - 8;
-        const up = act.kind === 'storedOnActivation';
-        const tip = up ? top : bottom;
-        const d = up ? 1 : -1;
-        w.line(`M${n(ax)} ${n(bottom)}V${n(top)}`, 1);
-        w.fill(
-          `M${n(ax)} ${n(tip)}L${n(ax - 3.6)} ${n(tip + d * 5)}L${n(ax + 3.6)} ${n(tip + d * 5)}Z`,
-        );
-      }
-      w.text(
-        act.text,
-        box.x + ACTION_PAD + (stored ? 14 : act.kind === 'forcing' ? 3 : 0),
-        cy,
-        FONT_SIZE,
-      );
-      if (act.condition) {
-        w.line(`M${n(box.x + 12)} ${n(box.y)}V${n(box.y - 10)}`, 1);
-        w.expr(act.condition, box.x + 16, box.y - 9);
-      }
+      w.text(act.text, box.x + ACTION_PAD + (act.kind === 'forcing' ? 3 : 0), cy, FONT_SIZE);
+      const decor = actionDecor(act, box);
+      if (decor.stem) w.line(decor.stem, 1);
+      if (decor.mark) w.fill(decor.mark);
+      if (decor.text) w.expr(decor.text.source, decor.text.x, decor.text.y, decor.text.anchor);
     });
   }
 }

@@ -5,7 +5,7 @@
  */
 import i18next from 'i18next';
 import { create } from 'zustand';
-import { showBottomTab } from '@/app/prefs';
+import { setPrefs, showBottomTab, usePrefs } from '@/app/prefs';
 import { toast } from '@/app/toasts';
 import { newId } from '@/core/model/factory';
 import type { Id, Project, Scenario, ScenarioEvent } from '@/core/model/types';
@@ -22,6 +22,12 @@ import { useUi } from '../store/uiStore';
 
 export type Speed = 0.25 | 0.5 | 1 | 2 | 5 | 10 | 'fast';
 export const SPEEDS: Speed[] = [0.25, 0.5, 1, 2, 5, 10, 'fast'];
+
+/** The speed remembered in preferences (as text), falling back to real time. */
+export function preferredSpeed(): Speed {
+  const v = usePrefs.getState().simSpeed;
+  return SPEEDS.find((x) => String(x) === v) ?? 1;
+}
 const MAX_CYCLES = 20_000;
 const FAST_INTERVAL_MS = 250;
 
@@ -242,6 +248,7 @@ export function setSpeed(speed: Speed): void {
   const wasPlaying = useSim.getState().playing;
   pause();
   useSim.setState({ speed });
+  setPrefs({ simSpeed: String(speed) });
   if (wasPlaying) play();
 }
 
@@ -277,6 +284,7 @@ export async function startSimulation(): Promise<void> {
   useSim.setState({
     on: true,
     playing: false,
+    speed: preferredSpeed(),
     cycles: [],
     baseline: null,
     flash: null,

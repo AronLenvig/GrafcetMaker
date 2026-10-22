@@ -97,16 +97,68 @@ export interface ActionBox extends Rect {
   id: Id;
 }
 
-const ARROW_ROOM = 14;
-
 export function actionWidth(a: Action): number {
-  const extra =
-    a.kind === 'storedOnActivation' || a.kind === 'storedOnDeactivation'
-      ? ARROW_ROOM
-      : a.kind === 'forcing'
-        ? 6
-        : 0;
+  const extra = a.kind === 'forcing' ? 6 : 0;
   return Math.max(ACTION_MIN_WIDTH, snapUp(textWidth(a.text || ' ') + 2 * ACTION_PAD + extra));
+}
+
+/** Distance of the condition line, stored-action arrow or event flag from the box's side. */
+export const ACTION_MARK_INSET = 12;
+/** Length of the stored-action arrow outside the box (the condition line is shorter). */
+export const ACTION_MARK_RISE = 14;
+const HEAD = 5;
+const HEAD_HALF = 3.6;
+
+/**
+ * What is drawn around an action box (IEC 60848): the condition line with its condition on top;
+ * the ↑ arrow of an action stored on activation above the box, the ↓ arrow of one stored on
+ * deactivation below it (each with its optional condition); or the flag of an action stored on an
+ * event at the top right, with the event to its left.
+ * Paths are absolute so the canvas and the exports draw exactly the same marks.
+ */
+export interface ActionDecor {
+  /** Vertical line from the box's top (or bottom) edge. */
+  stem?: string;
+  /** Filled arrowhead or flag. */
+  mark?: string;
+  /** Condition or event text, vertically centred on y, starting at (or ending at) x. */
+  text?: { source: string; x: number; y: number; anchor: 'start' | 'end' };
+}
+
+export function actionDecor(a: Action, box: Rect): ActionDecor {
+  const top = box.y;
+  const cond = a.condition?.trim() ? a.condition : undefined;
+  const textY = top - 9;
+  if (a.kind === 'storedOnEvent') {
+    const x = box.x + box.width - ACTION_MARK_INSET;
+    const y = top - ACTION_MARK_RISE - 2;
+    return {
+      stem: `M${x} ${top}V${y}`,
+      mark: `M${x} ${y}L${x + 9} ${y + 3.5}L${x} ${y + 7}Z`,
+      ...(cond ? { text: { source: cond, x: x - 5, y: textY, anchor: 'end' as const } } : {}),
+    };
+  }
+  const x = box.x + ACTION_MARK_INSET;
+  if (a.kind === 'storedOnActivation' || a.kind === 'storedOnDeactivation') {
+    const up = a.kind === 'storedOnActivation';
+    const edge = up ? top : top + box.height;
+    const tip = up ? edge - ACTION_MARK_RISE : edge + ACTION_MARK_RISE;
+    const base = up ? tip + HEAD : tip - HEAD;
+    return {
+      stem: `M${x} ${edge}V${tip}`,
+      mark: `M${x} ${tip}L${x - HEAD_HALF} ${base}L${x + HEAD_HALF} ${base}Z`,
+      ...(cond
+        ? {
+            text: { source: cond, x: x + 6, y: up ? edge - 9 : edge + 9, anchor: 'start' as const },
+          }
+        : {}),
+    };
+  }
+  if (!cond) return {};
+  return {
+    stem: `M${x} ${top}V${top - 10}`,
+    text: { source: cond, x: x + 4, y: textY, anchor: 'start' },
+  };
 }
 
 /** Action boxes are chained left to right, starting ACTION_GAP right of the step. */
@@ -409,10 +461,18 @@ export function grafcetBounds(
     }
     const boxes = layoutActions(s, geom.index.actions.get(s.id) ?? []);
     for (const b of boxes) {
-      unionInto(acc, { ...b, y: b.y - 20, height: b.height + 20 });
-      const cond = g.actions[b.id]?.condition;
-      if (cond)
-        unionInto(acc, { x: b.x + 16, y: b.y - 20, width: expressionWidth(cond), height: 12 });
+      const below = g.actions[b.id]!.kind === 'storedOnDeactivation' ? 20 : 0;
+      unionInto(acc, { ...b, y: b.y - 20, height: b.height + 20 + below });
+      const text = actionDecor(g.actions[b.id]!, b).text;
+      if (text) {
+        const w = expressionWidth(text.source);
+        unionInto(acc, {
+          x: text.anchor === 'end' ? text.x - w : text.x,
+          y: text.y - 8,
+          width: w,
+          height: 16,
+        });
+      }
     }
   }
   for (const t of Object.values(g.transitions)) {

@@ -7,6 +7,7 @@ import {
   analyzeOutput,
   buildEnv,
 } from '@/core/expr/check';
+import { toggleEdge } from '@/core/expr/edges';
 import { formatTextbook, renameIdentifier, runsToPlainText } from '@/core/expr/format';
 import { parseAssignment, parseBool, parseForcing } from '@/core/expr/parser';
 import { createGrafcet, createProject, createStep } from '@/core/model/factory';
@@ -275,5 +276,32 @@ describe('formatting and refactoring', () => {
   it('renames identifiers only', () => {
     expect(renameIdentifier('start * /Start2 + START', 'start', 'Go')).toBe('Go * /Start2 + Go');
     expect(renameIdentifier('C := c + 1', 'C', 'Count')).toBe('Count := Count + 1');
+  });
+});
+
+describe('toggleEdge', () => {
+  const at = (s: string) => ({ value: s.replace('|', ''), caret: s.indexOf('|') });
+  const run = (s: string, edge: '↑' | '↓') => {
+    const { value, caret } = at(s);
+    const r = toggleEdge(value, caret, edge);
+    return r.text.slice(0, r.caret) + '|' + r.text.slice(r.caret);
+  };
+  it('adds an edge to the operand at the caret', () => {
+    expect(run('a * st|art', '↑')).toBe('a * ↑st|art');
+    expect(run('a * start|', '↓')).toBe('a * ↓start|');
+    expect(run('|X2', '↑')).toBe('↑|X2');
+  });
+  it('swaps and removes edges, RE / FE included', () => {
+    expect(run('↑sta|rt', '↓')).toBe('↓sta|rt');
+    expect(run('↑sta|rt', '↑')).toBe('sta|rt');
+    expect(run('RE sta|rt', '↑')).toBe('sta|rt');
+    expect(run('FE b|', '↑')).toBe('↑b|');
+  });
+  it('inserts the symbol where there is no operand', () => {
+    expect(run('a * |', '↑')).toBe('a * ↑|');
+    expect(run('3s|/X2', '↑')).toBe('3s|/X2'.replace('|', '↑|'));
+  });
+  it('does not mistake a name ending in RE for an edge', () => {
+    expect(run('PRE b|', '↑')).toBe('PRE ↑b|');
   });
 });

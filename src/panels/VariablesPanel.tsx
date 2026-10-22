@@ -1,43 +1,60 @@
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Variable, VariableDirection, VariableType } from '@/core/model/types';
 import { formatInitialValue, parseInitialValue, variableUsage } from '@/core/model/variables';
-import { showDialog } from '@/app/dialogs/dialogStore';
-import { PlusIcon, SearchIcon, TrashIcon } from '@/app/ui/icons';
-import { Button, cx, IconButton } from '@/app/ui/primitives';
+import { ChevronDownIcon, ChevronUpIcon, PlusIcon, SearchIcon, TrashIcon } from '@/app/ui/icons';
+import { Button, cx, IconButton, Select } from '@/app/ui/primitives';
 import {
   addVariable,
-  deleteVariable,
+  confirmDeleteVariable,
   renameVariable,
+  showVariable,
   updateVariable,
 } from '@/editor/commands/variables';
 import { useDoc } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
+import {
+  countByDirection,
+  DEFAULT_QUERY,
+  DIRECTIONS,
+  queryVariables,
+  TYPES,
+  type DirectionFilter,
+  type SortKey,
+  type TypeFilter,
+  type VariableQuery,
+} from './variables/model';
+import { VariablesFileMenu } from './variables/VariablesFileMenu';
 
-const TYPES: VariableType[] = ['BOOL', 'INT', 'REAL', 'TIME'];
-const DIRECTIONS: VariableDirection[] = ['input', 'output', 'internal'];
-const DIRECTION_ORDER: Record<VariableDirection, number> = { input: 0, output: 1, internal: 2 };
+/** Fixed row height: lets long tables render only the rows in view. */
+const ROW = 34;
+const WINDOW_FROM = 120;
+const OVERSCAN = 10;
 
-const cellInput =
-  'h-7 w-full rounded border border-transparent bg-transparent px-1.5 text-text outline-none hover:border-border focus:border-accent focus:bg-surface aria-[invalid=true]:border-danger';
-
-/** Table cell input: commits on Enter/blur, Escape reverts, invalid input shows its reason. */
+/**
+ * Table cell input: commits on Enter, blur or when scrolled out of view; Escape reverts;
+ * invalid input keeps the cell open with its reason.
+ */
 function CellInput({
   value,
   label,
   onCommit,
   mono,
   autoFocus,
+  placeholder,
 }: {
   value: string;
   label: string;
   onCommit: (v: string) => string | null;
   mono?: boolean;
   autoFocus?: boolean;
+  placeholder?: string;
 }) {
   const [draft, setDraft] = useState(value);
   const [error, setError] = useState<string | null>(null);
   const ref = useRef<HTMLInputElement>(null);
+  const latest = useRef({ draft, value, onCommit });
+  latest.current = { draft, value, onCommit };
   useEffect(() => {
     if (document.activeElement !== ref.current) setDraft(value);
   }, [value]);
@@ -47,6 +64,14 @@ function CellInput({
       ref.current?.select();
     }
   }, [autoFocus]);
+  // A row leaving the rendered window takes its pending edit along.
+  useEffect(
+    () => () => {
+      const l = latest.current;
+      if (l.draft !== l.value) l.onCommit(l.draft);
+    },
+    [],
+  );
   const commit = () => {
     if (draft === value) return true;
     const err = onCommit(draft);
@@ -61,8 +86,10 @@ function CellInput({
         aria-label={label}
         aria-invalid={!!error}
         title={error ?? undefined}
+        placeholder={placeholder}
         spellCheck={false}
-        className={cx(cellInput, mono && 'font-mono')}
+        autoComplete="off"
+        className={cx('gm-input gm-input-sm gm-input-ghost', mono && 'gm-input-mono')}
         onChange={(e) => {
           setDraft(e.target.value);
           setError(null);
@@ -76,6 +103,7 @@ function CellInput({
         onKeyDown={(e) => {
           if (e.key === 'Enter') commit();
           if (e.key === 'Escape') {
+            e.stopPropagation();
             setDraft(value);
             setError(null);
           }
@@ -84,7 +112,7 @@ function CellInput({
       {error && (
         <div
           role="alert"
-          className="absolute top-full left-0 z-20 mt-0.5 w-max max-w-72 rounded bg-danger-soft px-2 py-1 text-xs text-danger"
+          className="absolute top-full left-0 z-20 mt-0.5 w-max max-w-72 rounded bg-danger-soft px-2 py-1 text-xs text-danger shadow-pop"
         >
           {error}
         </div>
@@ -103,23 +131,8 @@ const VariableRow = memo(function VariableRow({
   isNew: boolean;
 }) {
   const { t } = useTranslation();
-  const confirmDelete = async () => {
-    if (uses > 0) {
-      const choice = await showDialog({
-        title: t('variables.deleteTitle', { name: v.name }),
-        message: t('variables.deleteUsed', { count: uses }),
-        actions: [
-          { id: 'cancel', label: t('common.cancel') },
-          { id: 'delete', label: t('common.delete'), variant: 'danger' },
-        ],
-        cancelId: 'cancel',
-      });
-      if (choice !== 'delete') return;
-    }
-    deleteVariable(v.id);
-  };
   return (
-    <tr className="border-b border-border hover:bg-surface-2">
+    <tr className="border-b border-border hover:bg-surface-2" style={{ height: ROW }}>
       <td className="px-1">
         <CellInput
           value={v.name}
@@ -133,9 +146,10 @@ const VariableRow = memo(function VariableRow({
         />
       </td>
       <td className="px-1">
-        <select
+        <Select
+          small
+          ghost
           aria-label={t('variables.columns.type')}
-          className={cellInput}
           value={v.type}
           onChange={(e) =>
             updateVariable(v.id, (x) => {
@@ -149,12 +163,13 @@ const VariableRow = memo(function VariableRow({
               {ty}
             </option>
           ))}
-        </select>
+        </Select>
       </td>
       <td className="px-1">
-        <select
+        <Select
+          small
+          ghost
           aria-label={t('variables.columns.direction')}
-          className={cellInput}
           value={v.direction}
           onChange={(e) =>
             updateVariable(v.id, (x) => void (x.direction = e.target.value as VariableDirection))
@@ -165,12 +180,13 @@ const VariableRow = memo(function VariableRow({
               {t(`variables.directions.${d}`)}
             </option>
           ))}
-        </select>
+        </Select>
       </td>
       <td className="px-1">
         <CellInput
           value={formatInitialValue(v)}
           mono
+          placeholder={v.type === 'BOOL' ? 'FALSE' : '0'}
           label={t('variables.columns.initial')}
           onCommit={(text) => {
             const r = parseInitialValue(v.type, text);
@@ -210,12 +226,24 @@ const VariableRow = memo(function VariableRow({
           }}
         />
       </td>
-      <td className="px-2 text-right tabular-nums text-muted">{uses}</td>
+      <td className="px-1 text-right">
+        <button
+          type="button"
+          onClick={() => showVariable(v.id)}
+          title={t('variables.showUses', { name: v.name })}
+          className={cx(
+            'h-7 min-w-8 rounded px-2 tabular-nums hover:bg-accent-soft hover:text-text',
+            uses ? 'text-muted' : 'text-warning',
+          )}
+        >
+          {uses}
+        </button>
+      </td>
       <td className="px-1">
         <IconButton
           label={t('variables.delete', { name: v.name })}
           className="h-7 w-7"
-          onClick={() => void confirmDelete()}
+          onClick={() => void confirmDeleteVariable(v.id)}
         >
           <TrashIcon size={14} />
         </IconButton>
@@ -224,75 +252,227 @@ const VariableRow = memo(function VariableRow({
   );
 });
 
-/** Variable table: declare inputs/outputs/internals; renaming updates every expression. */
+function SortHeader({
+  k,
+  label,
+  query,
+  setQuery,
+  className,
+}: {
+  k: SortKey;
+  label: string;
+  query: VariableQuery;
+  setQuery: (q: VariableQuery) => void;
+  className?: string;
+}) {
+  const active = query.sort === k;
+  return (
+    <th
+      aria-sort={active ? (query.descending ? 'descending' : 'ascending') : 'none'}
+      className={cx('px-1 py-1 font-medium', className)}
+    >
+      <button
+        type="button"
+        onClick={() =>
+          setQuery({ ...query, sort: k, descending: active ? !query.descending : false })
+        }
+        className={cx(
+          'inline-flex h-6 items-center gap-1 rounded px-1.5 hover:bg-surface-2 hover:text-text',
+          active && 'text-text',
+        )}
+      >
+        {label}
+        {active ? (
+          query.descending ? (
+            <ChevronDownIcon size={12} />
+          ) : (
+            <ChevronUpIcon size={12} />
+          )
+        ) : (
+          <span className="w-3" />
+        )}
+      </button>
+    </th>
+  );
+}
+
+/** Variable table: filter, sort and edit many variables; renaming updates every expression. */
 export function VariablesPanel() {
   const { t } = useTranslation();
   const variables = useDoc((s) => s.project.variables);
   const grafcets = useDoc((s) => s.project.grafcets);
-  const [filter, setFilter] = useState('');
-  const [newId, setNewId] = useState<string | null>(null);
-  const usage = useMemo(() => variableUsage({ variables, grafcets }), [variables, grafcets]);
-  const list = useMemo(() => {
-    const f = filter.trim().toLowerCase();
-    return Object.values(variables)
-      .filter(
-        (v) =>
-          !f ||
-          v.name.toLowerCase().includes(f) ||
-          (v.comment ?? '').toLowerCase().includes(f) ||
-          (v.address ?? '').toLowerCase().includes(f),
-      )
-      .sort(
-        (a, b) =>
-          DIRECTION_ORDER[a.direction] - DIRECTION_ORDER[b.direction] ||
-          a.name.localeCompare(b.name),
-      );
-  }, [variables, filter]);
-  const total = Object.keys(variables).length;
   const locked = useUi((s) => s.mode === 'simulate');
+  const [query, setQuery] = useState<VariableQuery>(DEFAULT_QUERY);
+  const [newId, setNewId] = useState<string | null>(null);
+  const scroller = useRef<HTMLDivElement>(null);
+  const [view, setView] = useState({ top: 0, height: 400 });
+
+  const all = useMemo(() => Object.values(variables), [variables]);
+  const usage = useMemo(() => variableUsage({ variables, grafcets }), [variables, grafcets]);
+  const counts = useMemo(() => countByDirection(all), [all]);
+  // A just-added variable stays visible whatever the filter, until another is added.
+  const list = useMemo(() => {
+    const found = queryVariables(all, usage, query);
+    const added = newId ? variables[newId] : undefined;
+    return added && !found.includes(added) ? [added, ...found] : found;
+  }, [all, usage, query, newId, variables]);
+
+  useLayoutEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const update = () => setView({ top: el.scrollTop, height: el.clientHeight });
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const windowed = list.length > WINDOW_FROM;
+  const first = windowed ? Math.max(0, Math.floor(view.top / ROW) - OVERSCAN) : 0;
+  const last = windowed
+    ? Math.min(list.length, Math.ceil((view.top + view.height) / ROW) + OVERSCAN)
+    : list.length;
+
+  const add = () => {
+    const id = addVariable(query.direction === 'all' ? {} : { direction: query.direction });
+    setNewId(id);
+    scroller.current?.scrollTo({ top: 0 });
+  };
+
+  const filtered = query.text.trim() !== '' || query.direction !== 'all' || query.type !== 'all';
 
   return (
     <fieldset disabled={locked} className="flex h-full min-w-0 flex-col">
-      <div className="flex items-center gap-2 border-b border-border px-2 py-1.5">
-        <Button size="sm" onClick={() => setNewId(addVariable())}>
+      <div className="flex flex-wrap items-center gap-2 border-b border-border px-2 py-1.5">
+        <Button size="sm" onClick={add}>
           <PlusIcon size={14} /> {t('variables.add')}
         </Button>
-        <div className="relative">
+        <div className="relative w-56">
           <SearchIcon
             size={14}
-            className="pointer-events-none absolute top-1.5 left-2 text-muted"
+            className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-muted"
           />
           <input
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
+            value={query.text}
+            onChange={(e) => setQuery({ ...query, text: e.target.value })}
             placeholder={t('variables.filter')}
             aria-label={t('variables.filter')}
-            className="h-7 w-48 rounded border border-border bg-surface pr-2 pl-7 outline-none focus:border-accent"
+            className="gm-input gm-input-sm pl-8"
           />
         </div>
-        <span className="ml-auto text-xs text-muted">{t('variables.count', { count: total })}</span>
+        <div
+          role="radiogroup"
+          aria-label={t('variables.columns.direction')}
+          className="flex items-center gap-1"
+        >
+          {(['all', ...DIRECTIONS] as DirectionFilter[]).map((d) => (
+            <button
+              key={d}
+              type="button"
+              role="radio"
+              aria-checked={query.direction === d}
+              onClick={() => setQuery({ ...query, direction: d })}
+              className={cx(
+                'flex h-7 items-center gap-1 rounded-full border px-2.5 text-xs',
+                query.direction === d
+                  ? 'border-accent bg-accent-soft text-text'
+                  : 'border-border text-muted hover:text-text',
+              )}
+            >
+              {d === 'all' ? t('variables.all') : t(`variables.directionsPlural.${d}`)}
+              <span className="tabular-nums opacity-70">{counts[d]}</span>
+            </button>
+          ))}
+        </div>
+        <div className="w-32">
+          <Select
+            small
+            aria-label={t('variables.columns.type')}
+            value={query.type}
+            onChange={(e) => setQuery({ ...query, type: e.target.value as TypeFilter })}
+          >
+            <option value="all">{t('variables.allTypes')}</option>
+            {TYPES.map((ty) => (
+              <option key={ty} value={ty}>
+                {ty}
+              </option>
+            ))}
+          </Select>
+        </div>
+        {filtered && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() =>
+              setQuery({ ...DEFAULT_QUERY, sort: query.sort, descending: query.descending })
+            }
+          >
+            {t('variables.clearFilters')}
+          </Button>
+        )}
+        <span className="ml-auto text-xs text-muted" aria-live="polite">
+          {filtered
+            ? t('variables.shown', { shown: list.length, count: all.length })
+            : t('variables.count', { count: all.length })}
+        </span>
+        <VariablesFileMenu />
       </div>
-      <div className="min-h-0 flex-1 overflow-auto">
-        {total === 0 ? (
+      <div
+        ref={scroller}
+        className="min-h-0 flex-1 overflow-auto"
+        onScroll={(e) =>
+          setView({ top: e.currentTarget.scrollTop, height: e.currentTarget.clientHeight })
+        }
+      >
+        {all.length === 0 ? (
           <p className="p-4 text-muted">{t('variables.empty')}</p>
         ) : (
-          <table className="w-full min-w-[760px] border-collapse">
+          <table className="w-full min-w-[820px] border-collapse" aria-rowcount={list.length + 1}>
             <thead className="sticky top-0 z-10 bg-surface text-left text-xs text-muted">
               <tr className="border-b border-border">
-                <th className="w-44 px-2 py-1.5 font-medium">{t('variables.columns.name')}</th>
-                <th className="w-24 px-2 py-1.5 font-medium">{t('variables.columns.type')}</th>
-                <th className="w-28 px-2 py-1.5 font-medium">{t('variables.columns.direction')}</th>
-                <th className="w-28 px-2 py-1.5 font-medium">{t('variables.columns.initial')}</th>
-                <th className="w-28 px-2 py-1.5 font-medium">{t('variables.columns.address')}</th>
-                <th className="px-2 py-1.5 font-medium">{t('variables.columns.comment')}</th>
-                <th className="w-16 px-2 py-1.5 text-right font-medium">
-                  {t('variables.columns.uses')}
-                </th>
+                <SortHeader
+                  k="name"
+                  label={t('variables.columns.name')}
+                  query={query}
+                  setQuery={setQuery}
+                  className="w-48"
+                />
+                <SortHeader
+                  k="type"
+                  label={t('variables.columns.type')}
+                  query={query}
+                  setQuery={setQuery}
+                  className="w-24"
+                />
+                <SortHeader
+                  k="direction"
+                  label={t('variables.columns.direction')}
+                  query={query}
+                  setQuery={setQuery}
+                  className="w-28"
+                />
+                <th className="w-28 px-2.5 py-1 font-medium">{t('variables.columns.initial')}</th>
+                <SortHeader
+                  k="address"
+                  label={t('variables.columns.address')}
+                  query={query}
+                  setQuery={setQuery}
+                  className="w-28"
+                />
+                <th className="px-2.5 py-1 font-medium">{t('variables.columns.comment')}</th>
+                <SortHeader
+                  k="uses"
+                  label={t('variables.columns.uses')}
+                  query={query}
+                  setQuery={setQuery}
+                  className="w-20 text-right"
+                />
                 <th className="w-10" />
               </tr>
             </thead>
             <tbody>
-              {list.map((v) => (
+              {first > 0 && <tr aria-hidden="true" style={{ height: first * ROW }} />}
+              {list.slice(first, last).map((v) => (
                 <VariableRow
                   key={v.id}
                   v={v}
@@ -300,8 +480,14 @@ export function VariablesPanel() {
                   isNew={v.id === newId}
                 />
               ))}
+              {last < list.length && (
+                <tr aria-hidden="true" style={{ height: (list.length - last) * ROW }} />
+              )}
             </tbody>
           </table>
+        )}
+        {all.length > 0 && list.length === 0 && (
+          <p className="p-4 text-muted">{t('variables.noMatch')}</p>
         )}
       </div>
     </fieldset>

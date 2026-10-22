@@ -312,14 +312,20 @@ export function renameGrafcet(gid: Id, name: string): NameError | null {
   return null;
 }
 
-export function deleteGrafcet(gid: Id): boolean {
+/**
+ * Deletes grafcets (one undo step); macro-steps and enclosing steps that used them lose their
+ * reference. A project keeps at least one grafcet: returns false when that would not be the case.
+ */
+export function deleteGrafcets(ids: Id[]): boolean {
   const p = getProject();
-  if (p.grafcetOrder.length <= 1 || !p.grafcets[gid]) return false;
-  doc.execute('history.deleteGrafcet', (d) => {
-    delete d.grafcets[gid];
-    d.grafcetOrder = d.grafcetOrder.filter((id) => id !== gid);
+  const gone = new Set(ids.filter((id) => p.grafcets[id]));
+  if (!gone.size || gone.size >= p.grafcetOrder.length) return false;
+  doc.execute(gone.size > 1 ? 'history.deleteGrafcets' : 'history.deleteGrafcet', (d) => {
+    for (const id of gone) delete d.grafcets[id];
+    d.grafcetOrder = d.grafcetOrder.filter((id) => !gone.has(id));
     for (const g of Object.values(d.grafcets)) {
-      for (const s of Object.values(g.steps)) if (s.refGrafcetId === gid) delete s.refGrafcetId;
+      for (const s of Object.values(g.steps))
+        if (s.refGrafcetId && gone.has(s.refGrafcetId)) delete s.refGrafcetId;
     }
   });
   return true;

@@ -16,6 +16,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- Delete a grafcet with `Del` on its tab; pick several tabs with Ctrl/Cmd+click or Shift+click to
+  delete them together (one confirmation, one undo step).
 - Grafcet tabs can be dragged to change their order (one undo step; Ctrl+Shift+← / → on a focused
   tab). Ctrl/Cmd shortcuts such as undo also work while a tab has focus.
 - Settings › Appearance: turn the welcome screen at startup on or off.

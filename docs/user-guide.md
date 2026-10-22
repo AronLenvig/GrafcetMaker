@@ -199,7 +199,10 @@ that point to missing grafcets or steps and grafcets that force each other.
 
 Use the `+` next to the tabs to add a partial grafcet; its first step number continues after the
 numbers already used, in tens. Double-click a tab (or press `F2` on it) to rename it; drag it
-sideways to reorder (or `Ctrl+Shift+←` / `→` on a focused tab); right-click for move and delete.
+sideways to reorder (or `Ctrl+Shift+←` / `→` on a focused tab); press `Del` on a tab to delete its
+grafcet. `Ctrl`/`Cmd`+click or `Shift`+click picks several tabs (the open one included) to delete
+them together, in one undo step; a project always keeps at least one grafcet. Right-click for
+more.
 When the tabs do not fit, scroll them with the mouse wheel or the ‹ › buttons.
 
 ## Problems

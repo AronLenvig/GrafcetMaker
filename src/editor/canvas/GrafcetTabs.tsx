@@ -8,7 +8,7 @@ import { showDialog } from '@/app/dialogs/dialogStore';
 import { toast } from '@/app/toasts';
 import {
   addGrafcet,
-  deleteGrafcet,
+  deleteGrafcets,
   moveGrafcet,
   moveGrafcetTo,
   renameGrafcet,
@@ -68,7 +68,8 @@ const EDGE_SCROLL = 24;
 
 /**
  * Tabs for the partial grafcets of the project. Drag a tab to reorder it (Ctrl+Shift+← / → from
- * the keyboard), double-click to rename, right-click for more. When the tabs do not fit they
+ * the keyboard), double-click to rename, Del to delete (Ctrl/Cmd+click or Shift+click to pick
+ * several), right-click for more. When the tabs do not fit they
  * scroll (wheel, ‹ › buttons) without a scrollbar, and the active tab is kept in view.
  */
 export function GrafcetTabs() {
@@ -83,6 +84,15 @@ export function GrafcetTabs() {
   const suppressClick = useRef(false);
   const [dragView, setDragView] = useState<{ gid: Id; slot: number } | null>(null);
   const [overflow, setOverflow] = useState({ left: false, right: false });
+  // Tabs picked with Ctrl/Cmd+click or Shift+click, to delete several at once.
+  const [picked, setPicked] = useState<Id[]>([]);
+  const anchor = useRef<Id | null>(null);
+  useEffect(() => {
+    setPicked((list) => {
+      const next = list.filter((id) => order.includes(id));
+      return next.length === list.length ? list : next;
+    });
+  }, [order]);
 
   // The ‹ › buttons follow the scroll position and the size of the strip.
   const measure = useCallback(() => {
@@ -107,22 +117,64 @@ export function GrafcetTabs() {
       ?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   }, [active, order, overflow]);
 
+  /** The tabs an action on `gid` applies to: the picked ones when `gid` is among them. */
+  const targetsOf = (gid: Id): Id[] =>
+    picked.length > 1 && picked.includes(gid) ? order.filter((id) => picked.includes(id)) : [gid];
+
   const confirmDelete = async (gid: Id) => {
-    const g = grafcets[gid];
-    if (!g) return;
+    const ids = targetsOf(gid).filter((id) => grafcets[id]);
+    if (!ids.length || locked) return;
+    if (ids.length >= order.length) {
+      toast(t('grafcet.keepOne'), 'warning', 5000);
+      return;
+    }
+    const names = ids.map((id) => grafcets[id]!.name);
     const choice = await showDialog({
-      title: t('grafcet.deleteTitle', { name: g.name }),
-      message: t('grafcet.deleteMessage'),
+      title:
+        ids.length === 1
+          ? t('grafcet.deleteTitle', { name: names[0]! })
+          : t('grafcet.deleteManyTitle', { count: ids.length }),
+      message: ids.length === 1 ? t('grafcet.deleteMessage') : t('grafcet.deleteManyMessage'),
+      details: ids.length > 1 ? names : undefined,
       actions: [
         { id: 'cancel', label: t('common.cancel') },
         { id: 'delete', label: t('common.delete'), variant: 'danger' },
       ],
       cancelId: 'cancel',
     });
-    if (choice === 'delete') deleteGrafcet(gid);
+    if (choice === 'delete' && deleteGrafcets(ids)) setPicked([]);
+  };
+
+  /** Plain click: open the tab. Ctrl/Cmd+click: pick or unpick it. Shift+click: pick a range. */
+  const onTabClick = (e: React.MouseEvent, gid: Id) => {
+    if (e.shiftKey) {
+      const from = order.indexOf(anchor.current ?? active ?? gid);
+      const to = order.indexOf(gid);
+      const [a, b] = from < to ? [from, to] : [to, from];
+      setPicked(order.slice(Math.max(0, a), b + 1));
+      return;
+    }
+    if (e.ctrlKey || e.metaKey) {
+      const base = picked.length ? picked : active ? [active] : [];
+      setPicked(base.includes(gid) ? base.filter((id) => id !== gid) : [...base, gid]);
+      anchor.current = gid;
+      return;
+    }
+    setPicked([]);
+    anchor.current = gid;
+    setActiveGrafcet(gid);
   };
 
   const onKeyDown = (e: React.KeyboardEvent, gid: Id, index: number) => {
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+      e.preventDefault();
+      void confirmDelete(gid);
+      return;
+    }
+    if (e.key === 'Escape' && picked.length) {
+      setPicked([]);
+      return;
+    }
     const delta = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
     if (!delta) return;
     e.preventDefault();
@@ -232,12 +284,12 @@ export function GrafcetTabs() {
                   onPointerMove={onPointerMove}
                   onPointerUp={() => endDrag(true)}
                   onPointerCancel={() => endDrag(false)}
-                  onClick={() => {
+                  onClick={(e) => {
                     if (suppressClick.current) {
                       suppressClick.current = false;
                       return;
                     }
-                    setActiveGrafcet(gid);
+                    onTabClick(e, gid);
                   }}
                   onDoubleClick={() => !locked && setRenaming(gid)}
                   onKeyDown={(e) => {
@@ -250,9 +302,15 @@ export function GrafcetTabs() {
                     selected
                       ? 'border-border bg-canvas text-text'
                       : 'border-transparent text-muted hover:bg-surface-3 hover:text-text',
+                    picked.length > 1 &&
+                      picked.includes(gid) &&
+                      'bg-accent-soft text-text ring-1 ring-accent ring-inset',
                     dragView?.gid === gid && 'opacity-50',
                   )}
                 >
+                  {picked.length > 1 && picked.includes(gid) && (
+                    <span className="sr-only">{t('grafcet.picked')}</span>
+                  )}
                   {renaming === gid ? (
                     <RenameInput gid={gid} initial={g.name} onDone={() => setRenaming(null)} />
                   ) : (
@@ -309,7 +367,9 @@ export function GrafcetTabs() {
                     disabled={order.length <= 1}
                     onSelect={() => void confirmDelete(gid)}
                   >
-                    {t('grafcet.delete')}
+                    {targetsOf(gid).length > 1
+                      ? t('grafcet.deleteMany', { count: targetsOf(gid).length })
+                      : t('grafcet.delete')}
                   </ContextMenu.Item>
                 </ContextMenu.Content>
               </ContextMenu.Portal>

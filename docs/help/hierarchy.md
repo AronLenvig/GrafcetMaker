@@ -11,8 +11,9 @@ other through step variables (`X21` in G1 is true while step 21 of G2 is active)
 
 - Click **+** next to the tabs to add one. Its step numbers start at the next free ten (20, 30…),
   so `Xn` references stay unambiguous.
-- Double-click a tab (or press <kbd>F2</kbd> on it) to rename it; right-click it to move or delete
-  it.
+- Double-click a tab (or press <kbd>F2</kbd> on it) to rename it; drag it sideways to change the
+  order; right-click it to move or delete it. Many tabs scroll with the mouse wheel or the ‹ ›
+  buttons.
 
 ## Macro-steps
 

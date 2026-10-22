@@ -16,6 +16,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- Grafcet tabs can be dragged to change their order (one undo step; Ctrl+Shift+← / → on a focused
+  tab). Ctrl/Cmd shortcuts such as undo also work while a tab has focus.
 - Settings › Appearance: turn the welcome screen at startup on or off.
 - Reloading or reopening the app restores the last work without asking (then shows the start
   screen), and there is no "leave page?" confirmation any more: autosave keeps everything.
@@ -29,6 +31,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- Many grafcet tabs no longer show a scrollbar that pushed the tabs up: the strip scrolls with the
+  wheel and ‹ › buttons, and keeps the active tab in view.
+- A grafcet name error while renaming a tab is no longer cut off by the tab strip.
 - Placing a comment with the Comment tool now opens its text editor at once.
 
 ## [1.0.0] - 2026-10-22

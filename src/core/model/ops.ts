@@ -5,7 +5,17 @@
 import { PITCH, ROW } from '../layout/geometry';
 import { createStep, newId } from './factory';
 import { indexGrafcet } from './graph';
-import type { Action, ActionKind, Comment, Grafcet, Id, Point, Step, Transition } from './types';
+import type {
+  Project,
+  Action,
+  ActionKind,
+  Comment,
+  Grafcet,
+  Id,
+  Point,
+  Step,
+  Transition,
+} from './types';
 
 export function nextStepNumber(g: Grafcet): number {
   let max = -1;
@@ -284,4 +294,14 @@ export function deleteElements(g: Grafcet, ids: Iterable<Id>, heal = true): void
     else if (g.actions[id]) delete g.actions[id];
     else if (g.comments[id]) delete g.comments[id];
   }
+}
+
+/** Moves a grafcet to position `index` of the tab order (clamped). */
+export function moveGrafcetTo(p: Project, gid: Id, index: number): void {
+  const i = p.grafcetOrder.indexOf(gid);
+  if (i < 0) return;
+  const to = Math.max(0, Math.min(index, p.grafcetOrder.length - 1));
+  if (to === i) return;
+  p.grafcetOrder.splice(i, 1);
+  p.grafcetOrder.splice(to, 0, gid);
 }

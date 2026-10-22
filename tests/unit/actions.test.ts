@@ -18,6 +18,7 @@ import {
   deleteElements,
   detachAction,
   moveElements,
+  moveGrafcetTo,
 } from '@/core/model/ops';
 import type { Action, Grafcet, Project, Variable } from '@/core/model/types';
 import { setUiKind, uiKindOf } from '@/core/model/actionKind';
@@ -261,5 +262,24 @@ describe('stored actions written as the variable alone', () => {
     const opts = { version: '1.0.0', date: new Date('2026-01-02T03:04:00Z') };
     expect(generateSt(p, opts).code).toContain('Horn := TRUE;');
     expect(generatePlcOpen(p, opts).code).toContain('qualifier="S"');
+  });
+});
+
+describe('grafcet tab order', () => {
+  it('moves a grafcet to any position', () => {
+    const { p } = setup();
+    for (const name of ['G2', 'G3', 'G4']) {
+      const g = createGrafcet(name);
+      p.grafcets[g.id] = g;
+      p.grafcetOrder.push(g.id);
+    }
+    const names = () => p.grafcetOrder.map((id) => p.grafcets[id]!.name);
+    const id = (n: string) => p.grafcetOrder.find((g) => p.grafcets[g]!.name === n)!;
+    moveGrafcetTo(p, id('G4'), 0);
+    expect(names()).toEqual(['G4', 'G1', 'G2', 'G3']);
+    moveGrafcetTo(p, id('G1'), 3);
+    expect(names()).toEqual(['G4', 'G2', 'G3', 'G1']);
+    moveGrafcetTo(p, id('G2'), 99);
+    expect(names()).toEqual(['G4', 'G3', 'G1', 'G2']);
   });
 });

@@ -334,6 +334,11 @@ export function moveGrafcet(gid: Id, delta: -1 | 1): void {
   });
 }
 
+/** Drag-and-drop of a tab: moves the grafcet to another position. One undo step. */
+export function moveGrafcetTo(gid: Id, index: number): void {
+  doc.execute('history.reorderGrafcets', (p) => ops.moveGrafcetTo(p, gid, index));
+}
+
 export function setActiveGrafcet(gid: Id): void {
   if (useUi.getState().activeGrafcetId === gid) return;
   ui.set({ activeGrafcetId: gid, selection: {}, selectedLink: null, editing: null });

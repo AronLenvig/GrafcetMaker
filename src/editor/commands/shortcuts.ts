@@ -28,12 +28,14 @@ function isTextField(el: EventTarget | null): boolean {
   return false;
 }
 
-/** Focus is in an interactive control where single-key shortcuts must not fire (menus, buttons). */
-function isInsideWidget(el: EventTarget | null): boolean {
-  return (
-    el instanceof HTMLElement &&
-    !!el.closest('[role="menu"],[role="dialog"],[role="listbox"],[role="tablist"]')
-  );
+/**
+ * Focus is in an interactive control that handles its own keys (menus, dialogs, lists, tab strips).
+ * In a tab strip only plain keys are its own: Ctrl/Cmd shortcuts (undo, save…) still apply.
+ */
+function isInsideWidget(el: EventTarget | null, modified: boolean): boolean {
+  if (!(el instanceof HTMLElement)) return false;
+  if (el.closest('[role="menu"],[role="dialog"],[role="listbox"]')) return true;
+  return !modified && !!el.closest('[role="tablist"]');
 }
 
 function onKeyDown(e: KeyboardEvent): void {
@@ -41,9 +43,9 @@ function onKeyDown(e: KeyboardEvent): void {
   if (isDialogOpen() || useUi.getState().paletteOpen) return;
   const cmd = table.get(comboOf(e).toUpperCase());
   if (!cmd) return;
-  if (!cmd.global && (isTextField(e.target) || isInsideWidget(e.target))) return;
   // Plain keys (Enter, arrows, letters) only act on the diagram when nothing else has focus.
   const plain = !e.ctrlKey && !e.metaKey && !e.altKey;
+  if (!cmd.global && (isTextField(e.target) || isInsideWidget(e.target, !plain))) return;
   if (
     plain &&
     !cmd.global &&

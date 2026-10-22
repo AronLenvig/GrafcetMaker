@@ -205,6 +205,14 @@
     line-height: 1.25;
   }
 
+  /* Scrollable without a visible scrollbar (tab strips scroll with the wheel and buttons). */
+  .gm-no-scrollbar {
+    scrollbar-width: none;
+  }
+  .gm-no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   .gm-kbd {
     display: inline-block;
     min-width: 1.4em;

@@ -130,6 +130,15 @@ export function GrafcetTabs() {
                   ) : (
                     g.name
                   )}
+                  {g.kind !== 'partial' && (
+                    <span
+                      className="rounded bg-surface-3 px-1 font-sans text-[10px] font-semibold text-muted"
+                      title={t(`props.grafcet.kinds.${g.kind}`)}
+                      aria-label={t(`props.grafcet.kinds.${g.kind}`)}
+                    >
+                      {g.kind === 'macroExpansion' ? 'M' : 'E'}
+                    </span>
+                  )}
                 </div>
               </ContextMenu.Trigger>
               <ContextMenu.Portal>

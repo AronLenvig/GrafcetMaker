@@ -25,6 +25,7 @@ import {
 import { doc, getProject } from '../store/document';
 import { ui, useUi } from '../store/uiStore';
 import { useInteraction, type LinkDrag } from './interactionStore';
+import { openChild } from '../commands/hierarchy';
 import { cancelPending, completeLoop } from '../commands/structure';
 import { getViewport, panBy, screenToDiagram, zoomAt } from './viewport';
 import { portPosition } from '@/core/layout/geometry';
@@ -361,8 +362,12 @@ export function useCanvasInteraction(
   };
 
   const onDoubleClick = (e: React.MouseEvent<SVGSVGElement>) => {
-    if (!gid || readOnly) return;
-    const hit = elementAt(e.target as Element);
+    if (!gid) return;
+    // Hit-test by position: after pointer capture the event targets the <svg> itself.
+    const hit = elementAt(document.elementFromPoint(e.clientX, e.clientY));
+    // Macro-steps and enclosing steps open their sub-grafcet (F2 still edits the number).
+    if (hit?.kind === 'step' && hit.id && openChild(hit.id)) return;
+    if (readOnly) return;
     if (hit?.id && hit.kind !== 'link') {
       ui.select([hit.id]);
       editSelection();

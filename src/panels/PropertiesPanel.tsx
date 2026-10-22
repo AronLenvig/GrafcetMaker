@@ -14,9 +14,11 @@ import {
 import { doc, getProject, useActiveGrafcet, useDoc } from '@/editor/store/document';
 import { ui, useUi } from '@/editor/store/uiStore';
 import { actionTextKind } from '@/core/expr/check';
+import { parentOf } from '@/core/model/hierarchy';
+import { goToParent, openChild, setStepKind } from '@/editor/commands/hierarchy';
 import { issueMessage } from '@/editor/validation/actions';
 import { useProblems } from '@/editor/validation/problems';
-import { CheckField, CommitField, ExpressionField, Section, SelectField } from './fields';
+import { CommitField, ExpressionField, Section, SelectField } from './fields';
 import { QuickFixButton, SeverityIcon } from './ProblemsPanel';
 
 const ACTION_KINDS: ActionKind[] = [
@@ -120,6 +122,7 @@ function ActionEditor({ action, index, count }: { action: Action; index: number;
 
 function StepProps({ g, step }: { g: Grafcet; step: Step }) {
   const { t } = useTranslation();
+  const project = useDoc((s) => s.project);
   const validateNumber = useNumberValidator();
   const actions = useMemo(() => indexGrafcet(g).actions.get(step.id) ?? [], [g, step.id]);
   const update = (recipe: (s: Step) => void) =>
@@ -156,12 +159,23 @@ function StepProps({ g, step }: { g: Grafcet; step: Step }) {
             })
           }
         />
-        {(step.kind === 'normal' || step.kind === 'initial') && (
-          <CheckField
-            label={t('props.step.initial')}
-            checked={step.kind === 'initial'}
-            onChange={(v) => update((s) => void (s.kind = v ? 'initial' : 'normal'))}
-          />
+        <SelectField
+          label={t('props.step.kind')}
+          value={step.kind}
+          options={(['normal', 'initial', 'macro', 'enclosing'] as const).map((k) => ({
+            value: k,
+            label: t(
+              g.kind === 'enclosed' && k === 'initial'
+                ? 'props.step.kinds.enclosedInitial'
+                : `props.step.kinds.${k}`,
+            ),
+          }))}
+          onChange={(k) => setStepKind(step.id, k)}
+        />
+        {step.refGrafcetId && project.grafcets[step.refGrafcetId] && (
+          <Button size="sm" onClick={() => openChild(step.id)}>
+            {t('props.step.openChild', { name: project.grafcets[step.refGrafcetId]!.name })}
+          </Button>
         )}
       </Section>
       <Section
@@ -226,6 +240,7 @@ function TransitionProps({ g, transition }: { g: Grafcet; transition: Transition
 function GrafcetAndProjectProps({ g }: { g: Grafcet }) {
   const { t } = useTranslation();
   const project = useDoc((s) => s.project);
+  const parent = parentOf(project, g.id);
   const validateName = (v: string) => {
     const err = validateGrafcetName(getProject(), g.id, v.trim());
     return err ? t(`grafcet.nameErrors.${err}`) : null;
@@ -253,6 +268,15 @@ function GrafcetAndProjectProps({ g }: { g: Grafcet }) {
             transitions: Object.keys(g.transitions).length,
           })}
         </p>
+        <p>{t(`props.grafcet.kinds.${g.kind}`)}</p>
+        {parent && (
+          <Button size="sm" onClick={goToParent}>
+            {t('props.grafcet.goToParent', {
+              grafcet: parent.grafcet.name,
+              step: parent.step.number,
+            })}
+          </Button>
+        )}
       </Section>
       <Section title={t('props.project.title')}>
         <CommitField

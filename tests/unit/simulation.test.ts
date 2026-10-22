@@ -5,7 +5,7 @@
 import { describe, expect, it } from 'vitest';
 import { createGrafcet, newId } from '@/core/model/factory';
 import { SCHEMA_VERSION } from '@/core/model/schema';
-import type { ActionKind, Grafcet, Project, VariableType } from '@/core/model/types';
+import type { ActionKind, Grafcet, GrafcetKind, Project, VariableType } from '@/core/model/types';
 import { Simulator } from '@/core/simulation/engine';
 import { compile } from '@/core/simulation/program';
 
@@ -14,6 +14,10 @@ type Tr = [from: number[], receptivity: string, to: number[]];
 type Act = [step: number, kind: ActionKind, text: string, condition?: string];
 interface GSpec {
   name: string;
+  kind?: GrafcetKind;
+  /** Step number → name of its expansion (macro-step) or enclosed grafcet (enclosing step). */
+  macro?: Record<number, string>;
+  enclosing?: Record<number, string>;
   initial?: number[];
   steps: number[];
   transitions: Tr[];
@@ -43,7 +47,7 @@ function build(vars: Record<string, VarSpec>, ...specs: GSpec[]): Project {
     p.variables[name] = { id: name, name, type, direction };
   }
   for (const spec of specs) {
-    const g: Grafcet = createGrafcet(spec.name);
+    const g: Grafcet = createGrafcet(spec.name, spec.kind ?? 'partial');
     const byNumber = new Map<number, string>();
     spec.steps.forEach((n, i) => {
       const id = `${spec.name}_${n}`;
@@ -51,7 +55,13 @@ function build(vars: Record<string, VarSpec>, ...specs: GSpec[]): Project {
       g.steps[id] = {
         id,
         number: n,
-        kind: spec.initial?.includes(n) ? 'initial' : 'normal',
+        kind: spec.macro?.[n]
+          ? 'macro'
+          : spec.enclosing?.[n]
+            ? 'enclosing'
+            : spec.initial?.includes(n)
+              ? 'initial'
+              : 'normal',
         position: { x: 0, y: i * 120 },
       };
     });
@@ -78,6 +88,13 @@ function build(vars: Record<string, VarSpec>, ...specs: GSpec[]): Project {
     });
     p.grafcets[g.id] = g;
     p.grafcetOrder.push(g.id);
+  }
+  const byName = new Map(Object.values(p.grafcets).map((g) => [g.name, g.id]));
+  for (const spec of specs) {
+    const g = Object.values(p.grafcets).find((x) => x.name === spec.name)!;
+    for (const [n, child] of Object.entries({ ...spec.macro, ...spec.enclosing })) {
+      g.steps[`${spec.name}_${n}`]!.refGrafcetId = byName.get(child)!;
+    }
   }
   return p;
 }
@@ -808,5 +825,134 @@ describe('determinism', () => {
     sim.advanceTo(2000);
     expect(X(sim)).toEqual(['G1.2']);
     expect(v(sim, 'M')).toBe(true);
+  });
+});
+
+describe('hierarchy', () => {
+  const expansion: GSpec = {
+    name: 'M1',
+    kind: 'macroExpansion',
+    steps: [10, 11],
+    transitions: [[[10], 'c', [11]]],
+    actions: [[11, 'continuous', 'Q']],
+  };
+
+  it('a macro-step is entered at E and left from S; Xn of the macro-step is its expansion activity', () => {
+    const sim = run(
+      build(
+        { a: 'in', b: 'in', c: 'in', Q: 'out' },
+        {
+          name: 'G1',
+          initial: [0],
+          steps: [0, 1, 2],
+          macro: { 1: 'M1' },
+          transitions: [
+            [[0], 'a', [1]],
+            [[1], 'b', [2]],
+          ],
+        },
+        expansion,
+        { name: 'G2', initial: [20], steps: [20, 21], transitions: [[[20], 'X1', [21]]] },
+      ),
+    );
+    expect(X(sim)).toEqual(['G1.0', 'G2.20']);
+    set(sim, { a: true });
+    expect(X(sim)).toEqual(['G2.21', 'M1.10']);
+    expect(sim.snapshot().active).toContain('G1_1');
+    set(sim, { b: true });
+    expect(X(sim)).toEqual(['G2.21', 'M1.10']);
+    set(sim, { c: true });
+    // S (11) becomes active, b is already true: the macro-step is left in the same cycle.
+    expect(X(sim)).toEqual(['G1.2', 'G2.21']);
+    expect(v(sim, 'Q')).toBe(false);
+  });
+
+  it('a macro-step timer counts from the activation of its entry step', () => {
+    const sim = run(
+      build(
+        { a: 'in', c: 'in' },
+        {
+          name: 'G1',
+          initial: [0],
+          steps: [0, 1, 2],
+          macro: { 1: 'M1' },
+          transitions: [
+            [[0], 'a', [1]],
+            [[1], '1', [2]],
+          ],
+        },
+        { name: 'M1', kind: 'macroExpansion', steps: [10, 11], transitions: [[[10], 'c', [11]]] },
+        { name: 'G2', initial: [20], steps: [20, 21], transitions: [[[20], '2s/X1', [21]]] },
+      ),
+    );
+    set(sim, { a: true });
+    expect(sim.nextDeadline()).toBe(2000);
+    sim.advanceTo(2000);
+    expect(X(sim)).toEqual(['G2.21', 'M1.10']);
+  });
+
+  const enclosed: GSpec = {
+    name: 'E1',
+    kind: 'enclosed',
+    initial: [30],
+    steps: [30, 31, 32],
+    transitions: [
+      [[30], 'c', [31]],
+      [[], 'd', [32]],
+    ],
+    actions: [[31, 'storedOnDeactivation', 'N := N + 1']],
+  };
+
+  it('an enclosing step activates its enclosed grafcet and deactivates it when left', () => {
+    const sim = run(
+      build(
+        { a: 'in', b: 'in', c: 'in', d: 'in', N: 'n' },
+        {
+          name: 'G1',
+          initial: [0],
+          steps: [0, 1, 2],
+          enclosing: { 1: 'E1' },
+          transitions: [
+            [[0], 'a', [1]],
+            [[1], 'b', [2]],
+          ],
+        },
+        enclosed,
+      ),
+    );
+    expect(X(sim)).toEqual(['G1.0']);
+    set(sim, { d: true });
+    expect(X(sim)).toEqual(['G1.0']); // source transition of the enclosed grafcet is guarded
+    set(sim, { d: false });
+    set(sim, { a: true });
+    expect(X(sim)).toEqual(['E1.30', 'G1.1']);
+    set(sim, { c: true });
+    expect(X(sim)).toEqual(['E1.31', 'G1.1']);
+    set(sim, { b: true });
+    expect(X(sim)).toEqual(['G1.2']);
+    expect(v(sim, 'N')).toBe(1);
+  });
+
+  it('re-activating an enclosing step through its own loop keeps the enclosed situation (rule 5)', () => {
+    const sim = run(
+      build(
+        { a: 'in', c: 'in', e: 'in', N: 'n' },
+        {
+          name: 'G1',
+          initial: [0],
+          steps: [0, 1],
+          enclosing: { 1: 'E1' },
+          transitions: [
+            [[0], 'a', [1]],
+            [[1], '↑e', [1]],
+          ],
+        },
+        enclosed,
+      ),
+    );
+    set(sim, { a: true });
+    set(sim, { c: true });
+    set(sim, { e: true });
+    expect(X(sim)).toEqual(['E1.31', 'G1.1']);
   });
 });

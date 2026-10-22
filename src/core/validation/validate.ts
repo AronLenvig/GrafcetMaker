@@ -403,6 +403,120 @@ function parallelOutputRule(g: Grafcet, out: Issue[]): void {
   }
 }
 
+/**
+ * Hierarchy: every macro-step needs its own expansion and every enclosing step its own enclosed
+ * grafcet; sub-grafcets should be used; forcing must not form a cycle; macro-steps carry no stored
+ * actions (put them in the expansion).
+ */
+function hierarchyRules(p: Project, out: Issue[]): void {
+  const users = new Map<Id, { grafcet: Grafcet; step: Step }[]>();
+  for (const gid of p.grafcetOrder) {
+    const g = p.grafcets[gid];
+    if (!g) continue;
+    for (const s of Object.values(g.steps)) {
+      if (s.kind !== 'macro' && s.kind !== 'enclosing') continue;
+      const child = s.refGrafcetId ? p.grafcets[s.refGrafcetId] : undefined;
+      const want = s.kind === 'macro' ? 'macroExpansion' : 'enclosed';
+      if (!child || child.kind !== want) {
+        out.push({
+          ruleId: 'subgrafcetMissing',
+          severity: 'error',
+          messageKey: `problems.messages.${s.kind === 'macro' ? 'macroWithoutExpansion' : 'enclosingWithoutGrafcet'}`,
+          params: { step: stepLabel(s) },
+          grafcetId: g.id,
+          elementIds: [s.id],
+        });
+        continue;
+      }
+      users.set(child.id, [...(users.get(child.id) ?? []), { grafcet: g, step: s }]);
+      if (s.kind === 'macro') {
+        const stored = Object.values(g.actions).filter(
+          (a) => a.stepId === s.id && a.kind !== 'continuous',
+        );
+        if (stored.length) {
+          out.push({
+            ruleId: 'macroActions',
+            severity: 'warning',
+            messageKey: 'problems.messages.macroActions',
+            params: { step: stepLabel(s), grafcet: child.name },
+            grafcetId: g.id,
+            elementIds: stored.map((a) => a.id),
+          });
+        }
+      }
+    }
+  }
+  for (const gid of p.grafcetOrder) {
+    const g = p.grafcets[gid];
+    if (!g || g.kind === 'partial') continue;
+    const list = users.get(gid) ?? [];
+    if (list.length > 1) {
+      out.push({
+        ruleId: 'subgrafcetShared',
+        severity: 'error',
+        messageKey: 'problems.messages.subgrafcetShared',
+        params: {
+          grafcet: g.name,
+          steps: list.map((u) => `${u.grafcet.name}.${stepLabel(u.step)}`).join(', '),
+        },
+        grafcetId: list[0]!.grafcet.id,
+        elementIds: list.map((u) => u.step.id),
+      });
+    } else if (!list.length) {
+      out.push({
+        ruleId: 'subgrafcetUnused',
+        severity: 'warning',
+        messageKey: `problems.messages.${g.kind === 'macroExpansion' ? 'expansionUnused' : 'enclosedUnused'}`,
+        params: { grafcet: g.name },
+        grafcetId: g.id,
+        elementIds: [],
+      });
+    }
+  }
+
+  // Forcing hierarchy must be acyclic.
+  const byName = new Map(Object.values(p.grafcets).map((g) => [g.name.toLowerCase(), g.id]));
+  const forces = new Map<Id, { target: Id; actionId: Id }[]>();
+  for (const g of Object.values(p.grafcets)) {
+    for (const a of Object.values(g.actions)) {
+      if (a.kind !== 'forcing') continue;
+      const r = cachedForcing(a.text);
+      const target = r.ok ? byName.get(r.value.grafcet.toLowerCase()) : undefined;
+      if (target && target !== g.id)
+        forces.set(g.id, [...(forces.get(g.id) ?? []), { target, actionId: a.id }]);
+    }
+  }
+  const state = new Map<Id, 1 | 2>();
+  const stack: { gid: Id; actionId: Id | null }[] = [];
+  const reported = new Set<Id>();
+  const visit = (gid: Id, via: Id | null) => {
+    stack.push({ gid, actionId: via });
+    state.set(gid, 1);
+    for (const e of forces.get(gid) ?? []) {
+      if (state.get(e.target) === 1) {
+        const from = stack.findIndex((x) => x.gid === e.target);
+        const cycle = [...stack.slice(from + 1).map((x) => x.actionId!), e.actionId];
+        const names = stack.slice(from).map((x) => p.grafcets[x.gid]!.name);
+        if (!cycle.some((id) => reported.has(id))) {
+          cycle.forEach((id) => reported.add(id));
+          const owner = Object.values(p.grafcets).find((g) => g.actions[e.actionId])!;
+          out.push({
+            ruleId: 'forcingCycle',
+            severity: 'error',
+            messageKey: 'problems.messages.forcingCycle',
+            params: { grafcets: [...names, p.grafcets[e.target]!.name].join(' → ') },
+            grafcetId: owner.id,
+            elementIds: [e.actionId],
+          });
+        }
+      } else if (!state.has(e.target)) visit(e.target, e.actionId);
+    }
+    state.set(gid, 2);
+    stack.pop();
+  };
+  for (const gid of p.grafcetOrder) if (!state.has(gid)) visit(gid, null);
+}
+
 function unusedVariableRule(p: Project, used: Set<string>, out: Issue[]): void {
   for (const v of Object.values(p.variables)) {
     if (used.has(v.name.toLowerCase())) continue;
@@ -436,6 +550,7 @@ export function validateProject(p: Project): Issue[] {
     transientLoopRule(g, isInteger, out);
     parallelOutputRule(g, out);
   }
+  hierarchyRules(p, out);
   unusedVariableRule(p, used, out);
   const order = new Map(p.grafcetOrder.map((id, i) => [id, i]));
   return out

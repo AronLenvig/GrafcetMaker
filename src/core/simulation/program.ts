@@ -6,6 +6,7 @@
 import type { ArithNode, BoolNode } from '../expr/ast';
 import { cachedAssignment, cachedBool, cachedForcing, cachedOutput } from '../expr/cache';
 import { buildEnv, variableIndex } from '../expr/check';
+import { entryExit } from '../model/hierarchy';
 import type { ActionKind, Id, Project, Variable } from '../model/types';
 
 /** An expression bound to the grafcet it belongs to (for `Xn` resolution) with a unique key. */
@@ -29,7 +30,21 @@ export interface CStep {
   id: Id;
   grafcet: number;
   number: number;
+  /** Active at start: initial steps of partial grafcets only (enclosed ones start with their enclosing step). */
   initial: boolean;
+}
+
+/** A macro-step: its activity is that of its expansion, entered at E and left from S. */
+export interface CMacro {
+  entry: number;
+  exit: number;
+  members: number[];
+}
+
+/** An enclosing step and the enclosed grafcet it activates (initial steps) and deactivates. */
+export interface CEnclosure {
+  members: number[];
+  initial: number[];
 }
 
 export interface CTransition {
@@ -40,6 +55,8 @@ export interface CTransition {
   to: number[];
   /** null when the receptivity does not parse: the transition never clears. */
   receptivity: CExpr | null;
+  /** Transitions of an enclosed grafcet can only clear while its enclosing step is active. */
+  guard?: number;
 }
 
 export interface CForcing {
@@ -70,10 +87,12 @@ export interface CGrafcet {
   transitions: number[];
   /** Forcing level: 0 = not forced; forced grafcets are processed after the ones forcing them. */
   level: number;
+  /** Its initial situation (G{INIT}): initial steps, or for an enclosed grafcet its * steps. */
+  initial: number[];
 }
 
 export interface CompileProblem {
-  kind: 'expression' | 'forcingCycle';
+  kind: 'expression' | 'forcingCycle' | 'hierarchy';
   elementId: Id;
 }
 
@@ -91,6 +110,10 @@ export interface Program {
   continuousTargets: Set<string>;
   /** Every boolean expression, for stateful-node bookkeeping. */
   expressions: CExpr[];
+  /** Macro-steps by step index. */
+  macros: Map<number, CMacro>;
+  /** Enclosing steps by step index. */
+  enclosures: Map<number, CEnclosure>;
   problems: CompileProblem[];
 }
 
@@ -114,6 +137,7 @@ export function compile(project: Project): Program {
       steps: [],
       transitions: [],
       level: 0,
+      initial: [],
     };
     grafcets.push(cg);
     for (const s of Object.values(g.steps).sort(
@@ -125,14 +149,51 @@ export function compile(project: Project): Program {
         id: s.id,
         grafcet: cg.idx,
         number: s.number,
-        initial: s.kind === 'initial',
+        initial: s.kind === 'initial' && g.kind === 'partial',
       });
       stepIndex.set(s.id, idx);
       cg.steps.push(idx);
+      if (s.kind === 'initial' && g.kind !== 'macroExpansion') cg.initial.push(idx);
     }
   });
 
   const grafcetByName = new Map(grafcets.map((g) => [g.name.toLowerCase(), g]));
+  const cgById = new Map(grafcets.map((g) => [g.id, g]));
+
+  // Hierarchy: macro-steps are inlined (entry/exit), enclosing steps guard their enclosed grafcet.
+  const macros = new Map<number, CMacro>();
+  const enclosures = new Map<number, CEnclosure>();
+  const guardOf = new Map<number, number>();
+  for (const cg of grafcets) {
+    for (const s of Object.values(project.grafcets[cg.id]!.steps)) {
+      if ((s.kind !== 'macro' && s.kind !== 'enclosing') || !s.refGrafcetId) continue;
+      const child = project.grafcets[s.refGrafcetId];
+      const cc = cgById.get(s.refGrafcetId);
+      const idx = stepIndex.get(s.id)!;
+      if (!child || !cc) continue;
+      if (s.kind === 'macro' && child.kind === 'macroExpansion') {
+        const { entries, exits } = entryExit(child);
+        if (entries.length !== 1 || exits.length !== 1) {
+          problems.push({ kind: 'hierarchy', elementId: s.id });
+          continue;
+        }
+        macros.set(idx, {
+          entry: stepIndex.get(entries[0]!.id)!,
+          exit: stepIndex.get(exits[0]!.id)!,
+          members: cc.steps,
+        });
+      } else if (s.kind === 'enclosing' && child.kind === 'enclosed') {
+        enclosures.set(idx, {
+          members: cc.steps,
+          initial: cc.steps.filter((i) => child.steps[steps[i]!.id]?.kind === 'initial'),
+        });
+        guardOf.set(cc.idx, idx);
+      }
+    }
+  }
+  // Links to a macro-step enter its expansion at E; links from it leave from S (nested too).
+  const entryOf = (i: number): number => (macros.has(i) ? entryOf(macros.get(i)!.entry) : i);
+  const exitOf = (i: number): number => (macros.has(i) ? exitOf(macros.get(i)!.exit) : i);
 
   for (const cg of grafcets) {
     const g = project.grafcets[cg.id]!;
@@ -173,9 +234,10 @@ export function compile(project: Project): Program {
         idx,
         id: t.id,
         grafcet: cg.idx,
-        from: t.from.map((s) => stepIndex.get(s)!).filter((x) => x !== undefined),
-        to: t.to.map((s) => stepIndex.get(s)!).filter((x) => x !== undefined),
+        from: t.from.flatMap((s) => (stepIndex.has(s) ? [exitOf(stepIndex.get(s)!)] : [])),
+        to: t.to.flatMap((s) => (stepIndex.has(s) ? [entryOf(stepIndex.get(s)!)] : [])),
         receptivity: bool(`t:${t.id}`, t.receptivity, t.id),
+        ...(guardOf.has(cg.idx) ? { guard: guardOf.get(cg.idx)! } : {}),
       });
       cg.transitions.push(idx);
     }
@@ -286,6 +348,8 @@ export function compile(project: Project): Program {
     variables,
     continuousTargets,
     expressions,
+    macros,
+    enclosures,
     problems,
   };
 }

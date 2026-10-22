@@ -171,6 +171,8 @@ export function TopBar() {
           <Item id="insert.loop" />
           <Item id="insert.source" />
           <Item id="insert.sink" />
+          <Item id="insert.macroStep" />
+          <Item id="insert.enclosingStep" />
           <MenuSeparator />
           <Item id="arrange.layout" />
           <Item id="arrange.layoutSelection" />
@@ -182,6 +184,8 @@ export function TopBar() {
           <Item id="view.zoomReset" />
           <Item id="view.fit" />
           <Item id="view.fitSelection" />
+          <Item id="view.openChild" />
+          <Item id="view.goToParent" />
           <MenuSeparator />
           <MenuCheckItem
             checked={prefs.textbookNotation}

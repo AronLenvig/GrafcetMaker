@@ -135,30 +135,6 @@ export function SelectField<T extends string>({
   );
 }
 
-export function CheckField({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string;
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  const id = useId();
-  return (
-    <div className="flex items-center gap-2">
-      <input
-        id={id}
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className="h-4 w-4 accent-[var(--accent)]"
-      />
-      <label htmlFor={id}>{label}</label>
-    </div>
-  );
-}
-
 export function Section({
   title,
   children,

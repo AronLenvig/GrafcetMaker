@@ -93,6 +93,7 @@ export const en = {
     renumber: 'Renumber steps',
     route: 'Move loop',
     quickFix: 'Quick fix',
+    convertStep: 'Change step kind',
     saveScenario: 'Save scenario',
     importVariables: 'Import variables',
     deleteScenario: 'Delete scenario',
@@ -188,6 +189,8 @@ export const en = {
       loop: 'Loop back to a step…',
       source: 'Source transition above step',
       sink: 'Sink transition below step',
+      macroStep: 'Make macro-step (with expansion)',
+      enclosingStep: 'Make enclosing step (with enclosed grafcet)',
     },
     arrange: {
       layout: 'Auto-layout grafcet',
@@ -219,6 +222,8 @@ export const en = {
       textbook: 'Textbook notation (overbar NOT, ·, +)',
       showVariables: 'Show variables',
       showProblems: 'Show problems',
+      openChild: 'Open expansion / enclosed grafcet',
+      goToParent: 'Go to parent step',
       showSimulation: 'Show simulation panel',
       showChronogram: 'Show chronogram',
       showGrid: 'Grid',
@@ -276,6 +281,15 @@ export const en = {
       label: 'Label',
       labelPlaceholder: 'Optional description',
       initial: 'Initial step (active at start)',
+      kind: 'Kind',
+      kinds: {
+        normal: 'Step',
+        initial: 'Initial step (active at start)',
+        enclosedInitial: 'Active when the enclosing step activates (*)',
+        macro: 'Macro-step',
+        enclosing: 'Enclosing step',
+      },
+      openChild: 'Open {{name}}',
       actions: 'Actions',
       addAction: 'Add',
       noActions: 'No actions. Press A to add one.',
@@ -322,6 +336,12 @@ export const en = {
       title: 'Grafcet',
       name: 'Name',
       stats: '{{steps}} steps, {{transitions}} transitions',
+      kinds: {
+        partial: 'Partial grafcet',
+        macroExpansion: 'Macro-step expansion (entry step E, exit step S)',
+        enclosed: 'Enclosed grafcet (steps marked * start with the enclosing step)',
+      },
+      goToParent: 'Go to {{grafcet}} step {{step}}',
     },
     project: {
       title: 'Project',
@@ -410,6 +430,16 @@ export const en = {
       macroEntryExit:
         'Expansion {{grafcet}} needs exactly one entry step (no upstream transition) and one exit step (no downstream transition); it has {{entries}} and {{exits}}.',
       unusedVariable: 'Variable {{name}} is not used.',
+      macroWithoutExpansion: 'Macro-step {{step}} has no expansion grafcet.',
+      enclosingWithoutGrafcet: 'Enclosing step {{step}} has no enclosed grafcet.',
+      subgrafcetShared:
+        'Grafcet {{grafcet}} is used by several steps ({{steps}}); each needs its own.',
+      expansionUnused: 'Expansion {{grafcet}} is not used by any macro-step.',
+      enclosedUnused: 'Enclosed grafcet {{grafcet}} is not used by any enclosing step.',
+      macroActions:
+        'Stored actions on macro-step {{step}} are ignored by the simulation: put them in its expansion {{grafcet}}.',
+      forcingCycle:
+        'Forcing orders form a cycle ({{grafcets}}): a grafcet cannot force one that forces it.',
       simTransientLoop:
         'Simulation stopped: the evolution did not become stable after 1000 iterations at {{time}} (transient loop).',
     },
@@ -558,6 +588,13 @@ export const en = {
       badInitial: 'invalid initial value “{{value}}”',
       duplicateInFile: '“{{value}}” appears more than once',
     },
+  },
+  hierarchy: {
+    initialCannotConvert:
+      'An initial step cannot become a macro-step or enclosing step. Make it a normal step first.',
+    expansionCreated: 'Expansion {{name}} created: double-click the macro-step to open it.',
+    enclosedCreated:
+      'Enclosed grafcet {{name}} created: double-click the enclosing step to open it.',
   },
   panels: {
     label: 'Panels',

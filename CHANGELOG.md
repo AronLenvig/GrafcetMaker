@@ -35,3 +35,5 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Export dialog (Ctrl+E) with live preview: vector PDF (A4/A3, fit or tiled, title block), SVG,
   PNG 1×/2×/4×, variables CSV; black on white or current theme; copy as SVG/PNG to the clipboard.
 - Import variables from CSV (menu or drag-and-drop) with a preview of changes and row errors.
+- Hierarchy: macro-steps with expansion grafcets (E/S), enclosing steps with enclosed grafcets (*),
+  navigation between levels, simulation of both, validation of the hierarchy and forcing cycles.

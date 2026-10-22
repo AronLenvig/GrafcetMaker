@@ -21,7 +21,21 @@ import { ExprText } from './ExprText';
 import { baseline } from './svg';
 
 /** `active` (simulation): filled box plus a token dot, so activity never relies on color alone. */
-export const StepView = memo(function StepView({ step, active }: { step: Step; active?: boolean }) {
+/**
+ * `mark`: E / S for the entry and exit steps of a macro-step expansion; * for the steps an
+ * enclosing step activates (drawn instead of the initial double square, as IEC 60848 does).
+ */
+export type StepMark = 'E' | 'S' | '*';
+
+export const StepView = memo(function StepView({
+  step,
+  active,
+  mark,
+}: {
+  step: Step;
+  active?: boolean;
+  mark?: StepMark;
+}) {
   const { x, y } = step.position;
   const r = STEP_HALF;
   const label = step.label ? stepLabelAnchor(step) : null;
@@ -35,7 +49,7 @@ export const StepView = memo(function StepView({ step, active }: { step: Step; a
         height={2 * r}
       />
       {active && <circle className="gm-token" cx={x} cy={y + r - 8} r={3.5} />}
-      {step.kind === 'initial' && (
+      {step.kind === 'initial' && mark !== '*' && (
         <rect
           className="gm-thin"
           x={x - r + INITIAL_INSET}
@@ -43,6 +57,16 @@ export const StepView = memo(function StepView({ step, active }: { step: Step; a
           width={2 * (r - INITIAL_INSET)}
           height={2 * (r - INITIAL_INSET)}
         />
+      )}
+      {mark === '*' && (
+        <text className="gm-step-number" x={x - r - 4} y={y - r + 10} textAnchor="end">
+          *
+        </text>
+      )}
+      {(mark === 'E' || mark === 'S') && (
+        <text className="gm-label" x={x - r + 3} y={y - r + 10}>
+          {mark}
+        </text>
       )}
       {step.kind === 'macro' && (
         <path

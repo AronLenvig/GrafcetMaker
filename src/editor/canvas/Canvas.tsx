@@ -19,6 +19,7 @@ import {
   LinkView,
   StepView,
   StubView,
+  type StepMark,
   TransitionView,
 } from './elements';
 import { InlineEditor } from './InlineEditor';
@@ -121,6 +122,14 @@ export function Canvas() {
     if (!g || !geom) return null;
     const steps = Object.values(g.steps);
     const transitions = Object.values(g.transitions);
+    const markOf = (id: string): StepMark | undefined => {
+      if (g.kind === 'macroExpansion') {
+        if (!geom.index.incoming.has(id)) return 'E';
+        if (!geom.index.outgoing.has(id)) return 'S';
+      }
+      if (g.kind === 'enclosed' && g.steps[id]?.kind === 'initial') return '*';
+      return undefined;
+    };
     const comments = Object.values(g.comments);
     const visible = cull;
     const inView = (id: string) => {
@@ -176,7 +185,7 @@ export function Canvas() {
         {steps
           .filter((s) => inView(s.id))
           .map((s) => (
-            <StepView key={s.id} step={s} active={sim?.active.has(s.id)} />
+            <StepView key={s.id} step={s} active={sim?.active.has(s.id)} mark={markOf(s.id)} />
           ))}
         {actionBoxes.map(({ box, first }) => {
           const action = g.actions[box.id]!;

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { BoolNode } from '@/core/expr/ast';
 import { parseBool } from '@/core/expr/parser';
-import { createProject } from '@/core/model/factory';
+import { createGrafcet, createProject, createStep } from '@/core/model/factory';
+import { convertStep } from '@/core/model/hierarchy';
 import { appendAfterStep, connect } from '@/core/model/ops';
 import { addAlternativeBranch, addLoop, addParallelBranch } from '@/core/model/structure';
 import type { Grafcet, Project } from '@/core/model/types';
@@ -170,3 +171,48 @@ describe('graph logic rules', () => {
     expect(issues[issues.length - 1]!.severity).toBe('info');
   });
 });
+
+describe('hierarchy rules', () => {
+  it('reports forcing cycles, missing, shared and unused sub-grafcets', () => {
+    const p = createProject('H');
+    const g1 = first(p);
+    const s0 = Object.values(g1.steps)[0]!.id;
+    const a = appendAfterStep(g1, s0)!;
+    const b = appendAfterStep(g1, a.stepId)!;
+    const g2Id = convertStep(p, g1.id, a.stepId, 'enclosing')!;
+    g1.steps[b.stepId]!.kind = 'enclosing';
+    g1.steps[b.stepId]!.refGrafcetId = g2Id; // shared
+    const g3 = createGrafcetFor(p, 'G3');
+    g1.actions.f1 = { id: 'f1', stepId: s0, order: 0, kind: 'forcing', text: 'G3{*}' };
+    g3.actions.f2 = {
+      id: 'f2',
+      stepId: Object.keys(g3.steps)[0]!,
+      order: 0,
+      kind: 'forcing',
+      text: 'G1{*}',
+    };
+    const macroId = convertStep(p, g1.id, appendAfterStep(g1, b.stepId)!.stepId, 'macro')!;
+    const lost = createGrafcetFor(p, 'Lost');
+    lost.kind = 'macroExpansion';
+    const ids = rules(p);
+    expect(ids).toContain('forcingCycle');
+    expect(ids).toContain('subgrafcetShared');
+    expect(
+      validateProject(p)
+        .filter((i) => i.ruleId === 'subgrafcetUnused')
+        .map((i) => i.params.grafcet),
+    ).toEqual(['Lost']);
+    delete p.grafcets[macroId];
+    p.grafcetOrder = p.grafcetOrder.filter((id) => id !== macroId);
+    expect(rules(p)).toContain('subgrafcetMissing');
+  });
+});
+
+function createGrafcetFor(p: Project, name: string): Grafcet {
+  const g = createGrafcet(name);
+  const s = createStep(Object.keys(p.grafcets).length * 100, { x: 0, y: 0 }, 'initial');
+  g.steps[s.id] = s;
+  p.grafcets[g.id] = g;
+  p.grafcetOrder.push(g.id);
+  return g;
+}

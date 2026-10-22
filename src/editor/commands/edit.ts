@@ -7,6 +7,7 @@ import {
 } from '@/core/model/clipboard';
 import { createGrafcet, createStep } from '@/core/model/factory';
 import { indexGrafcet } from '@/core/model/graph';
+import { nextBaseNumber } from '@/core/model/hierarchy';
 import * as ops from '@/core/model/ops';
 import { IDENT_RE } from '@/core/model/constants';
 import type { ActionKind, Grafcet, Id, Point, Project, Variable } from '@/core/model/types';
@@ -238,14 +239,6 @@ export async function pasteFromSystem(): Promise<void> {
 // ---------------------------------------------------------------------------------------------
 // Grafcets (tabs)
 
-/** First step number for a new grafcet: next multiple of 10 above all used numbers. */
-function nextGrafcetBaseNumber(p: Project): number {
-  let max = -1;
-  for (const g of Object.values(p.grafcets))
-    for (const s of Object.values(g.steps)) max = Math.max(max, s.number);
-  return (Math.floor(max / 10) + 1) * 10;
-}
-
 export function uniqueGrafcetName(p: Project, prefix = 'G'): string {
   const used = new Set(Object.values(p.grafcets).map((g) => g.name.toLowerCase()));
   for (let i = 1; ; i++) if (!used.has(`${prefix}${i}`.toLowerCase())) return `${prefix}${i}`;
@@ -254,7 +247,7 @@ export function uniqueGrafcetName(p: Project, prefix = 'G'): string {
 export function addGrafcet(): Id {
   const p = getProject();
   const g = createGrafcet(uniqueGrafcetName(p));
-  const s = createStep(nextGrafcetBaseNumber(p), { x: 200, y: 100 }, 'initial');
+  const s = createStep(nextBaseNumber(p), { x: 200, y: 100 }, 'initial');
   g.steps[s.id] = s;
   doc.execute('history.addGrafcet', (d) => {
     d.grafcets[g.id] = g;

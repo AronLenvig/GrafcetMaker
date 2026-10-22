@@ -4,7 +4,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 
 ## Current phase
 
-**Phase 7** — hierarchy (partial, macro, enclosing, forcing).
+**Phase 8** — codegen.
 
 ## Phases
 
@@ -17,7 +17,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 | 4     | Validation                                                           | done   |
 | 5     | Simulation                                                           | done   |
 | 6     | Exports                                                              | done   |
-| 7     | Hierarchy (partial, macro, enclosing, forcing)                       |        |
+| 7     | Hierarchy (partial, macro, enclosing, forcing)                       | done   |
 | 8     | Codegen                                                              |        |
 | 9     | Onboarding, examples, i18n, a11y audit, PWA, perf                    |        |
 
@@ -115,6 +115,18 @@ Autonomous build log. Read this first in every session and resume from **Current
   diagram as PNG/SVG commands; CSV import via menu and drag-and-drop with summary dialog.
 - Validation worker made Zod-free (127 → 28 kB). Initial JS ≈ 229 kB gz.
 
+### Phase 7
+
+- `core/model/hierarchy.ts`: convert a step to macro-step (new expansion E → S) or enclosing step
+  (new enclosed grafcet with a * step), parent lookup, entry/exit detection.
+- Compiler/engine: macro-steps inlined (entry/exit rewiring, virtual activity and timers),
+  enclosures (activation of * steps, recursive deactivation, guarded transitions), per-grafcet
+  initial situation for `G{INIT}`. Golden tests for macro-steps and enclosing steps.
+- Validation: missing/shared/unused sub-grafcets, stored actions on macro-steps, forcing cycles.
+- UI: step kind selector, E/S and * markers (also in exports), double-click / Alt+↓ to open a
+  sub-grafcet, Alt+↑ to the parent, tab badges, grafcet kind and parent in properties.
+- Fixed: double-click hit-testing under pointer capture (it created a step instead of editing).
+
 ## Decisions
 
 - TypeScript pinned to 6.0.x: typescript-eslint does not support TS 7 (native port) yet.
@@ -145,8 +157,12 @@ Autonomous build log. Read this first in every session and resume from **Current
   operators and vector-drawn edge arrows; PNG/SVG embed the bundled font.
 - Export settings are per project per device (localStorage), not in the project file, so
   changing them neither dirties the document nor creates undo steps.
+- Enclosed grafcets reuse step kind `initial` for the * steps; a step cannot be both initial and
+  macro/enclosing (kind is a single value), so initial enclosing steps are not supported.
 - Commits go directly to `main` (greenfield repo, as instructed by the build spec); never pushed.
 
 ## Known gaps
 
-- None yet.
+- Enclosing step symbol (vertical inner lines) not verified against the IEC 60848 figure; adjust
+  in `elements.tsx` and `svgExport.ts` if the standard differs.
+- An initial step cannot be a macro-step or an enclosing step (data model limitation).

@@ -19,6 +19,11 @@ export type RuleId =
   | 'parallelOutput'
   | 'macroEntryExit'
   | 'unusedVariable'
+  | 'subgrafcetMissing'
+  | 'subgrafcetShared'
+  | 'subgrafcetUnused'
+  | 'macroActions'
+  | 'forcingCycle'
   /** Runtime problem reported by the simulator (transient loop). */
   | 'simulation';
 

@@ -19,6 +19,7 @@ import {
 } from '../simulation/simStore';
 import { doc } from '../store/document';
 import { ui, useUi, type Tool } from '../store/uiStore';
+import { canGoToParent, canOpenChild, convertSelected, goToParent, openChild } from './hierarchy';
 import {
   alternativeBranch,
   autoLayoutActive,
@@ -114,6 +115,36 @@ export const COMMANDS: Command[] = [
     run: saveProjectAs,
   },
   { id: 'file.downloadCopy', label: 'file.downloadCopy', group: 'file', run: () => downloadCopy() },
+  {
+    id: 'insert.macroStep',
+    label: 'insert.macroStep',
+    group: 'insert',
+    run: () => convertSelected('macro'),
+    enabled: singleSelection,
+  },
+  {
+    id: 'insert.enclosingStep',
+    label: 'insert.enclosingStep',
+    group: 'insert',
+    run: () => convertSelected('enclosing'),
+    enabled: singleSelection,
+  },
+  {
+    id: 'view.openChild',
+    label: 'view.openChild',
+    group: 'view',
+    keys: ['Alt+ArrowDown'],
+    run: () => void openChild(),
+    enabled: canOpenChild,
+  },
+  {
+    id: 'view.goToParent',
+    label: 'view.goToParent',
+    group: 'view',
+    keys: ['Alt+ArrowUp'],
+    run: goToParent,
+    enabled: canGoToParent,
+  },
   {
     id: 'file.export',
     label: 'file.export',

@@ -242,8 +242,20 @@ function render(w: Writer, g: Grafcet, only: ReadonlySet<Id> | undefined): void 
     if (!keep(s.id)) continue;
     const { x, y } = s.position;
     const r = STEP_HALF;
+    const mark =
+      g.kind === 'macroExpansion'
+        ? !geom.index.incoming.has(s.id)
+          ? 'E'
+          : !geom.index.outgoing.has(s.id)
+            ? 'S'
+            : ''
+        : g.kind === 'enclosed' && s.kind === 'initial'
+          ? '*'
+          : '';
     w.rect({ x: x - r, y: y - r, width: 2 * r, height: 2 * r }, pal.background ?? 'none');
-    if (s.kind === 'initial') {
+    if (mark === '*') w.text('*', x - r - 4, y - r + 6, STEP_FONT_SIZE, { anchor: 'end' });
+    else if (mark) w.text(mark, x - r + 3, y - r + 7, LABEL_FONT_SIZE);
+    if (s.kind === 'initial' && mark !== '*') {
       w.rect(
         {
           x: x - r + INITIAL_INSET,

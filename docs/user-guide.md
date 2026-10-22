@@ -111,6 +111,30 @@ Renaming a variable updates every receptivity, action and condition that uses it
 step. Names are not case-sensitive. Copying elements to another project brings the variables they
 use along.
 
+### Macro-steps and enclosing steps
+
+Select a step and choose its **Kind** in the properties panel (or **Edit › Make macro-step** /
+**Make enclosing step**):
+
+- **Macro-step**: a new tab holds its **expansion**, created with an entry step E and an exit step S
+  linked by a transition. Draw the detailed sequence between them. The macro-step stands for the
+  whole expansion: it is active while any of its steps is.
+- **Enclosing step**: a new tab holds the **enclosed grafcet**. Steps marked `*` there start when
+  the enclosing step becomes active; everything in it stops when the enclosing step is left.
+
+Double-click a macro-step or enclosing step (or press `Alt+↓`) to open its sub-grafcet;
+`Alt+↑` (or **Go to … step** in the properties panel) goes back to the parent step. Tabs of
+expansions and enclosed grafcets carry an **M** or **E** badge. Validation checks that every
+macro-step and enclosing step has exactly one sub-grafcet of the right kind and that
+expansions have one entry and one exit step.
+
+### Forcing
+
+A **forcing order** action (`G2{8}`, `G2{8, 9}`, `G2{*}` to freeze, `G2{}` to deactivate all,
+`G2{INIT}` for the initial situation) imposes a situation on another partial grafcet while its
+step is active; the forced grafcet does not evolve meanwhile. Validation reports forcing orders
+that point to missing grafcets or steps and grafcets that force each other.
+
 ### Partial grafcets
 
 Use the `+` next to the tabs to add a partial grafcet; its first step number continues after the

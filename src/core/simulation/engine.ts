@@ -111,6 +111,8 @@ export class Simulator {
   private readonly stepTimers: Stateful[] = [];
   private readonly genericTimers = new Map<string, Stateful>();
   private readonly levels: number[];
+  /** Enclosed step → its enclosing step. */
+  private readonly enclosedBy = new Map<number, number>();
   /** Per-evaluation-round memo of stateful nodes, and their state to commit. */
   private cache = new Map<string, boolean>();
   private pendingPrev = new Map<string, boolean>();
@@ -131,6 +133,8 @@ export class Simulator {
       }
     }
     this.levels = [...new Set(program.grafcets.map((g) => g.level))].sort((a, b) => a - b);
+    for (const [enclosing, e] of program.enclosures)
+      for (const m of e.members) this.enclosedBy.set(m, enclosing);
     this.resetValues();
   }
 
@@ -189,7 +193,7 @@ export class Simulator {
         return this.bool(this.values.get(n.name.toLowerCase()));
       case 'step': {
         const idx = e.steps.get(n.number);
-        return idx !== undefined && this.active[idx] === 1;
+        return idx !== undefined && this.activeOf(idx);
       }
       case 'not':
         return !this.eval(e, n.operand);
@@ -240,9 +244,7 @@ export class Simulator {
     if (n.t2 === undefined && n.operand.type === 'step') {
       // Step timer: measured from the step's activation time.
       const idx = e.steps.get(n.operand.number);
-      return (
-        idx !== undefined && this.active[idx] === 1 && this.time - this.activatedAt[idx]! >= n.t1
-      );
+      return idx !== undefined && this.activeOf(idx) && this.time - this.activationOf(idx) >= n.t1;
     }
     const cur = this.eval(e, n.operand);
     const st = this.timers.get(key) ?? { c: cur, changedAt: this.time, out: false };
@@ -295,6 +297,55 @@ export class Simulator {
     }
   }
 
+  /** A macro-step is active while any step of its expansion is. */
+  activeOf(idx: number): boolean {
+    const m = this.program.macros.get(idx);
+    return m ? m.members.some((i) => this.activeOf(i)) : this.active[idx] === 1;
+  }
+
+  /** Activation time; for a macro-step, that of its entry step. */
+  private activationOf(idx: number): number {
+    const m = this.program.macros.get(idx);
+    return m ? this.activationOf(m.entry) : this.activatedAt[idx]!;
+  }
+
+  /**
+   * Applies a change of situation and runs the stored actions of the steps that actually change.
+   * Activating an enclosing step activates the initial steps of its enclosed grafcet;
+   * deactivating it deactivates every step of that grafcet (recursively). A step of an enclosed
+   * grafcet is never activated while its enclosing step is (or is becoming) inactive.
+   */
+  private change(off: number[], on: number[]): { off: number[]; on: number[] } {
+    const enclosures = this.program.enclosures;
+    const offAll: number[] = [];
+    const onAll: number[] = [];
+    const leaving = new Set<number>();
+    const leave = (s: number) => {
+      if (this.active[s] !== 1 || leaving.has(s)) return;
+      leaving.add(s);
+      offAll.push(s);
+      for (const m of enclosures.get(s)?.members ?? []) leave(m);
+    };
+    const enter = (s: number) => {
+      if (this.active[s] === 1 || onAll.includes(s)) return;
+      const parent = this.enclosedBy.get(s);
+      if (
+        parent !== undefined &&
+        (leaving.has(parent) || (this.active[parent] !== 1 && !onAll.includes(parent)))
+      )
+        return;
+      onAll.push(s);
+      for (const m of enclosures.get(s)?.initial ?? []) enter(m);
+    };
+    for (const s of off) leave(s);
+    for (const s of on) enter(s);
+    for (const s of offAll) this.setActive(s, false);
+    for (const s of onAll) this.setActive(s, true);
+    for (const s of offAll) this.runStored(s, 'storedOnDeactivation');
+    for (const s of onAll) this.runStored(s, 'storedOnActivation');
+    return { off: offAll, on: onAll };
+  }
+
   private setActive(step: number, on: boolean): void {
     if (on) {
       this.active[step] = 1;
@@ -319,7 +370,10 @@ export class Simulator {
       // Rule 2: enabled ⇔ all upstream steps active; clearable ⇔ enabled ∧ receptivity.
       const clearable = transitions.filter(
         (t) =>
-          t.receptivity && t.from.every((s) => this.active[s] === 1) && this.eval(t.receptivity),
+          t.receptivity &&
+          t.from.every((s) => this.active[s] === 1) &&
+          (t.guard === undefined || this.activeOf(t.guard)) &&
+          this.eval(t.receptivity),
       );
       // Stored actions on event, for the steps active in this situation.
       for (const s of steps) {
@@ -355,21 +409,21 @@ export class Simulator {
       const off = [...deactivate]
         .filter((s) => !activate.has(s) && this.active[s] === 1)
         .sort((a, b) => a - b);
-      const on = [...activate].filter((s) => this.active[s] !== 1).sort((a, b) => a - b);
-      for (const s of off) this.setActive(s, false);
-      for (const s of on) this.setActive(s, true);
-      for (const s of off) this.runStored(s, 'storedOnDeactivation');
-      for (const s of on) this.runStored(s, 'storedOnActivation');
+      const changed = this.change(
+        off,
+        [...activate].filter((s) => this.active[s] !== 1).sort((a, b) => a - b),
+      );
+      const on = changed.on;
       this.commitRound(nodes);
       if (clearable.length) {
         log.iterations.push({
           cleared: clearable.map((t) => t.id),
           activated: on.map((s) => p.steps[s]!.id),
-          deactivated: off.map((s) => p.steps[s]!.id),
+          deactivated: changed.off.map((s) => p.steps[s]!.id),
         });
       }
       // Clearing that changes nothing (source transition to an active step, self-loop) is stable.
-      if (!on.length && !off.length && !this.assigned) return;
+      if (!on.length && !changed.off.length && !this.assigned) return;
     }
   }
 
@@ -383,16 +437,12 @@ export class Simulator {
       });
       return;
     }
-    const want = new Set(
-      f.mode === 'init' ? g.steps.filter((s) => this.program.steps[s]!.initial) : f.steps,
-    );
+    const want = new Set(f.mode === 'init' ? g.initial : f.steps);
     this.beginRound();
-    const off = g.steps.filter((s) => this.active[s] === 1 && !want.has(s));
-    const on = g.steps.filter((s) => this.active[s] !== 1 && want.has(s));
-    for (const s of off) this.setActive(s, false);
-    for (const s of on) this.setActive(s, true);
-    for (const s of off) this.runStored(s, 'storedOnDeactivation');
-    for (const s of on) this.runStored(s, 'storedOnActivation');
+    this.change(
+      g.steps.filter((s) => this.active[s] === 1 && !want.has(s)),
+      g.steps.filter((s) => this.active[s] !== 1 && want.has(s)),
+    );
     this.commitRound([]);
     log.forced.push({ grafcet: g.id, active: [...want].map((s) => this.program.steps[s]!.id) });
   }
@@ -403,7 +453,7 @@ export class Simulator {
     for (const name of p.continuousTargets) this.values.set(name, false);
     this.executing = [];
     for (const a of p.actions) {
-      if (a.kind !== 'continuous' || !a.target || this.active[a.step] !== 1) continue;
+      if (a.kind !== 'continuous' || !a.target || !this.activeOf(a.step)) continue;
       if (a.condition && !this.eval(a.condition)) continue;
       this.values.set(a.target, true);
       this.executing.push(a.id);
@@ -472,9 +522,10 @@ export class Simulator {
     this.timers.clear();
     this.resetValues();
     this.beginRound();
-    const initial = this.program.steps.filter((s) => s.initial).map((s) => s.idx);
-    for (const s of initial) this.setActive(s, true);
-    for (const s of initial) this.runStored(s, 'storedOnActivation');
+    this.change(
+      [],
+      this.program.steps.filter((s) => s.initial).map((s) => s.idx),
+    );
     return this.runCycle('start', []);
   }
 
@@ -484,8 +535,8 @@ export class Simulator {
     for (const s of this.stepTimers) {
       const node = s.node as Extract<BoolNode, { type: 'timer' }>;
       const idx = s.expr.steps.get((node.operand as Extract<BoolNode, { type: 'step' }>).number);
-      if (idx === undefined || this.active[idx] !== 1) continue;
-      const d = this.activatedAt[idx]! + node.t1;
+      if (idx === undefined || !this.activeOf(idx)) continue;
+      const d = this.activationOf(idx) + node.t1;
       if (d > this.time) best = Math.min(best, d);
     }
     for (const [key, st] of this.timers) {
@@ -534,9 +585,9 @@ export class Simulator {
     const active: Id[] = [];
     const activatedAt: Record<Id, number> = {};
     for (const s of p.steps) {
-      if (this.active[s.idx] !== 1) continue;
+      if (!this.activeOf(s.idx)) continue;
       active.push(s.id);
-      activatedAt[s.id] = this.activatedAt[s.idx]!;
+      activatedAt[s.id] = this.activationOf(s.idx);
     }
     const enabled = p.transitions
       .filter((t) => t.from.every((s) => this.active[s] === 1))

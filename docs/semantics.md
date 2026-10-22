@@ -164,3 +164,41 @@ hand-verified charts (`tests/unit/simulation.test.ts`).
 - Stored actions of steps activated or deactivated by forcing run. Several orders on one grafcet in
   the same cycle are applied in order (the last one wins). A cycle in the forcing hierarchy is
   broken arbitrarily and reported.
+
+## Hierarchy
+
+### Macro-steps
+
+- A macro-step (step kind `macro`) refers to an **expansion** grafcet (kind `macroExpansion`).
+  The expansion has exactly one **entry step** E (no upstream transition) and one **exit step** S
+  (no downstream transition); otherwise validation reports it. The editor marks them E and S.
+- Simulation inlines the expansion: a transition leading to the macro-step activates E; a
+  transition leaving the macro-step is enabled when S is active and deactivates S.
+- The macro-step is **active** (its `Xn` is true, it shows a token) while any step of its
+  expansion is active; `t/Xn` counts from the activation of E. Continuous actions attached to the
+  macro-step follow that activity; stored actions on a macro-step are ignored (validation warns:
+  put them in the expansion).
+- An initial step cannot be turned into a macro-step (the step kind is either initial or macro).
+
+### Enclosing steps
+
+- An enclosing step (kind `enclosing`) refers to an **enclosed** grafcet (kind `enclosed`). In
+  the enclosed grafcet, steps of kind _initial_ are the steps activated together with the
+  enclosing step; the editor draws them with an asterisk `*` (as IEC 60848 does) instead of the
+  double square.
+- Activating the enclosing step activates those steps (and runs their stored actions on
+  activation); deactivating it deactivates every step of the enclosed grafcet (running their
+  stored actions on deactivation), recursively for nested enclosures.
+- Transitions of an enclosed grafcet (including source transitions) can only clear while the
+  enclosing step is active, and none of its steps is activated while the enclosing step is (or
+  is becoming) inactive. A step both deactivated and activated stays active, so its enclosed
+  grafcet keeps its situation (rule 5).
+- At start, enclosed grafcets are inactive. `G{INIT}` applied to an enclosed grafcet restores its
+  `*` steps.
+
+### Symbols
+
+- Macro-step: step square with a horizontal line near its top and bottom edges (IEC 60848).
+- Enclosing step: step square with a vertical line near its left and right edges. This is chosen
+  to be distinct from the macro-step; it was not checked against the figure of the standard.
+- Forcing order: action box with a double frame.

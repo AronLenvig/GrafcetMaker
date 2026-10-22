@@ -247,3 +247,19 @@ describe('action kinds', () => {
     expect(validateProject(p).map((i) => i.ruleId)).toContain('missingCondition');
   });
 });
+
+describe('stored actions written as the variable alone', () => {
+  it('set the BOOL to TRUE, in simulation and generated code', () => {
+    const { p, sim, value } = machine((g, _s0, s1) => {
+      addAction(g, s1, 'storedOnActivation', 'Horn');
+    });
+    expect(value('Horn')).toBe(false);
+    sim.setInputs({ go: true });
+    expect(value('Horn')).toBe(true);
+    sim.setInputs({ go: false });
+    expect(value('Horn')).toBe(true);
+    const opts = { version: '1.0.0', date: new Date('2026-01-02T03:04:00Z') };
+    expect(generateSt(p, opts).code).toContain('Horn := TRUE;');
+    expect(generatePlcOpen(p, opts).code).toContain('qualifier="S"');
+  });
+});

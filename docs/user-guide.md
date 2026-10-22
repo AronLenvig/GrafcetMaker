@@ -120,7 +120,7 @@ event) input right under the buttons:
 - **Conditional action**: a continuous action that is also subject to a condition, drawn on a line
   above the box: the output is true while the step is active and the condition is true.
 - **Stored action on activation / on deactivation**: an assignment executed once when the step
-  becomes active / inactive, e.g. `C := C + 1`. Drawn with an arrow ↑ above the box (activation)
+  becomes active / inactive, e.g. `C := C + 1`; a BOOL variable alone (`M1`) means `M1 := 1`. Drawn with an arrow ↑ above the box (activation)
   or ↓ below it (deactivation). A condition already present in a file is written next to the arrow
   and can be changed or cleared as **Only if**.
 - **Stored action on event**: executed when the event (e.g. `↑b`) occurs while the step is active.

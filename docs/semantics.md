@@ -66,7 +66,8 @@ INIT`. Names of the form `X<digits>` are step activities and cannot be variables
 - **Continuous action** text is the name of one BOOL output or internal variable (`M1`).
 - **Stored actions** are one assignment `target := value`. A BOOL target takes a boolean
   expression (`M := a * /b`, `M := 1`); an INT/REAL/TIME target takes arithmetic
-  (`C := C + 1`, `T := 2s`). Inputs cannot be assigned.
+  (`C := C + 1`, `T := 2s`). Inputs cannot be assigned. A BOOL variable written alone (`M`) is
+  short for `M := TRUE`; for other types a bare name is an error (the value is required).
 - **Forcing orders**: `G2{8}`, `G2{8, 9}` (or `G2{X8}`), `G2{*}` (freeze the current situation),
   `G2{}` (empty situation), `G2{INIT}` (initial situation). A grafcet cannot force itself.
 

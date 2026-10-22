@@ -41,6 +41,8 @@ export interface Assignment {
   /** Parse error of the reading that failed (reported if the target type needs it). */
   boolError: ExprError | null;
   arithError: ExprError | null;
+  /** Written as the variable alone (`M1`), short for `M1 := TRUE`. */
+  shorthand?: true;
 }
 
 /** Forcing order `G2{8,9}`, `G2{*}` (freeze), `G2{}` (empty), `G2{INIT}` (initial situation). */

@@ -27,7 +27,8 @@ Timers in the condition give the delayed and time-limited actions of other notat
 ## Stored actions
 
 A stored action changes a value **once**, and the value stays until another action changes it. Its
-text is an assignment: `C := C + 1`, `Motor := 1`, `Speed := 2.5`.
+text is an assignment: `C := C + 1`, `Motor := 0`, `Speed := 2.5`. To set a BOOL variable to TRUE,
+its name alone is enough: `Motor` means `Motor := 1`.
 
 - **On activation** — executed when the step becomes active. Drawn with an arrow **↑ above** the
   box.

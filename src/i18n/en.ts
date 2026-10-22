@@ -401,9 +401,9 @@ export const en = {
       },
       textPlaceholder: {
         continuous: 'M1',
-        storedOnActivation: 'C := C + 1',
-        storedOnDeactivation: 'V := 0',
-        storedOnEvent: 'C := C + 1',
+        storedOnActivation: 'M1, or C := C + 1',
+        storedOnDeactivation: 'M1 := 0, or M1',
+        storedOnEvent: 'M1, or C := C + 1',
         forcing: 'G2{8}',
       },
     },
@@ -1174,7 +1174,10 @@ export const en = {
       timerSyntax: 'Timer syntax: 3s/X2 (true 3 s after X2 becomes true) or 2s/a/5s.',
       assignInCondition: 'Receptivities are conditions; assignments belong in stored actions.',
       cmpNeedsNumbers: 'A comparison needs a value on both sides, e.g. C >= 10.',
-      assignmentSyntax: 'Write the variable, :=, then the value, e.g. C := C + 1 or M1 := 1.',
+      assignmentSyntax:
+        'Write the variable, :=, then the value, e.g. C := C + 1, or just M1 to set a BOOL to TRUE.',
+      shorthandBool:
+        'Only a BOOL variable can be set by its name alone. For other types write the value, e.g. C := 0.',
       useAssign: 'Use := to assign, e.g. M1 := 1.',
       outputName: 'A continuous action is just the name of the boolean output, e.g. M1.',
       continuousNoAssign:

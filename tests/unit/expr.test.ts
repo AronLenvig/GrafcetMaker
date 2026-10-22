@@ -165,6 +165,16 @@ describe('assignments, outputs and forcing orders', () => {
     const bad = parseAssignment('M = 1');
     expect(!bad.ok && bad.error.hint).toBe('useAssign');
   });
+  it('reads a variable alone as setting it to TRUE', () => {
+    const r = parseAssignment('M1');
+    expect(r.ok && r.value).toMatchObject({
+      target: 'M1',
+      shorthand: true,
+      bool: { type: 'const', value: true },
+      arith: null,
+    });
+    expect(parseAssignment('M1 M2').ok).toBe(false);
+  });
   it('parses forcing orders', () => {
     const f = (s: string) => {
       const r = parseForcing(s);
@@ -251,6 +261,13 @@ describe('name resolution and types', () => {
     expect(analyzeAssignment('Count := Count + 1', env).diagnostics).toEqual([]);
     expect(analyzeAssignment('Motor := Start * /X1', env).diagnostics).toEqual([]);
     expect(analyzeAssignment('Level := 1', env).diagnostics[0]!.code).toBe('writesInput');
+    // A name alone sets a BOOL; other types need a value.
+    expect(analyzeAssignment('Motor', env).diagnostics).toEqual([]);
+    expect(analyzeAssignment('Count', env).diagnostics[0]).toMatchObject({
+      code: 'assignmentExpected',
+      hint: 'shorthandBool',
+    });
+    expect(analyzeAssignment('Lamp', env).diagnostics[0]!.create).toMatchObject({ type: 'BOOL' });
     expect(analyzeAssignment('N := N + 1', env).diagnostics[0]!.create).toMatchObject({
       type: 'INT',
     });

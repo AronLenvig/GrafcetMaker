@@ -371,6 +371,29 @@ export function parseAssignment(source: string): ParseResult<Assignment> {
     };
   }
   const op = tokens[1]!;
+  // `M1` alone sets a BOOL: short for `M1 := TRUE` (other types need an explicit value).
+  if (op.kind === 'eof') {
+    const span = { start: first.start, end: first.end };
+    return {
+      ok: true,
+      value: {
+        target: first.text,
+        targetSpan: span,
+        valueSpan: span,
+        bool: { type: 'const', value: true, ...span },
+        arith: null,
+        boolError: null,
+        arithError: {
+          code: 'assignmentExpected',
+          start: first.start,
+          end: first.end,
+          params: { token: first.text },
+          hint: 'shorthandBool',
+        },
+        shorthand: true,
+      },
+    };
+  }
   if (op.kind !== 'assign') {
     const hint = op.kind === 'cmp' && op.cmp === '=' ? 'useAssign' : 'assignmentSyntax';
     return {

@@ -16,6 +16,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- Stored actions accept a BOOL variable alone: `M1` means `M1 := TRUE`.
 - The kind of an action is chosen with picture buttons showing its symbol (continuous,
   conditional, activation ↑, deactivation ↓, event, forcing). "Conditional" is a kind of its own:
   the condition input appears with it, like the event of an action on event; the separate

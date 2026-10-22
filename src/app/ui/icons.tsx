@@ -50,3 +50,159 @@ export const LogoIcon = (p: IconProps) => (
     <path d="M12 14v8M8 18h8" strokeWidth={2.4} />
   </Icon>
 );
+
+export const PlusIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 5v14M5 12h14" />
+  </Icon>
+);
+
+export const MinusIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M5 12h14" />
+  </Icon>
+);
+
+export const FitIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M3 8V3h5M21 8V3h-5M3 16v5h5M21 16v5h-5" />
+  </Icon>
+);
+
+export const PointerIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M5 3l14 8-6 2-3 6z" />
+  </Icon>
+);
+
+export const HandIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M8 13V5a1.5 1.5 0 0 1 3 0v6M11 11V3.5a1.5 1.5 0 0 1 3 0V11M14 11V5a1.5 1.5 0 0 1 3 0v8a7 7 0 0 1-7 7h-.5a6 6 0 0 1-4.6-2.2L3 15a1.5 1.5 0 0 1 2.3-2L8 15" />
+  </Icon>
+);
+
+export const StepIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="5" y="5" width="14" height="14" />
+  </Icon>
+);
+
+export const TransitionIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 2v20" strokeWidth={1.25} />
+    <rect x="4" y="10" width="16" height="4" fill="currentColor" stroke="none" />
+  </Icon>
+);
+
+export const CommentIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4 4h16v12H8l-4 4z" />
+  </Icon>
+);
+
+export const UndoIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M9 14L4 9l5-5" />
+    <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />
+  </Icon>
+);
+
+export const RedoIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M15 14l5-5-5-5" />
+    <path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13" />
+  </Icon>
+);
+
+export const CloseIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M18 6L6 18M6 6l12 12" />
+  </Icon>
+);
+
+export const ChevronDownIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M6 9l6 6 6-6" />
+  </Icon>
+);
+
+export const ChevronRightIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M9 6l6 6-6 6" />
+  </Icon>
+);
+
+export const ChevronUpIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M18 15l-6-6-6 6" />
+  </Icon>
+);
+
+export const SearchIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="M21 21l-4.3-4.3" />
+  </Icon>
+);
+
+export const TrashIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" />
+  </Icon>
+);
+
+export const UploadIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 16V4M7 9l5-5 5 5M4 20h16" />
+  </Icon>
+);
+
+export const PanelLeftIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <path d="M9 4v16" />
+  </Icon>
+);
+
+export const PanelRightIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <path d="M15 4v16" />
+  </Icon>
+);
+
+export const PanelBottomIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <path d="M3 14h18" />
+  </Icon>
+);
+
+export const ActionIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="3" y="8" width="5" height="8" />
+    <path d="M8 12h3" />
+    <rect x="11" y="8" width="10" height="8" />
+  </Icon>
+);
+
+export const AlertIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 3l10 18H2z" />
+    <path d="M12 10v4M12 17.5v.5" />
+  </Icon>
+);
+
+export const ErrorIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M15 9l-6 6M9 9l6 6" />
+  </Icon>
+);
+
+export const InfoIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 11v6M12 7.5v.5" />
+  </Icon>
+);

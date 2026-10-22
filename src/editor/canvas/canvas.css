@@ -1,0 +1,160 @@
+/* Diagram styling. Colors come exclusively from theme tokens (see src/theme/tokens.css). */
+
+.gm-canvas {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.gm-canvas text {
+  font-family: var(--font-mono);
+  fill: var(--ink);
+}
+
+.gm-box {
+  fill: var(--canvas);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.gm-line {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.gm-thin {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+
+.gm-fill {
+  fill: var(--ink);
+  stroke: none;
+}
+
+.gm-hit {
+  fill: transparent;
+  stroke: transparent;
+}
+
+.gm-hit-line {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 10;
+}
+
+.gm-step-number {
+  font-size: 14px;
+}
+
+.gm-text {
+  font-size: 13px;
+}
+
+.gm-label {
+  font-size: 11px;
+}
+
+.gm-canvas .gm-muted {
+  fill: var(--ink-muted);
+}
+
+.gm-comment-box {
+  fill: var(--comment-bg);
+  stroke: var(--comment-border);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+
+.gm-grid-dot {
+  fill: var(--grid);
+}
+
+/* Overlay layer */
+.gm-overlay {
+  pointer-events: none;
+}
+
+.gm-selection {
+  fill: var(--selection-fill);
+  stroke: var(--selection);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.gm-selected-link {
+  fill: none;
+  stroke: var(--selection);
+  stroke-width: 3;
+}
+
+.gm-marquee {
+  fill: var(--selection-fill);
+  stroke: var(--selection);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.gm-handle {
+  pointer-events: all;
+  fill: var(--canvas);
+  stroke: var(--selection);
+  stroke-width: 1.5;
+  cursor: crosshair;
+}
+
+.gm-handle:hover {
+  fill: var(--selection);
+}
+
+.gm-link-preview {
+  fill: none;
+  stroke: var(--selection);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 3;
+}
+
+/* Valid link targets: dashed outline + a "+" marker so state is never conveyed by color alone. */
+.gm-target {
+  fill: none;
+  stroke: var(--link-target);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+}
+
+.gm-target-hot {
+  fill: var(--selection-fill);
+  stroke: var(--link-target);
+  stroke-width: 3;
+}
+
+.gm-flash {
+  fill: none;
+  stroke: var(--selection);
+  stroke-width: 3;
+  animation: gm-flash 1.2s ease-out 1 forwards;
+}
+
+@keyframes gm-flash {
+  0%,
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.gm-canvas[data-tool='hand'],
+.gm-canvas[data-panning='true'] {
+  cursor: grab;
+}
+
+.gm-canvas[data-tool='step'],
+.gm-canvas[data-tool='transition'],
+.gm-canvas[data-tool='comment'] {
+  cursor: copy;
+}

@@ -4,12 +4,15 @@ import '@/theme/index.css';
 import '@/i18n';
 import '@/theme/theme';
 import { App } from '@/app/App';
+import { ErrorBoundary } from '@/app/ErrorBoundary';
 
 const root = document.getElementById('root');
 if (!root) throw new Error('Root element #root missing');
 
 createRoot(root).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 );

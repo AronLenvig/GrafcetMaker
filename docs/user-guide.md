@@ -3,6 +3,87 @@
 GrafcetMaker is a GRAFCET (IEC 60848) editor and simulator that runs in your browser. Nothing is
 uploaded: projects live in your browser storage and in the files you save.
 
+## Screen layout
+
+- **Top bar**: File, Edit, View and Help menus, the project name (a dot `●` means unsaved
+  changes), the command palette button and the System / Light / Dark theme switch.
+- **Left rail**: tools (select, pan, place step, place transition, place comment), add action,
+  undo and redo.
+- **Center**: the diagram of the active partial grafcet, with one tab per grafcet above it.
+- **Right panel**: properties of the selection, or of the grafcet and project when nothing is
+  selected. Drag its left edge to resize it (or focus the edge and use the arrow keys).
+
+## Drawing a grafcet
+
+A new project contains grafcet `G1` with initial step 0.
+
+- **Continue a sequence**: select a step and press `Enter`. A transition and the next step are
+  added and numbered automatically, and the receptivity editor opens: type the receptivity and
+  press `Enter`. Press `Enter` again to continue. With nothing selected, `Enter` continues from
+  the lowest step that has no successor.
+- **Insert in the middle**: `Enter` on a step that already continues inserts the new transition
+  and step; everything below moves down.
+- **Add an action**: select a step and press `A`, type the output name, press `Enter`.
+- **Edit text**: `F2` or double-click (step number, receptivity, action text, comment).
+- **Place elements freely**: pick a tool (`S` step, `T` transition, `C` comment) and click; hold
+  `Shift` to place several. Double-click empty space to add a step.
+- **Link elements**: hover or select a step or transition and drag one of its round handles. Only
+  valid targets (step → transition, transition → step) are highlighted. Drop on empty space to
+  create the missing element at that spot.
+- **Delete**: `Del`. Deleting a step heals the sequence: the transition after it goes too and the
+  step before is reconnected; the gap closes when the rest of the diagram is a straight sequence.
+  `Shift+Del` deletes without healing. Click a link to select it, then `Del` removes just that
+  link.
+- **Move**: drag (snaps to the 10-unit grid) or use the arrow keys (`Shift` moves 5× further).
+- **Select several**: drag a rectangle on empty space, `Shift`/`Ctrl`-click, or `Ctrl+A`.
+- **Copy / paste**: `Ctrl+C`, `Ctrl+X`, `Ctrl+V` — between grafcets, projects and browser tabs.
+  Pasted steps are renumbered when their numbers are already taken.
+- **Undo / redo**: `Ctrl+Z`, `Ctrl+Shift+Z` (or `Ctrl+Y`). A whole drag is one undo step. The Edit
+  menu names the change that will be undone.
+
+Upward links (loops) are routed along the left side and drawn with an arrow, as IEC 60848
+requires.
+
+### Actions
+
+Choose the kind of each action in the properties panel:
+
+- **Continuous action**: the output is true while the step is active (and its assignment
+  condition, if any, is true). Text: the output name, e.g. `M1`.
+- **Stored action on activation / on deactivation**: an assignment executed once when the step
+  becomes active / inactive, e.g. `C := C + 1`. Drawn with an ↑ / ↓ arrow.
+- **Stored action on event**: executed when the event (e.g. `↑b`) occurs while the step is active.
+- **Forcing order**: forces another partial grafcet into a situation, e.g. `G2{8}`. Drawn with a
+  double frame.
+
+### Partial grafcets
+
+Use the `+` next to the tabs to add a partial grafcet; its first step number continues after the
+numbers already used, in tens. Double-click a tab (or press `F2` on it) to rename it; right-click
+for move and delete.
+
+## Navigating
+
+- Scroll to pan, `Ctrl`+scroll (or pinch) to zoom around the pointer, `Space`+drag or the middle
+  mouse button to pan, or use the pan tool (`H`).
+- `+` / `-` zoom, `Shift+1` fits everything, `Shift+2` fits the selection, `Shift+0` is 100 %.
+- `Ctrl+K` opens the command palette: type any command or grafcet name.
+- `?` lists all keyboard shortcuts.
+
+## Saving and opening
+
+- **Autosave**: every change is kept in your browser within half a second. If the tab closes or
+  the browser crashes with unsaved changes, you are offered to restore them on the next visit.
+- **Save** (`Ctrl+S`) writes back to the file you opened, in Chrome and Edge. In other browsers
+  (and the first time) it downloads `<project name>.grafcet.json`. **Save as** (`Ctrl+Shift+S`)
+  picks a new file.
+- **Open** (`Ctrl+O`), **File › Open recent**, or drag a `.grafcet.json` file onto the window. An
+  invalid file, or one saved by a newer version, is rejected with an explanation; the open project
+  is never lost. If it has unsaved changes you are asked first.
+- **File › Local history** lists snapshots kept in the browser (taken on save, every few minutes of
+  editing and before a project is closed). Restoring one opens it as unsaved changes.
+- **File › Download a copy** downloads the project without changing which file Save writes to.
+
 ## Theme
 
 Use the System / Light / Dark switch at the right of the top bar. _System_ follows your operating

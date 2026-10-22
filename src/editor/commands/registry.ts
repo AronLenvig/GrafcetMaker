@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { startTour } from '@/app/start/tourStore';
 import { closeSplit, focusOtherPane, openSplit, swapPanes } from './split';
 import { openHelp, toggleHelp } from '@/app/help/helpStore';
 import { setPrefs, showBottomTab, usePrefs } from '@/app/prefs';
@@ -66,7 +67,15 @@ export interface Command {
 
 /** App-level dialogs opened by commands. */
 export type AppDialog =
-  'localHistory' | 'shortcuts' | 'about' | 'export' | 'settings' | 'feedback' | null;
+  | 'localHistory'
+  | 'shortcuts'
+  | 'about'
+  | 'export'
+  | 'settings'
+  | 'feedback'
+  | 'start'
+  | 'changelog'
+  | null;
 export const useAppDialog = create<{ open: AppDialog }>(() => ({ open: null }));
 export const openAppDialog = (open: AppDialog) => useAppDialog.setState({ open });
 
@@ -557,6 +566,12 @@ export const COMMANDS: Command[] = [
     run: () => setPrefs({ showHints: !usePrefs.getState().showHints }),
   },
   {
+    id: 'view.outline',
+    label: 'view.outline',
+    group: 'view',
+    run: () => setPrefs({ rightTab: 'outline', rightCollapsed: false }),
+  },
+  {
     id: 'view.variableList',
     label: 'view.variableList',
     group: 'view',
@@ -631,6 +646,13 @@ export const COMMANDS: Command[] = [
     run: toggleHelp,
   },
   {
+    id: 'help.startScreen',
+    label: 'help.startScreen',
+    group: 'help',
+    run: () => openAppDialog('start'),
+  },
+  { id: 'help.tour', label: 'help.tour', group: 'help', run: startTour },
+  {
     id: 'help.gettingStarted',
     label: 'help.gettingStarted',
     group: 'help',
@@ -649,6 +671,12 @@ export const COMMANDS: Command[] = [
     group: 'help',
     keys: ['?', 'Shift+?'],
     run: () => openAppDialog('shortcuts'),
+  },
+  {
+    id: 'help.whatsNew',
+    label: 'help.whatsNew',
+    group: 'help',
+    run: () => openAppDialog('changelog'),
   },
   { id: 'help.about', label: 'help.about', group: 'help', run: () => openAppDialog('about') },
   {

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { FIGURES } from '@/app/help/figures';
+import { TERM_HELP } from '@/app/ui/TermHelp';
 import { parseInline, parseMarkdown, type Block, type Inline } from '@/app/help/markdown';
 import { ORDER, PAGES, pageById, searchHelp } from '@/app/help/pages';
 import { grafcetToSvg } from '@/core/io/svgExport';
@@ -59,6 +60,20 @@ describe('help pages', () => {
     const hits = searchHelp('falling edge');
     expect(hits[0]?.page).toBe('expressions');
     expect(searchHelp('zzzz-not-there')).toEqual([]);
+  });
+});
+
+describe('glossary', () => {
+  it('links every term to an existing help section', () => {
+    for (const [page, anchor] of Object.values(TERM_HELP)) {
+      const target = pageById.get(page);
+      expect(target, page).toBeDefined();
+      if (anchor)
+        expect(
+          target!.sections.some((s) => s.anchor === anchor),
+          anchor,
+        ).toBe(true);
+    }
   });
 });
 

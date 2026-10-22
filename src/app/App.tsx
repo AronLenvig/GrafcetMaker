@@ -7,6 +7,7 @@ import { installShortcuts } from '@/editor/commands/shortcuts';
 import { doc } from '@/editor/store/document';
 import { isDirty } from '@/editor/store/documentStore';
 import { RailFooter, Toolbar } from '@/editor/tools/Toolbar';
+import { openAppDialog } from '@/editor/commands/registry';
 import { startValidation } from '@/editor/validation/problems';
 import { BottomPanel } from '@/panels/BottomPanel';
 import { RightPanel } from '@/panels/RightPanel';
@@ -14,7 +15,11 @@ import { useSim } from '@/editor/simulation/simStore';
 import { SimBar } from './SimBar';
 import { CommandPalette } from './CommandPalette';
 import { DialogHost } from './dialogs/DialogHost';
+import { isDialogOpen } from './dialogs/dialogStore';
 import { DropOverlay } from './DropOverlay';
+import { startPwa } from './pwa';
+import { Tour } from './start/Tour';
+import { UpdateBanner } from './UpdateBanner';
 import { openHelpFromHash, useHelp } from './help/helpStore';
 import { startAutosave } from './persistence/autosave';
 import { onStorageError } from './persistence/db';
@@ -50,8 +55,13 @@ function useAppLifecycle() {
       });
       startAutosave(() => useSession.getState().fileName ?? undefined);
       startValidation();
-      void startup();
-      openHelpFromHash();
+      startPwa();
+      void startup().then(() => {
+        openHelpFromHash();
+        // The start screen greets every launch unless turned off (not over a help link or a dialog).
+        if (usePrefs.getState().showStartScreen && !useHelp.getState().open && !isDialogOpen())
+          openAppDialog('start');
+      });
     }
     return () => {
       uninstall();
@@ -98,7 +108,7 @@ export function App() {
         {simulating ? <SimBar /> : <TopBar />}
         <div className="flex min-h-0 flex-1">
           {!prefs.leftCollapsed && (
-            <div className="w-12 shrink-0 border-r border-border bg-surface">
+            <div data-tour="tools" className="w-12 shrink-0 border-r border-border bg-surface">
               {simulating ? (
                 <div className="flex h-full flex-col items-center py-2">
                   <RailFooter />
@@ -110,7 +120,7 @@ export function App() {
           )}
           <main className="flex min-w-0 flex-1 flex-col" aria-label={t('canvas.region')}>
             <GrafcetTabs />
-            <div className="min-h-0 flex-1">
+            <div data-tour="canvas" className="min-h-0 flex-1">
               <CanvasArea />
             </div>
             {!prefs.bottomCollapsed && (
@@ -125,6 +135,7 @@ export function App() {
               />
             )}
             <div
+              data-tour="bottom"
               className="shrink-0"
               style={{ height: prefs.bottomCollapsed ? 32 : prefs.bottomHeight }}
             >
@@ -142,7 +153,11 @@ export function App() {
                 label={t('props.resize')}
                 onChange={(v) => setPrefs({ rightWidth: v })}
               />
-              <div className="shrink-0 bg-surface" style={{ width: prefs.rightWidth }}>
+              <div
+                data-tour="side"
+                className="shrink-0 bg-surface"
+                style={{ width: prefs.rightWidth }}
+              >
                 <RightPanel />
               </div>
             </>
@@ -158,6 +173,8 @@ export function App() {
       </div>
       <CommandPalette />
       <DialogHost />
+      <Tour />
+      <UpdateBanner />
       <DropOverlay />
       <Toasts />
     </Tooltip.Provider>

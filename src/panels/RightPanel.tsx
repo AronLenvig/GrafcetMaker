@@ -5,6 +5,7 @@ import { PanelRightIcon } from '@/app/ui/icons';
 import { IconButton } from '@/app/ui/primitives';
 import { useSim } from '@/editor/simulation/simStore';
 import { useDoc } from '@/editor/store/document';
+import { OutlinePanel } from './OutlinePanel';
 import { PropertiesPanel } from './PropertiesPanel';
 import { SimInspector } from './SimInspector';
 import { VariablesSidePanel } from './variables/VariablesSidePanel';
@@ -33,6 +34,9 @@ export function RightPanel() {
             {t('panels.variables')}
             <span className="rounded-full bg-surface-3 px-1.5 text-xs tabular-nums">{count}</span>
           </Tabs.Trigger>
+          <Tabs.Trigger value="outline" className={trigger}>
+            {t('outline.tab')}
+          </Tabs.Trigger>
         </Tabs.List>
         <IconButton
           className="ml-auto h-7 w-7"
@@ -48,6 +52,9 @@ export function RightPanel() {
       </Tabs.Content>
       <Tabs.Content value="variables" className="min-h-0 flex-1 outline-none">
         <VariablesSidePanel />
+      </Tabs.Content>
+      <Tabs.Content value="outline" className="min-h-0 flex-1 outline-none">
+        <OutlinePanel />
       </Tabs.Content>
     </Tabs.Root>
   );

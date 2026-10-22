@@ -238,10 +238,9 @@ export function Modal({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-40 bg-overlay" />
         <Dialog.Content
-          role={role}
+          role={role ?? 'dialog'}
           className="fixed top-1/2 left-1/2 z-50 flex max-h-[85vh] max-w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-lg border border-border bg-surface text-text shadow-pop"
           style={{ width }}
-          aria-describedby={description ? undefined : undefined}
         >
           <div className="flex items-start gap-3 border-b border-border px-4 py-3">
             <Dialog.Title className="flex-1 text-sm font-semibold">{title}</Dialog.Title>

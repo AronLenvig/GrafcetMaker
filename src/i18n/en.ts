@@ -240,6 +240,7 @@ export const en = {
       textbook: 'Textbook notation (overbar NOT, ·, +)',
       showVariables: 'Show variable table',
       variableList: 'Show variable list (side panel)',
+      outline: 'Show outline (all elements as a list)',
       toggleHints: 'Toggle hints',
       splitRight: 'Split view: side by side',
       splitDown: 'Split view: one above the other',
@@ -266,11 +267,14 @@ export const en = {
     },
     help: {
       open: 'Help center',
+      startScreen: 'Start screen and examples',
+      tour: 'Take the tour',
       gettingStarted: 'Getting started',
       basics: 'GRAFCET basics',
       expressions: 'Writing receptivities',
       shortcuts: 'Keyboard shortcuts',
       feedback: 'Send feedback…',
+      whatsNew: 'What’s new',
       about: 'About GrafcetMaker',
     },
   },
@@ -816,6 +820,108 @@ export const en = {
     privacyHelp:
       'GrafcetMaker runs entirely in your browser: no account, no server, no tracking. Your files never leave your computer.',
   },
+  start: {
+    title: 'Welcome',
+    start: 'Start',
+    continue: 'Continue “{{name}}”',
+    continueShort: 'Continue',
+    tour: 'Take the tour (5 steps)',
+    tourAgain: 'Take the tour again',
+    gettingStarted: 'Getting started tutorial',
+    examples: 'Examples',
+    showAtStart: 'Show this screen when GrafcetMaker opens',
+    exampleNames: {
+      trafficLight: 'Traffic light',
+      drillingStation: 'Drilling station',
+      tankFilling: 'Tank filling',
+      parallelConveyor: 'Parallel conveyor',
+    },
+    exampleHints: {
+      trafficLight: 'Timers, a pedestrian request remembered by a stored action',
+      drillingStation: 'Machining cycle, part counter, alternative branch to maintenance',
+      tankFilling: 'Numeric inputs, comparisons, a conditional action, a recorded batch',
+      parallelConveyor: 'Parallel branches and a safety grafcet forcing the line',
+    },
+  },
+  tour: {
+    skip: 'Skip the tour',
+    back: 'Back',
+    next: 'Next',
+    done: 'Done',
+    steps: {
+      canvas: {
+        title: 'Draw here',
+        text: 'Click a step and press Enter: a transition and the next step appear, ready for the receptivity. A adds an action, P and O add branches, L loops back. The hint bar at the bottom always lists what you can do.',
+      },
+      tools: {
+        title: 'Tools',
+        text: 'Place steps, transitions and comments, add actions, undo and redo. At the bottom: the help center (F1) and Send feedback.',
+      },
+      side: {
+        title: 'Properties and variables',
+        text: 'Edit what you selected: numbers, receptivities, kinds of steps and actions. The Variables tab lists every input, output and internal variable, and where each one is used.',
+      },
+      problems: {
+        title: 'Problems',
+        text: 'GrafcetMaker checks your chart while you draw. Click the counters to see each problem, jump to it and fix it, often in one click.',
+      },
+      bottom: {
+        title: 'Simulate',
+        text: 'Press F5 to run your grafcet: change inputs in the Simulation tab and follow every signal in the Chronogram. Variables and Problems are here too.',
+      },
+    },
+  },
+  glossary: {
+    whatIs: 'What is a {{term}}?',
+    step: {
+      name: 'Step',
+      text: 'a stable situation of the system, active or inactive. Xn is true while step n is active; initial steps (double square) are active at start.',
+    },
+    transition: {
+      name: 'Transition',
+      text: 'the bar between steps. It is enabled when all the steps above are active, and cleared when its receptivity is also true: the steps above are deactivated and the steps below activated.',
+    },
+    receptivity: {
+      name: 'Receptivity',
+      text: 'the condition of a transition, such as start * /door, ↑b, 5s/X2 or level >= 80. Use 1 for a transition that is always true.',
+    },
+    action: {
+      name: 'Continuous action',
+      text: 'an output that is true while its step is active (and its assignment condition, if any, is true).',
+    },
+    storedAction: {
+      name: 'Stored action',
+      text: 'an assignment such as C := C + 1 executed once: when the step is activated (↑), deactivated (↓) or when an event occurs (flag). The value stays until changed again.',
+    },
+    event: {
+      name: 'Event',
+      text: 'what triggers a stored action on event while its step is active, usually an edge such as ↑b.',
+    },
+    assignmentCondition: {
+      name: 'Assignment condition',
+      text: 'an extra condition on an action: a continuous action is true only while the condition is true too; a stored action runs only if it is true at that moment.',
+    },
+    macroStep: {
+      name: 'Macro-step',
+      text: 'a step standing for a detailed sequence, its expansion, drawn on its own sheet from an entry step E to an exit step S.',
+    },
+    enclosingStep: {
+      name: 'Enclosing step',
+      text: 'a step containing a whole grafcet that runs only while the step is active; its steps marked * start with it.',
+    },
+    forcingOrder: {
+      name: 'Forcing order',
+      text: 'an action imposing a situation on another grafcet while its step is active, such as G2{8}, G2{INIT}, G2{*} (freeze) or G2{} (all inactive).',
+    },
+    partialGrafcet: {
+      name: 'Partial grafcet',
+      text: "one of the grafcets of a project. They all run at the same time and can read each other's steps (Xn).",
+    },
+    variable: {
+      name: 'Variable',
+      text: 'an input, output or internal value (BOOL, INT, REAL or TIME) used in receptivities and actions.',
+    },
+  },
   feedback: {
     title: 'Send feedback',
     intro:
@@ -841,6 +947,32 @@ export const en = {
     copy: 'Copy',
     copied: 'Feedback copied: paste it into an email.',
     send: 'Open in email app',
+  },
+  pwa: {
+    offlineReady: 'GrafcetMaker now also works offline.',
+    updateReady: 'A new version of GrafcetMaker is ready. Reload to use it; your work is kept.',
+    reload: 'Reload',
+    later: 'Later',
+    updated: 'GrafcetMaker was updated to version {{version}}.',
+    whatsNew: 'What’s new',
+    changelogTitle: 'What’s new in GrafcetMaker {{version}}',
+  },
+  outline: {
+    tab: 'Outline',
+    label: 'Outline of the project',
+    hint: 'Every grafcet as a list: ↑ ↓ move, → ← open and close, Enter shows it on the diagram, F2 edits it.',
+    grafcet_one: '{{name}} ({{count}} step)',
+    grafcet_other: '{{name}} ({{count}} steps)',
+    step: 'Step {{n}}',
+    kinds: {
+      initial: 'initial',
+      macro: 'macro-step',
+      enclosing: 'enclosing step',
+    },
+    if: 'if {{condition}}',
+    transition: 'Transition to {{to}}: {{receptivity}}',
+    source: 'Source transition to {{to}}: {{receptivity}}',
+    active: 'active',
   },
   split: {
     menu: 'Split view',

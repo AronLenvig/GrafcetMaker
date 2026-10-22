@@ -165,6 +165,7 @@ function ProblemsIndicator() {
       onClick={() => showBottomTab('problems')}
       title={t('problems.open')}
       aria-label={t('problems.summary', { errors: counts.error, warnings: counts.warning })}
+      data-tour="problems"
       className="flex h-7 items-center gap-2 rounded-md px-2 tabular-nums hover:bg-surface-2"
     >
       <span className="flex items-center gap-1">
@@ -318,12 +319,15 @@ export function TopBar() {
         </Menu>
         <Menu label={t('menu.help')}>
           <Item id="help.open" />
+          <Item id="help.startScreen" />
+          <Item id="help.tour" />
           <Item id="help.gettingStarted" />
           <Item id="help.basics" />
           <Item id="help.expressions" />
           <MenuSeparator />
           <Item id="help.shortcuts" />
           <Item id="help.feedback" />
+          <Item id="help.whatsNew" />
           <Item id="help.about" />
         </Menu>
       </nav>

@@ -10,6 +10,14 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
+/** The start screen greets every launch; Continue goes to the open project. */
+async function closeStartScreen(page: Page) {
+  const dialog = page.getByRole('dialog', { name: 'Welcome' });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('button', { name: 'Continue', exact: true }).click();
+  await expect(dialog).toBeHidden();
+}
+
 async function appendStep(page: Page, receptivity: string) {
   await page.keyboard.press('Enter');
   await expect(page.getByRole('combobox', { name: 'Receptivity' })).toBeFocused();
@@ -19,6 +27,7 @@ async function appendStep(page: Page, receptivity: string) {
 
 test('create a sequence, save it, reopen it', async ({ page }, testInfo) => {
   await page.goto('./');
+  await closeStartScreen(page);
   await expect(page.locator('[data-el="step"]')).toHaveCount(1);
 
   await appendStep(page, 'start * /stop');
@@ -81,18 +90,21 @@ test('create a sequence, save it, reopen it', async ({ page }, testInfo) => {
 
 test('unsaved work is offered back after a reload', async ({ page }) => {
   await page.goto('./');
+  await closeStartScreen(page);
   await appendStep(page, 'go');
   await expect(page.getByLabel('Unsaved changes')).toBeVisible();
   await page.waitForTimeout(800); // autosave debounce
   page.on('dialog', (d) => void d.accept());
   await page.reload();
   await page.getByRole('button', { name: 'Restore' }).click();
+  await closeStartScreen(page);
   await expect(page.locator('[data-el="step"]')).toHaveCount(2);
   await expect(page.locator('[data-el="transition"]')).toContainText('go');
 });
 
 test('theme can be switched', async ({ page }) => {
   await page.goto('./');
+  await closeStartScreen(page);
   await page.getByRole('radio', { name: 'Dark' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.getByRole('radio', { name: 'Light' }).click();

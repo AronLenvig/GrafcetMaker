@@ -115,6 +115,13 @@ export async function newProject(): Promise<void> {
   await loadIntoEditor(createProject(t('file.untitled')));
 }
 
+/** Opens a project made in the app (an example); asks first when there are unsaved changes. */
+export async function openNewProject(project: Project): Promise<boolean> {
+  if (!(await confirmDiscardIfDirty())) return false;
+  await loadIntoEditor(project);
+  return true;
+}
+
 /** Opens a project file (dialog, drag-and-drop, recent). Invalid files never replace the document. */
 export async function openFile(file: File, handle?: FileSystemFileHandle): Promise<void> {
   let project: Project;

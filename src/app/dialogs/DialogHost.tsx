@@ -11,6 +11,9 @@ import { closeDialog, useDialogs } from './dialogStore';
 
 // The export dialog (and the PDF/CSV code behind it) is loaded on first use.
 const ExportDialog = lazy(() => import('../export/ExportDialog'));
+// The start screen builds the example projects and their thumbnails.
+const StartScreen = lazy(() => import('../start/StartScreen'));
+const ChangelogDialog = lazy(() => import('../help/ChangelogDialog'));
 
 /** Renders queued message dialogs (confirm, error, restore prompts) one at a time. */
 function MessageDialogs() {
@@ -161,6 +164,16 @@ export function DialogHost() {
       {open === 'about' && <AboutDialog onClose={close} />}
       {open === 'settings' && <SettingsDialog onClose={close} />}
       {open === 'feedback' && <FeedbackDialog onClose={close} />}
+      {open === 'changelog' && (
+        <Suspense fallback={null}>
+          <ChangelogDialog onClose={close} />
+        </Suspense>
+      )}
+      {open === 'start' && (
+        <Suspense fallback={null}>
+          <StartScreen onClose={close} />
+        </Suspense>
+      )}
       {open === 'export' && (
         <Suspense fallback={null}>
           <ExportDialog onClose={close} />

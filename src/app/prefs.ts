@@ -10,7 +10,7 @@ export interface Prefs {
   bottomCollapsed: boolean;
   bottomTab: string;
   /** Right panel: element properties or the variable list. */
-  rightTab: 'properties' | 'variables';
+  rightTab: 'properties' | 'variables' | 'outline';
   /** Textbook display of expressions (overbar NOT, · and +) instead of the typed ASCII. */
   textbookNotation: boolean;
   showGrid: boolean;
@@ -19,6 +19,10 @@ export interface Prefs {
   showHints: boolean;
   /** Split view: share of the first pane. */
   splitRatio: number;
+  /** Show the start screen when the app opens. */
+  showStartScreen: boolean;
+  /** The guided tour was finished or skipped. */
+  tourDone: boolean;
   /** Simulation speed used when a simulation starts ("fast" or a factor such as "1"). */
   simSpeed: string;
   /** Simulation: briefly highlight transitions as they clear (never with reduced motion). */
@@ -43,6 +47,8 @@ export const DEFAULT_PREFS: Prefs = {
   snapToGrid: true,
   showHints: true,
   splitRatio: 0.5,
+  showStartScreen: true,
+  tourDone: false,
   simSpeed: '1',
   simFlash: true,
   simStepTimers: true,

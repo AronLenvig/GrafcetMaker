@@ -2,6 +2,7 @@ import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } f
 import { useTranslation } from 'react-i18next';
 import type { ExpressionKind } from '@/core/expr/check';
 import { cx, Field, Select } from '@/app/ui/primitives';
+import { TermHelp, type Term } from '@/app/ui/TermHelp';
 import { useUi } from '@/editor/store/uiStore';
 import { ExpressionInput } from './ExpressionInput';
 
@@ -161,17 +162,20 @@ export function Section({
   title,
   children,
   actions,
+  term,
 }: {
   title: string;
   children: ReactNode;
   actions?: ReactNode;
+  /** Glossary term explained by a "?" next to the title. */
+  term?: Term;
 }) {
   return (
     <section className="flex flex-col gap-3.5 border-b border-border px-4 py-4">
       <div className="flex min-h-6 items-center gap-2">
-        <h2 className="flex-1 text-[11px] font-semibold tracking-wider text-muted uppercase">
-          {title}
-        </h2>
+        <h2 className="text-[11px] font-semibold tracking-wider text-muted uppercase">{title}</h2>
+        {term && <TermHelp term={term} />}
+        <span className="flex-1" />
         {actions}
       </div>
       {children}
@@ -187,8 +191,11 @@ export function ExpressionField({
   onCommit,
   placeholder,
   hint,
+  term,
 }: {
   label: string;
+  /** Glossary term explained by a "?" next to the label. */
+  term?: Term;
   kind: ExpressionKind;
   value: string;
   onCommit: (v: string) => void;
@@ -206,7 +213,10 @@ export function ExpressionField({
   };
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-xs font-medium text-muted">{label}</span>
+      <span className="flex items-center gap-1.5 text-xs font-medium text-muted">
+        {label}
+        {term && <TermHelp term={term} />}
+      </span>
       <ExpressionInput
         kind={kind}
         grafcetId={gid}

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { TermHelp } from '@/app/ui/TermHelp';
 import { useTranslation } from 'react-i18next';
 import { indexGrafcet } from '@/core/model/graph';
 import type { Action, ActionKind, Grafcet, Id, Step, Transition } from '@/core/model/types';
@@ -60,8 +61,17 @@ function ActionEditor({ action, index, count }: { action: Action; index: number;
   return (
     <div className="flex flex-col gap-2 rounded-md border border-border p-2">
       <div className="flex items-center gap-1">
-        <span className="flex-1 text-xs font-medium text-muted">
+        <span className="flex flex-1 items-center gap-1.5 text-xs font-medium text-muted">
           {t('props.action.title', { n: index + 1 })}
+          <TermHelp
+            term={
+              action.kind === 'forcing'
+                ? 'forcingOrder'
+                : action.kind === 'continuous'
+                  ? 'action'
+                  : 'storedAction'
+            }
+          />
         </span>
         <IconButton
           label={t('props.action.moveUp')}
@@ -104,6 +114,7 @@ function ActionEditor({ action, index, count }: { action: Action; index: number;
         <ExpressionField
           kind="condition"
           label={conditionLabel}
+          term={action.kind === 'storedOnEvent' ? 'event' : 'assignmentCondition'}
           value={action.condition ?? ''}
           placeholder={
             action.kind === 'storedOnEvent' ? '↑b' : t('props.action.conditionPlaceholder')
@@ -135,7 +146,12 @@ function StepProps({ g, step }: { g: Grafcet; step: Step }) {
   );
   return (
     <>
-      <Section title={t('props.step.title', { n: step.number })}>
+      <Section
+        title={t('props.step.title', { n: step.number })}
+        term={
+          step.kind === 'macro' ? 'macroStep' : step.kind === 'enclosing' ? 'enclosingStep' : 'step'
+        }
+      >
         <CommitField
           label={t('props.step.number')}
           value={String(step.number)}
@@ -204,10 +220,11 @@ function TransitionProps({ g, transition }: { g: Grafcet; transition: Transition
     });
   const list = (ids: Id[]) => (ids.length ? ids.map((id) => stepName(g, id)).join(', ') : '—');
   return (
-    <Section title={t('props.transition.title')}>
+    <Section title={t('props.transition.title')} term="transition">
       <ExpressionField
         kind="condition"
         label={t('props.transition.receptivity')}
+        term="receptivity"
         value={transition.receptivity}
         placeholder="a * /b"
         onCommit={(v) => update((tr) => void (tr.receptivity = v.trim()))}
@@ -254,7 +271,7 @@ function GrafcetAndProjectProps({ g }: { g: Grafcet }) {
   );
   return (
     <>
-      <Section title={t('props.grafcet.title')}>
+      <Section title={t('props.grafcet.title')} term="partialGrafcet">
         <CommitField
           label={t('props.grafcet.name')}
           value={g.name}

@@ -62,14 +62,24 @@ Serve `index.html`, `sw.js` and `manifest.webmanifest` with `Cache-Control: no-c
    opens with the message to that address.
 3. **Copy** only, when neither is set up (the default for on-premise installs).
 
-The endpoint is a Cloudflare Pages Function, [`functions/api/feedback.ts`](functions/api/feedback.ts),
-deployed automatically with the site on Cloudflare Pages. To enable it:
+The endpoint and its setup are described under [Cloudflare Workers](#cloudflare-workers-public-site).
+
+### Cloudflare Workers (public site)
+
+[`wrangler.jsonc`](wrangler.jsonc) deploys `dist/` as static assets plus a small Worker,
+[`worker/index.ts`](worker/index.ts), that serves the feedback endpoint at `/api/feedback`
+([`worker/feedback.ts`](worker/feedback.ts)); every other request is answered from the static
+files. Connect the repository in **Workers & Pages** (Workers Builds: build command
+`npm run build`, deploy command `npx wrangler deploy`), or deploy by hand with
+`npm run build && npx wrangler deploy`. Rename `name` in `wrangler.jsonc` to match your Worker.
+
+To enable the feedback endpoint:
 
 1. Create a **private** GitHub repository for feedback, e.g. `grafcetmaker-feedback`.
 2. Create a fine-grained personal access token limited to that repository with
    **Issues: Read and write** (and nothing else).
-3. In the Pages project › Settings › Variables and secrets, add `GITHUB_REPO` (`owner/name`) and
-   the secret `GITHUB_TOKEN`, then redeploy.
+3. In the Worker › Settings › Variables and Secrets, add `GITHUB_REPO` (`owner/name`, text) and
+   `GITHUB_TOKEN` (secret). Deploys keep them (`keep_vars`).
 4. Recommended: a Cloudflare rate-limiting rule on `/api/feedback` (e.g. 5 requests per minute per
    IP) against spam.
 

@@ -11,7 +11,7 @@ export const FEEDBACK_EMAIL: string =
   (import.meta.env.VITE_FEEDBACK_EMAIL as string | undefined) ?? '';
 
 /**
- * The anonymous feedback endpoint (functions/api/feedback.ts on Cloudflare Pages), relative to the
+ * The anonymous feedback endpoint (worker/feedback.ts on Cloudflare Workers), relative to the
  * page so it stays same-origin. Used only when it answers; other hosts fall back to FEEDBACK_EMAIL.
  */
 export const FEEDBACK_ENDPOINT = 'api/feedback';

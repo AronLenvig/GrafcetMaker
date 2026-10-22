@@ -1,10 +1,11 @@
 /**
- * Anonymous feedback endpoint for the hosted site: a Cloudflare Pages Function served at
- * /api/feedback next to the static app (same origin, so the app's CSP stays `connect-src 'self'`).
- * Each message becomes an issue in a private GitHub repository: no email address is published and
- * senders need no account. Nothing is stored here and the sender's IP address is not forwarded.
+ * Anonymous feedback endpoint of the hosted site, served by the Cloudflare Worker (worker/index.ts)
+ * at /api/feedback next to the static app (same origin, so the app's CSP stays
+ * `connect-src 'self'`). Each message becomes an issue in a private GitHub repository: no email
+ * address is published and senders need no account. Nothing is stored here and the sender's IP
+ * address is not forwarded.
  *
- * Settings (Pages project › Settings › Variables and secrets):
+ * Settings (Worker › Settings › Variables and Secrets):
  *   GITHUB_REPO   owner/name of the private repository that receives the issues
  *   GITHUB_TOKEN  fine-grained token with "Issues: read and write" on that repository only (secret)
  *
@@ -12,14 +13,9 @@
  * (on-premise, air-gapped, plain static hosting) it falls back to email or copying.
  */
 
-interface Env {
+export interface FeedbackEnv {
   GITHUB_REPO?: string;
   GITHUB_TOKEN?: string;
-}
-
-interface Context {
-  request: Request;
-  env: Env;
 }
 
 export const FEEDBACK_KINDS = ['idea', 'problem', 'question', 'praise'] as const;
@@ -78,12 +74,14 @@ function json(data: unknown, status = 200): Response {
   });
 }
 
-/** Lets the app know that sending is available here. */
-export function onRequestGet({ env }: Context): Response {
-  return json({ ok: Boolean(env.GITHUB_REPO && env.GITHUB_TOKEN) });
+/** GET tells the app whether sending is available here; POST files a message. */
+export async function handleFeedback(request: Request, env: FeedbackEnv): Promise<Response> {
+  if (request.method === 'GET') return json({ ok: Boolean(env.GITHUB_REPO && env.GITHUB_TOKEN) });
+  if (request.method === 'POST') return post(request, env);
+  return new Response(null, { status: 405, headers: { Allow: 'GET, POST' } });
 }
 
-export async function onRequestPost({ request, env }: Context): Promise<Response> {
+async function post(request: Request, env: FeedbackEnv): Promise<Response> {
   const origin = request.headers.get('Origin');
   if (origin && origin !== new URL(request.url).origin) return json({ error: 'forbidden' }, 403);
   if (!env.GITHUB_REPO || !env.GITHUB_TOKEN) return json({ error: 'not configured' }, 503);
@@ -111,6 +109,6 @@ export async function onRequestPost({ request, env }: Context): Promise<Response
       'X-GitHub-Api-Version': '2022-11-28',
     },
     body: JSON.stringify(issueFor(feedback)),
-  });
-  return res.ok ? json({ ok: true }) : json({ error: 'delivery failed' }, 502);
+  }).catch(() => null);
+  return res?.ok ? json({ ok: true }) : json({ error: 'delivery failed' }, 502);
 }

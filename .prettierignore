@@ -6,3 +6,4 @@ test-results
 package-lock.json
 CLAUDE.md
 scripts/_*
+.wrangler

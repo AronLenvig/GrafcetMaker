@@ -1,0 +1,17 @@
+// Cloudflare Workers deployment of the public site: the built app (dist/) as static assets plus the
+// anonymous feedback endpoint (worker/index.ts). Build with `npm run build`, deploy with
+// `npx wrangler deploy` (Workers Builds runs both on every push).
+// GITHUB_REPO and the secret GITHUB_TOKEN are set in the dashboard; keep_vars stops a deploy from
+// removing them. Self-hosted and on-premise installs do not need this file.
+{
+  "name": "grafcetmaker",
+  "main": "worker/index.ts",
+  "compatibility_date": "2025-10-01",
+  "keep_vars": true,
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"],
+  },
+}

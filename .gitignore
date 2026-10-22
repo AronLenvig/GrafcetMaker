@@ -11,4 +11,6 @@ test-results
 
 # local probe scripts
 scripts/_*
+.wrangler
+.dev.vars
 .claude/settings.json

@@ -14,6 +14,7 @@ export default defineConfig(
       'test-results',
       'node_modules',
       'scripts/_*',
+      '.wrangler',
     ],
   },
   js.configs.recommended,

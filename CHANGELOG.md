@@ -16,6 +16,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- Send feedback is anonymous on the hosted site: messages go to the developers without an account
+  or email app, with an optional contact for a reply. The author's email address is no longer in
+  the app; other installations use `VITE_FEEDBACK_EMAIL` or Copy.
 - A Simulate button (F5) in the top bar starts the simulation.
 - Welcome screen: on a first visit it no longer offers to continue the empty starting project;
   its button reads "Start drawing".

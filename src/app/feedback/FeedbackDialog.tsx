@@ -1,6 +1,6 @@
-import { useId, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FEEDBACK_EMAIL } from '../config';
+import { FEEDBACK_EMAIL, FEEDBACK_ENDPOINT } from '../config';
 import { toast } from '../toasts';
 import { Button, cx, Modal } from '../ui/primitives';
 
@@ -9,6 +9,34 @@ type Kind = (typeof KINDS)[number];
 
 /** Some email apps truncate longer mailto: links; beyond this the dialog suggests copying. */
 const MAILTO_LIMIT = 1800;
+
+/**
+ * How feedback leaves this installation: sent anonymously to the site's endpoint, opened in the
+ * user's email app, or only copied (no channel configured, e.g. an on-premise install).
+ */
+type Channel = 'checking' | 'endpoint' | 'email' | 'copy';
+
+let endpointProbe: Promise<boolean> | null = null;
+
+/**
+ * Whether this site serves the feedback endpoint and can deliver (asked once per session). Static
+ * hosts answer the request with index.html, hence the JSON check; network errors are not cached.
+ */
+function hasEndpoint(): Promise<boolean> {
+  endpointProbe ??= fetch(FEEDBACK_ENDPOINT, {
+    headers: { Accept: 'application/json' },
+    cache: 'no-store',
+  })
+    .then(async (r) => {
+      if (!r.ok || !r.headers.get('Content-Type')?.includes('application/json')) return false;
+      return ((await r.json()) as { ok?: unknown }).ok === true;
+    })
+    .catch(() => {
+      endpointProbe = null;
+      return false;
+    });
+  return endpointProbe;
+}
 
 function appDetails(): string {
   return [
@@ -20,17 +48,33 @@ function appDetails(): string {
 }
 
 /**
- * Feedback without a server: the message is composed here and opened in the user's email app
- * (mailto:), to be reviewed and sent from there. Nothing is transmitted by the app itself.
+ * Feedback form. On the hosted site it is sent anonymously to the feedback endpoint (no account;
+ * a contact is optional). Elsewhere it opens in the user's email app (VITE_FEEDBACK_EMAIL) or can
+ * be copied. Only the text shown in the dialog is ever sent, never project data.
  */
 export function FeedbackDialog({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation();
   const [kind, setKind] = useState<Kind>('idea');
   const [message, setMessage] = useState('');
+  const [contact, setContact] = useState('');
   const [details, setDetails] = useState(true);
+  const [endpoint, setEndpoint] = useState<boolean | null>(null);
+  const [sending, setSending] = useState(false);
+  const [failed, setFailed] = useState(false);
   const messageId = useId();
+  const contactId = useId();
   const detailsText = useMemo(appDetails, []);
 
+  useEffect(() => {
+    let live = true;
+    void hasEndpoint().then((ok) => live && setEndpoint(ok));
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  const channel: Channel =
+    endpoint === null ? 'checking' : endpoint ? 'endpoint' : FEEDBACK_EMAIL ? 'email' : 'copy';
   const subject = `[GrafcetMaker] ${t(`feedback.kinds.${kind}`)}${
     message.trim() ? `: ${message.trim().split('\n')[0]!.slice(0, 60)}` : ''
   }`;
@@ -39,13 +83,42 @@ export function FeedbackDialog({ onClose }: { onClose: () => void }) {
   const empty = !message.trim();
 
   const copy = async () => {
-    const text = `To: ${FEEDBACK_EMAIL}\nSubject: ${subject}\n\n${body}`;
+    const text = `${channel === 'email' ? `To: ${FEEDBACK_EMAIL}\n` : ''}Subject: ${subject}\n\n${body}`;
     const ok = await navigator.clipboard.writeText(text).then(
       () => true,
       () => false,
     );
     toast(ok ? t('feedback.copied') : t('export.copyFailed'), ok ? 'success' : 'error');
   };
+
+  const send = async () => {
+    setSending(true);
+    setFailed(false);
+    const ok = await fetch(FEEDBACK_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        kind,
+        message: message.trim(),
+        contact: contact.trim(),
+        details: details ? detailsText : '',
+      }),
+    }).then(
+      (r) => r.ok,
+      () => false,
+    );
+    setSending(false);
+    if (!ok) return setFailed(true);
+    toast(t('feedback.sent'), 'success');
+    onClose();
+  };
+
+  const privacy =
+    channel === 'email'
+      ? t('feedback.privacyEmail', { email: FEEDBACK_EMAIL })
+      : channel === 'copy'
+        ? t('feedback.privacyCopy')
+        : t('feedback.privacyAnonymous');
 
   return (
     <Modal open title={t('feedback.title')} onOpenChange={(o) => !o && onClose()} width={520}>
@@ -80,10 +153,28 @@ export function FeedbackDialog({ onClose }: { onClose: () => void }) {
             onChange={(e) => setMessage(e.target.value)}
             placeholder={t(`feedback.placeholders.${kind}`)}
             rows={6}
+            maxLength={5000}
             autoFocus
             className="gm-input"
           />
         </div>
+        {channel === 'endpoint' && (
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor={contactId} className="text-xs font-medium text-muted">
+              {t('feedback.contact')}
+            </label>
+            <input
+              id={contactId}
+              type="email"
+              autoComplete="email"
+              value={contact}
+              onChange={(e) => setContact(e.target.value)}
+              placeholder={t('feedback.contactPlaceholder')}
+              maxLength={200}
+              className="gm-input"
+            />
+          </div>
+        )}
         <label className="flex items-start gap-2">
           <input
             type="checkbox"
@@ -98,28 +189,51 @@ export function FeedbackDialog({ onClose }: { onClose: () => void }) {
             </span>
           </span>
         </label>
-        <p className="text-xs text-muted">{t('feedback.privacy', { email: FEEDBACK_EMAIL })}</p>
-        {href.length > MAILTO_LIMIT && <p className="text-xs text-warning">{t('feedback.long')}</p>}
+        <p className="text-xs text-muted">{privacy}</p>
+        {channel === 'email' && href.length > MAILTO_LIMIT && (
+          <p className="text-xs text-warning">{t('feedback.long')}</p>
+        )}
+        {failed && (
+          <p role="alert" className="text-xs text-danger">
+            {t('feedback.failed')}
+          </p>
+        )}
         <div className="flex justify-end gap-2">
           <Button onClick={onClose}>{t('common.cancel')}</Button>
-          <Button disabled={empty} onClick={() => void copy()}>
+          <Button
+            variant={channel === 'copy' ? 'primary' : 'default'}
+            disabled={empty}
+            onClick={() => void copy()}
+          >
             {t('feedback.copy')}
           </Button>
-          {/* A link, not location.href: opening the email app must not look like leaving the page. */}
-          <a
-            href={empty ? undefined : href}
-            aria-disabled={empty}
-            onClick={(e) => {
-              if (empty) e.preventDefault();
-              else setTimeout(onClose, 300);
-            }}
-            className={cx(
-              'inline-flex h-8 items-center justify-center rounded-md border border-transparent bg-accent px-3 font-medium text-accent-fg hover:bg-accent-hover',
-              empty && 'pointer-events-none opacity-50',
-            )}
-          >
-            {t('feedback.send')}
-          </a>
+          {channel === 'email' ? (
+            // A link, not location.href: opening the email app must not look like leaving the page.
+            <a
+              href={empty ? undefined : href}
+              aria-disabled={empty}
+              onClick={(e) => {
+                if (empty) e.preventDefault();
+                else setTimeout(onClose, 300);
+              }}
+              className={cx(
+                'inline-flex h-8 items-center justify-center rounded-md border border-transparent bg-accent px-3 font-medium text-accent-fg hover:bg-accent-hover',
+                empty && 'pointer-events-none opacity-50',
+              )}
+            >
+              {t('feedback.openEmail')}
+            </a>
+          ) : (
+            channel !== 'copy' && (
+              <Button
+                variant="primary"
+                disabled={empty || sending || channel === 'checking'}
+                onClick={() => void send()}
+              >
+                {sending ? t('feedback.sending') : t('feedback.send')}
+              </Button>
+            )
+          )}
         </div>
       </div>
     </Modal>

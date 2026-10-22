@@ -322,10 +322,13 @@ for each row) before anything changes, and the import is one undo step.
 ## Feedback
 
 **Help › Send feedback…** (or the speech-bubble button at the bottom left) composes a message —
-idea, problem, question or praise — and opens it in your email app, addressed to the author, for
-you to review and send. Optionally it adds the app version and browser details; it never includes
-project data. GrafcetMaker itself sends nothing. Self-hosted builds can change the address with
-`VITE_FEEDBACK_EMAIL` at build time.
+idea, problem, question or praise. On the public site **Send** delivers it anonymously to the
+developers: no account is needed, and you can leave an email address if you would like a reply.
+Optionally it adds the app version and browser details; it never includes project data.
+
+Installations without the feedback service open the message in your email app instead (when an
+address was set with `VITE_FEEDBACK_EMAIL` at build time), or offer **Copy** so you can pass it on
+yourself.
 
 ## Settings
 

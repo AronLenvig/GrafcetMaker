@@ -53,12 +53,29 @@ Serve `index.html`, `sw.js` and `manifest.webmanifest` with `Cache-Control: no-c
 
 ### Configuration
 
-**Help › Send feedback** opens the user's email app with a message to the address set at build
-time (default: the author). Point it at your own team with:
+**Help › Send feedback** picks the first channel this installation offers:
 
-```sh
-VITE_FEEDBACK_EMAIL=plc-team@example.com npm run build
-```
+1. **Anonymous endpoint** (the public site): the message is posted to `api/feedback` on the same
+   origin and filed as an issue in a private GitHub repository. Senders need no account and may
+   leave a contact for a reply; no email address appears in the app.
+2. **Email**: with `VITE_FEEDBACK_EMAIL=plc-team@example.com npm run build`, the user's email app
+   opens with the message to that address.
+3. **Copy** only, when neither is set up (the default for on-premise installs).
+
+The endpoint is a Cloudflare Pages Function, [`functions/api/feedback.ts`](functions/api/feedback.ts),
+deployed automatically with the site on Cloudflare Pages. To enable it:
+
+1. Create a **private** GitHub repository for feedback, e.g. `grafcetmaker-feedback`.
+2. Create a fine-grained personal access token limited to that repository with
+   **Issues: Read and write** (and nothing else).
+3. In the Pages project › Settings › Variables and secrets, add `GITHUB_REPO` (`owner/name`) and
+   the secret `GITHUB_TOKEN`, then redeploy.
+4. Recommended: a Cloudflare rate-limiting rule on `/api/feedback` (e.g. 5 requests per minute per
+   IP) against spam.
+
+New feedback then arrives as GitHub notifications (web, mobile app or the email of your GitHub
+account, which stays private). Renew the token before it expires. Without these settings the
+endpoint answers `{ "ok": false }` and the app falls back to email or copy.
 
 ### Docker
 

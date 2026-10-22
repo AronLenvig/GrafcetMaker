@@ -875,7 +875,7 @@ export const en = {
     resetButton: 'Reset',
     resetDone: 'Preferences reset.',
     shortcutsHelp: 'Every command with its keyboard shortcut.',
-    feedbackHelp: 'Ideas, problems, questions: tell the author by email.',
+    feedbackHelp: 'Ideas, problems, questions: tell the developers, anonymously if you like.',
     open: 'Open',
     privacy: 'Privacy',
     privacyHelp:
@@ -986,8 +986,7 @@ export const en = {
   },
   feedback: {
     title: 'Send feedback',
-    intro:
-      'Ideas, problems or questions help GrafcetMaker improve. Write your message; your email app opens with it ready to send.',
+    intro: 'Ideas, problems or questions help GrafcetMaker improve.',
     kind: 'Kind of feedback',
     kinds: {
       idea: 'Idea',
@@ -1002,13 +1001,23 @@ export const en = {
       question: 'What would you like to know?',
       praise: 'What do you like?',
     },
+    contact: 'Email for a reply (optional)',
+    contactPlaceholder: 'Leave empty to stay anonymous',
     includeDetails: 'Include app and browser details (no project data):',
-    privacy:
+    privacyAnonymous:
+      'Sent anonymously to the GrafcetMaker developers: no account needed, and only what you see here is sent, never your project.',
+    privacyEmail:
       'Nothing is sent by GrafcetMaker itself: your email app opens with the message to {{email}}, and you send it from there.',
+    privacyCopy:
+      'This installation has no feedback channel set up. Copy your message and pass it on to whoever maintains GrafcetMaker here.',
     long: 'This message is long and some email apps cut long messages: if it arrives incomplete, use Copy and paste it into an email.',
     copy: 'Copy',
-    copied: 'Feedback copied: paste it into an email.',
-    send: 'Open in email app',
+    copied: 'Feedback copied to the clipboard.',
+    openEmail: 'Open in email app',
+    send: 'Send',
+    sending: 'Sending…',
+    sent: 'Thank you! Your feedback was sent.',
+    failed: 'Your feedback could not be sent. Check your connection and try again, or copy it.',
   },
   pwa: {
     offlineReady: 'GrafcetMaker now also works offline.',

@@ -181,8 +181,8 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Split view: `useUi.split` (two panes, focus, orientation) kept in sync with
   `activeGrafcetId`; Canvas takes its grafcet as a prop, canvas sizes per grafcet; pane headers
   with grafcet picker, swap, close; tab context menu; View › Split view; ratio in prefs.
-- Feedback: dialog composing a mailto: to `FEEDBACK_EMAIL` (`src/app/config.ts`, overridable with
-  `VITE_FEEDBACK_EMAIL`), copy fallback, optional app/browser details; rail footer with Help and
+- Feedback: dialog with three channels (anonymous endpoint, mailto: `VITE_FEEDBACK_EMAIL`, copy),
+  optional contact and app/browser details; rail footer with Help and
   Feedback (also shown while simulating).
 - Help center (F1, `#help/<page>`): docked panel, Markdown pages in `docs/help` rendered by a safe
   subset parser, real diagrams drawn by the SVG exporter, search, prev/next; tests check links,
@@ -246,7 +246,12 @@ Autonomous build log. Read this first in every session and resume from **Current
 - PWA in prompt mode: an update never reloads by itself; the user chooses when.
 - Owner decision (after 1.0.0): no restore prompt and no `beforeunload` confirmation. The last
   project reopens automatically on reload (dirty flag kept), autosave flushes on page hide.
-- Feedback uses mailto: (no backend, no network calls, nothing sent without the user's email app).
+- Feedback (owner decision, after 1.0.0): anonymous, without the owner's email in the app. The
+  hosted site gets a Cloudflare Pages Function (`functions/api/feedback.ts`, same origin, CSP
+  unchanged) that files each message as an issue in a private GitHub repository (`GITHUB_REPO`,
+  `GITHUB_TOKEN` secrets). The app probes `GET api/feedback` once per session and falls back to
+  mailto (`VITE_FEEDBACK_EMAIL`, empty by default) or Copy, so the static build still runs
+  anywhere, air-gapped included.
 - Split view keeps one active grafcet (the focused pane) so every command, the properties panel and
   validation navigation work unchanged.
 - The help center is a docked, non-modal panel so beginners can follow a tutorial while drawing.

@@ -4,7 +4,7 @@ Browser GRAFCET (IEC 60848) editor + simulator for professional automation engin
 
 ## Decisions
 - Open source, MIT license. Repo ships `LICENSE`, `README.md` (features, self-host steps), `CONTRIBUTING.md`.
-- One static build serves both the public website and on-premise installs. No backend, accounts or telemetry. All assets bundled (no CDNs, external fonts or runtime network calls) so it works air-gapped. Relative base path so it runs under any sub-path. Docker/nginx image for on-prem.
+- One static build serves both the public website and on-premise installs. No backend, accounts or telemetry (exception: the optional anonymous feedback endpoint `functions/api/feedback.ts`, a Cloudflare Pages Function for the hosted site; the app works without it). All assets bundled (no CDNs, external fonts or runtime network calls) so it works air-gapped. Relative base path so it runs under any sub-path. Docker/nginx image for on-prem.
 - Saving, importing and exporting must be effortless (see Persistence).
 
 ## Autonomous mode (the owner wants minimal involvement)

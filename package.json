@@ -1,7 +1,7 @@
 {
   "name": "grafcetmaker",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Browser GRAFCET (IEC 60848) editor and simulator",
   "license": "MIT",
   "type": "module",

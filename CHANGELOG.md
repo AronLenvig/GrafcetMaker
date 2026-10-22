@@ -6,7 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-22
+
+First release.
+
 ### Added
+
+- Start screen with four example projects (traffic light, drilling station, tank filling, parallel
+  conveyor), a five-step guided tour, glossary explanations of standard terms, and an outline tree
+  view of every grafcet as an accessible alternative to the diagram.
+- Installable progressive web app: works offline after the first visit, offers to reload when an
+  update is ready, and shows what's new after an update.
 
 - Project scaffold: Vite + React + TypeScript, strict CSP, light/dark/system theme, CI, Docker image.
 - Project data model, `.grafcet.json` file format with schema validation and migration chain.
@@ -59,6 +69,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Warning for a stored action on event without an event.
 
 ### Changed
+
+- Accessibility audit (WCAG 2.2 AA, axe): dialogs expose the dialog role, the side panel is one
+  landmark, every page state has a level-one heading, switches and help buttons have 24 px
+  targets, the chronogram can be scrolled with the keyboard.
 
 - Stored actions on activation are drawn with an ↑ above the box, on deactivation with an ↓ below
   it, and actions on an event with a flag at the top right (previously arrows inside the box and no

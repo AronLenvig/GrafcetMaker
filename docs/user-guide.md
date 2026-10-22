@@ -7,6 +7,18 @@ This guide is the complete reference. For a gentler introduction, open the in-ap
 (`F1`): a getting-started tutorial, GRAFCET basics with diagrams, and task-oriented pages. Its
 pages are the Markdown files in [`docs/help/`](help/index.md).
 
+## Starting
+
+When GrafcetMaker opens it shows the **start screen**: continue with the project you had open,
+start a new one, open a file or a recent project, take the five-step **tour**, open the
+**getting started** tutorial, or open an **example** (traffic light, drilling station, tank filling,
+parallel conveyor). Untick "Show this screen when GrafcetMaker opens" to go straight to your
+project; **Help › Start screen and examples** brings it back.
+
+GrafcetMaker can be installed as an app (the install button of the browser's address bar) and works
+offline: after the first visit everything it needs is stored in the browser. When a new version is
+available, a card offers to reload; your work is kept. **Help › What's new** shows the changelog.
+
 ## Screen layout
 
 - **Top bar**: File, Edit, View, Simulate and Help menus, the project name (a dot `●` means
@@ -18,6 +30,11 @@ pages are the Markdown files in [`docs/help/`](help/index.md).
 - **Right panel**: two tabs. **Properties** of the selection (or of the grafcet and project when
   nothing is selected; the live inspector while simulating) and **Variables**, a searchable list
   of all variables. Drag its left edge to resize it (or focus the edge and use the arrow keys).
+- **Outline** tab of the right panel: every grafcet, step, action and transition as a tree, an
+  accessible alternative to the diagram. Arrow keys move and fold, `Enter` shows the element on the
+  diagram, `F2` edits it there; active steps are marked while simulating.
+- **Glossary**: the small `?` next to standard terms (step, transition, receptivity, stored action,
+  macro-step…) in the properties panel explains them and links to the help.
 - **Hint bar** (bottom left of the canvas): the keys and gestures available for the current
   selection, tool or drag, with a **Learn more** link to the help. Hide it with its `×`, and show
   it again from **View › Hints** or Settings.

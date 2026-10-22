@@ -24,7 +24,9 @@ const t = i18next.t.bind(i18next);
 
 export const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const VARIABLES_FILE: FileKind = {
-  description: 'Variables (CSV or Excel)',
+  get description() {
+    return t('file.types.variables');
+  },
   accept: { 'text/csv': ['.csv'], [XLSX_MIME]: ['.xlsx'] },
 };
 const MAX_BYTES = 5 * 1024 * 1024;

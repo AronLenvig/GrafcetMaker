@@ -143,7 +143,7 @@ export function App() {
             </div>
           </main>
           {!prefs.rightCollapsed && (
-            <>
+            <aside aria-label={t('props.panel')} className="flex shrink-0">
               <Splitter
                 orientation="vertical"
                 value={prefs.rightWidth}
@@ -160,7 +160,7 @@ export function App() {
               >
                 <RightPanel />
               </div>
-            </>
+            </aside>
           )}
           {helpOpen && (
             <div className="w-[min(440px,40vw)] min-w-72 shrink-0">

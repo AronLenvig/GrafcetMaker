@@ -14,6 +14,12 @@ while you edit and before a project is closed. Restoring one opens it as unsaved
 > **Important:** browser storage belongs to this browser on this computer, and clearing site data
 > erases it. Save to a file for anything you want to keep.
 
+## Offline and installation
+
+After the first visit GrafcetMaker works without a network. Use the install button of your
+browser's address bar to get it as an app with its own window. When a new version is ready, a card
+in the corner offers to reload: your work is kept.
+
 ## Save and open
 
 - **Save** (<kbd>Ctrl+S</kbd>) writes the project to a `.grafcet.json` file. In Chrome and Edge it

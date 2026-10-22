@@ -4,7 +4,7 @@ import type { Project, Variable } from '@/core/model/types';
 import type { Value } from '@/core/simulation/engine';
 import type { CycleRecord } from '@/core/simulation/session';
 import { TrashIcon } from '@/app/ui/icons';
-import { Button, cx, IconButton } from '@/app/ui/primitives';
+import { Button, cx, IconButton, Switch } from '@/app/ui/primitives';
 import { formatSimTime } from '@/editor/canvas/SimOverlay';
 import { useDoc } from '@/editor/store/document';
 import {
@@ -65,25 +65,13 @@ const InputRow = memo(function InputRow({
         <span className="min-w-0 flex-1 truncate font-mono" title={v.comment}>
           {v.name}
         </span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={on}
-          aria-label={t('simulation.toggle', { name: v.name })}
+        <Switch
+          tone="success"
+          checked={on}
+          label={t('simulation.toggle', { name: v.name })}
           disabled={disabled}
-          onClick={() => void setInput(name, !on)}
-          className={cx(
-            'relative h-5 w-9 rounded-full border transition-colors disabled:opacity-50',
-            on ? 'border-success bg-success' : 'border-border-strong bg-surface-2',
-          )}
-        >
-          <span
-            className={cx(
-              'absolute top-0.5 h-3.5 w-3.5 rounded-full bg-surface shadow transition-all',
-              on ? 'left-4.5' : 'left-0.5',
-            )}
-          />
-        </button>
+          onChange={(next) => void setInput(name, next)}
+        />
         <button
           type="button"
           disabled={disabled}
@@ -265,9 +253,9 @@ export function SimulationPanel() {
   return (
     <div className="grid h-full min-h-0 grid-cols-[minmax(240px,1fr)_minmax(200px,1fr)_minmax(280px,1.6fr)] divide-x divide-border">
       <section aria-label={t('simulation.inputs')} className="flex min-h-0 flex-col">
-        <h3 className="border-b border-border px-2 py-1 text-xs font-semibold text-muted uppercase">
+        <h2 className="border-b border-border px-2 py-1 text-xs font-semibold text-muted uppercase">
           {t('simulation.inputs')}
-        </h3>
+        </h2>
         <ul className="min-h-0 flex-1 overflow-auto">
           {inputs.length === 0 && <li className="p-2 text-muted">{t('simulation.noInputs')}</li>}
           {inputs.map((v) => (
@@ -281,9 +269,9 @@ export function SimulationPanel() {
         </ul>
       </section>
       <section aria-label={t('simulation.values')} className="flex min-h-0 flex-col">
-        <h3 className="border-b border-border px-2 py-1 text-xs font-semibold text-muted uppercase">
+        <h2 className="border-b border-border px-2 py-1 text-xs font-semibold text-muted uppercase">
           {t('simulation.values')}
-        </h3>
+        </h2>
         <ul className="min-h-0 flex-1 overflow-auto">
           {shown.map((v) => {
             const value = values?.[v.name.toLowerCase()];
@@ -304,15 +292,15 @@ export function SimulationPanel() {
         </ul>
       </section>
       <section aria-label={t('simulation.log')} className="flex min-h-0 flex-col">
-        <h3 className="border-b border-border px-2 py-1 text-xs font-semibold text-muted uppercase">
+        <h2 className="border-b border-border px-2 py-1 text-xs font-semibold text-muted uppercase">
           {t('simulation.log')}
-        </h3>
+        </h2>
         <div className="min-h-0 flex-1 overflow-auto">
           <CycleLogList />
         </div>
-        <h3 className="border-y border-border px-2 py-1 text-xs font-semibold text-muted uppercase">
+        <h2 className="border-y border-border px-2 py-1 text-xs font-semibold text-muted uppercase">
           {t('simulation.scenarios')}
-        </h3>
+        </h2>
         <div className="max-h-32 overflow-auto">
           <Scenarios />
         </div>

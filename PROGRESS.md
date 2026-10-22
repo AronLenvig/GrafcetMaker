@@ -4,7 +4,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 
 ## Current phase
 
-**Phase 9** — onboarding, examples, i18n, a11y audit, PWA, perf.
+**All phases done — version 1.0.0.** Next: owner requests and maintenance (see Known gaps).
 
 ## Phases
 
@@ -19,7 +19,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 | 6     | Exports                                                              | done   |
 | 7     | Hierarchy (partial, macro, enclosing, forcing)                       | done   |
 | 8     | Codegen                                                              | done   |
-| 9     | Onboarding, examples, i18n, a11y audit, PWA, perf                    |        |
+| 9     | Onboarding, examples, i18n, a11y audit, PWA, perf                    | done   |
 
 ## Done
 
@@ -140,6 +140,26 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Export dialog: Structured Text and PLCopen XML (lazy chunks), options, warnings list, copy;
   File › Export as entries. Snapshot test per construct, XML well-formedness, key semantics.
 
+### Phase 9
+
+- Examples (`app/examples`): traffic light, drilling station, tank filling, parallel conveyor, built
+  from a compact spec with model ops + auto-layout, comments and scenarios; tested valid, free of
+  problems, and the traffic light's behaviour.
+- Start screen (default on, "show at startup"), five-step tour with dimmed cut-out, glossary
+  popovers (24 px targets) linked to help sections (tested), outline tree view (WAI-ARIA tree).
+- PWA (vite-plugin-pwa, prompt mode): manifest, PNG/maskable icons, every chunk precached (works
+  offline, verified), update card, hourly update check, "What's new" from CHANGELOG.md.
+- i18n: all UI strings in `en.ts` (file-picker descriptions too); example content is project data.
+- Accessibility audit (axe 4.10, WCAG 2.0–2.2 A/AA + best practices) over start screen, editor in
+  light and dark, side panel tabs, settings, export, help, simulation and chronogram: zero
+  violations after fixes (dialog role, one side-panel landmark, h1 in every state, heading order,
+  24 px switches and help buttons, focusable chronogram scroller, table header text).
+- Performance (production build, Chromium, 1440×900): first contentful paint 132 ms; opening a
+  500-step / 1500-element chart 93 ms; panning median 16.7 ms, p95 16.8 ms per frame (60 fps) both
+  at 100 % and zoomed out to the whole chart; initial JS ≈ 247 kB gzip; validation ≈ 15 ms at 540
+  steps (phase 4).
+- Version 1.0.0, CHANGELOG release entry, README feature list.
+
 ### Owner requests after phase 7 (not a numbered phase)
 
 - Text fields: one `gm-input` style (sizes, mono, ghost, select, textarea), auto-growing inline
@@ -208,6 +228,9 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Help pages are plain Markdown in `docs/help` (readable on GitHub too), bundled into the lazy
   help chunk; figures are named builders in `app/help/figures.ts` (`<!-- figure: id | caption -->`),
   shown as `<img>` of exporter SVG so no HTML is ever injected.
+- The start screen opens at every launch by default (one click to continue, can be turned off):
+  examples and the tour stay discoverable for beginners.
+- PWA in prompt mode: an update never reloads by itself; the user chooses when.
 - Feedback uses mailto: (no backend, no network calls, nothing sent without the user's email app).
 - Split view keeps one active grafcet (the focused pane) so every command, the properties panel and
   validation navigation work unchanged.
@@ -220,6 +243,8 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Enclosing step symbol (vertical inner lines) not verified against the IEC 60848 figure; adjust
   in `elements.tsx` and `svgExport.ts` if the standard differs.
 - An initial step cannot be a macro-step or an enclosing step (data model limitation).
+- Only English is translated; i18next keys are typed and complete, so adding a language is a new
+  file in `src/i18n` (help pages would need `docs/help/<lang>/`).
 - Generated code is not compiled by a real PLC toolchain in CI (no vendor tools available); the
   ST uses only standard IEC 61131-3 constructs and the XML follows TC6 2.01 by hand. Vendor
   profiles (TIA, CODESYS, TwinCAT, Rockwell) remain future adapters.

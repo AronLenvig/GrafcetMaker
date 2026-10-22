@@ -26,7 +26,7 @@ export function RightPanel() {
       className="flex h-full min-h-0 flex-col"
     >
       <div className="flex h-9 shrink-0 items-center border-b border-border px-1">
-        <Tabs.List aria-label={t('props.panel')} className="flex h-full items-stretch">
+        <Tabs.List aria-label={t('props.panelTabs')} className="flex h-full items-stretch">
           <Tabs.Trigger value="properties" className={trigger}>
             {simulating ? t('props.inspector') : t('props.label')}
           </Tabs.Trigger>

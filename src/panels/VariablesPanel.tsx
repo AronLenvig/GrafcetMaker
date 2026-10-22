@@ -467,7 +467,9 @@ export function VariablesPanel() {
                   setQuery={setQuery}
                   className="w-20 text-right"
                 />
-                <th className="w-10" />
+                <th className="w-10">
+                  <span className="sr-only">{t('variables.columns.delete')}</span>
+                </th>
               </tr>
             </thead>
             <tbody>

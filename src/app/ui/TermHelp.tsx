@@ -34,9 +34,14 @@ export function TermHelp({ term }: { term: Term }) {
       <Popover.Trigger
         aria-label={t('glossary.whatIs', { term: name })}
         title={t('glossary.whatIs', { term: name })}
-        className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-border-strong text-[10px] leading-none font-semibold text-muted hover:border-accent hover:text-accent"
+        className="group -m-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
       >
-        ?
+        <span
+          aria-hidden="true"
+          className="flex h-4 w-4 items-center justify-center rounded-full border border-border-strong text-[10px] leading-none font-semibold text-muted group-hover:border-accent group-hover:text-accent"
+        >
+          ?
+        </span>
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content

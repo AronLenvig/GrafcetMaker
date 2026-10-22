@@ -109,6 +109,7 @@ function Title() {
 
   return (
     <div className="flex min-w-0 items-center gap-1.5" title={fileName ?? undefined}>
+      <h1 className="sr-only">{t('app.heading', { name })}</h1>
       {dirty && (
         <span className="text-accent" aria-label={t('file.unsaved')} title={t('file.unsaved')}>
           ●

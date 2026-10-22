@@ -415,9 +415,9 @@ export function PropertiesPanel() {
   }
 
   return (
-    <aside aria-label={t('props.label')} className="h-full overflow-y-auto">
+    <div className="h-full overflow-y-auto">
       {body}
       {ids.length === 1 && <ElementProblems id={ids[0]!} />}
-    </aside>
+    </div>
   );
 }

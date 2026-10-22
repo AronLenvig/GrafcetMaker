@@ -213,6 +213,51 @@ export function IconMenu({
   );
 }
 
+/** On/off switch (role="switch"), 24 × 44 px. */
+export function Switch({
+  checked,
+  onChange,
+  id,
+  label,
+  disabled,
+  tone = 'accent',
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  id?: string;
+  label?: string;
+  disabled?: boolean;
+  tone?: 'accent' | 'success';
+}) {
+  return (
+    <button
+      id={id}
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={cx(
+        'relative h-6 w-11 shrink-0 rounded-full border transition-colors disabled:opacity-50',
+        checked
+          ? tone === 'success'
+            ? 'border-success bg-success'
+            : 'border-accent bg-accent'
+          : 'border-border-strong bg-surface-3',
+      )}
+    >
+      <span
+        aria-hidden="true"
+        className={cx(
+          'absolute top-[2px] h-[18px] w-[18px] rounded-full shadow-sm transition-[left]',
+          checked ? 'left-[21px] bg-surface' : 'left-[2px] bg-surface',
+        )}
+      />
+    </button>
+  );
+}
+
 // ---- Dialogs ----
 
 export function Modal({

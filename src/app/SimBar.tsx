@@ -56,6 +56,7 @@ export function SimBar() {
 
   return (
     <header className="flex h-10 shrink-0 items-center gap-1.5 border-b-2 border-accent bg-accent-soft px-2">
+      <h1 className="sr-only">{t('app.heading', { name })}</h1>
       <span
         role="status"
         className="rounded bg-accent px-2 py-0.5 text-xs font-bold tracking-wider text-accent-fg"

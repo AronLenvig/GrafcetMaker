@@ -9,7 +9,7 @@ import { db, safely } from '../persistence/db';
 import { downloadCopy } from '../persistence/session';
 import { resetPrefs, setPrefs, usePrefs } from '../prefs';
 import { toast } from '../toasts';
-import { Button, cx, Modal, Select } from '../ui/primitives';
+import { Button, cx, Modal, Select, Switch } from '../ui/primitives';
 
 const SECTIONS = ['appearance', 'editor', 'simulation', 'data', 'about'] as const;
 type Section = (typeof SECTIONS)[number];
@@ -40,39 +40,6 @@ function Row({
       </div>
       <div className="shrink-0">{children}</div>
     </div>
-  );
-}
-
-/** Accessible on/off switch (a checkbox with role="switch"). */
-function Switch({
-  checked,
-  onChange,
-  id,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  id: string;
-}) {
-  return (
-    <button
-      id={id}
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={cx(
-        'relative mt-0.5 h-5 w-9 rounded-full border transition-colors',
-        checked ? 'border-accent bg-accent' : 'border-border-strong bg-surface-3',
-      )}
-    >
-      <span
-        aria-hidden="true"
-        className={cx(
-          'absolute top-0.5 h-3.5 w-3.5 rounded-full shadow-sm transition-[left]',
-          checked ? 'left-[18px] bg-accent-fg' : 'left-0.5 bg-surface',
-        )}
-      />
-    </button>
   );
 }
 

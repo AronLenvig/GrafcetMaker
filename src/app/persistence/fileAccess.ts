@@ -2,6 +2,7 @@
  * File System Access API (Chromium) with portable fallbacks: <input type=file> to open and a
  * download to save. Feature-detected; types declared locally because they are not in lib.dom.
  */
+import i18next from 'i18next';
 
 interface PickerType {
   description?: string;
@@ -44,7 +45,10 @@ export interface FileKind {
 }
 
 export const PROJECT_FILE: FileKind = {
-  description: 'GRAFCET project',
+  // Read when a picker opens, so it follows the language.
+  get description() {
+    return i18next.t('file.types.project');
+  },
   accept: { 'application/json': ['.json'] },
 };
 

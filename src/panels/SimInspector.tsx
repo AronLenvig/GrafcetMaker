@@ -45,7 +45,7 @@ export function SimInspector() {
   );
 
   return (
-    <aside aria-label={t('simulation.inspector')} className="h-full overflow-y-auto">
+    <div className="h-full overflow-y-auto">
       {step && (
         <Section title={t('props.step.title', { n: step.number })}>
           <p>{active.has(step.id) ? t('simulation.stepActive') : t('simulation.stepInactive')}</p>
@@ -88,6 +88,6 @@ export function SimInspector() {
           <p className="text-muted">{t('simulation.inspectorHint')}</p>
         </Section>
       )}
-    </aside>
+    </div>
   );
 }

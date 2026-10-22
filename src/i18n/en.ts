@@ -6,6 +6,7 @@ export const en = {
   app: {
     name: 'GrafcetMaker',
     tagline: 'GRAFCET (IEC 60848) editor and simulator',
+    heading: 'GrafcetMaker: {{name}}',
   },
   theme: {
     label: 'Theme',
@@ -29,6 +30,10 @@ export const en = {
     help: 'Help',
   },
   file: {
+    types: {
+      project: 'GRAFCET project',
+      variables: 'Variables (CSV or Excel)',
+    },
     untitled: 'Untitled',
     unsaved: 'Unsaved changes',
     renameHint: 'Double-click to rename the project',
@@ -309,6 +314,7 @@ export const en = {
   props: {
     label: 'Properties',
     panel: 'Side panel',
+    panelTabs: 'Side panel views',
     hide: 'Hide side panel',
     inspector: 'Inspector',
     resize: 'Resize side panel',
@@ -561,6 +567,7 @@ export const en = {
   },
   chronogram: {
     label: 'Chronogram of variables and steps',
+    scrollArea: 'Chronogram (scroll with the arrow keys)',
     zoomIn: 'Zoom in',
     zoomOut: 'Zoom out',
     fit: 'Show whole history',
@@ -745,6 +752,7 @@ export const en = {
       address: 'Address',
       comment: 'Comment',
       uses: 'Uses',
+      delete: 'Delete',
     },
     directions: {
       input: 'Input',

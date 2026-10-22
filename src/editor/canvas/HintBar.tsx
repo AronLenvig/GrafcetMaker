@@ -141,7 +141,8 @@ export function HintBar() {
   }
 
   return (
-    <aside
+    <div
+      role="note"
       aria-label={t('hints.label')}
       className="pointer-events-auto absolute bottom-3 left-3 flex max-w-[calc(100%-230px)] items-start gap-2 rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs text-muted shadow-pop"
     >
@@ -177,6 +178,6 @@ export function HintBar() {
       >
         <CloseIcon size={12} />
       </button>
-    </aside>
+    </div>
   );
 }

@@ -153,7 +153,13 @@ export default function ChronogramPanel() {
           </Button>
         )}
       </div>
-      <div ref={boxRef} className="min-h-0 flex-1 overflow-auto">
+      <div
+        ref={boxRef}
+        tabIndex={0}
+        role="region"
+        aria-label={t('chronogram.scrollArea')}
+        className="min-h-0 flex-1 overflow-auto focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
+      >
         <svg
           className="gm-chrono block select-none"
           width={width}

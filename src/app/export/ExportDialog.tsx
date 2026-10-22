@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { variablesToCsv, variablesToXlsx } from '@/core/io/csv';
-import type { Id } from '@/core/model/types';
+import type { CodegenResult, CodegenWarning } from '@/core/codegen/common';
+import type { Id, Project } from '@/core/model/types';
+import { tDynamic } from '@/i18n/dynamic';
 import { useDoc } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
 import { downloadBlob } from '../persistence/fileAccess';
@@ -24,8 +26,22 @@ import {
 } from './exporters';
 import { planPages, renderPage } from './pages';
 
-const FORMATS: ExportFormat[] = ['pdf', 'svg', 'png', 'webp', 'csv', 'xlsx'];
+const FORMATS: ExportFormat[] = ['pdf', 'svg', 'png', 'webp', 'csv', 'xlsx', 'st', 'xml'];
 const isVariables = (f: ExportFormat) => f === 'csv' || f === 'xlsx';
+const isCode = (f: ExportFormat): f is 'st' | 'xml' => f === 'st' || f === 'xml';
+/** Formats covering the whole project (no scope, colors or notation). */
+const isProjectWide = (f: ExportFormat) => isVariables(f) || isCode(f);
+
+/** Generated PLC code (the generators are loaded on first use). */
+async function generateCode(project: Project, settings: ExportSettings): Promise<CodegenResult> {
+  const opts = { version: __APP_VERSION__, date: new Date() };
+  if (settings.format === 'st') {
+    const { generateSt } = await import('@/core/codegen/st');
+    return generateSt(project, { ...opts, stabilityLoop: settings.st.stabilityLoop });
+  }
+  const { generatePlcOpen } = await import('@/core/codegen/plcopen');
+  return generatePlcOpen(project, { ...opts, taskInterval: settings.xml.taskInterval });
+}
 const isRaster = (f: ExportFormat): f is 'png' | 'webp' => f === 'png' || f === 'webp';
 
 function Radio<T extends string | number>({
@@ -95,9 +111,12 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
     requestExportFormat(null);
     return format ? { ...s, format } : s;
   });
-  const [preview, setPreview] = useState<{ url?: string; text?: string; info: string } | null>(
-    null,
-  );
+  const [preview, setPreview] = useState<{
+    url?: string;
+    text?: string;
+    info: string;
+    warnings?: CodegenWarning[];
+  } | null>(null);
   const [page, setPage] = useState(0);
   const [busy, setBusy] = useState(false);
 
@@ -137,6 +156,16 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
           });
         return;
       }
+      if (isCode(settings.format)) {
+        const r = await generateCode(project, settings);
+        if (!cancelled)
+          setPreview({
+            text: r.code,
+            info: t('export.codeInfo', { count: r.code.split('\n').length }),
+            warnings: r.warnings,
+          });
+        return;
+      }
       if (!target) return;
       if (settings.format === 'pdf') {
         const pages = planPages(targets, settings);
@@ -173,6 +202,18 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
   const produce = async (): Promise<{ blob: Blob; name: string; text?: string }> => {
     const target = targets[0]!;
     switch (settings.format) {
+      case 'st':
+      case 'xml': {
+        const { code } = await generateCode(project, settings);
+        const name = safeFileName(project.name, '');
+        return settings.format === 'st'
+          ? { blob: new Blob([code], { type: 'text/plain' }), name: `${name}.st`, text: code }
+          : {
+              blob: new Blob([code], { type: 'application/xml' }),
+              name: `${name}.xml`,
+              text: code,
+            };
+      }
       case 'svg': {
         const res = await renderSvg(target, settings, settings.svg.embedFont);
         return {
@@ -228,7 +269,7 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
         onClose();
       } else {
         const ok =
-          settings.format === 'csv'
+          settings.format === 'csv' || isCode(settings.format)
             ? await navigator.clipboard.writeText(out.text!).then(
                 () => true,
                 () => false,
@@ -348,6 +389,30 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
         );
       case 'csv':
         return <p className="text-muted">{t('export.csvHint')}</p>;
+      case 'st':
+        return (
+          <>
+            <p className="text-muted">{t('export.stHint')}</p>
+            <Check
+              label={t('export.stabilityLoop')}
+              checked={settings.st.stabilityLoop}
+              onChange={(v) => update({ st: { stabilityLoop: v } })}
+            />
+          </>
+        );
+      case 'xml':
+        return (
+          <>
+            <p className="text-muted">{t('export.xmlHint')}</p>
+            <Radio
+              name="task-interval"
+              label={t('export.taskInterval')}
+              value={settings.xml.taskInterval}
+              onChange={(v) => update({ xml: { taskInterval: v } })}
+              options={[10, 20, 50, 100].map((v) => ({ value: v, label: `${v} ms` }))}
+            />
+          </>
+        );
     }
   })();
 
@@ -380,7 +445,7 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
           ))}
         </div>
         <div className="flex min-w-0 flex-col gap-3">
-          {!isVariables(settings.format) && (
+          {!isProjectWide(settings.format) && (
             <>
               <Radio
                 name="scope"
@@ -453,6 +518,16 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
                 </>
               )}
             </div>
+            {preview?.warnings && preview.warnings.length > 0 && (
+              <ul
+                aria-label={t('export.warnings')}
+                className="max-h-24 overflow-auto border-b border-border bg-warning-soft px-3 py-1.5 text-xs text-warning"
+              >
+                {preview.warnings.map((w, i) => (
+                  <li key={i}>{tDynamic(t, `export.codeWarnings.${w.code}`, w.params)}</li>
+                ))}
+              </ul>
+            )}
             <div className="flex h-80 items-center justify-center overflow-auto p-3">
               {preview?.url && (
                 <img
@@ -475,7 +550,7 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
             )}
             <Button
               variant="primary"
-              disabled={busy || (!targets.length && settings.format !== 'csv')}
+              disabled={busy || (!targets.length && !isProjectWide(settings.format))}
               onClick={() => void run('download')}
             >
               {busy ? t('export.working') : t('export.download')}

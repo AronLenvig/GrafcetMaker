@@ -171,6 +171,8 @@ export const en = {
       exportSvg: 'SVG image…',
       exportPng: 'PNG image…',
       exportWebp: 'WebP image…',
+      exportSt: 'Structured Text (IEC 61131-3)…',
+      exportXml: 'PLCopen XML (SFC)…',
       variables: 'Variables',
       importVariables: 'Import variables (CSV or Excel)…',
       exportVariablesCsv: 'Export variables as CSV',
@@ -566,6 +568,8 @@ export const en = {
       webp: 'WebP image',
       csv: 'Variables (CSV)',
       xlsx: 'Variables (Excel)',
+      st: 'Structured Text',
+      xml: 'PLCopen XML',
     },
     formatHints: {
       pdf: 'Vector, A4/A3, title block',
@@ -574,6 +578,34 @@ export const en = {
       webp: 'Compact bitmap for the web',
       csv: 'Variable list for spreadsheets and PLC tools',
       xlsx: 'Workbook with drop-down lists',
+      st: 'IEC 61131-3 function block',
+      xml: 'SFC programs for PLC tools',
+    },
+    codeInfo: '{{count}} lines · generated – review before use',
+    stHint:
+      'One function block running every grafcet, once per PLC scan: transitions, then steps, then timers and edges, then actions. Vendor-neutral IEC 61131-3; review before use.',
+    stabilityLoop:
+      'Search for stability in each scan (repeat clearing until the situation is stable, as IEC 60848 does)',
+    xmlHint:
+      'PLCopen TC6 XML 2.01 for import into PLC tools: one SFC program per partial grafcet (macro-steps inlined), the variables as globals, and a program computing edges and timers. Review before use.',
+    taskInterval: 'Task cycle time',
+    warnings: 'What the generated code cannot express',
+    codeWarnings: {
+      expression: 'An expression does not parse and was replaced by FALSE; see Problems.',
+      undeclared: '{{name}} is not declared; it was declared as an internal variable.',
+      keyword: '{{name}} is a reserved word in Structured Text: rename the variable.',
+      unknownStep: 'X{{number}} does not refer to a step and was replaced by FALSE.',
+      macroStoredAction: 'Stored actions on a macro-step are ignored: put them in its expansion.',
+      sourceTransition: 'Source transitions cannot be drawn in SFC and were left out.',
+      sinkTransition: 'Sink transitions cannot be drawn in SFC and were left out.',
+      enclosed:
+        'Enclosed grafcet {{grafcet}} is exported as its own SFC program: enclosure is not part of IEC 61131-3 SFC (the Structured Text export handles it).',
+      forcing:
+        'Forcing order {{order}} is not available in IEC 61131-3 SFC; it is left as a comment (the Structured Text export handles it).',
+      conditionalAction:
+        '{{name}}: a conditional continuous action becomes an N action assigning the condition; the variable keeps its last value after the step.',
+      stepSignal:
+        'Step {{step}} is read by another program or by the signals program through the global {{mirror}}, one scan late.',
     },
     scope: 'What to export',
     scopes: {

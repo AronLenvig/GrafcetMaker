@@ -8,7 +8,7 @@ import {
 } from '@/core/io/svgExport';
 import type { Grafcet, Id, Project } from '@/core/model/types';
 
-export type ExportFormat = 'pdf' | 'svg' | 'png' | 'webp' | 'csv' | 'xlsx';
+export type ExportFormat = 'pdf' | 'svg' | 'png' | 'webp' | 'csv' | 'xlsx' | 'st' | 'xml';
 export type ExportScope = 'grafcet' | 'selection' | 'all';
 
 export interface ExportSettings {
@@ -21,6 +21,10 @@ export interface ExportSettings {
   webp: { scale: 1 | 2 | 4; quality: number; transparent: boolean };
   svg: { embedFont: boolean };
   pdf: PageOptions;
+  /** Structured Text: repeat clearing within the scan until stable. */
+  st: { stabilityLoop: boolean };
+  /** PLCopen XML: cycle time of the generated task, in ms. */
+  xml: { taskInterval: number };
 }
 
 export const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
@@ -32,6 +36,8 @@ export const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
   webp: { scale: 2, quality: 0.92, transparent: false },
   svg: { embedFont: true },
   pdf: { paper: 'A4', orientation: 'portrait', scale: 'fit', titleBlock: true },
+  st: { stabilityLoop: false },
+  xml: { taskInterval: 10 },
 };
 
 const key = (projectId: Id) => `grafcetmaker.export.${projectId}`;
@@ -49,6 +55,8 @@ export function loadExportSettings(projectId: Id): ExportSettings {
       webp: { ...DEFAULT_EXPORT_SETTINGS.webp, ...s.webp },
       svg: { ...DEFAULT_EXPORT_SETTINGS.svg, ...s.svg },
       pdf: { ...DEFAULT_EXPORT_SETTINGS.pdf, ...s.pdf },
+      st: { ...DEFAULT_EXPORT_SETTINGS.st, ...s.st },
+      xml: { ...DEFAULT_EXPORT_SETTINGS.xml, ...s.xml },
     };
   } catch {
     return DEFAULT_EXPORT_SETTINGS;

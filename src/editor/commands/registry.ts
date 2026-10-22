@@ -154,7 +154,7 @@ export const COMMANDS: Command[] = [
     global: true,
     run: () => openAppDialog('export'),
   },
-  ...(['pdf', 'svg', 'png', 'webp'] as const).map((f): Command => ({
+  ...(['pdf', 'svg', 'png', 'webp', 'st', 'xml'] as const).map((f): Command => ({
     id: `file.export${f[0]!.toUpperCase()}${f.slice(1)}`,
     label: `file.export${f[0]!.toUpperCase()}${f.slice(1)}`,
     group: 'file',

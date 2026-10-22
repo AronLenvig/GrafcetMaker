@@ -214,3 +214,67 @@ hand-verified charts (`tests/unit/simulation.test.ts`).
   the canvas and the SVG/PDF exporter, so screen and exports match. Problem badges of actions sit
   on the bottom-right corner so they never cover these marks.
 - `^` is not part of the grammar: the expression editor replaces a typed `^` with `↑`.
+
+## Code generation
+
+Both generators (`src/core/codegen`) start from the program compiled for the simulator, so `Xn`
+references, macro-step inlining, enclosures and forcing targets are resolved exactly as when
+simulating. Every file starts with "generated – review before use". Constructs a target cannot
+express are listed as warnings in the Export dialog; nothing is silently dropped.
+
+### Structured Text
+
+One vendor-neutral `FUNCTION_BLOCK` runs every grafcet. Inputs become `VAR_INPUT`, outputs
+`VAR_OUTPUT`, internal variables `VAR` (addresses and comments as comments). Generated names are
+`<grafcet>_X<n>` (step activity), `<grafcet>_T<k>` (transitions, numbered top to bottom),
+`<step>_M` (activity at the previous scan), `RE_k` / `FE_k` (R_TRIG / F_TRIG), `TON_k` /
+`TOF_k`; they never clash with user variables. Each scan:
+
+1. Forcing flags: the forcing steps active at the start of the scan; a forced grafcet's
+   transitions get `AND NOT <grafcet>_Forced` (it does not evolve).
+2. All transitions from the situation at the start of the scan:
+   `Tk := X(upstream…) AND receptivity [AND X(enclosing step)]` (rules 2 and 4).
+3. All steps: `Xn := (Xn AND NOT (Tout…)) OR Tin… [OR Init]`, so a step both activated and
+   deactivated stays active (rules 3 and 5). Steps of an enclosed grafcet are ANDed with the
+   enclosing step's activity, and its `*` steps are set on the enclosing step's activation;
+   enclosing steps are updated before the grafcets they enclose.
+4. Forcing orders write the forced grafcet's steps (`{}`, `{INIT}`, `{8, 9}`; `{*}` only freezes).
+   Macro-steps get `X := OR(steps of the expansion)`.
+5. Timer and edge function blocks are called: `t/c` → `TON(IN := c, PT := t)`, `t1/c/t2` → TON then
+   TOF on its output, `↑c` / `↓c` → R_TRIG / F_TRIG. Their outputs are seen by the transitions of
+   the **next** scan.
+6. Stored actions run when a step changed since the previous scan (`X AND NOT X_M` on activation,
+   `NOT X AND X_M` on deactivation; deactivation first), with their condition; actions on event run
+   while the step is active and the event is true. Then `X_M := X`.
+7. Continuous actions: each driven variable is assigned the OR of `X AND condition` of its steps.
+
+Differences from IEC 60848 (and from the simulator), by design of a cyclic PLC program: one
+clearing level per scan (no search for stability), so a chain of true transitions is crossed one
+transition per scan and transient steps do emit continuous actions for one scan; edges and timers
+lag by one scan; forcing applies from the scan after the forcing step became active; stored actions
+of a step activated by forcing run (its activity changed) but no clearing happened. Division by
+zero and INT/REAL mixing follow the PLC's rules.
+
+The **stability loop** option wraps steps 2, 3, the macro-step update and 6 in a `REPEAT … UNTIL`
+that ends when no step changed (at most 1000 iterations, then `Unstable` is TRUE). Initial steps are
+set once before the loop, edges are only true in the first iteration (`AND Iter = 0`), and stored
+actions run per iteration, so transient steps execute their stored actions as in IEC 60848.
+
+### PLCopen TC6 XML
+
+- One SFC program per partial (and enclosed) grafcet; expansions of macro-steps are inlined, their
+  steps placed by auto-layout. Steps keep the `<grafcet>_X<n>` names; upward links become
+  `jumpStep`s; divergences and convergences become selection / simultaneous elements.
+- Variables are global variables of one resource; every program declares them as external. A task
+  (default 10 ms) runs `GRAFCET_Signals` first, then the SFC programs.
+- Conditions are ST. `Xn` of the same program is `<step>.X`; `t/Xn` of the same program is
+  `<step>.T >= t`. Edges, other timers, and steps of other programs are computed in the ST program
+  `GRAFCET_Signals` (R_TRIG, F_TRIG, TON, TOF) into global `SIG_k` variables; a step read there or by
+  another program is mirrored into a global `<step>_Active` by an N action (one scan late).
+- Qualifiers: continuous → N (Boolean variable); with condition `t/Xself` → D, `/(t/Xself)` → L,
+  other conditions → N with an inline `v := condition` (the variable then keeps its last value: warned);
+  on activation → S / R for a constant BOOL, otherwise P1 with an inline assignment; on
+  deactivation → P0; on event → N with `IF event THEN … END_IF`; macro-step actions are attached to
+  every step of the expansion.
+- Not representable in IEC 61131-3 SFC and reported: forcing orders (kept as a comment), enclosure
+  semantics, source and sink transitions. Use the Structured Text export for those.

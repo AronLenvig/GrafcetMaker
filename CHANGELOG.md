@@ -37,6 +37,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Import variables from CSV (menu or drag-and-drop) with a preview of changes and row errors.
 - Hierarchy: macro-steps with expansion grafcets (E/S), enclosing steps with enclosed grafcets (*),
   navigation between levels, simulation of both, validation of the hierarchy and forcing cycles.
+- Code generation: Structured Text (IEC 61131-3 function block, optional search for stability per
+  scan) and PLCopen TC6 XML (SFC programs with N/P1/P0/S/R/D/L qualifiers), from the Export dialog,
+  with a list of what the target cannot express.
 - Help center (F1): getting-started tutorial, GRAFCET basics with diagrams, guides for
   expressions, actions, editing, variables, simulation, hierarchy and files, glossary and
   troubleshooting; search; shareable `#help/<page>` links.

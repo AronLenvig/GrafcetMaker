@@ -234,6 +234,14 @@ remembered per project on this device.
 - **Variables (Excel)**: an `.xlsx` workbook with a frozen, filterable header and drop-down lists
   for type and direction.
 - **Variables (CSV)**: the variable table for spreadsheets and PLC tools.
+- **Structured Text**: an IEC 61131-3 function block implementing every grafcet (transitions,
+  steps, timers and edges, then actions, once per PLC scan; optionally with a search for stability
+  in each scan).
+- **PLCopen XML**: PLCopen TC6 XML for import into PLC engineering tools, with one SFC program per
+  partial grafcet (N, P1, P0, S, R, D, L qualifiers) and a program computing edges and timers.
+
+Generated code starts with "generated – review before use". The dialog lists what the target
+cannot express (for example forcing orders in SFC). The exact mapping is in `docs/semantics.md`.
 
 **File › Export as** opens the dialog on a given format directly.
 

@@ -39,12 +39,23 @@ settings are remembered per project. **File › Export as** opens it on a given 
 | **WebP**              | the same as PNG with smaller files                                                                                |
 | **Variables (Excel)** | the variable table as an `.xlsx` workbook                                                                         |
 | **Variables (CSV)**   | the variable table for other tools                                                                                |
+| **Structured Text**   | PLC code: an IEC 61131-3 function block running every grafcet                                                     |
+| **PLCopen XML**       | importing the grafcets into a PLC tool as SFC programs                                                            |
 
 Exports are black on white by default; choose **Current theme** to keep the screen colors.
 Export the current grafcet, the selection, or all grafcets.
 
 **File › Copy diagram as PNG / SVG** puts the selection (or the whole grafcet) on the clipboard,
 ready to paste into a report.
+
+## PLC code
+
+**Structured Text** and **PLCopen XML** turn your grafcets into PLC code, vendor-neutral. The
+Structured Text function block evaluates every transition, then every step, then the timers,
+edges and actions once per PLC scan; tick **Search for stability in each scan** to cross chains of
+true transitions within one scan, as GRAFCET does. The PLCopen file contains one SFC program per
+grafcet for import into engineering tools. The preview lists anything the format cannot express.
+Always review generated code before it runs on a machine.
 
 ## Settings
 

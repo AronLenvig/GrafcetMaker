@@ -4,7 +4,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 
 ## Current phase
 
-**Phase 8** — codegen.
+**Phase 9** — onboarding, examples, i18n, a11y audit, PWA, perf.
 
 ## Phases
 
@@ -18,7 +18,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 | 5     | Simulation                                                           | done   |
 | 6     | Exports                                                              | done   |
 | 7     | Hierarchy (partial, macro, enclosing, forcing)                       | done   |
-| 8     | Codegen                                                              |        |
+| 8     | Codegen                                                              | done   |
 | 9     | Onboarding, examples, i18n, a11y audit, PWA, perf                    |        |
 
 ## Done
@@ -127,6 +127,19 @@ Autonomous build log. Read this first in every session and resume from **Current
   sub-grafcet, Alt+↑ to the parent, tab badges, grafcet kind and parent in properties.
 - Fixed: double-click hit-testing under pointer capture (it created a step instead of editing).
 
+### Phase 8
+
+- `core/codegen/common.ts`: name allocation (no clash with user variables or ST keywords), IEC
+  literals, GRAFCET expression → ST translation with precedence-correct parentheses.
+- `core/codegen/st.ts`: one function block; spec pattern (forcing flags, all Tn, all Xn with rule 5,
+  forcing, macro activity, TON/TOF/R_TRIG/F_TRIG, stored actions from scan-to-scan change,
+  continuous ORs); enclosures and guards; optional stability-loop variant.
+- `core/codegen/plcopen.ts`: TC6 2.01 XML, SFC per partial/enclosed grafcet with macro-steps
+  inlined (auto-layout positions), jumps for upward links, qualifiers N/D/L/S/R/P1/P0, signals
+  program for edges/timers, step mirrors for cross-program reads, globals in one resource.
+- Export dialog: Structured Text and PLCopen XML (lazy chunks), options, warnings list, copy;
+  File › Export as entries. Snapshot test per construct, XML well-formedness, key semantics.
+
 ### Owner requests after phase 7 (not a numbered phase)
 
 - Text fields: one `gm-input` style (sizes, mono, ghost, select, textarea), auto-growing inline
@@ -182,6 +195,10 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Enclosed grafcets reuse step kind `initial` for the * steps; a step cannot be both initial and
   macro/enclosing (kind is a single value), so initial enclosing steps are not supported.
 - Commits go directly to `main` (greenfield repo, as instructed by the build spec); never pushed.
+- Codegen reuses the simulator's compiled program (same Xn resolution, macro inlining,
+  enclosures, forcing targets) instead of a second model walk.
+- ST stored actions use a per-step previous-scan memory (`X_M`) rather than transition pulses, so
+  rule 5, forcing, enclosures and the first scan are handled uniformly.
 - Help pages are plain Markdown in `docs/help` (readable on GitHub too), bundled into the lazy
   help chunk; figures are named builders in `app/help/figures.ts` (`<!-- figure: id | caption -->`),
   shown as `<img>` of exporter SVG so no HTML is ever injected.
@@ -194,3 +211,8 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Enclosing step symbol (vertical inner lines) not verified against the IEC 60848 figure; adjust
   in `elements.tsx` and `svgExport.ts` if the standard differs.
 - An initial step cannot be a macro-step or an enclosing step (data model limitation).
+- Generated code is not compiled by a real PLC toolchain in CI (no vendor tools available); the
+  ST uses only standard IEC 61131-3 constructs and the XML follows TC6 2.01 by hand. Vendor
+  profiles (TIA, CODESYS, TwinCAT, Rockwell) remain future adapters.
+- SFC export: forcing orders, enclosure semantics and source/sink transitions are not
+  representable and are reported; conditional continuous actions keep their value after the step.

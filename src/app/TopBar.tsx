@@ -201,6 +201,9 @@ export function TopBar() {
             <Item id="file.exportSvg" />
             <Item id="file.exportPng" />
             <Item id="file.exportWebp" />
+            <MenuSeparator />
+            <Item id="file.exportSt" />
+            <Item id="file.exportXml" />
           </SubMenu>
           <Item id="file.copyPng" />
           <Item id="file.copySvg" />

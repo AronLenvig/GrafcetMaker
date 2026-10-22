@@ -204,8 +204,24 @@ Autonomous build log. Read this first in every session and resume from **Current
   `#share=<base64url(deflate-raw(compact JSON))>`; opening one (launch or `hashchange`) goes
   through `parseProjectFile`, asks about unsaved changes and clears the hash. Tests in
   `tests/unit/shareLink.test.ts`.
+- Mobile friendly. `src/app/ui/media.ts` (`useCompact`: ≤639 px wide or ≤479 px tall; `useCoarsePointer`)
+  and the Tailwind `compact:` variant. Phone layout (`App` → `CompactLayout`): `CompactTopBar` with
+  the `MenuDrawer`, canvas without split view, `BottomToolbar`, `MobileSheet` (panels as tabs,
+  state in `src/app/sheet.ts`; `showBottomTab` / `showSideTab` open it on phones), help full
+  screen, compact `SimBar`. The main menu is data (`src/app/menus.tsx`) rendered as menu bar or
+  drawer. Touch in `useCanvasInteraction`: pinch (two pointers), one-finger pan on empty canvas,
+  double-tap, long-press frame, placing tools act on release, 8 px slop. `SelectionBar` on touch
+  screens; link handles offset outside the element with a 24 px+ target; wider hit areas;
+  touch hints; dialogs (start, export, settings, modal, inline editor) stack on phones. e2e: one
+  phone test (double-tap, selection toolbar, sheet, simulation).
 
 ## Decisions
+
+- Phones get their own layout rather than a squeezed desktop one; tablets keep the desktop layout
+  plus the touch additions. The diagram always gets the whole width; panels share one sheet over
+  it (not persisted, so each visit starts with the full diagram). One finger on the empty canvas
+  pans (no Space key on phones); a long press starts the frame selection instead. The tour and
+  split view are desktop-only.
 
 - TypeScript pinned to 6.0.x: typescript-eslint does not support TS 7 (native port) yet.
 - Diagram text uses bundled JetBrains Mono (OFL): fixed 0.6 em advance makes text widths

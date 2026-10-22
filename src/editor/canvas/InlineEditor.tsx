@@ -16,6 +16,7 @@ import type { Grafcet } from '@/core/model/types';
 import { ExpressionInput, type ExpressionInputHandle } from '@/panels/ExpressionInput';
 import { editActive } from '../commands/edit';
 import { ui, useUi, type EditTarget, type Viewport } from '../store/uiStore';
+import { useCoarsePointer, useCompact } from '@/app/ui/media';
 import { canvasSizeOf } from './viewport';
 
 function focusCanvas(): void {
@@ -240,6 +241,8 @@ function EditorField({
   const inputRef = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
   const exprRef = useRef<ExpressionInputHandle>(null);
   const done = useRef(false);
+  const compact = useCompact();
+  const coarse = useCoarsePointer();
 
   useEffect(() => {
     // preventScroll: the canvas container must never scroll to reveal the editor.
@@ -255,6 +258,12 @@ function EditorField({
   const place = placement(g, geom, target, viewport);
   if (!place) return null;
   const box = boxFor(place, value);
+  if (compact && !place.multiline) {
+    // Phones: the whole canvas width, so the text and the symbol buttons stay on screen.
+    const width = canvasSizeOf(g.id).width;
+    box.left = 8;
+    box.width = Math.max(120, width - 16);
+  }
 
   const finish = (save: boolean) => {
     if (done.current) return;
@@ -287,14 +296,16 @@ function EditorField({
     fontSize: place.fontSize,
     textAlign: place.align,
   };
-  const hint = (
-    <EditorHint
-      left={box.left}
-      top={box.top + box.height + 6}
-      multiline={!!place.multiline}
-      error={error}
-    />
-  );
+  // Touch keyboards have no Esc: the key hint only shows with a mouse (errors always do).
+  const hint =
+    coarse && !error ? null : (
+      <EditorHint
+        left={box.left}
+        top={box.top + box.height + 6}
+        multiline={!!place.multiline}
+        error={error}
+      />
+    );
 
   const exprKind = expressionKind(g, target);
   if (exprKind) {
@@ -320,6 +331,8 @@ function EditorField({
     );
   }
 
+  // Comments and step labels are prose; everything else is code.
+  const prose = !!g.comments[target.id] || target.field === 'label';
   const common = {
     ref: inputRef,
     value,
@@ -329,6 +342,10 @@ function EditorField({
     className: 'gm-inline-editor',
     spellCheck: false,
     autoComplete: 'off',
+    // Phone keyboards: no capitals or "corrections" in step numbers and action code.
+    autoCapitalize: prose ? undefined : 'off',
+    autoCorrect: prose ? undefined : 'off',
+    enterKeyHint: place.multiline ? undefined : ('done' as const),
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setValue(e.target.value);
       setError(null);

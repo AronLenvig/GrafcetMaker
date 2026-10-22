@@ -1,81 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { formatKeys, getCommand, runCommand } from '@/editor/commands/registry';
+import { formatKeys, runCommand } from '@/editor/commands/registry';
 import { doc, useDoc } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
 import { isDirty } from '@/editor/store/documentStore';
 import { useProblems } from '@/editor/validation/problems';
 import { SeverityIcon } from '@/panels/ProblemsPanel';
 import { ThemeSwitcher } from '@/theme/ThemeSwitcher';
-import { listRecent, type RecentEntry } from './persistence/db';
-import { openRecent, useSession } from './persistence/session';
-import { setPrefs, showBottomTab, usePrefs } from './prefs';
-import { LogoIcon, PlayIcon, SearchIcon, SettingsIcon } from './ui/icons';
-import {
-  Button,
-  IconButton,
-  Menu,
-  MenuCheckItem,
-  MenuItem,
-  MenuSeparator,
-  SubMenu,
-  Tip,
-} from './ui/primitives';
-
-function Item({ id, label }: { id: string; label?: string }) {
-  const { t } = useTranslation();
-  const cmd = getCommand(id);
-  const keys = cmd.keys?.[0];
-  return (
-    <MenuItem
-      keys={keys ? formatKeys(keys) : undefined}
-      disabled={cmd.enabled ? !cmd.enabled() : false}
-      onSelect={() => runCommand(id)}
-    >
-      {label ?? t(`commands.${cmd.label}` as 'commands.file.new')}
-    </MenuItem>
-  );
-}
-
-/** Undo/Redo items naming the change they act on. */
-function UndoRedoItems() {
-  const { t } = useTranslation();
-  const undo = useDoc((s) => s.past[s.past.length - 1]?.label);
-  const redo = useDoc((s) => s.future[0]?.label);
-  const what = (label: string) => t(label as 'history.edit');
-  return (
-    <>
-      <Item
-        id="edit.undo"
-        label={undo ? t('commands.edit.undoWhat', { what: what(undo) }) : undefined}
-      />
-      <Item
-        id="edit.redo"
-        label={redo ? t('commands.edit.redoWhat', { what: what(redo) }) : undefined}
-      />
-    </>
-  );
-}
-
-function RecentMenu() {
-  const { t } = useTranslation();
-  const [recent, setRecent] = useState<RecentEntry[]>([]);
-  useEffect(() => {
-    void listRecent().then(setRecent);
-  }, []);
-  return (
-    <SubMenu label={t('commands.file.openRecent')} disabled={recent.length === 0}>
-      {recent.map((r) => (
-        <MenuItem key={r.id} onSelect={() => void openRecent(r)}>
-          <span className="block max-w-72 truncate">{r.name}</span>
-          {r.fileName && (
-            <span className="block max-w-72 truncate text-xs text-muted">{r.fileName}</span>
-          )}
-        </MenuItem>
-      ))}
-    </SubMenu>
-  );
-}
+import { MenuBar, MenuDrawer } from './menus';
+import { useSession } from './persistence/session';
+import { showBottomTab } from './prefs';
+import { LogoIcon, MenuIcon, PlayIcon, SearchIcon, SettingsIcon } from './ui/icons';
+import { useCompact } from './ui/media';
+import { Button, IconButton, Tip } from './ui/primitives';
 
 /** Project name; double-click (or Enter / F2 when focused) renames it in place. */
 function Title() {
@@ -182,158 +119,41 @@ function ProblemsIndicator() {
   );
 }
 
+/** Phones: the menu drawer, the project name, problems and Simulate. */
+function CompactTopBar() {
+  const { t } = useTranslation();
+  const [menu, setMenu] = useState(false);
+  return (
+    <header className="shrink-0 border-b border-border bg-surface pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]">
+      <div className="flex h-11 items-center gap-1 px-1">
+        <IconButton label={t('menu.open')} className="h-10 w-10" onClick={() => setMenu(true)}>
+          <MenuIcon size={20} />
+        </IconButton>
+        <div className="flex min-w-0 flex-1 justify-center">
+          <Title />
+        </div>
+        <ProblemsIndicator />
+        <IconButton
+          label={t('simulation.simulateLabel')}
+          className="h-10 w-10 text-success"
+          onClick={() => runCommand('sim.toggle')}
+        >
+          <PlayIcon size={18} />
+        </IconButton>
+      </div>
+      <MenuDrawer open={menu} onOpenChange={setMenu} />
+    </header>
+  );
+}
+
 export function TopBar() {
   const { t } = useTranslation();
-  const prefs = usePrefs();
+  const compact = useCompact();
+  if (compact) return <CompactTopBar />;
   return (
     <header className="flex h-10 shrink-0 items-center gap-2 border-b border-border bg-surface px-2">
       <LogoIcon size={18} className="mx-1 text-text" />
-      <nav aria-label={t('menu.label')} className="flex items-center">
-        <Menu label={t('menu.file')}>
-          <Item id="file.new" />
-          <Item id="file.open" />
-          <RecentMenu />
-          <MenuSeparator />
-          <Item id="file.save" />
-          <Item id="file.saveAs" />
-          <Item id="file.downloadCopy" />
-          <Item id="file.copyLink" />
-          <MenuSeparator />
-          <Item id="file.export" />
-          <SubMenu label={t('commands.file.exportAs')}>
-            <Item id="file.exportPdf" />
-            <Item id="file.exportSvg" />
-            <Item id="file.exportPng" />
-            <Item id="file.exportWebp" />
-            <MenuSeparator />
-            <Item id="file.exportSt" />
-            <Item id="file.exportXml" />
-          </SubMenu>
-          <Item id="file.copyPng" />
-          <Item id="file.copySvg" />
-          <SubMenu label={t('commands.file.variables')}>
-            <Item id="file.importVariables" />
-            <Item id="file.exportVariablesXlsx" />
-            <Item id="file.exportVariablesCsv" />
-          </SubMenu>
-          <MenuSeparator />
-          <Item id="file.localHistory" />
-          <Item id="file.settings" />
-        </Menu>
-        <Menu label={t('menu.edit')}>
-          <UndoRedoItems />
-          <MenuSeparator />
-          <MenuItem keys={formatKeys('Mod+X')} onSelect={() => runCommand('edit.cut')}>
-            {t('commands.edit.cut')}
-          </MenuItem>
-          <MenuItem keys={formatKeys('Mod+C')} onSelect={() => runCommand('edit.copy')}>
-            {t('commands.edit.copy')}
-          </MenuItem>
-          <MenuItem keys={formatKeys('Mod+V')} onSelect={() => runCommand('edit.paste')}>
-            {t('commands.edit.paste')}
-          </MenuItem>
-          <Item id="edit.delete" />
-          <Item id="edit.deleteNoHeal" />
-          <MenuSeparator />
-          <Item id="edit.selectAll" />
-          <Item id="edit.rename" />
-          <Item id="edit.toggleInitial" />
-          <MenuSeparator />
-          <Item id="insert.append" />
-          <Item id="insert.action" />
-          <Item id="insert.step" />
-          <Item id="insert.grafcet" />
-          <MenuSeparator />
-          <Item id="insert.parallel" />
-          <Item id="insert.alternative" />
-          <Item id="insert.loop" />
-          <Item id="insert.source" />
-          <Item id="insert.sink" />
-          <Item id="insert.macroStep" />
-          <Item id="insert.enclosingStep" />
-          <MenuSeparator />
-          <Item id="arrange.layout" />
-          <Item id="arrange.layoutSelection" />
-          <Item id="arrange.renumber" />
-        </Menu>
-        <Menu label={t('menu.view')}>
-          <Item id="view.zoomIn" />
-          <Item id="view.zoomOut" />
-          <Item id="view.zoomReset" />
-          <Item id="view.fit" />
-          <Item id="view.fitSelection" />
-          <SubMenu label={t('split.menu')}>
-            <Item id="view.splitRight" />
-            <Item id="view.splitDown" />
-            <Item id="view.focusOtherPane" />
-            <Item id="view.swapPanes" />
-            <Item id="view.closeSplit" />
-          </SubMenu>
-          <Item id="view.openChild" />
-          <Item id="view.goToParent" />
-          <MenuSeparator />
-          <MenuCheckItem
-            checked={prefs.textbookNotation}
-            onCheckedChange={(v) => setPrefs({ textbookNotation: v })}
-          >
-            {t('commands.view.textbook')}
-          </MenuCheckItem>
-          <MenuCheckItem
-            checked={prefs.showGrid}
-            onCheckedChange={(v) => setPrefs({ showGrid: v })}
-          >
-            {t('commands.view.showGrid')}
-          </MenuCheckItem>
-          <MenuCheckItem
-            checked={prefs.snapToGrid}
-            onCheckedChange={(v) => setPrefs({ snapToGrid: v })}
-          >
-            {t('commands.view.snapToGrid')}
-          </MenuCheckItem>
-          <MenuCheckItem
-            checked={prefs.showHints}
-            onCheckedChange={(v) => setPrefs({ showHints: v })}
-          >
-            {t('commands.view.hints')}
-          </MenuCheckItem>
-          <MenuCheckItem
-            checked={!prefs.leftCollapsed}
-            onCheckedChange={(v) => setPrefs({ leftCollapsed: !v })}
-          >
-            {t('commands.view.showTools')}
-          </MenuCheckItem>
-          <MenuCheckItem
-            checked={!prefs.rightCollapsed}
-            onCheckedChange={(v) => setPrefs({ rightCollapsed: !v })}
-          >
-            {t('commands.view.showProperties')}
-          </MenuCheckItem>
-          <MenuSeparator />
-          <Item id="view.showVariables" />
-          <Item id="view.variableList" />
-          <Item id="view.showProblems" />
-          <Item id="view.palette" />
-        </Menu>
-        <Menu label={t('menu.simulate')}>
-          <Item id="sim.toggle" label={t('commands.simulate.start')} />
-          <MenuSeparator />
-          <Item id="view.showSimulation" />
-          <Item id="view.showChronogram" />
-        </Menu>
-        <Menu label={t('menu.help')}>
-          <Item id="help.open" />
-          <Item id="help.startScreen" />
-          <Item id="help.tour" />
-          <Item id="help.gettingStarted" />
-          <Item id="help.basics" />
-          <Item id="help.expressions" />
-          <MenuSeparator />
-          <Item id="help.shortcuts" />
-          <Item id="help.feedback" />
-          <Item id="help.whatsNew" />
-          <Item id="help.about" />
-        </Menu>
-      </nav>
+      <MenuBar />
       <div className="mx-2 flex min-w-0 flex-1 justify-center">
         <Title />
       </div>

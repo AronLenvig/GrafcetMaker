@@ -27,6 +27,8 @@ browser. Built for automation engineers: correct semantics first, then editing s
   Excel and CSV (and back); **Structured Text** and **PLCopen XML** (SFC) generation.
 - **Learn as you go**: start screen with examples, guided tour, help center with a beginner
   tutorial and diagrams, glossary of standard terms, in-app changelog.
+- **Phones and tablets**: a one-handed phone layout (bottom toolbar, panels in a sheet, menu
+  drawer), pinch-zoom, double-tap, and a selection toolbar for what the shortcuts do.
 - **Accessible and offline**: WCAG 2.2 AA (keyboard everywhere, outline tree view, light/dark
   contrast), installable PWA that works without a network.
 - Projects are human-readable `.grafcet.json` files (versioned, validated on load), autosaved in

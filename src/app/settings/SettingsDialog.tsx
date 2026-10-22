@@ -27,8 +27,8 @@ function Row({
   htmlFor?: string;
 }) {
   return (
-    <div className="flex items-start gap-4 border-b border-border py-3 last:border-b-0">
-      <div className="min-w-0 flex-1">
+    <div className="flex items-start gap-4 border-b border-border py-3 last:border-b-0 compact:flex-wrap compact:gap-y-2">
+      <div className="min-w-0 flex-1 compact:basis-[55%]">
         {htmlFor ? (
           <label htmlFor={htmlFor} className="font-medium">
             {label}
@@ -332,14 +332,17 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
         value={section}
         onValueChange={(v) => setSection(v as Section)}
         orientation="vertical"
-        className="flex min-h-[380px] gap-4"
+        className="flex min-h-[380px] gap-4 compact:min-h-0 compact:flex-col compact:gap-2"
       >
-        <Tabs.List aria-label={t('settings.title')} className="flex w-40 shrink-0 flex-col gap-0.5">
+        <Tabs.List
+          aria-label={t('settings.title')}
+          className="gm-no-scrollbar flex w-40 shrink-0 flex-col gap-0.5 compact:w-auto compact:flex-row compact:overflow-x-auto"
+        >
           {SECTIONS.map((s) => (
             <Tabs.Trigger
               key={s}
               value={s}
-              className="rounded-md px-3 py-1.5 text-left text-muted hover:bg-surface-2 hover:text-text data-[state=active]:bg-accent-soft data-[state=active]:font-medium data-[state=active]:text-text"
+              className="rounded-md px-3 py-1.5 text-left text-muted hover:bg-surface-2 hover:text-text data-[state=active]:bg-accent-soft data-[state=active]:font-medium data-[state=active]:text-text compact:shrink-0 compact:py-2 compact:whitespace-nowrap"
             >
               {t(`settings.sections.${s}`)}
             </Tabs.Trigger>

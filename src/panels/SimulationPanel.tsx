@@ -92,7 +92,7 @@ const InputRow = memo(function InputRow({
           onKeyUp={(e) => {
             if (e.key === ' ' || e.key === 'Enter') press(false);
           }}
-          className="h-6 rounded border border-border px-2 text-xs select-none hover:bg-surface-2 active:bg-accent-soft disabled:opacity-50"
+          className="h-6 rounded border border-border px-2 text-xs select-none hover:bg-surface-2 active:bg-accent-soft disabled:opacity-50 pointer-coarse:h-9 pointer-coarse:px-3"
         >
           {t('simulation.momentary')}
         </button>
@@ -251,7 +251,7 @@ export function SimulationPanel() {
   const inputs = byDir('input');
   const shown = [...byDir('output'), ...byDir('internal')];
   return (
-    <div className="grid h-full min-h-0 grid-cols-[minmax(240px,1fr)_minmax(200px,1fr)_minmax(280px,1.6fr)] divide-x divide-border">
+    <div className="grid h-full min-h-0 grid-cols-[minmax(240px,1fr)_minmax(200px,1fr)_minmax(280px,1.6fr)] divide-x divide-border compact:flex compact:h-auto compact:flex-col compact:divide-x-0 compact:divide-y">
       <section aria-label={t('simulation.inputs')} className="flex min-h-0 flex-col">
         <h2 className="border-b border-border px-2 py-1 text-xs font-semibold text-muted uppercase">
           {t('simulation.inputs')}

@@ -19,6 +19,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- Mobile friendly. On phones the diagram gets the whole screen: a bottom toolbar (tools, undo,
+  redo, panels), the menus in a ☰ drawer, the panels in a resizable sheet, a compact simulation
+  bar, and dialogs that fit the screen. On every touch screen: one-finger pan, pinch-zoom,
+  double-tap to edit or add a step, hold-and-drag selection, a selection toolbar (Step, Action,
+  Parallel, Choice, Loop, Edit, Details, Delete), bigger link handles and hit areas, touch hints,
+  and no auto-capitalisation or autocorrect in code fields.
 - Send feedback is anonymous on the hosted site: messages go to the developers without an account
   or email app, with an optional contact for a reply. The author's email address is no longer in
   the app; other installations use `VITE_FEEDBACK_EMAIL` or Copy.

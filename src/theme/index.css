@@ -2,6 +2,13 @@
 @import '@fontsource/jetbrains-mono/400.css';
 @import './tokens.css';
 
+/* Phones (see src/app/ui/media.ts): `compact:` utilities. */
+@custom-variant compact {
+  @media (max-width: 639px), (max-height: 479px) {
+    @slot;
+  }
+}
+
 /* Only token-backed colors exist as utilities: no hard-coded palette can leak into components. */
 @theme {
   --color-*: initial;
@@ -45,6 +52,20 @@
   body,
   #root {
     height: 100%;
+  }
+
+  /* Mobile browsers: the visible height (not the one behind the address bar), no pull-to-refresh
+     or rubber-banding of the app shell, no grey flash on tap. */
+  #root {
+    height: 100dvh;
+  }
+
+  html,
+  body {
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {

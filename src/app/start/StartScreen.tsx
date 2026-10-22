@@ -75,7 +75,7 @@ export default function StartScreen({ onClose }: { onClose: () => void }) {
             <p className="text-muted">{t('app.tagline')}</p>
           </div>
         </div>
-        <div className="grid grid-cols-[230px_1fr] gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-[230px_1fr]">
           <div className="flex flex-col gap-4">
             <nav aria-label={t('start.start')} className="flex flex-col gap-0.5">
               <h3 className="mb-1 text-[11px] font-semibold tracking-wider text-muted uppercase">
@@ -108,7 +108,12 @@ export default function StartScreen({ onClose }: { onClose: () => void }) {
               >
                 <UploadIcon size={15} /> {t('commands.file.open')}
               </button>
-              <button type="button" onClick={then(startTour)} className={action}>
+              {/* The tour points at the side panels, which phones do not have. */}
+              <button
+                type="button"
+                onClick={then(startTour)}
+                className={cx(action, 'compact:hidden')}
+              >
                 <span aria-hidden="true" className="w-[15px] text-center">
                   ✦
                 </span>
@@ -150,7 +155,7 @@ export default function StartScreen({ onClose }: { onClose: () => void }) {
             >
               {t('start.examples')}
             </h3>
-            <ul className="grid grid-cols-2 gap-3">
+            <ul className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
               {EXAMPLE_IDS.map((id) => (
                 <li key={id}>
                   <button

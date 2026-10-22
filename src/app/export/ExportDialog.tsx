@@ -420,8 +420,12 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
 
   return (
     <Modal open title={t('export.title')} onOpenChange={(o) => !o && onClose()} width={900}>
-      <div className="grid grid-cols-[180px_1fr] gap-4">
-        <div role="radiogroup" aria-label={t('export.format')} className="flex flex-col gap-1">
+      <div className="grid grid-cols-[180px_1fr] gap-4 compact:grid-cols-1">
+        <div
+          role="radiogroup"
+          aria-label={t('export.format')}
+          className="flex flex-col gap-1 compact:grid compact:grid-cols-2"
+        >
           {FORMATS.map((f) => (
             <button
               key={f}
@@ -440,7 +444,9 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
               )}
             >
               <div className="font-medium">{t(`export.formats.${f}`)}</div>
-              <div className="text-xs text-muted">{t(`export.formatHints.${f}`)}</div>
+              <div className="text-xs text-muted compact:hidden">
+                {t(`export.formatHints.${f}`)}
+              </div>
             </button>
           ))}
         </div>

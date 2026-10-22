@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { openHelp } from '@/app/help/helpStore';
 import { setPrefs, usePrefs } from '@/app/prefs';
 import { CloseIcon } from '@/app/ui/icons';
+import { useCoarsePointer } from '@/app/ui/media';
 import type { Grafcet } from '@/core/model/types';
 import { tDynamic } from '@/i18n/dynamic';
 import { formatKeys } from '../commands/registry';
@@ -73,6 +74,32 @@ const LINK: Hint[] = [
   ['Delete', 'deleteLink'],
 ];
 
+/** Touch screens: gestures instead of keys and clicks (the selection toolbar covers selections). */
+const TOUCH_IDLE: Hint[] = [
+  ['@tap', 'select'],
+  ['@doubleTapEmpty', 'addStep'],
+  ['@dragEmpty', 'pan'],
+  ['@pinch', 'zoom'],
+  ['@holdDrag', 'marqueeSelect'],
+];
+
+function touchHints(tool: string, linkFrom: 'step' | 'transition' | null, loop: boolean): Hint[] {
+  if (linkFrom)
+    return [
+      ['@release', linkFrom === 'step' ? 'linkToTransition' : 'linkToStep'],
+      ['@releaseEmpty', linkFrom === 'step' ? 'linkNewTransition' : 'linkNewStep'],
+    ];
+  if (loop) return [['@tapStep', 'loopTarget']];
+  if (tool === 'action')
+    return [
+      ['@tapStep', 'attachNew'],
+      ['@tapEmpty', 'place.action'],
+    ];
+  if (tool === 'step' || tool === 'transition' || tool === 'comment')
+    return [['@tapEmpty', `place.${tool}`]];
+  return TOUCH_IDLE;
+}
+
 function selectionHints(g: Grafcet, ids: string[]): Hint[] {
   if (ids.length > 1) return MANY;
   const id = ids[0]!;
@@ -106,10 +133,17 @@ export function HintBar() {
   const link = useInteraction((s) => s.link);
   const moving = useInteraction((s) => s.moving);
   const marquee = useInteraction((s) => s.marquee);
+  const coarse = useCoarsePointer();
+  const hasSelection = Object.keys(selection).length > 0 || !!selectedLink;
   if (!show || !g || editing) return null;
+  if (coarse && !simulating && (moving || marquee || (hasSelection && !link))) return null;
 
   let hints: Hint[];
-  if (simulating)
+  if (coarse)
+    hints = simulating
+      ? [['@inputs', 'simInputs']]
+      : touchHints(tool, link?.fromKind ?? null, pending?.kind === 'loop');
+  else if (simulating)
     hints = [
       ['F5', 'simRun'],
       ['F10', 'simStep'],
@@ -157,7 +191,7 @@ export function HintBar() {
     <div
       role="note"
       aria-label={t('hints.label')}
-      className="pointer-events-auto absolute bottom-3 left-3 flex max-w-[calc(100%-230px)] items-start gap-2 rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs text-muted shadow-pop"
+      className="pointer-events-auto absolute bottom-3 left-3 flex max-w-[calc(100%-230px)] items-start gap-2 rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs text-muted shadow-pop compact:top-2 compact:bottom-auto compact:left-2 compact:max-w-[calc(100%-64px)]"
     >
       <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
         {hints.map(([keys, what]) => (
@@ -187,7 +221,7 @@ export function HintBar() {
         onClick={() => setPrefs({ showHints: false })}
         aria-label={t('hints.hide')}
         title={t('hints.hide')}
-        className="-mr-1 flex h-5 w-5 shrink-0 items-center justify-center rounded hover:bg-surface-2 hover:text-text"
+        className="-mr-1 flex h-5 w-5 shrink-0 items-center justify-center rounded hover:bg-surface-2 hover:text-text pointer-coarse:-my-1.5 pointer-coarse:h-8 pointer-coarse:w-8"
       >
         <CloseIcon size={12} />
       </button>

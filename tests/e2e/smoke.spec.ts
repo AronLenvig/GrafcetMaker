@@ -119,3 +119,44 @@ test('theme can be switched', async ({ page }) => {
   await page.getByRole('radio', { name: 'Light' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 });
+
+test.describe('phone', () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+
+  test('draws with touch: double-tap, selection toolbar, panel sheet, simulation', async ({
+    page,
+  }) => {
+    await page.goto('./');
+    await closeStartScreen(page);
+    // The page fits the screen: no zoomed-out desktop layout.
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+    const steps = page.locator('[data-el="step"]');
+    await expect(steps).toHaveCount(1);
+
+    // Double-tap on the empty canvas adds a step.
+    await page.touchscreen.tap(80, 300);
+    await page.touchscreen.tap(80, 300);
+    await expect(steps).toHaveCount(2);
+    await page.keyboard.press('Escape');
+
+    // Tap the initial step, then "Step" in the selection toolbar: transition + step below.
+    const box = (await steps.first().boundingBox())!;
+    await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+    const toolbar = page.getByRole('toolbar', { name: 'Selection' });
+    await toolbar.getByRole('button', { name: 'Step' }).click();
+    await expect(page.getByRole('combobox', { name: 'Receptivity' })).toBeFocused();
+    await page.keyboard.type('go');
+    await page.keyboard.press('Enter');
+    await expect(steps).toHaveCount(3);
+
+    // The panels live in a sheet; Simulate opens it on the inputs.
+    await page.getByRole('button', { name: 'Panels', exact: true }).click();
+    await expect(page.getByRole('tab', { name: 'Properties' })).toBeVisible();
+    await page.getByRole('button', { name: 'Simulate: start the simulation' }).click();
+    await expect(page.getByText('SIMULATION', { exact: true })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Simulation' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+  });
+});

@@ -32,6 +32,24 @@ down.
 - Click a **link** to select it; <kbd>Del</kbd> removes just that link. Drag an upward link
   sideways to move its side line.
 
+## Touch: phones and tablets
+
+- **Tap** selects. **Drag** an element to move it; drag the empty canvas to pan; **pinch** with
+  two fingers to zoom.
+- **Double-tap** an element to edit its text, or the empty canvas to add a step there.
+- **Hold, then drag** on the empty canvas to select everything in a frame.
+- With a selection, a **toolbar** at the bottom of the canvas does what the keys do on a computer:
+  **Step** (a transition and a step below), **Action**, **Parallel** and **Choice** branches,
+  **Loop**, **Edit**, **Details** (the properties) and **Delete**.
+- A selected step or transition shows its **link handles** just above and below it: drag one to a
+  highlighted target, or to empty canvas to create the missing element.
+- With a tool chosen (step, transition, comment, action), **tap** where the element goes.
+
+On a phone the screen is arranged for one hand: the tools, undo and redo are at the bottom, the
+menu (☰) holds File, Edit, View, Simulate and Help, and the panels (properties, variables,
+problems, simulation, chronogram, outline) open as a sheet over the diagram with the panels
+button at the bottom right. Drag the sheet's handle to make it taller or shorter.
+
 ## Tools
 
 The left rail holds the tools: **Select** (<kbd>V</kbd>), **Pan** (<kbd>H</kbd>), **Step**

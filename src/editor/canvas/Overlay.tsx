@@ -4,6 +4,7 @@ import {
   type GrafcetGeometry,
   type Rect,
 } from '@/core/layout/geometry';
+import { useCoarsePointer } from '@/app/ui/media';
 import type { Grafcet, Id } from '@/core/model/types';
 import { useUi } from '../store/uiStore';
 import { useInteraction } from './interactionStore';
@@ -24,22 +25,56 @@ function SelectionRect({ r, className = 'gm-selection' }: { r: Rect; className?:
   );
 }
 
+/**
+ * Fingers: the handle sits just outside the element (so the element itself can still be dragged)
+ * on a short stem, with a larger invisible target. Sizes are in screen pixels, capped in diagram
+ * units so a zoomed-out diagram is not buried under handles.
+ */
+const TOUCH_OFFSET = 14;
+const TOUCH_HIT = 20;
+const TOUCH_DOT = 6;
+
 function Handles({ g, id }: { g: Grafcet; id: Id }) {
+  const coarse = useCoarsePointer();
+  const zoom = useUi((s) => s.viewports[g.id]?.zoom ?? 1);
   return (
     <>
       {(['in', 'out'] as const).map((port) => {
         const p = portPosition(g, id, port);
         if (!p) return null;
+        if (!coarse)
+          return (
+            <circle
+              key={port}
+              className="gm-handle"
+              data-handle={port}
+              data-id={id}
+              cx={p.x}
+              cy={p.y}
+              r={4.5}
+            />
+          );
+        const cy = p.y + (port === 'out' ? 1 : -1) * Math.min(TOUCH_OFFSET / zoom, TOUCH_OFFSET);
         return (
-          <circle
-            key={port}
-            className="gm-handle"
-            data-handle={port}
-            data-id={id}
-            cx={p.x}
-            cy={p.y}
-            r={4.5}
-          />
+          <g key={port}>
+            <path className="gm-handle-stem" d={`M${p.x} ${p.y}V${cy}`} />
+            <circle
+              className="gm-handle-hit"
+              data-handle={port}
+              data-id={id}
+              cx={p.x}
+              cy={cy}
+              r={Math.min(TOUCH_HIT / zoom, 12)}
+            />
+            <circle
+              className="gm-handle"
+              data-handle={port}
+              data-id={id}
+              cx={p.x}
+              cy={cy}
+              r={Math.min(TOUCH_DOT / zoom, TOUCH_DOT)}
+            />
+          </g>
         );
       })}
     </>

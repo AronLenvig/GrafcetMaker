@@ -17,6 +17,8 @@ import {
 import { ThemeSwitcher } from '@/theme/ThemeSwitcher';
 import { toast } from './toasts';
 import {
+  ErrorIcon,
+  MoreIcon,
   PauseIcon,
   PlayIcon,
   RecordIcon,
@@ -25,7 +27,16 @@ import {
   StepForwardIcon,
   StopIcon,
 } from './ui/icons';
-import { Button, IconButton, Tip } from './ui/primitives';
+import { useCompact } from './ui/media';
+import {
+  Button,
+  IconButton,
+  IconMenu,
+  MenuCheckItem,
+  MenuItem,
+  MenuSeparator,
+  Tip,
+} from './ui/primitives';
 
 /** Top bar while simulating: visibly different, with transport controls and the virtual clock. */
 export function SimBar() {
@@ -41,6 +52,7 @@ export function SimBar() {
   const cursor = useSim((s) => s.cursor);
   const name = useDoc((s) => s.project.name);
   const scenarioCount = useDoc((s) => Object.keys(s.project.scenarios ?? {}).length);
+  const compact = useCompact();
 
   const toggleRecording = () => {
     if (!recording) {
@@ -53,6 +65,80 @@ export function SimBar() {
       sc ? 'success' : 'info',
     );
   };
+
+  if (compact) {
+    // Phones: transport controls, the clock and Stop; speed and recording in the ⋯ menu.
+    const big = 'h-10 w-10';
+    return (
+      <header className="shrink-0 border-b-2 border-accent bg-accent-soft pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]">
+        <h1 className="sr-only">{t('app.heading', { name })}</h1>
+        <div className="flex h-11 items-center gap-0.5 px-1">
+          <span
+            role="status"
+            className="rounded bg-accent px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-accent-fg"
+          >
+            {t('simulation.badge')}
+          </span>
+          <IconButton
+            label={t('simulation.reset')}
+            className={big}
+            onClick={() => void resetSimulation()}
+          >
+            <ResetIcon size={18} />
+          </IconButton>
+          <IconButton
+            label={playing ? t('simulation.pause') : t('simulation.play')}
+            disabled={!!error}
+            className={big}
+            onClick={togglePlay}
+          >
+            {playing ? <PauseIcon size={18} /> : <PlayIcon size={18} />}
+          </IconButton>
+          <IconButton
+            label={t('simulation.step')}
+            disabled={!!error || playing}
+            className={big}
+            onClick={() => void nextEvent()}
+          >
+            <StepForwardIcon size={18} />
+          </IconButton>
+          <span className="min-w-0 flex-1 truncate px-1 font-mono text-xs tabular-nums">
+            {formatSimTime(cursor ?? time)}
+            {recording && <span className="ml-1 text-danger">● {recording.length}</span>}
+          </span>
+          {error && (
+            <span role="alert" title={t('simulation.transientLoop')} className="text-danger">
+              <ErrorIcon size={18} aria-label={t('simulation.transientLoop')} />
+            </span>
+          )}
+          <IconMenu label={t('simulation.options')} icon={<MoreIcon size={18} />}>
+            {SPEEDS.map((s) => (
+              <MenuCheckItem
+                key={String(s)}
+                checked={speed === s}
+                onCheckedChange={() => setSpeed(s)}
+              >
+                {t('simulation.speed')} {s === 'fast' ? t('simulation.fast') : `×${s}`}
+              </MenuCheckItem>
+            ))}
+            <MenuSeparator />
+            <MenuItem onSelect={toggleRecording}>
+              {recording
+                ? t('simulation.stopRecording', { count: recording.length })
+                : t('simulation.record')}
+            </MenuItem>
+          </IconMenu>
+          <IconButton
+            label={t('simulation.stop')}
+            className="h-10 w-10 bg-accent text-accent-fg hover:bg-accent-hover hover:text-accent-fg"
+            onClick={stopSimulation}
+          >
+            <StopIcon size={16} />
+          </IconButton>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="flex h-10 shrink-0 items-center gap-1.5 border-b-2 border-accent bg-accent-soft px-2">

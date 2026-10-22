@@ -224,6 +224,9 @@ export const ExpressionInput = forwardRef<
         aria-activedescendant={open ? `${listId}-${active}` : undefined}
         spellCheck={false}
         autoComplete="off"
+        autoCapitalize="off"
+        autoCorrect="off"
+        enterKeyHint="done"
         className={floating ? 'gm-inline-editor static h-full w-full' : 'gm-input gm-input-mono'}
         onChange={(e) => {
           // ^ is not part of the grammar: typed (also as a dead key) it becomes a rising edge.
@@ -278,7 +281,10 @@ export const ExpressionInput = forwardRef<
           className={cx(
             'z-20 flex items-center gap-0.5 rounded-md border border-border bg-surface p-0.5 shadow-pop',
             floating
-              ? cx('absolute left-0 w-max', dropUp ? 'top-full mt-1' : 'bottom-full mb-1')
+              ? cx(
+                  'absolute left-0 w-max max-w-full flex-wrap',
+                  dropUp ? 'top-full mt-1' : 'bottom-full mb-1',
+                )
               : 'absolute right-1 bottom-full mb-1',
           )}
         >
@@ -292,7 +298,7 @@ export const ExpressionInput = forwardRef<
                 title={name}
                 aria-label={name}
                 onClick={() => (sym.edge ? applyEdge(sym.edge) : insertSymbol(sym.insert!))}
-                className="h-6 min-w-6 rounded px-1.5 font-mono text-[13px] text-text hover:bg-accent-soft"
+                className="h-6 min-w-6 rounded px-1.5 font-mono text-[13px] text-text hover:bg-accent-soft pointer-coarse:h-9 pointer-coarse:min-w-9"
               >
                 {sym.shown}
               </button>

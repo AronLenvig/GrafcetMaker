@@ -41,6 +41,28 @@ available, a card offers to reload; your work is kept. **Help › What's new** s
 - **Help center** (`F1`): docked on the right so you can read and draw at the same time; search,
   contents, previous / next. Links like `#help/expressions` open a page directly.
 
+### Phones and tablets
+
+On a phone (narrower than 640 px, or lower than 480 px in landscape) the diagram gets the whole
+screen:
+
+- **Top bar**: the menu ☰ (File, Edit, View, Simulate, Help and the theme, as a drawer), the
+  project name, the problem counters and ▶ **Simulate**. While simulating, the simulation bar keeps
+  reset, run / pause, next step, the clock and **Stop**; speed and recording are in its ⋯ menu.
+- **Bottom toolbar**: select, place step, transition, comment and action, undo, redo, and the
+  **panels** button.
+- **Panels sheet**: Properties (Inspector while simulating), Variables, Problems, Simulation,
+  Chronogram and Outline share one sheet over the lower part of the diagram. Drag its handle to
+  resize it; it opens on Simulation when a simulation starts. Split view is not available.
+- **Fit** (top right of the canvas) shows the whole grafcet; pinch to zoom.
+
+Touch gestures, on phones and tablets alike: tap to select, drag to move or (on empty canvas) to
+pan, pinch to zoom, double-tap to edit or add a step, hold then drag to select with a frame. A
+**selection toolbar** at the bottom of the canvas offers what the keyboard shortcuts do: Step
+(`Enter`), Action (`A`), Parallel (`P`), Choice (`O`), Loop (`L`), Edit (`F2`), Details and Delete.
+Link handles sit just outside the selected element so it can still be dragged. Tablets keep the
+desktop layout with these touch additions.
+
 ## Drawing a grafcet
 
 A new project contains grafcet `G1` with initial step 0.

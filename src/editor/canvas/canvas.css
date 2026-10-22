@@ -110,6 +110,30 @@
   fill: var(--selection);
 }
 
+/* Fingers: an invisible, larger target around each handle and wider hit areas. */
+.gm-handle-hit {
+  pointer-events: all;
+  fill: transparent;
+  stroke: none;
+}
+
+.gm-handle-stem {
+  fill: none;
+  stroke: var(--selection);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+@media (pointer: coarse) {
+  .gm-hit {
+    stroke-width: 16px;
+  }
+
+  .gm-hit-line {
+    stroke-width: 24px;
+  }
+}
+
 .gm-link-preview {
   fill: none;
   stroke: var(--selection);

@@ -32,6 +32,7 @@ import { pointsToPath } from './svg';
 import { useCanvasInteraction } from './useCanvasInteraction';
 import { canvasSizeOf, setCanvasSize } from './viewport';
 import { HintBar } from './HintBar';
+import { SelectionBar } from './SelectionBar';
 import { ZoomControls } from './ZoomControls';
 import './canvas.css';
 
@@ -341,6 +342,7 @@ export function Canvas({
       {focused && g && geom && <InlineEditor g={g} geom={geom} viewport={viewport} />}
       {gid && <ZoomControls gid={gid} zoom={viewport.zoom} />}
       {focused && <HintBar />}
+      {focused && g && !readOnly && <SelectionBar g={g} />}
       {focused && pending && (
         <div
           role="status"

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { startTour } from '@/app/start/tourStore';
 import { closeSplit, focusOtherPane, openSplit, swapPanes } from './split';
 import { openHelp, toggleHelp } from '@/app/help/helpStore';
-import { setPrefs, showBottomTab, usePrefs } from '@/app/prefs';
+import { setPrefs, showBottomTab, showSideTab, usePrefs } from '@/app/prefs';
 import {
   newProject,
   openProjectDialog,
@@ -571,13 +571,13 @@ export const COMMANDS: Command[] = [
     id: 'view.outline',
     label: 'view.outline',
     group: 'view',
-    run: () => setPrefs({ rightTab: 'outline', rightCollapsed: false }),
+    run: () => showSideTab('outline'),
   },
   {
     id: 'view.variableList',
     label: 'view.variableList',
     group: 'view',
-    run: () => setPrefs({ rightTab: 'variables', rightCollapsed: false }),
+    run: () => showSideTab('variables'),
   },
   {
     id: 'view.palette',

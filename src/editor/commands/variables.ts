@@ -1,6 +1,6 @@
 import i18next from 'i18next';
 import { showDialog } from '@/app/dialogs/dialogStore';
-import { setPrefs } from '@/app/prefs';
+import { showSideTab } from '@/app/prefs';
 import { toast } from '@/app/toasts';
 import { newId } from '@/core/model/factory';
 import type { Id, Variable, VariableDirection, VariableType } from '@/core/model/types';
@@ -64,7 +64,7 @@ export function deleteVariable(id: Id): void {
 
 /** Opens a variable in the side panel's variable list. */
 export function showVariable(id: Id | null): void {
-  setPrefs({ rightTab: 'variables', rightCollapsed: false });
+  showSideTab('variables');
   useUi.setState({ focusedVariable: id });
 }
 

@@ -7,12 +7,15 @@ import {
   RedoIcon,
   FeedbackIcon,
   HelpIcon,
+  PanelBottomIcon,
   StepIcon,
   TransitionIcon,
   UndoIcon,
 } from '@/app/ui/icons';
-import { IconButton, Tip } from '@/app/ui/primitives';
+import { closeSheet, showSheet, useSheet } from '@/app/sheet';
+import { cx, IconButton, Tip } from '@/app/ui/primitives';
 import { formatKeys, getCommand, runCommand } from '../commands/registry';
+import { useSim } from '../simulation/simStore';
 import { useDoc } from '../store/document';
 import { ui, useUi, type Tool } from '../store/uiStore';
 
@@ -93,5 +96,75 @@ export function RailFooter() {
         </IconButton>
       </Tip>
     </div>
+  );
+}
+
+/** Phones: no hand tool (one finger on the empty canvas pans). */
+const PHONE_TOOLS = TOOLS.filter((x) => x.id !== 'hand');
+
+/**
+ * Phones: the tools, undo/redo and the panel sheet in one bar at the bottom of the screen, where
+ * thumbs reach. While simulating only the panels button remains (inputs live in the sheet).
+ */
+export function BottomToolbar() {
+  const { t } = useTranslation();
+  const tool = useUi((s) => s.tool);
+  const canUndo = useDoc((s) => s.past.length > 0);
+  const canRedo = useDoc((s) => s.future.length > 0);
+  const simulating = useSim((s) => s.on);
+  const sheetOpen = useSheet((s) => s.open);
+  const big = 'h-11 w-10';
+  return (
+    <nav
+      aria-label={t('tools.label')}
+      className="shrink-0 border-t border-border bg-surface pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]"
+    >
+      <div className="flex h-12 items-center gap-0.5 px-1">
+        {!simulating && (
+          <>
+            <div role="radiogroup" aria-label={t('tools.label')} className="flex">
+              {PHONE_TOOLS.map(({ id, Icon }) => (
+                <IconButton
+                  key={id}
+                  role="radio"
+                  aria-checked={tool === id}
+                  label={t(`commands.tools.${id}`)}
+                  active={tool === id}
+                  className={big}
+                  onClick={() => ui.setTool(id)}
+                >
+                  <Icon size={20} />
+                </IconButton>
+              ))}
+            </div>
+            <div className="mx-0.5 h-6 w-px bg-border" />
+            <IconButton
+              label={t('commands.edit.undo')}
+              disabled={!canUndo}
+              className={big}
+              onClick={() => runCommand('edit.undo')}
+            >
+              <UndoIcon size={20} />
+            </IconButton>
+            <IconButton
+              label={t('commands.edit.redo')}
+              disabled={!canRedo}
+              className={big}
+              onClick={() => runCommand('edit.redo')}
+            >
+              <RedoIcon size={20} />
+            </IconButton>
+          </>
+        )}
+        <IconButton
+          label={t('panels.label')}
+          active={sheetOpen}
+          className={cx(big, 'ml-auto')}
+          onClick={() => (sheetOpen ? closeSheet() : showSheet(useSheet.getState().tab))}
+        >
+          <PanelBottomIcon size={20} />
+        </IconButton>
+      </div>
+    </nav>
   );
 }

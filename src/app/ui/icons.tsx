@@ -305,3 +305,57 @@ export const HelpIcon = (p: IconProps) => (
     <path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8M12 17.2v.3" />
   </Icon>
 );
+
+export const MenuIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4 6h16M4 12h16M4 18h16" />
+  </Icon>
+);
+
+export const EditIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4 20h4L19 9l-4-4L4 16z" />
+    <path d="M13.5 6.5l4 4" />
+  </Icon>
+);
+
+/** Step, transition and a new step below (Enter). */
+export const AppendIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="8" y="2" width="8" height="6" />
+    <path d="M12 8v13M8 13h8" />
+    <path d="M12 16v5" strokeDasharray="2 2" />
+  </Icon>
+);
+
+/** Divergence in AND: the double bar. */
+export const ParallelIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 3v5M3 9h18M3 12h18M6 12v9M18 12v9" />
+  </Icon>
+);
+
+/** Divergence in OR: one bar, a transition on each branch. */
+export const AlternativeIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 3v6M5 9h14M5 9v12M19 9v12M2.5 15h5M16.5 15h5" />
+  </Icon>
+);
+
+/** A link back up to an earlier step. */
+export const LoopIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M14 20H6V5h8" />
+    <path d="M11 2l3 3-3 3" />
+    <rect x="15" y="16" width="6" height="6" />
+  </Icon>
+);
+
+export const PropertiesIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0" />
+    <circle cx="16" cy="6" r="2" />
+    <circle cx="10" cy="12" r="2" />
+    <circle cx="18" cy="18" r="2" />
+  </Icon>
+);

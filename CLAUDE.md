@@ -88,6 +88,7 @@ Separate mode (locks editing, distinct top bar + badge). Token dot in active ste
 
 ## Layout
 Top bar (File/Edit/View/Simulate/theme/help) · left tools · center canvas with grafcet tabs · right properties · bottom tabs: Variables, Problems, Simulation, Chronogram. Resizable/collapsible, sizes persisted. Start screen: new/open/recent/examples (traffic light, drilling station, tank filling, parallel conveyor). Skippable ≤5-step tour. Help panel with GRAFCET quick reference + glossary tooltips using standard terms (step, transition, receptivity, clear, enabled).
+Phones (`src/app/ui/media.ts`: ≤639 px wide or ≤479 px tall, Tailwind `compact:` variant): top bar with ☰ menu drawer, canvas, bottom toolbar, panels in one sheet, help full screen, no split view. Touch screens (`pointer: coarse`): pan/pinch/double-tap/long-press gestures, selection toolbar, larger handles and hit areas.
 
 ## Theme
 - Modes: System (default, live `prefers-color-scheme` listener) / Light / Dark; segmented control in top bar + palette + settings; persisted in localStorage (try/catch).

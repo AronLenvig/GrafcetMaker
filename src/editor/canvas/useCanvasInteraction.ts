@@ -34,8 +34,13 @@ import { portPosition } from '@/core/layout/geometry';
 
 type Gesture =
   | { kind: 'idle' }
-  | { kind: 'pan'; last: Point }
-  | { kind: 'press'; id: Id; start: Point; startD: Point; reselect: boolean }
+  /** A finger that is a tap (double-tap; on the empty canvas also deselect) unless it moves. */
+  | { kind: 'pan'; last: Point; start?: Point; tap?: 'empty' | 'element'; moved?: boolean }
+  /** Two fingers: zoom by their distance, pan by their midpoint. */
+  | { kind: 'pinch'; dist: number; mid: Point }
+  /** A finger with a placing tool: places on release, pans if it moves. */
+  | { kind: 'place'; start: Point; place: () => void }
+  | { kind: 'press'; id: Id; start: Point; startD: Point; reselect: boolean; slop: number }
   | { kind: 'move'; startD: Point; applied: Point; ids: Id[] }
   | { kind: 'marquee'; startD: Point; additive: boolean }
   | { kind: 'link'; drag: LinkDrag }
@@ -43,6 +48,21 @@ type Gesture =
   | { kind: 'route'; transitionId: Id; startX: number; startSide: number; moved: boolean };
 
 const DRAG_THRESHOLD = 3;
+/** Fingers jitter: movement below this is still a tap. */
+const TOUCH_SLOP = 8;
+const DOUBLE_TAP_MS = 350;
+const DOUBLE_TAP_DISTANCE = 24;
+/** Holding a finger still this long on the empty canvas starts a selection rectangle. */
+const LONG_PRESS_MS = 450;
+
+function pinchOf(points: Map<number, Point>): { kind: 'pinch'; dist: number; mid: Point } {
+  const [a, b] = [...points.values()];
+  return {
+    kind: 'pinch',
+    dist: Math.hypot(b!.x - a!.x, b!.y - a!.y),
+    mid: { x: (a!.x + b!.x) / 2, y: (a!.y + b!.y) / 2 },
+  };
+}
 
 function elementAt(
   el: Element | null,
@@ -74,6 +94,11 @@ export function useCanvasInteraction(
 ) {
   const gesture = useRef<Gesture>({ kind: 'idle' });
   const spaceDown = useRef(false);
+  // Touch: the fingers on the canvas, the last tap (double-tap) and the long-press timer.
+  const touches = useRef(new Map<number, Point>());
+  const lastTap = useRef<{ time: number; p: Point } | null>(null);
+  const lastPointer = useRef('mouse');
+  const longPress = useRef<number | undefined>(undefined);
 
   const local = useCallback(
     (e: { clientX: number; clientY: number }): Point => {
@@ -92,6 +117,7 @@ export function useCanvasInteraction(
     usePrefs.getState().snapToGrid ? { x: snap(p.x), y: snap(p.y) } : p;
 
   const cancelGesture = useCallback(() => {
+    window.clearTimeout(longPress.current);
     const g = gesture.current;
     if (g.kind === 'move' || (g.kind === 'route' && g.moved)) doc.cancel();
     gesture.current = { kind: 'idle' };
@@ -128,6 +154,20 @@ export function useCanvasInteraction(
     const d = toDiagram(p);
     const tool = useUi.getState().tool;
     const capture = () => e.currentTarget.setPointerCapture(e.pointerId);
+    const touch = e.pointerType === 'touch';
+    lastPointer.current = e.pointerType;
+    if (touch) {
+      touches.current.set(e.pointerId, p);
+      if (touches.current.size > 2) return;
+      if (touches.current.size === 2) {
+        // A second finger turns whatever the first one started into a pinch.
+        cancelGesture();
+        lastTap.current = null;
+        gesture.current = pinchOf(touches.current);
+        capture();
+        return;
+      }
+    }
 
     if (e.button === 1 || (e.button === 0 && (spaceDown.current || tool === 'hand'))) {
       e.preventDefault();
@@ -172,6 +212,13 @@ export function useCanvasInteraction(
       else cancelPending();
       return;
     }
+    // With a finger, placing waits for the release: the finger may still pan or start a pinch.
+    const placeOrWait = (place: () => void) => {
+      e.preventDefault();
+      if (!touch) return place();
+      gesture.current = { kind: 'place', start: p, place };
+      capture();
+    };
     if (!readOnly && tool === 'action') {
       // On a step (or one of its actions): attach. On empty canvas: unattached action.
       const stepId =
@@ -181,22 +228,29 @@ export function useCanvasInteraction(
             ? (g.actions[hit.id]?.stepId ?? null)
             : null;
       if (stepId || !hit) {
-        e.preventDefault();
-        // Back to Select first: changing tools closes the editor the new action opens.
-        if (!e.shiftKey) ui.setTool('select');
-        addActionAt(snapPoint(d), stepId);
+        const keep = e.shiftKey;
+        placeOrWait(() => {
+          // Back to Select first: changing tools closes the editor the new action opens.
+          if (!keep) ui.setTool('select');
+          addActionAt(snapPoint(d), stepId);
+        });
       }
       return;
     }
     if (!readOnly && (tool === 'step' || tool === 'transition' || tool === 'comment')) {
       if (!hit) {
-        e.preventDefault();
-        const at = snapPoint(d);
-        // Back to Select first: changing tools closes the editor a new comment opens.
-        if (!e.shiftKey) ui.setTool('select');
-        if (tool === 'step') addStepAt(at);
-        else if (tool === 'transition') addTransitionAt(at);
-        else addCommentAt(at);
+        const keep = e.shiftKey;
+        placeOrWait(() => {
+          const at = snapPoint(d);
+          // Back to Select first: changing tools closes the editor a new comment opens.
+          if (!keep) ui.setTool('select');
+          if (tool === 'step') addStepAt(at);
+          else if (tool === 'transition') addTransitionAt(at);
+          else addCommentAt(at);
+        });
+      } else if (touch) {
+        gesture.current = { kind: 'pan', last: p, start: p };
+        capture();
       }
       return;
     }
@@ -227,9 +281,28 @@ export function useCanvasInteraction(
           start: p,
           startD: d,
           reselect: wasSelected && !additive,
+          slop: touch ? TOUCH_SLOP : DRAG_THRESHOLD,
         };
         capture();
+      } else if (touch) {
+        gesture.current = { kind: 'pan', last: p, start: p, tap: 'element' };
+        capture();
       }
+      return;
+    }
+    if (touch) {
+      // A finger on the empty canvas pans; held still, it draws a selection rectangle instead.
+      gesture.current = { kind: 'pan', last: p, start: p, tap: 'empty' };
+      capture();
+      window.clearTimeout(longPress.current);
+      longPress.current = window.setTimeout(() => {
+        const g1 = gesture.current;
+        if (g1.kind !== 'pan' || g1.tap !== 'empty' || g1.moved) return;
+        ui.clearSelection();
+        gesture.current = { kind: 'marquee', startD: d, additive: false };
+        useInteraction.setState({ marquee: rectFrom(d, d) });
+        navigator.vibrate?.(10);
+      }, LONG_PRESS_MS);
       return;
     }
     if (!additive) ui.clearSelection();
@@ -241,7 +314,22 @@ export function useCanvasInteraction(
     if (!gid) return;
     const g0 = gesture.current;
     const p = local(e);
+    if (e.pointerType === 'touch' && touches.current.has(e.pointerId))
+      touches.current.set(e.pointerId, p);
     switch (g0.kind) {
+      case 'pinch': {
+        if (touches.current.size < 2) return;
+        const next = pinchOf(touches.current);
+        panBy(gid, next.mid.x - g0.mid.x, next.mid.y - g0.mid.y);
+        if (g0.dist > 0 && next.dist > 0) zoomAt(gid, next.dist / g0.dist, next.mid);
+        gesture.current = next;
+        return;
+      }
+      case 'place':
+        if (Math.hypot(p.x - g0.start.x, p.y - g0.start.y) < TOUCH_SLOP) return;
+        gesture.current = { kind: 'pan', last: p };
+        useInteraction.setState({ panning: true });
+        return;
       case 'idle': {
         const t = e.target as Element;
         const handle = t.closest('[data-handle]');
@@ -253,11 +341,17 @@ export function useCanvasInteraction(
         return;
       }
       case 'pan':
+        if (g0.start && !g0.moved) {
+          if (Math.hypot(p.x - g0.start.x, p.y - g0.start.y) < TOUCH_SLOP) return;
+          g0.moved = true;
+          window.clearTimeout(longPress.current);
+          useInteraction.setState({ panning: true });
+        }
         panBy(gid, p.x - g0.last.x, p.y - g0.last.y);
         g0.last = p;
         return;
       case 'press': {
-        if (Math.hypot(p.x - g0.start.x, p.y - g0.start.y) < DRAG_THRESHOLD) return;
+        if (Math.hypot(p.x - g0.start.x, p.y - g0.start.y) < g0.slop) return;
         const g = getProject().grafcets[gid];
         const ids = ui
           .selectedIds()
@@ -358,14 +452,42 @@ export function useCanvasInteraction(
     }
   };
 
+  /** A finger lifted without moving: a second tap close in time and place is a double-tap. */
+  const tapped = (e: ReactPointerEvent<SVGSVGElement>) => {
+    const p = local(e);
+    const prev = lastTap.current;
+    if (
+      prev &&
+      e.timeStamp - prev.time < DOUBLE_TAP_MS &&
+      Math.hypot(p.x - prev.p.x, p.y - prev.p.y) < DOUBLE_TAP_DISTANCE
+    ) {
+      lastTap.current = null;
+      doubleAt(e.clientX, e.clientY, p);
+    } else lastTap.current = { time: e.timeStamp, p };
+  };
+
   const onPointerUp = (e: ReactPointerEvent<SVGSVGElement>) => {
     const g0 = gesture.current;
-    gesture.current = { kind: 'idle' };
+    const touch = e.pointerType === 'touch';
+    if (touch) touches.current.delete(e.pointerId);
+    window.clearTimeout(longPress.current);
     if (e.currentTarget.hasPointerCapture(e.pointerId))
       e.currentTarget.releasePointerCapture(e.pointerId);
+    if (g0.kind === 'pinch') {
+      // One finger lifted: the other one keeps panning.
+      const rest = [...touches.current.values()][0];
+      gesture.current = rest ? { kind: 'pan', last: rest, moved: true } : { kind: 'idle' };
+      if (!rest) useInteraction.setState({ panning: false });
+      return;
+    }
+    gesture.current = { kind: 'idle' };
     switch (g0.kind) {
+      case 'place':
+        g0.place();
+        break;
       case 'press':
         if (g0.reselect) ui.select([g0.id]);
+        if (touch) tapped(e);
         break;
       case 'move': {
         const target = useInteraction.getState().dropTarget;
@@ -407,6 +529,10 @@ export function useCanvasInteraction(
       }
       case 'pan':
         useInteraction.setState({ panning: false });
+        if (g0.tap && !g0.moved) {
+          if (g0.tap === 'empty') ui.clearSelection();
+          tapped(e);
+        }
         break;
       case 'route':
         if (g0.moved) doc.commit();
@@ -416,10 +542,11 @@ export function useCanvasInteraction(
     }
   };
 
-  const onDoubleClick = (e: React.MouseEvent<SVGSVGElement>) => {
+  /** Double-click or double-tap: open a sub-grafcet, edit an element, or add a step. */
+  const doubleAt = (clientX: number, clientY: number, p: Point) => {
     if (!gid) return;
     // Hit-test by position: after pointer capture the event targets the <svg> itself.
-    const hit = elementAt(document.elementFromPoint(e.clientX, e.clientY));
+    const hit = elementAt(document.elementFromPoint(clientX, clientY));
     // Macro-steps and enclosing steps open their sub-grafcet (F2 still edits the number).
     if (hit?.kind === 'step' && hit.id && openChild(hit.id)) return;
     if (readOnly) return;
@@ -428,7 +555,18 @@ export function useCanvasInteraction(
       editSelection();
       return;
     }
-    if (!hit && useUi.getState().tool === 'select') addStepAt(snapPoint(toDiagram(local(e))));
+    if (!hit && useUi.getState().tool === 'select') addStepAt(snapPoint(toDiagram(p)));
+  };
+
+  const onDoubleClick = (e: React.MouseEvent<SVGSVGElement>) => {
+    // Fingers are handled by tapped(): the browser's own double-tap event would act twice.
+    if (lastPointer.current === 'touch') return;
+    doubleAt(e.clientX, e.clientY, local(e));
+  };
+
+  const onPointerCancel = (e: ReactPointerEvent<SVGSVGElement>) => {
+    touches.current.delete(e.pointerId);
+    cancelGesture();
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -458,7 +596,7 @@ export function useCanvasInteraction(
     onPointerDown,
     onPointerMove,
     onPointerUp,
-    onPointerCancel: cancelGesture,
+    onPointerCancel,
     onDoubleClick,
     onKeyDown,
     onKeyUp,

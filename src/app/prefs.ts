@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { showSheet } from './sheet';
+import { isCompact } from './ui/media';
 
 /** Per-device UI preferences persisted in localStorage (best effort: storage may be unavailable). */
 export interface Prefs {
@@ -89,7 +91,14 @@ export function setPrefs(patch: Partial<Prefs>): void {
   usePrefs.setState(patch);
 }
 
-/** Opens the bottom panel on a tab (Variables, Problems, …). */
+/** Opens the bottom panel on a tab (Variables, Problems, …); on phones, the panel sheet. */
 export function showBottomTab(id: string): void {
   setPrefs({ bottomTab: id, bottomCollapsed: false });
+  if (isCompact()) showSheet(id);
+}
+
+/** Opens the side panel on a tab (Properties, Variables, Outline); on phones, the panel sheet. */
+export function showSideTab(tab: Prefs['rightTab']): void {
+  setPrefs({ rightTab: tab, rightCollapsed: false });
+  if (isCompact()) showSheet(tab);
 }

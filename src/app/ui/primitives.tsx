@@ -284,13 +284,13 @@ export function Modal({
         <Dialog.Overlay className="fixed inset-0 z-40 bg-overlay" />
         <Dialog.Content
           role={role ?? 'dialog'}
-          className="fixed top-1/2 left-1/2 z-50 flex max-h-[85vh] max-w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-lg border border-border bg-surface text-text shadow-pop"
+          className="fixed top-1/2 left-1/2 z-50 flex max-h-[85dvh] max-w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-lg border border-border bg-surface text-text shadow-pop compact:max-h-[calc(100dvh-16px)] compact:max-w-[calc(100vw-16px)]"
           style={{ width }}
         >
           <div className="flex items-start gap-3 border-b border-border px-4 py-3">
             <Dialog.Title className="flex-1 text-sm font-semibold">{title}</Dialog.Title>
             <Dialog.Close
-              className="rounded p-0.5 text-muted hover:bg-surface-2 hover:text-text"
+              className="-my-1 -mr-1.5 flex h-7 w-7 shrink-0 items-center justify-center rounded text-muted hover:bg-surface-2 hover:text-text pointer-coarse:-my-2.5 pointer-coarse:h-10 pointer-coarse:w-10"
               aria-label={t('common.close')}
             >
               <CloseIcon size={16} />

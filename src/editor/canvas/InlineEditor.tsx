@@ -6,7 +6,7 @@ import {
   STEP_FONT_SIZE,
   TRANSITION_WIDTH,
   commentRect,
-  layoutActions,
+  actionBoxOf,
   stepLabelAnchor,
   transitionTextAnchor,
   type GrafcetGeometry,
@@ -134,10 +134,7 @@ function placement(
   }
   const act = g.actions[t.id];
   if (act) {
-    const step = g.steps[act.stepId];
-    const box =
-      step &&
-      layoutActions(step, geom.index.actions.get(step.id) ?? []).find((b) => b.id === act.id);
+    const box = actionBoxOf(g, geom, act.id);
     if (!box) return null;
     if (t.field === 'condition')
       return { x: sx(box.x + 16), y: sy(box.y - 9), align: 'left', fontSize, minWidth: 140 };

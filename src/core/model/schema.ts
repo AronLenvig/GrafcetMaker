@@ -65,7 +65,10 @@ export const actionKindSchema = z.enum([
 
 export const actionSchema = z.object({
   id,
-  stepId: id,
+  /** The step it belongs to, or null for an action not attached to any step (never executed). */
+  stepId: id.nullable(),
+  /** Top-left corner of an unattached action (attached actions are placed right of their step). */
+  position: point.optional(),
   /** Display order within the step's action list (left to right). */
   order: z.int().min(0),
   kind: actionKindSchema,
@@ -181,7 +184,9 @@ function checkIntegrity(p: ProjectShape, ctx: z.RefinementCtx): void {
     for (const [aid, a] of Object.entries(g.actions)) {
       elements++;
       if (aid !== a.id) issue(`Action key "${aid}" does not match its id`, [...at, 'actions', aid]);
-      if (!g.steps[a.stepId])
+      if (a.stepId === null) {
+        if (!a.position) issue('Unattached action without a position', [...at, 'actions', aid]);
+      } else if (!g.steps[a.stepId])
         issue(`Action references unknown step "${a.stepId}"`, [...at, 'actions', aid]);
     }
     for (const [cid, c] of Object.entries(g.comments)) {

@@ -1,4 +1,4 @@
-import { GRID } from '@/core/layout/geometry';
+import { ACTION_HEIGHT, actionBoxOf, computeGeometry, GRID } from '@/core/layout/geometry';
 import {
   copyElements,
   parseClipboard,
@@ -76,20 +76,54 @@ export function appendSequence(): void {
   if (editTarget) ui.edit({ id: editTarget, field: 'receptivity' });
 }
 
-/** `A`: add an action to the selected step (or after the selected action) and edit its text. */
+/**
+ * `A`: add an action to the selected step (or after the selected action) and edit its text.
+ * With no step to attach it to, the Action tool is selected: click a step, or empty canvas.
+ */
 export function addActionToSelection(kind: ActionKind = 'continuous'): void {
   const g = getActiveGrafcet();
+  if (!g) return;
   const sel = ui.selectedIds();
-  if (!g || sel.length !== 1) return;
-  const id = sel[0]!;
-  const stepId = g.steps[id] ? id : g.actions[id]?.stepId;
-  if (!stepId) return;
+  const id = sel.length === 1 ? sel[0]! : null;
+  const stepId = id ? (g.steps[id] ? id : g.actions[id]?.stepId) : null;
+  if (!stepId) {
+    ui.setTool('action');
+    return;
+  }
   let created: Id | null = null;
   editActive('history.addAction', (gd) => void (created = ops.addAction(gd, stepId, kind).id));
   if (created) {
     ui.select([created]);
     ui.edit({ id: created, field: 'text' });
   }
+}
+
+/** Action tool click: a new action on the step clicked, or unattached at `at` (left middle). */
+export function addActionAt(at: Point, stepId: Id | null): Id | null {
+  let created: Id | null = null;
+  editActive('history.addAction', (g) => {
+    created = (
+      stepId
+        ? ops.addAction(g, stepId)
+        : ops.addFreeAction(g, { x: at.x, y: at.y - ACTION_HEIGHT / 2 })
+    ).id;
+  });
+  if (created) {
+    ui.select([created]);
+    ui.edit({ id: created, field: 'text' });
+  }
+  return created;
+}
+
+/** Attaches an action to a step, or detaches it (null): it then stays just below where it was. */
+export function setActionStep(actionId: Id, stepId: Id | null): void {
+  const g = getActiveGrafcet();
+  if (!g) return;
+  const box = actionBoxOf(g, computeGeometry(g), actionId);
+  editActive(stepId ? 'history.attachAction' : 'history.detachAction', (gd) => {
+    if (stepId) ops.attachAction(gd, actionId, stepId);
+    else if (box) ops.detachAction(gd, actionId, { x: box.x, y: box.y + ACTION_HEIGHT + 2 * GRID });
+  });
 }
 
 /** `F2`: edit the main text of the selected element. */

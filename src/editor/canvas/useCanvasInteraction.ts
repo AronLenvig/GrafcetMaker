@@ -10,12 +10,14 @@ import {
   computeGeometry,
   rectsIntersect,
   snap,
+  stepRect,
   type Rect,
 } from '@/core/layout/geometry';
 import * as ops from '@/core/model/ops';
 import type { Id, Point } from '@/core/model/types';
 import { usePrefs } from '@/app/prefs';
 import {
+  addActionAt,
   addCommentAt,
   addStepAt,
   addTransitionAt,
@@ -93,7 +95,13 @@ export function useCanvasInteraction(
     const g = gesture.current;
     if (g.kind === 'move' || (g.kind === 'route' && g.moved)) doc.cancel();
     gesture.current = { kind: 'idle' };
-    useInteraction.setState({ marquee: null, link: null, moving: false, panning: false });
+    useInteraction.setState({
+      marquee: null,
+      link: null,
+      moving: false,
+      panning: false,
+      dropTarget: null,
+    });
   }, []);
 
   // Wheel: pan, Ctrl/Cmd (and trackpad pinch) zooms around the pointer. Must be non-passive.
@@ -164,14 +172,31 @@ export function useCanvasInteraction(
       else cancelPending();
       return;
     }
+    if (!readOnly && tool === 'action') {
+      // On a step (or one of its actions): attach. On empty canvas: unattached action.
+      const stepId =
+        hit?.kind === 'step' && hit.id
+          ? hit.id
+          : hit?.kind === 'action' && hit.id
+            ? (g.actions[hit.id]?.stepId ?? null)
+            : null;
+      if (stepId || !hit) {
+        e.preventDefault();
+        // Back to Select first: changing tools closes the editor the new action opens.
+        if (!e.shiftKey) ui.setTool('select');
+        addActionAt(snapPoint(d), stepId);
+      }
+      return;
+    }
     if (!readOnly && (tool === 'step' || tool === 'transition' || tool === 'comment')) {
       if (!hit) {
         e.preventDefault();
         const at = snapPoint(d);
+        // Back to Select first: changing tools closes the editor a new comment opens.
+        if (!e.shiftKey) ui.setTool('select');
         if (tool === 'step') addStepAt(at);
         else if (tool === 'transition') addTransitionAt(at);
         else addCommentAt(at);
-        if (!e.shiftKey) ui.setTool('select');
       }
       return;
     }
@@ -194,7 +219,8 @@ export function useCanvasInteraction(
       const wasSelected = !!useUi.getState().selection[hit.id];
       if (additive) ui.select([hit.id], 'toggle');
       else if (!wasSelected) ui.select([hit.id]);
-      if (!readOnly && hit.kind !== 'action') {
+      // Attached actions follow their step; unattached ones are dragged like comments.
+      if (!readOnly && (hit.kind !== 'action' || g.actions[hit.id]?.stepId === null)) {
         gesture.current = {
           kind: 'press',
           id: hit.id,
@@ -235,7 +261,14 @@ export function useCanvasInteraction(
         const g = getProject().grafcets[gid];
         const ids = ui
           .selectedIds()
-          .filter((id) => g && (g.steps[id] || g.transitions[id] || g.comments[id]));
+          .filter(
+            (id) =>
+              g &&
+              (g.steps[id] ||
+                g.transitions[id] ||
+                g.comments[id] ||
+                g.actions[id]?.stepId === null),
+          );
         if (!ids.length) {
           gesture.current = { kind: 'idle' };
           return;
@@ -248,6 +281,17 @@ export function useCanvasInteraction(
       }
       case 'move': {
         const d = toDiagram(p);
+        // A single unattached action dropped on a step gets attached to it.
+        const g = getProject().grafcets[gid];
+        const only = g0.ids.length === 1 ? g?.actions[g0.ids[0]!] : undefined;
+        const target =
+          g && only?.stepId === null
+            ? (Object.values(g.steps).find((s) =>
+                rectsIntersect(stepRect(s), { ...d, width: 0, height: 0 }),
+              )?.id ?? null)
+            : null;
+        if (useInteraction.getState().dropTarget !== target)
+          useInteraction.setState({ dropTarget: target });
         const raw = { x: d.x - g0.startD.x, y: d.y - g0.startD.y };
         const delta = usePrefs.getState().snapToGrid ? { x: snap(raw.x), y: snap(raw.y) } : raw;
         if (delta.x === g0.applied.x && delta.y === g0.applied.y) return;
@@ -323,10 +367,18 @@ export function useCanvasInteraction(
       case 'press':
         if (g0.reselect) ui.select([g0.id]);
         break;
-      case 'move':
+      case 'move': {
+        const target = useInteraction.getState().dropTarget;
+        const actionId = g0.ids[0];
+        if (target && actionId && g0.ids.length === 1)
+          doc.update((proj) => {
+            const g = proj.grafcets[gid!];
+            if (g) ops.attachAction(g, actionId, target);
+          });
         doc.commit();
-        useInteraction.setState({ moving: false });
+        useInteraction.setState({ moving: false, dropTarget: null });
         break;
+      }
       case 'marquee': {
         const r = useInteraction.getState().marquee;
         useInteraction.setState({ marquee: null });
@@ -337,6 +389,9 @@ export function useCanvasInteraction(
           ...Object.keys(g.steps),
           ...Object.keys(g.transitions),
           ...Object.keys(g.comments),
+          ...Object.values(g.actions)
+            .filter((a) => a.stepId === null)
+            .map((a) => a.id),
         ].filter((id) => {
           const b = elementBounds(g, geom, id);
           return b && rectsIntersect(b, r);

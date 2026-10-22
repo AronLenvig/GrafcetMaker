@@ -63,7 +63,7 @@ export function referencedVariables(p: ProjectNames, g: Grafcet, ids: Id[]): Var
   const names = new Set<string>();
   for (const e of grafcetExpressions(g)) {
     const a = g.actions[e.ownerId];
-    if (!set.has(e.ownerId) && !(a && set.has(a.stepId))) continue;
+    if (!set.has(e.ownerId) && !(a?.stepId && set.has(a.stepId))) continue;
     for (const n of analyze(e.kind, e.source, env).references) names.add(n);
   }
   return Object.values(p.variables).filter((v) => names.has(v.name.toLowerCase()));

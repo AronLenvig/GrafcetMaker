@@ -20,6 +20,8 @@ export interface InteractionState {
   panning: boolean;
   /** True while elements are being dragged (handles are hidden). */
   moving: boolean;
+  /** Step an unattached action being dragged would be attached to. */
+  dropTarget: Id | null;
 }
 
 export const useInteraction = create<InteractionState>(() => ({
@@ -28,4 +30,5 @@ export const useInteraction = create<InteractionState>(() => ({
   hover: null,
   panning: false,
   moving: false,
+  dropTarget: null,
 }));

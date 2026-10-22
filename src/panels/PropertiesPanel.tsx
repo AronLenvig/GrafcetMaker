@@ -10,6 +10,7 @@ import {
   deleteSelection,
   editActive,
   renameGrafcet,
+  setActionStep,
   validateGrafcetName,
 } from '@/editor/commands/edit';
 import { doc, getProject, useActiveGrafcet, useDoc } from '@/editor/store/document';
@@ -40,6 +41,31 @@ function stepName(g: Grafcet, id: Id): string {
   return s ? String(s.number) : '?';
 }
 
+/** The step an action belongs to; "not attached" keeps it on the diagram as a draft. */
+function ActionStepField({ action }: { action: Action }) {
+  const { t } = useTranslation();
+  const steps = useActiveGrafcet()?.steps ?? {};
+  const options = [
+    { value: '', label: t('props.action.unattached') },
+    ...Object.values(steps)
+      .sort((a, b) => a.number - b.number)
+      .map((s) => ({ value: s.id, label: t('props.step.title', { n: s.number }) })),
+  ];
+  return (
+    <SelectField
+      label={t('props.action.step')}
+      value={action.stepId ?? ''}
+      options={options}
+      onChange={(v) => setActionStep(action.id, v || null)}
+      hint={
+        action.stepId === null ? (
+          <span className="text-xs text-warning">{t('props.action.unattachedHint')}</span>
+        ) : undefined
+      }
+    />
+  );
+}
+
 function ActionEditor({ action, index, count }: { action: Action; index: number; count: number }) {
   const { t } = useTranslation();
   const update = (recipe: (a: Action) => void) =>
@@ -49,7 +75,7 @@ function ActionEditor({ action, index, count }: { action: Action; index: number;
     });
   const move = (delta: -1 | 1) =>
     editActive('history.reorderActions', (g) => {
-      const list = indexGrafcet(g).actions.get(action.stepId) ?? [];
+      const list = action.stepId ? (indexGrafcet(g).actions.get(action.stepId) ?? []) : [];
       const i = list.findIndex((a) => a.id === action.id);
       const j = i + delta;
       if (i < 0 || j < 0 || j >= list.length) return;
@@ -73,22 +99,26 @@ function ActionEditor({ action, index, count }: { action: Action; index: number;
             }
           />
         </span>
-        <IconButton
-          label={t('props.action.moveUp')}
-          onClick={() => move(-1)}
-          disabled={index === 0}
-          className="h-6 w-6"
-        >
-          <ChevronUpIcon size={14} />
-        </IconButton>
-        <IconButton
-          label={t('props.action.moveDown')}
-          onClick={() => move(1)}
-          disabled={index === count - 1}
-          className="h-6 w-6"
-        >
-          <ChevronDownIcon size={14} />
-        </IconButton>
+        {action.stepId !== null && (
+          <>
+            <IconButton
+              label={t('props.action.moveUp')}
+              onClick={() => move(-1)}
+              disabled={index === 0}
+              className="h-6 w-6"
+            >
+              <ChevronUpIcon size={14} />
+            </IconButton>
+            <IconButton
+              label={t('props.action.moveDown')}
+              onClick={() => move(1)}
+              disabled={index === count - 1}
+              className="h-6 w-6"
+            >
+              <ChevronDownIcon size={14} />
+            </IconButton>
+          </>
+        )}
         <IconButton
           label={t('props.action.delete')}
           onClick={() => editActive('history.delete', (g) => void delete g.actions[action.id])}
@@ -97,6 +127,7 @@ function ActionEditor({ action, index, count }: { action: Action; index: number;
           <TrashIcon size={14} />
         </IconButton>
       </div>
+      <ActionStepField action={action} />
       <SelectField
         label={t('props.action.kind')}
         value={action.kind}
@@ -385,9 +416,15 @@ export function PropertiesPanel() {
     if (step) body = <StepProps g={g} step={step} />;
     else if (tr) body = <TransitionProps g={g} transition={tr} />;
     else if (action) {
-      const list = indexGrafcet(g).actions.get(action.stepId) ?? [];
+      const list = action.stepId ? (indexGrafcet(g).actions.get(action.stepId) ?? []) : [];
       body = (
-        <Section title={t('props.action.ofStep', { n: stepName(g, action.stepId) })}>
+        <Section
+          title={
+            action.stepId
+              ? t('props.action.ofStep', { n: stepName(g, action.stepId) })
+              : t('props.action.unattachedTitle')
+          }
+        >
           <ActionEditor
             action={action}
             index={list.findIndex((a) => a.id === id)}

@@ -10,6 +10,10 @@ interpretation, the choice made is recorded here. Sections are added as features
   generated Structured Text valid.
 - Variable names must not look like step variables (`X` followed by digits, e.g. `X12`), since
   `Xn` denotes the activity of step _n_.
+- **Unattached actions**: IEC 60848 only defines actions associated with a step. GrafcetMaker
+  lets an action exist without a step (`stepId: null`, drawn where it was placed, without a link)
+  so it can be drafted first and attached later. Such an action is never executed by the simulator
+  nor by generated code, and validation reports it as a warning ("not attached to a step").
 - Step numbers should be unique per grafcet; duplicates are a validation error, not a load error.
 - Divergences/convergences are derived from transition `from`/`to` lists, so an AND divergence is
   exactly "a transition with several downstream steps" — the model cannot express an ill-formed

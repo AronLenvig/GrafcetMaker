@@ -9,7 +9,9 @@ The authoritative definition is the Zod schema in
 
 ## Versioning
 
-- `schemaVersion` (integer) identifies the format. Current version: **1**.
+- `schemaVersion` (integer) identifies the format. Current version: **2**.
+- History: **1** first release; **2** actions may be unattached (`stepId: null` with a
+  `position`). Version 1 files are upgraded unchanged.
 - Older files are upgraded on load through a migration chain
   ([`src/core/io/migrations.ts`](../src/core/io/migrations.ts)); each migration upgrades exactly
   one version.
@@ -37,7 +39,7 @@ equal the object's `id`.
 
 ```ts
 Project {
-  schemaVersion: 1
+  schemaVersion: 2
   id: string
   name: string
   meta: { author, company, revision, createdAt, updatedAt }   // ISO 8601 timestamps
@@ -86,7 +88,9 @@ Transition {
 }
 
 Action {
-  id; stepId; order           // order = left-to-right position next to the step
+  id; order                   // order = left-to-right position next to the step
+  stepId: Id | null           // null: not attached to any step (a draft, never executed)
+  position?: { x, y }         // top-left corner, required when stepId is null
   kind: 'continuous' | 'storedOnActivation' | 'storedOnDeactivation' | 'storedOnEvent' | 'forcing'
   text: string                // continuous: `M1` · stored: `C := C + 1` · forcing: `G2{8}`
   condition?: string          // continuous: assignment condition · storedOnEvent: event
@@ -104,6 +108,7 @@ convergence. Links step→step or transition→transition cannot be represented.
 - Every reference (`from`, `to`, `stepId`, `refGrafcetId`, `grafcetOrder`) points to an existing
   element; transitions only reference steps of their own grafcet.
 - No duplicate ids in `from` / `to`; no duplicate variable or grafcet names (case-insensitive).
+- An action with `stepId: null` has a `position`.
 
 Problems that do not prevent editing (duplicate step numbers, syntax errors in expressions,
 unreachable steps, …) are reported by validation instead of rejecting the file.

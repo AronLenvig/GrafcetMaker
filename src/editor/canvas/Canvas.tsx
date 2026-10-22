@@ -169,6 +169,8 @@ export function Canvas({
         actionBoxes.push({ box, first: i === 0 }),
       );
     }
+    // Actions attached to no step: no link, drawn where they were placed.
+    for (const box of geom.freeActions) if (inView(box.id)) actionBoxes.push({ box, first: false });
     return (
       <>
         {comments
@@ -205,7 +207,7 @@ export function Canvas({
           ))}
         {actionBoxes.map(({ box, first }) => {
           const action = g.actions[box.id]!;
-          const stepActive = !!sim?.active.has(action.stepId);
+          const stepActive = action.stepId !== null && !!sim?.active.has(action.stepId);
           const on =
             action.kind === 'continuous' && stepActive
               ? sim!.executing

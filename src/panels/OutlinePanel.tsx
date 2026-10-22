@@ -108,7 +108,15 @@ export function OutlinePanel() {
             expandable: false,
           });
       }
-      // Source transitions (no step above) are listed under their grafcet.
+      // Unattached actions and source transitions (no step above) are listed under their grafcet.
+      for (const a of Object.values(g.actions).filter((x) => x.stepId === null))
+        out.push({
+          key: `a:${a.id}`,
+          level: 2,
+          text: t('outline.unattached', { text: a.text || '–' }),
+          target: { gid, id: a.id },
+          expandable: false,
+        });
       for (const tr of Object.values(g.transitions).filter((x) => !x.from.length))
         out.push({
           key: `t:${tr.id}`,

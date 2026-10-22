@@ -75,6 +75,8 @@ export const en = {
   history: {
     append: 'Append step',
     addAction: 'Add action',
+    attachAction: 'Attach action to step',
+    detachAction: 'Detach action from step',
     delete: 'Delete',
     deleteNoHeal: 'Delete',
     deleteLink: 'Delete link',
@@ -226,6 +228,7 @@ export const en = {
       step: 'Place step',
       transition: 'Place transition',
       comment: 'Place comment',
+      action: 'Place action (click a step to attach it)',
     },
     view: {
       zoomIn: 'Zoom in',
@@ -350,6 +353,10 @@ export const en = {
     action: {
       title: 'Action {{n}}',
       ofStep: 'Action of step {{n}}',
+      unattachedTitle: 'Unattached action',
+      step: 'Step',
+      unattached: 'Not attached (never executed)',
+      unattachedHint: 'Choose a step here, or drag the action onto a step.',
       moveUp: 'Move action left',
       moveDown: 'Move action right',
       delete: 'Delete action',
@@ -470,12 +477,15 @@ export const en = {
       step: 'Step {{n}}',
       transition: 'Transition {{from}} → {{to}}',
       action: 'Action of step {{n}}',
+      freeAction: 'Unattached action',
       comment: 'Comment',
     },
     messages: {
       noInitialStep: 'Grafcet {{grafcet}} has no initial step, so it never becomes active.',
       duplicateStepNumber: '{{count}} steps are numbered {{number}}.',
       emptyReceptivity: 'Empty receptivity. Use 1 for a transition that is always true.',
+      unattachedAction:
+        'The action “{{text}}” is not attached to a step, so it never executes. Drag it onto a step, or choose its step in Properties.',
       missingEvent:
         'The action “{{text}}” is stored on an event but has no event, so it never executes. Enter one such as ↑b in Properties.',
       unreachableStep: 'Step {{step}} can never become active.',
@@ -980,6 +990,7 @@ export const en = {
     if: 'if {{condition}}',
     transition: 'Transition to {{to}}: {{receptivity}}',
     source: 'Source transition to {{to}}: {{receptivity}}',
+    unattached: 'Unattached action: {{text}}',
     active: 'active',
   },
   split: {
@@ -1016,6 +1027,7 @@ export const en = {
       releaseEmpty: 'Release on empty canvas',
       clickStep: 'Click a step',
       clickEmpty: 'Click empty canvas',
+      dragOntoStep: 'Drag onto a step',
     },
     do: {
       addStep: 'add a step',
@@ -1068,7 +1080,11 @@ export const en = {
         step: 'place a step',
         transition: 'place a transition',
         comment: 'place a comment',
+        action: 'place an unattached action',
       },
+      attachNew: 'to add an action to it',
+      attach: 'to attach it (it never executes while unattached)',
+      chooseStep: 'choose its step',
       placeMany: 'place several',
       backToSelect: 'back to the Select tool',
     },

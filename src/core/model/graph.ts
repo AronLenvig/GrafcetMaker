@@ -6,7 +6,7 @@ export interface GrafcetIndex {
   outgoing: Map<Id, Transition[]>;
   /** step → transitions feeding it (2+ = OR convergence), sorted left to right. */
   incoming: Map<Id, Transition[]>;
-  /** step → its actions in display order. */
+  /** step → its actions in display order (unattached actions are not listed). */
   actions: Map<Id, Action[]>;
 }
 
@@ -26,7 +26,7 @@ export function indexGrafcet(g: Grafcet): GrafcetIndex {
     for (const s of t.from) push(outgoing, s, t);
     for (const s of t.to) push(incoming, s, t);
   }
-  for (const a of Object.values(g.actions)) push(actions, a.stepId, a);
+  for (const a of Object.values(g.actions)) if (a.stepId !== null) push(actions, a.stepId, a);
   for (const list of outgoing.values()) list.sort(byX);
   for (const list of incoming.values()) list.sort(byX);
   for (const list of actions.values())

@@ -60,7 +60,7 @@ export function Overlay({
   const selectedLink = useUi((s) => s.selectedLink);
   const flash = useUi((s) => s.flash);
   const pending = useUi((s) => s.pending);
-  const { marquee, link, hover, moving } = useInteraction();
+  const { marquee, link, hover, moving, dropTarget } = useInteraction();
 
   const ids = Object.keys(selection);
   const handleIds = new Set<Id>();
@@ -80,7 +80,8 @@ export function Overlay({
   } else if (pending?.kind === 'loop') {
     targets = Object.keys(g.steps);
   }
-  const hotTarget = link ? link.target : pending ? hover : null;
+  if (dropTarget) targets = [dropTarget];
+  const hotTarget = link ? link.target : pending ? hover : dropTarget;
 
   return (
     <g className="gm-overlay">

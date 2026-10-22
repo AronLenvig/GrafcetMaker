@@ -48,18 +48,51 @@ export function addComment(g: Grafcet, position: Point, text: string): Comment {
   return c;
 }
 
+const nextOrder = (g: Grafcet, stepId: Id) =>
+  Object.values(g.actions).reduce(
+    (n, a) => (a.stepId === stepId ? Math.max(n, a.order + 1) : n),
+    0,
+  );
+
 export function addAction(
   g: Grafcet,
   stepId: Id,
   kind: ActionKind = 'continuous',
   text = '',
 ): Action {
-  let order = 0;
-  for (const a of Object.values(g.actions))
-    if (a.stepId === stepId) order = Math.max(order, a.order + 1);
-  const a: Action = { id: newId(), stepId, order, kind, text };
+  const a: Action = { id: newId(), stepId, order: nextOrder(g, stepId), kind, text };
   g.actions[a.id] = a;
   return a;
+}
+
+/** An action not attached to any step (a draft: it never executes), with its box's top-left at `position`. */
+export function addFreeAction(
+  g: Grafcet,
+  position: Point,
+  kind: ActionKind = 'continuous',
+  text = '',
+): Action {
+  const a: Action = { id: newId(), stepId: null, position: { ...position }, order: 0, kind, text };
+  g.actions[a.id] = a;
+  return a;
+}
+
+/** Attaches an action to a step, after the step's other actions. */
+export function attachAction(g: Grafcet, actionId: Id, stepId: Id): void {
+  const a = g.actions[actionId];
+  if (!a || !g.steps[stepId] || a.stepId === stepId) return;
+  a.order = nextOrder(g, stepId);
+  a.stepId = stepId;
+  delete a.position;
+}
+
+/** Detaches an action from its step; it stays where it is drawn (`position`). */
+export function detachAction(g: Grafcet, actionId: Id, position: Point): void {
+  const a = g.actions[actionId];
+  if (!a || a.stepId === null) return;
+  a.stepId = null;
+  a.order = 0;
+  a.position = { ...position };
 }
 
 /** Moves every step, transition and comment strictly below `y` by `dy`. */
@@ -67,13 +100,15 @@ export function shiftBelow(g: Grafcet, y: number, dy: number): void {
   for (const s of Object.values(g.steps)) if (s.position.y > y) s.position.y += dy;
   for (const t of Object.values(g.transitions)) if (t.position.y > y) t.position.y += dy;
   for (const c of Object.values(g.comments)) if (c.position.y > y) c.position.y += dy;
+  for (const a of Object.values(g.actions)) if (a.position && a.position.y > y) a.position.y += dy;
 }
 
 export function moveElements(g: Grafcet, ids: Iterable<Id>, dx: number, dy: number): void {
   if (dx === 0 && dy === 0) return;
   for (const id of ids) {
-    const el = g.steps[id] ?? g.transitions[id] ?? g.comments[id];
-    if (!el) continue;
+    const free = g.actions[id]?.stepId === null ? g.actions[id] : undefined;
+    const el = g.steps[id] ?? g.transitions[id] ?? g.comments[id] ?? free;
+    if (!el?.position) continue;
     el.position.x += dx;
     el.position.y += dy;
     const t = g.transitions[id];

@@ -366,7 +366,6 @@ export const COMMANDS: Command[] = [
     group: 'insert',
     keys: ['A'],
     run: () => addActionToSelection(),
-    enabled: singleSelection,
   },
   { id: 'insert.step', label: 'insert.step', group: 'insert', run: addStepAtCenter },
   {
@@ -428,6 +427,7 @@ export const COMMANDS: Command[] = [
   tool('step', 'S'),
   tool('transition', 'T'),
   tool('comment', 'C'),
+  tool('action', 'Shift+A'),
 
   {
     id: 'view.zoomIn',

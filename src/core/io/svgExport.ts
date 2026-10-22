@@ -24,6 +24,7 @@ import {
   computeGeometry,
   grafcetBounds,
   layoutActions,
+  type ActionBox,
   stepLabelAnchor,
   transitionTextAnchor,
   type Rect,
@@ -282,24 +283,27 @@ function render(w: Writer, g: Grafcet, only: ReadonlySet<Id> | undefined): void 
       w.text(s.label, a.x, a.y, LABEL_FONT_SIZE, { anchor: 'end', color: pal.muted });
     }
     const boxes = layoutActions(s, geom.index.actions.get(s.id) ?? []);
-    boxes.forEach((box, i) => {
-      const act = g.actions[box.id]!;
-      const cy = box.y + box.height / 2;
-      if (i === 0) w.line(`M${n(box.x - ACTION_GAP)} ${n(cy)}H${n(box.x)}`);
-      w.rect(box, pal.background ?? 'none');
-      if (act.kind === 'forcing')
-        w.rect(
-          { x: box.x + 3, y: box.y + 3, width: box.width - 6, height: box.height - 6 },
-          'none',
-          pal.ink,
-          1,
-        );
-      w.text(act.text, box.x + ACTION_PAD + (act.kind === 'forcing' ? 3 : 0), cy, FONT_SIZE);
-      const decor = actionDecor(act, box);
-      if (decor.stem) w.line(decor.stem, 1);
-      if (decor.mark) w.fill(decor.mark);
-      if (decor.text) w.expr(decor.text.source, decor.text.x, decor.text.y, decor.text.anchor);
-    });
+    boxes.forEach((box, i) => drawAction(box, i === 0));
+  }
+  for (const box of geom.freeActions) if (keep(box.id)) drawAction(box, false);
+
+  function drawAction(box: ActionBox, first: boolean): void {
+    const act = g.actions[box.id]!;
+    const cy = box.y + box.height / 2;
+    if (first) w.line(`M${n(box.x - ACTION_GAP)} ${n(cy)}H${n(box.x)}`);
+    w.rect(box, pal.background ?? 'none');
+    if (act.kind === 'forcing')
+      w.rect(
+        { x: box.x + 3, y: box.y + 3, width: box.width - 6, height: box.height - 6 },
+        'none',
+        pal.ink,
+        1,
+      );
+    w.text(act.text, box.x + ACTION_PAD + (act.kind === 'forcing' ? 3 : 0), cy, FONT_SIZE);
+    const decor = actionDecor(act, box);
+    if (decor.stem) w.line(decor.stem, 1);
+    if (decor.mark) w.fill(decor.mark);
+    if (decor.text) w.expr(decor.text.source, decor.text.x, decor.text.y, decor.text.anchor);
   }
 }
 

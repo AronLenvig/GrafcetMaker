@@ -5,11 +5,11 @@ export type RawDocument = Record<string, unknown>;
 /** Upgrades a raw document by exactly one version (n → n+1). Must not mutate its input. */
 export type Migration = (doc: RawDocument) => RawDocument;
 
-/**
- * MIGRATIONS[n] upgrades a document from schemaVersion n to n+1.
- * Version 1 is the first released format, so the chain is currently empty.
- */
-export const MIGRATIONS: Readonly<Record<number, Migration>> = {};
+/** MIGRATIONS[n] upgrades a document from schemaVersion n to n+1. */
+export const MIGRATIONS: Readonly<Record<number, Migration>> = {
+  // 2: actions may be unattached (stepId null, with a position). Every version 1 file is valid.
+  1: (doc) => doc,
+};
 
 export class MigrationError extends Error {
   constructor(readonly fromVersion: number) {

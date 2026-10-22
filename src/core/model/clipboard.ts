@@ -54,8 +54,11 @@ export function copyElements(
         to: t.to.filter((s) => stepIds.has(s)),
       });
   }
-  const actions: Action[] = Object.values(g.actions).filter((a) => stepIds.has(a.stepId));
-  if (!steps.length && !transitions.length && !comments.length) return null;
+  const actions: Action[] = Object.values(g.actions).filter((a) =>
+    a.stepId === null ? set.has(a.id) : stepIds.has(a.stepId),
+  );
+  const free = actions.some((a) => a.stepId === null);
+  if (!steps.length && !transitions.length && !comments.length && !free) return null;
   return {
     format: CLIPBOARD_FORMAT,
     version: 1,
@@ -128,9 +131,14 @@ export function pasteElements(
     created.push(id);
   }
   for (const a of payload.actions) {
+    const id = newId();
+    if (a.stepId === null) {
+      g.actions[id] = { ...a, id, position: move(a.position ?? { x: 0, y: 0 }) };
+      created.push(id);
+      continue;
+    }
     const stepId = idMap.get(a.stepId);
     if (!stepId) continue;
-    const id = newId();
     g.actions[id] = { ...a, id, stepId };
   }
   for (const c of payload.comments) {

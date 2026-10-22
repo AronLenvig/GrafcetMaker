@@ -22,6 +22,7 @@ const TOOLS: { id: Tool; Icon: typeof StepIcon }[] = [
   { id: 'step', Icon: StepIcon },
   { id: 'transition', Icon: TransitionIcon },
   { id: 'comment', Icon: CommentIcon },
+  { id: 'action', Icon: ActionIcon },
 ];
 
 function keysOf(id: string): string | undefined {
@@ -35,7 +36,6 @@ export function Toolbar() {
   const tool = useUi((s) => s.tool);
   const canUndo = useDoc((s) => s.past.length > 0);
   const canRedo = useDoc((s) => s.future.length > 0);
-  const oneSelected = useUi((s) => Object.keys(s.selection).length === 1);
   return (
     <nav aria-label={t('tools.label')} className="flex h-full flex-col items-center gap-1 py-2">
       <div role="radiogroup" aria-label={t('tools.label')} className="flex flex-col gap-1">
@@ -53,16 +53,6 @@ export function Toolbar() {
           </Tip>
         ))}
       </div>
-      <div className="my-1 h-px w-6 bg-border" />
-      <Tip label={t('commands.insert.action')} keys={keysOf('insert.action')}>
-        <IconButton
-          label={t('commands.insert.action')}
-          disabled={!oneSelected}
-          onClick={() => runCommand('insert.action')}
-        >
-          <ActionIcon size={18} />
-        </IconButton>
-      </Tip>
       <div className="my-1 h-px w-6 bg-border" />
       <Tip label={t('commands.edit.undo')} keys={keysOf('edit.undo')}>
         <IconButton

@@ -51,6 +51,14 @@ A forcing order imposes a situation on another partial grafcet while its step is
 deactivates all its steps and `G2{INIT}` puts it back in its initial situation. It is drawn with a
 double frame. See [Macro-steps, enclosing steps and forcing](hierarchy.md).
 
+## Actions without a step
+
+You can sketch an action before deciding which step it belongs to: with nothing selected, press
+<kbd>A</kbd> (or pick the **Action** tool) and click empty canvas. The action is drawn on its own,
+without a link. It never executes, and the Problems list reminds you of it. To attach it, drag it
+onto a step (the step lights up), or choose its **Step** in the Properties panel. Choosing **Not
+attached** there detaches an action again.
+
 ## Several actions
 
 A step can have any number of actions; they are drawn side by side. Select a step to see all its

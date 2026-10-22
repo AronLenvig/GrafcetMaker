@@ -173,6 +173,32 @@ export function layoutActions(s: Step, actions: readonly Action[]): ActionBox[] 
   });
 }
 
+/** Box of an action that is not attached to a step, at its own position. */
+export function freeActionBox(a: Action): ActionBox {
+  const p = a.position ?? { x: 0, y: 0 };
+  return { id: a.id, x: p.x, y: p.y, width: actionWidth(a), height: ACTION_HEIGHT };
+}
+
+/** Every action box of a grafcet: attached ones right of their step, then unattached ones. */
+export function actionBoxes(g: Grafcet, geom: GrafcetGeometry): ActionBox[] {
+  const out: ActionBox[] = [];
+  for (const s of Object.values(g.steps))
+    out.push(...layoutActions(s, geom.index.actions.get(s.id) ?? []));
+  return out.concat(geom.freeActions);
+}
+
+/** The box of one action, attached or not. */
+export function actionBoxOf(g: Grafcet, geom: GrafcetGeometry, id: Id): ActionBox | null {
+  const a = g.actions[id];
+  if (!a) return null;
+  if (a.stepId === null) return freeActionBox(a);
+  const step = g.steps[a.stepId];
+  if (!step) return null;
+  return (
+    layoutActions(step, geom.index.actions.get(step.id) ?? []).find((b) => b.id === id) ?? null
+  );
+}
+
 export function commentRect(c: Comment): Rect {
   const lines = c.text.split('\n');
   const longest = Math.max(...lines.map((l) => textWidth(l)));
@@ -222,6 +248,8 @@ export interface GrafcetGeometry {
   links: LinkGeom[];
   bars: BarGeom[];
   stubs: StubGeom[];
+  /** Actions not attached to any step. */
+  freeActions: ActionBox[];
 }
 
 export const linkKey = (transitionId: Id, side: 'in' | 'out', stepId: Id) =>
@@ -426,7 +454,10 @@ export function computeGeometry(
     }
   }
 
-  return { index, links, bars, stubs };
+  const freeActions = Object.values(g.actions)
+    .filter((a) => a.stepId === null)
+    .map(freeActionBox);
+  return { index, links, bars, stubs, freeActions };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -460,19 +491,21 @@ export function grafcetBounds(
       });
     }
     const boxes = layoutActions(s, geom.index.actions.get(s.id) ?? []);
-    for (const b of boxes) {
-      const below = g.actions[b.id]!.kind === 'storedOnDeactivation' ? 20 : 0;
-      unionInto(acc, { ...b, y: b.y - 20, height: b.height + 20 + below });
-      const text = actionDecor(g.actions[b.id]!, b).text;
-      if (text) {
-        const w = expressionWidth(text.source);
-        unionInto(acc, {
-          x: text.anchor === 'end' ? text.x - w : text.x,
-          y: text.y - 8,
-          width: w,
-          height: 16,
-        });
-      }
+    for (const b of boxes) actionInto(b);
+  }
+  for (const b of geom.freeActions) if (take(b.id)) actionInto(b);
+  function actionInto(b: ActionBox): void {
+    const below = g.actions[b.id]!.kind === 'storedOnDeactivation' ? 20 : 0;
+    unionInto(acc, { ...b, y: b.y - 20, height: b.height + 20 + below });
+    const text = actionDecor(g.actions[b.id]!, b).text;
+    if (text) {
+      const w = expressionWidth(text.source);
+      unionInto(acc, {
+        x: text.anchor === 'end' ? text.x - w : text.x,
+        y: text.y - 8,
+        width: w,
+        height: 16,
+      });
     }
   }
   for (const t of Object.values(g.transitions)) {
@@ -499,13 +532,7 @@ export function elementBounds(g: Grafcet, geom: GrafcetGeometry, id: Id): Rect |
   const c = g.comments[id];
   if (c) return commentRect(c);
   const a = g.actions[id];
-  if (a) {
-    const step = g.steps[a.stepId];
-    if (!step) return null;
-    return (
-      layoutActions(step, geom.index.actions.get(step.id) ?? []).find((b) => b.id === id) ?? null
-    );
-  }
+  if (a) return actionBoxOf(g, geom, id);
   return null;
 }
 

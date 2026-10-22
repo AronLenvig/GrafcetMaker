@@ -188,6 +188,16 @@ Autonomous build log. Read this first in every session and resume from **Current
   subset parser, real diagrams drawn by the SVG exporter, search, prev/next; tests check links,
   anchors and figures.
 
+### Owner requests after 1.0.0
+
+- Unattached actions: `Action.stepId: Id | null` + `position`, file format 2 (identity migration
+  from 1), geometry `freeActions` / `actionBoxOf`, ops add/attach/detach, move, clipboard, SVG/PDF
+  export, Action tool (`Shift+A`; `A` falls back to it), drag onto a step to attach (highlighted
+  target), Properties step picker, outline, hints, warning `unattachedAction`; never simulated nor
+  generated. Tests in `tests/unit/actions.test.ts`.
+- Fix: placing tools switched back to Select after creating the element, which closed the editor
+  a new comment opened.
+
 ## Decisions
 
 - TypeScript pinned to 6.0.x: typescript-eslint does not support TS 7 (native port) yet.

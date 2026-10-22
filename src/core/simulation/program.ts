@@ -243,7 +243,8 @@ export function compile(project: Project): Program {
     }
 
     for (const a of Object.values(g.actions).sort((x, y) => x.order - y.order)) {
-      const step = stepIndex.get(a.stepId);
+      // Unattached actions are drafts: they never execute.
+      const step = a.stepId === null ? undefined : stepIndex.get(a.stepId);
       if (step === undefined) continue;
       const ca: CAction = { idx: actions.length, id: a.id, step, kind: a.kind };
       if (a.condition !== undefined && a.condition.trim() && a.kind !== 'forcing') {

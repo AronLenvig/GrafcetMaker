@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { Id } from '@/core/model/types';
 
-export type Tool = 'select' | 'step' | 'transition' | 'comment' | 'hand';
+export type Tool = 'select' | 'step' | 'transition' | 'comment' | 'action' | 'hand';
 
 /** Top-left corner of the visible area in diagram units, and the zoom factor (screen px per unit). */
 export interface Viewport {

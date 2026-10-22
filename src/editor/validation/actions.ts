@@ -28,9 +28,12 @@ export function issueLocation(t: TFunction, p: Project, issue: Issue): string {
     const from = tr.from.map(num).join(', ') || '–';
     const to = tr.to.map(num).join(', ') || '–';
     where = t('problems.location.transition', { from, to });
-  } else if (id && g.actions[id])
-    where = t('problems.location.action', { n: num(g.actions[id].stepId) });
-  else if (id && g.comments[id]) where = t('problems.location.comment');
+  } else if (id && g.actions[id]) {
+    const stepId = g.actions[id].stepId;
+    where = stepId
+      ? t('problems.location.action', { n: num(stepId) })
+      : t('problems.location.freeAction');
+  } else if (id && g.comments[id]) where = t('problems.location.comment');
   return where ? `${g.name} · ${where}` : g.name;
 }
 

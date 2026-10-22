@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   commentRect,
-  layoutActions,
+  actionBoxOf,
   STEP_HALF,
   expressionWidth,
   transitionTextAnchor,
@@ -26,9 +26,7 @@ function anchor(g: Grafcet, geom: GrafcetGeometry, id: Id): { at: Point; kind: s
   }
   const act = g.actions[id];
   if (act) {
-    const step = g.steps[act.stepId];
-    const box =
-      step && layoutActions(step, geom.index.actions.get(step.id) ?? []).find((b) => b.id === id);
+    const box = actionBoxOf(g, geom, id);
     // Bottom right: the top edge carries the condition, stored-action arrow or event flag.
     return box ? { at: { x: box.x + box.width, y: box.y + box.height }, kind: 'action' } : null;
   }

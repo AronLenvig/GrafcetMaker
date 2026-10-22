@@ -97,6 +97,18 @@ function expressionRules(g: Grafcet, env: ExprEnv, used: Set<string>, out: Issue
       });
     }
   }
+  // An action attached to no step never executes.
+  for (const a of Object.values(g.actions)) {
+    if (a.stepId !== null) continue;
+    out.push({
+      ruleId: 'unattachedAction',
+      severity: 'warning',
+      messageKey: 'problems.messages.unattachedAction',
+      params: { text: a.text },
+      grafcetId: g.id,
+      elementIds: [a.id],
+    });
+  }
   // An action stored on an event without an event never executes.
   for (const a of Object.values(g.actions)) {
     if (a.kind !== 'storedOnEvent' || a.condition?.trim()) continue;
@@ -380,7 +392,7 @@ export function coActiveSteps(g: Grafcet, only?: ReadonlySet<Id>): Set<string> |
 function parallelOutputRule(g: Grafcet, out: Issue[]): void {
   const byOutput = new Map<string, { stepId: Id; actionId: Id; name: string }[]>();
   for (const a of Object.values(g.actions)) {
-    if (a.kind !== 'continuous' || !a.text.trim()) continue;
+    if (a.kind !== 'continuous' || !a.text.trim() || a.stepId === null) continue;
     const key = a.text.trim().toLowerCase();
     byOutput.set(key, [
       ...(byOutput.get(key) ?? []),

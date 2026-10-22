@@ -28,9 +28,11 @@ function WhereUsed({ v }: { v: Variable }) {
               from: tr.from.map(num).join(', ') || '–',
               to: tr.to.map(num).join(', ') || '–',
             })
-          : act
+          : act?.stepId
             ? t('problems.location.action', { n: num(act.stepId) })
-            : '';
+            : act
+              ? t('problems.location.freeAction')
+              : '';
         return (
           <li key={i}>
             <button

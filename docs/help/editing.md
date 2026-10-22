@@ -35,9 +35,10 @@ down.
 ## Tools
 
 The left rail holds the tools: **Select** (<kbd>V</kbd>), **Pan** (<kbd>H</kbd>), **Step**
-(<kbd>S</kbd>), **Transition** (<kbd>T</kbd>) and **Comment** (<kbd>C</kbd>). With a placing tool,
-click empty canvas to place an element; hold <kbd>Shift</kbd> to place several. <kbd>Esc</kbd>
-returns to Select.
+(<kbd>S</kbd>), **Transition** (<kbd>T</kbd>), **Comment** (<kbd>C</kbd>) and **Action**
+(<kbd>Shift+A</kbd>). With a placing tool, click empty canvas to place an element; hold
+<kbd>Shift</kbd> to place several. <kbd>Esc</kbd> returns to Select. The Action tool also adds an
+action to a step when you click the step.
 
 ## Branches and structures
 

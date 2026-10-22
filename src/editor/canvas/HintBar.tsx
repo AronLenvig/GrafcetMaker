@@ -49,6 +49,12 @@ const ACTION: Hint[] = [
   ['@properties', 'actionKind'],
   ['Delete', 'delete'],
 ];
+const FREE_ACTION: Hint[] = [
+  ['@dragOntoStep', 'attach'],
+  ['@properties', 'chooseStep'],
+  ['F2', 'editAction'],
+  ['Delete', 'delete'],
+];
 const COMMENT: Hint[] = [
   ['F2', 'editComment'],
   ['@drag', 'move'],
@@ -77,7 +83,7 @@ function selectionHints(g: Grafcet, ids: string[]): Hint[] {
     return [...STEP, ...child, ['@properties', 'stepKind']];
   }
   if (g.transitions[id]) return TRANSITION;
-  if (g.actions[id]) return ACTION;
+  if (g.actions[id]) return g.actions[id].stepId === null ? FREE_ACTION : ACTION;
   if (g.comments[id]) return COMMENT;
   return IDLE;
 }
@@ -122,6 +128,13 @@ export function HintBar() {
     hints = [
       ['@clickStep', 'loopTarget'],
       ['Escape', 'cancel'],
+    ];
+  else if (tool === 'action')
+    hints = [
+      ['@clickStep', 'attachNew'],
+      ['@clickEmpty', 'place.action'],
+      ['@shiftClick', 'placeMany'],
+      ['Escape', 'backToSelect'],
     ];
   else if (tool === 'step' || tool === 'transition' || tool === 'comment')
     hints = [

@@ -103,6 +103,12 @@ Divergences and convergences are never drawn by hand: they follow from the links
 
 ### Actions
 
+Select a step and press `A` to add an action to it. With nothing selected, `A` (or the **Action**
+tool of the left rail, `Shift+A`) lets you click a step to add an action to it, or click empty
+canvas to place an **unattached action**: a draft drawn without a link, never executed, reported as
+a warning. Drag an unattached action onto a step to attach it (the step is highlighted), or choose
+its **Step** in the properties panel; choosing **Not attached** there detaches an action again.
+
 Choose the kind of each action in the properties panel:
 
 - **Continuous action**: the output is true while the step is active (and its assignment

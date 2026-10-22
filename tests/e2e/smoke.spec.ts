@@ -10,11 +10,17 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-/** The start screen greets every launch; Continue goes to the open project. */
-async function closeStartScreen(page: Page) {
+/**
+ * The start screen greets every launch: "Start drawing" on a first visit, "Continue" when there
+ * is work to go back to.
+ */
+async function closeStartScreen(page: Page, firstVisit = true) {
   const dialog = page.getByRole('dialog', { name: 'Welcome' });
   await expect(dialog).toBeVisible();
-  await dialog.getByRole('button', { name: 'Continue', exact: true }).click();
+  await expect(dialog.getByText(/^Continue “/)).toHaveCount(firstVisit ? 0 : 1);
+  await dialog
+    .getByRole('button', { name: firstVisit ? 'Start drawing' : 'Continue', exact: true })
+    .click();
   await expect(dialog).toBeHidden();
 }
 
@@ -99,7 +105,7 @@ test('unsaved work is back after a reload, without asking', async ({ page }) => 
     throw new Error('unexpected browser dialog');
   });
   await page.reload();
-  await closeStartScreen(page);
+  await closeStartScreen(page, false);
   await expect(page.getByLabel('Unsaved changes')).toBeVisible();
   await expect(page.locator('[data-el="step"]')).toHaveCount(2);
   await expect(page.locator('[data-el="transition"]')).toContainText('go');

@@ -8,7 +8,7 @@ import { EXAMPLE_IDS, EXAMPLES, type ExampleId } from '../examples/examples';
 import { currentThemePalette } from '../export/exporters';
 import { openHelp } from '../help/helpStore';
 import { listRecent, type RecentEntry } from '../persistence/db';
-import { newProject, openNewProject, openRecent } from '../persistence/session';
+import { newProject, openNewProject, openRecent, useSession } from '../persistence/session';
 import { setPrefs, usePrefs } from '../prefs';
 import { BookIcon, LogoIcon, PlayIcon, PlusIcon, UploadIcon } from '../ui/icons';
 import { Button, cx, Modal } from '../ui/primitives';
@@ -48,6 +48,10 @@ function Thumbnail({ id }: { id: ExampleId }) {
 export default function StartScreen({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation();
   const current = useDoc((s) => s.project.name);
+  // First visit: the starting project was neither restored nor opened, and nothing is drawn yet.
+  const fresh = useSession((s) => s.fresh);
+  const untouched = useDoc((s) => s.past.length === 0);
+  const firstVisit = fresh && untouched;
   const showAtStart = usePrefs((s) => s.showStartScreen);
   const tourDone = usePrefs((s) => s.tourDone);
   const [recent, setRecent] = useState<RecentEntry[]>([]);
@@ -77,16 +81,24 @@ export default function StartScreen({ onClose }: { onClose: () => void }) {
               <h3 className="mb-1 text-[11px] font-semibold tracking-wider text-muted uppercase">
                 {t('start.start')}
               </h3>
+              {/* Nothing to continue on a first visit (the untouched starting project). */}
+              {!firstVisit && (
+                <button
+                  type="button"
+                  autoFocus
+                  onClick={onClose}
+                  className={cx(action, 'font-medium')}
+                >
+                  <PlayIcon size={13} className="text-accent" />
+                  <span className="min-w-0 truncate">{t('start.continue', { name: current })}</span>
+                </button>
+              )}
               <button
                 type="button"
-                autoFocus
-                onClick={onClose}
-                className={cx(action, 'font-medium')}
+                autoFocus={firstVisit}
+                onClick={then(newProject)}
+                className={action}
               >
-                <PlayIcon size={13} className="text-accent" />
-                <span className="min-w-0 truncate">{t('start.continue', { name: current })}</span>
-              </button>
-              <button type="button" onClick={then(newProject)} className={action}>
                 <PlusIcon size={15} /> {t('commands.file.new')}
               </button>
               <button
@@ -171,7 +183,7 @@ export default function StartScreen({ onClose }: { onClose: () => void }) {
             {t('start.showAtStart')}
           </label>
           <Button className="ml-auto" variant="primary" onClick={onClose}>
-            {t('start.continueShort')}
+            {firstVisit ? t('start.startDrawing') : t('start.continueShort')}
           </Button>
         </div>
       </div>

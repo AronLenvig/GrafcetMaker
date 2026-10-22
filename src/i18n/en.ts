@@ -882,6 +882,7 @@ export const en = {
     start: 'Start',
     continue: 'Continue “{{name}}”',
     continueShort: 'Continue',
+    startDrawing: 'Start drawing',
     tour: 'Take the tour (5 steps)',
     tourAgain: 'Take the tour again',
     gettingStarted: 'Getting started tutorial',

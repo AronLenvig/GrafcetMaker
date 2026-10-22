@@ -30,9 +30,11 @@ const t = i18next.t.bind(i18next);
 interface SessionState {
   /** Name of the file the project was opened from / saved to, if any. */
   fileName: string | null;
+  /** The empty project the app starts with on a first visit (nothing restored or opened yet). */
+  fresh: boolean;
 }
 
-export const useSession = create<SessionState>(() => ({ fileName: null }));
+export const useSession = create<SessionState>(() => ({ fileName: null, fresh: true }));
 
 let fileHandle: FileSystemFileHandle | null = null;
 
@@ -65,7 +67,7 @@ async function loadIntoEditor(
   stopSimulation();
   doc.load(project, { dirty: opts.dirty });
   fileHandle = opts.handle ?? null;
-  useSession.setState({ fileName: opts.fileName ?? null });
+  useSession.setState({ fileName: opts.fileName ?? null, fresh: false });
   useUi.setState({
     activeGrafcetId: project.grafcetOrder[0] ?? null,
     selection: {},

@@ -14,7 +14,10 @@ import {
 import { doc, getProject, useActiveGrafcet, useDoc } from '@/editor/store/document';
 import { ui, useUi } from '@/editor/store/uiStore';
 import { actionTextKind } from '@/core/expr/check';
+import { issueMessage } from '@/editor/validation/actions';
+import { useProblems } from '@/editor/validation/problems';
 import { CheckField, CommitField, ExpressionField, Section, SelectField } from './fields';
+import { QuickFixButton, SeverityIcon } from './ProblemsPanel';
 
 const ACTION_KINDS: ActionKind[] = [
   'continuous',
@@ -266,6 +269,30 @@ function GrafcetAndProjectProps({ g }: { g: Grafcet }) {
   );
 }
 
+/** Problems of the selected element, with their quick fixes. */
+function ElementProblems({ id }: { id: Id }) {
+  const { t } = useTranslation();
+  const issues = useProblems((s) => s.byElement.get(id));
+  if (!issues?.length) return null;
+  return (
+    <Section title={t('panels.problems')}>
+      <ul className="flex flex-col gap-2">
+        {issues.map((issue, i) => (
+          <li key={i} className="flex flex-col gap-1">
+            <span className="flex items-start gap-2">
+              <SeverityIcon severity={issue.severity} />
+              <span>{issueMessage(t, issue)}</span>
+            </span>
+            <span className="pl-6">
+              <QuickFixButton issue={issue} />
+            </span>
+          </li>
+        ))}
+      </ul>
+    </Section>
+  );
+}
+
 /** Right panel: properties of the selection, or of the grafcet/project when nothing is selected. */
 export function PropertiesPanel() {
   const { t } = useTranslation();
@@ -351,6 +378,7 @@ export function PropertiesPanel() {
   return (
     <aside aria-label={t('props.label')} className="h-full overflow-y-auto">
       {body}
+      {ids.length === 1 && <ElementProblems id={ids[0]!} />}
     </aside>
   );
 }

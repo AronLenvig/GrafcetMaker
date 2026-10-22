@@ -172,3 +172,27 @@
   stroke-width: 1.5;
   stroke-dasharray: 3 2;
 }
+
+/* Problem badges: shape + glyph encode severity, color reinforces it. */
+.gm-badge {
+  cursor: pointer;
+}
+
+.gm-badge-error .gm-badge-shape {
+  fill: var(--danger);
+}
+
+.gm-badge-warning .gm-badge-shape {
+  fill: var(--warning);
+}
+
+.gm-badge-info .gm-badge-shape {
+  fill: var(--info);
+}
+
+.gm-badge-glyph {
+  fill: none;
+  stroke: var(--canvas);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}

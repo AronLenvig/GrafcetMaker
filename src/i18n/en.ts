@@ -91,6 +91,7 @@ export const en = {
     layoutSelection: 'Auto-layout selection',
     renumber: 'Renumber steps',
     route: 'Move loop',
+    quickFix: 'Quick fix',
     addVariable: 'Add variable',
     renameVariable: 'Rename variable',
     editVariable: 'Edit variable',
@@ -350,9 +351,60 @@ export const en = {
     renumbered_one: '{{count}} step renumbered; references updated.',
     renumbered_other: '{{count}} steps renumbered; references updated.',
   },
+  problems: {
+    none: 'No problems found.',
+    allHidden: 'All problems are hidden by the filters above.',
+    open: 'Show problems',
+    summary: '{{errors}} errors, {{warnings}} warnings',
+    counts: {
+      error_one: '{{count}} error',
+      error_other: '{{count}} errors',
+      warning_one: '{{count}} warning',
+      warning_other: '{{count}} warnings',
+      info_one: '{{count}} info',
+      info_other: '{{count}} info',
+    },
+    severity: {
+      error: 'Error',
+      warning: 'Warning',
+      info: 'Information',
+    },
+    location: {
+      project: 'Project',
+      step: 'Step {{n}}',
+      transition: 'Transition {{from}} → {{to}}',
+      action: 'Action of step {{n}}',
+      comment: 'Comment',
+    },
+    messages: {
+      noInitialStep: 'Grafcet {{grafcet}} has no initial step, so it never becomes active.',
+      duplicateStepNumber: '{{count}} steps are numbered {{number}}.',
+      emptyReceptivity: 'Empty receptivity. Use 1 for a transition that is always true.',
+      unreachableStep: 'Step {{step}} can never become active.',
+      deadEndStep: 'Step {{step}} has no outgoing transition: once active it stays active.',
+      nonExclusiveOr:
+        'The alternative branches after step {{step}} are not exclusive: “{{a}}” and “{{b}}” can be true together, which would activate both branches.',
+      transientLoop:
+        'Possible endless transient evolution: if {{receptivities}} are all true at once, the grafcet never becomes stable.',
+      parallelOutput:
+        'Output {{output}} is set by continuous actions of steps {{a}} and {{b}}, which can be active at the same time.',
+      macroEntryExit:
+        'Expansion {{grafcet}} needs exactly one entry step (no upstream transition) and one exit step (no downstream transition); it has {{entries}} and {{exits}}.',
+      unusedVariable: 'Variable {{name}} is not used.',
+    },
+    fixes: {
+      setReceptivity: 'Use {{value}}',
+      prioritize: 'Give priority to “{{a}}”',
+      makeInitial: 'Make step {{step}} initial',
+      createVariable: 'Create {{type}} {{name}}',
+      renumber: 'Renumber steps',
+      deleteVariable: 'Delete {{name}}',
+    },
+  },
   panels: {
     label: 'Panels',
     variables: 'Variables',
+    problems: 'Problems',
     expand: 'Expand panel',
     collapse: 'Collapse panel',
     resize: 'Resize bottom panel',

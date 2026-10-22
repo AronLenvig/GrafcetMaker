@@ -25,3 +25,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Structures: parallel (AND) and alternative (OR) branches, loops with movable lanes, source and
   sink transitions; on-demand auto-layout (whole grafcet or selection); step renumbering that
   updates all references.
+- Continuous validation in a Web Worker: Problems panel with jump-to-element and quick fixes,
+  on-diagram badges, counters in the top bar. Includes reachability, dead ends, exclusivity of
+  alternative branches, possible transient loops and outputs driven from parallel branches.

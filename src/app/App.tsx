@@ -7,6 +7,7 @@ import { installShortcuts } from '@/editor/commands/shortcuts';
 import { doc } from '@/editor/store/document';
 import { isDirty } from '@/editor/store/documentStore';
 import { Toolbar } from '@/editor/tools/Toolbar';
+import { startValidation } from '@/editor/validation/problems';
 import { BottomPanel } from '@/panels/BottomPanel';
 import { PropertiesPanel } from '@/panels/PropertiesPanel';
 import { CommandPalette } from './CommandPalette';
@@ -42,6 +43,7 @@ function useAppLifecycle() {
         toast(t('file.storageUnavailable'), 'warning', 8000);
       });
       startAutosave(() => useSession.getState().fileName ?? undefined);
+      startValidation();
       void startup();
     }
     return () => {

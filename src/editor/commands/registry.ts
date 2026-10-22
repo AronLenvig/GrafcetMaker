@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { setPrefs, usePrefs } from '@/app/prefs';
+import { setPrefs, showBottomTab, usePrefs } from '@/app/prefs';
 import {
   newProject,
   openProjectDialog,
@@ -7,7 +7,6 @@ import {
   saveProjectAs,
   downloadCopy,
 } from '@/app/persistence/session';
-import { showBottomTab } from '@/panels/BottomPanel';
 import { useTheme } from '@/theme/theme';
 import { fitToContent, setZoom, zoomBy } from '../canvas/viewport';
 import { doc } from '../store/document';

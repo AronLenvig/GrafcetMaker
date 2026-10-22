@@ -21,6 +21,7 @@ import {
   TransitionView,
 } from './elements';
 import { InlineEditor } from './InlineEditor';
+import { IssueBadges } from './IssueBadges';
 import { useInteraction } from './interactionStore';
 import { Overlay } from './Overlay';
 import { pointsToPath } from './svg';
@@ -222,6 +223,7 @@ export function Canvas({ readOnly = false }: { readOnly?: boolean }) {
           </>
         )}
         <g>{content}</g>
+        {g && geom && <IssueBadges g={g} geom={geom} />}
         {g && geom && <Overlay g={g} geom={geom} readOnly={readOnly} />}
       </svg>
       {g && geom && <InlineEditor g={g} geom={geom} viewport={viewport} />}

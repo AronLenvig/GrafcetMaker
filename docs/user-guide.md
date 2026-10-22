@@ -117,6 +117,26 @@ Use the `+` next to the tabs to add a partial grafcet; its first step number con
 numbers already used, in tens. Double-click a tab (or press `F2` on it) to rename it; right-click
 for move and delete.
 
+## Problems
+
+GrafcetMaker checks the project continuously. The counters in the top bar show errors and
+warnings; click them (or the **Problems** tab) to see the list, grouped by grafcet. Each problem
+says what is wrong and where; click it to jump to the element (the view pans and zooms to it and
+it flashes). Many problems have a one-click fix: use `1` for an empty receptivity, create a
+missing variable, make a step initial, give one alternative branch priority over another,
+renumber duplicate steps, delete an unused variable.
+
+Elements with problems carry a badge on the diagram: a circle with `!` for errors, a triangle
+for warnings, a circle with `i` for information. Hover it for the details. The properties panel
+also lists the problems of the selected element.
+
+Checked: missing initial step, duplicate step numbers, empty or invalid receptivities and
+actions, unknown variables, type errors, actions that assign inputs, forcing orders that target
+nothing, unreachable steps, dead-end steps, alternative branches whose receptivities are not
+exclusive, loops that could be crossed endlessly in one evolution, outputs driven from parallel
+branches, macro-step expansions without one entry and one exit step, and unused variables. The
+exact definitions are in `docs/semantics.md`.
+
 ## Navigating
 
 - Scroll to pan, `Ctrl`+scroll (or pinch) to zoom around the pointer, `Space`+drag or the middle

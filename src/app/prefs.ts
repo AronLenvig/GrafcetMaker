@@ -58,3 +58,8 @@ usePrefs.subscribe((state) => {
 export function setPrefs(patch: Partial<Prefs>): void {
   usePrefs.setState(patch);
 }
+
+/** Opens the bottom panel on a tab (Variables, Problems, …). */
+export function showBottomTab(id: string): void {
+  setPrefs({ bottomTab: id, bottomCollapsed: false });
+}

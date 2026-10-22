@@ -3,10 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { formatKeys, getCommand, runCommand } from '@/editor/commands/registry';
 import { useDoc } from '@/editor/store/document';
 import { isDirty } from '@/editor/store/documentStore';
+import { useProblems } from '@/editor/validation/problems';
+import { SeverityIcon } from '@/panels/ProblemsPanel';
 import { ThemeSwitcher } from '@/theme/ThemeSwitcher';
 import { listRecent, type RecentEntry } from './persistence/db';
 import { openRecent, useSession } from './persistence/session';
-import { setPrefs, usePrefs } from './prefs';
+import { setPrefs, showBottomTab, usePrefs } from './prefs';
 import { LogoIcon, SearchIcon } from './ui/icons';
 import {
   IconButton,
@@ -91,6 +93,29 @@ function Title() {
       <span className="truncate font-medium">{name}</span>
       {fileName && <span className="hidden truncate text-muted md:inline">— {fileName}</span>}
     </div>
+  );
+}
+
+function ProblemsIndicator() {
+  const { t } = useTranslation();
+  const counts = useProblems((s) => s.counts);
+  return (
+    <button
+      type="button"
+      onClick={() => showBottomTab('problems')}
+      title={t('problems.open')}
+      aria-label={t('problems.summary', { errors: counts.error, warnings: counts.warning })}
+      className="flex h-7 items-center gap-2 rounded-md px-2 tabular-nums hover:bg-surface-2"
+    >
+      <span className="flex items-center gap-1">
+        <SeverityIcon severity="error" size={14} />
+        {counts.error}
+      </span>
+      <span className="flex items-center gap-1">
+        <SeverityIcon severity="warning" size={14} />
+        {counts.warning}
+      </span>
+    </button>
   );
 }
 
@@ -195,6 +220,7 @@ export function TopBar() {
       <div className="mx-2 flex min-w-0 flex-1 justify-center">
         <Title />
       </div>
+      <ProblemsIndicator />
       <Tip label={t('commands.view.palette')} keys={formatKeys('Mod+K')} side="bottom">
         <IconButton label={t('commands.view.palette')} onClick={() => runCommand('view.palette')}>
           <SearchIcon size={16} />

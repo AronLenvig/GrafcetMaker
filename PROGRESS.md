@@ -4,7 +4,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 
 ## Current phase
 
-**Phase 4** — validation.
+**Phase 5** — simulation.
 
 ## Phases
 
@@ -14,7 +14,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 | 1     | Core editor, undo, shortcuts, save/open/import (drag-drop), autosave | done   |
 | 2     | Expression parser, variables, autocomplete                           | done   |
 | 3     | OR/AND structures, loops, source/sink, auto-layout                   | done   |
-| 4     | Validation                                                           |        |
+| 4     | Validation                                                           | done   |
 | 5     | Simulation                                                           |        |
 | 6     | Exports                                                              |        |
 | 7     | Hierarchy (partial, macro, enclosing, forcing)                       |        |
@@ -79,6 +79,16 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Editor: P/O/L shortcuts, loop pick mode with target highlighting and hint banner, drag loop
   lanes (`routing.sideX`), Edit menu structure/arrange items.
 
+### Phase 4
+
+- `core/validation`: issue model (ruleId, severity, message key, elements, quick fix), exact
+  boolean reasoning by enumeration (`logic.ts`), all spec'd rules (`validate.ts`); 15 ms for a
+  540-step chart. Tests for exclusivity, reachability, transient loops, concurrency, fixes.
+- Worker (`src/workers/validation.worker.ts`) with 150 ms debounce and inline fallback; problems
+  store indexed by element.
+- UI: Problems panel (grouped by grafcet, severity filters, jump + flash, quick fixes), canvas
+  badges (shape-coded), top-bar counters, problems of the selection in the properties panel.
+
 ## Decisions
 
 - TypeScript pinned to 6.0.x: typescript-eslint does not support TS 7 (native port) yet.
@@ -100,6 +110,8 @@ Autonomous build log. Read this first in every session and resume from **Current
   longest branch stays in the column ("continue or loop back" stays straight).
 - Renumbering starts at the grafcet's lowest number and refuses on reference conflicts rather
   than silently changing meaning.
+- Validation severities follow the spec; extra checker diagnostics (types, ambiguous `Xn`) are
+  errors. Dead-end ignores steps without upstream transitions (a lone new step is not noise).
 - Commits go directly to `main` (greenfield repo, as instructed by the build spec); never pushed.
 
 ## Known gaps

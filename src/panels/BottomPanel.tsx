@@ -4,22 +4,28 @@ import { useTranslation } from 'react-i18next';
 import { setPrefs, usePrefs } from '@/app/prefs';
 import { ChevronDownIcon, ChevronUpIcon } from '@/app/ui/icons';
 import { IconButton } from '@/app/ui/primitives';
+import { useProblems } from '@/editor/validation/problems';
+import { ProblemsPanel } from './ProblemsPanel';
 import { VariablesPanel } from './VariablesPanel';
 
 export interface BottomTab {
   id: string;
   /** i18n key under `panels.` */
-  label: 'variables';
+  label: 'variables' | 'problems';
   Component: ComponentType;
 }
 
 export const BOTTOM_TABS: BottomTab[] = [
   { id: 'variables', label: 'variables', Component: VariablesPanel },
+  { id: 'problems', label: 'problems', Component: ProblemsPanel },
 ];
 
-/** Opens the bottom panel on a tab (used by commands such as "Show variables"). */
-export function showBottomTab(id: string): void {
-  setPrefs({ bottomTab: id, bottomCollapsed: false });
+function ProblemCount() {
+  const counts = useProblems((s) => s.counts);
+  const n = counts.error + counts.warning;
+  return n ? (
+    <span className="ml-1.5 rounded-full bg-surface-3 px-1.5 text-xs tabular-nums">{n}</span>
+  ) : null;
 }
 
 /** Tabbed bottom panel (Variables, …). Collapsing keeps the tab strip so it can be reopened. */
@@ -43,6 +49,7 @@ export function BottomPanel() {
               className="border-b-2 border-transparent px-3 text-muted hover:text-text data-[state=active]:border-accent data-[state=active]:text-text"
             >
               {t(`panels.${x.label}`)}
+              {x.id === 'problems' && <ProblemCount />}
             </Tabs.Trigger>
           ))}
         </Tabs.List>

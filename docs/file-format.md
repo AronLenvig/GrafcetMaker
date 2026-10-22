@@ -10,7 +10,7 @@ The authoritative definition is the Zod schema in
 ## Versioning
 
 - `schemaVersion` (integer) identifies the format. Current version: **2**.
-- History: **1** first release; **2** actions may be unattached (`stepId: null` with a
+- History: **1** first release; **2** actions may have no step (`stepId: null` with a
   `position`). Version 1 files are upgraded unchanged.
 - Older files are upgraded on load through a migration chain
   ([`src/core/io/migrations.ts`](../src/core/io/migrations.ts)); each migration upgrades exactly
@@ -89,7 +89,7 @@ Transition {
 
 Action {
   id; order                   // order = left-to-right position next to the step
-  stepId: Id | null           // null: not attached to any step (a draft, never executed)
+  stepId: Id | null           // null: no step, the action is always active
   position?: { x, y }         // top-left corner, required when stepId is null
   kind: 'continuous' | 'storedOnActivation' | 'storedOnDeactivation' | 'storedOnEvent' | 'forcing'
   text: string                // continuous: `M1` · stored: `C := C + 1` · forcing: `G2{8}`

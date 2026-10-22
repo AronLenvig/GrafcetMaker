@@ -46,8 +46,11 @@ grafcet would never settle. Add a condition, often an edge (`↑start`), that ca
 **Output set by continuous actions of steps that can be active together.** Two parallel branches
 drive the same output. Drive it from one place, or use stored actions.
 
-**Action not attached to a step.** It never executes. Drag it onto a step, or choose its step in
-the Properties panel.
+**An action without a step is stored on deactivation.** Without a step the action is always
+active and never deactivated, so it never runs. Attach it to a step, or change its kind.
+
+**Output set by an action without a step and by another action.** The output is true whenever any
+of them is. Make sure that is what you want.
 
 **Stored on an event but no event.** Enter the event (e.g. `↑b`) in the Properties panel.
 

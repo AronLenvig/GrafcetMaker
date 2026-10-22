@@ -68,7 +68,10 @@ export interface CForcing {
 export interface CAction {
   idx: number;
   id: Id;
-  step: number;
+  /** Its step, or null for an action without a step: always active. */
+  step: number | null;
+  /** Grafcet the action belongs to. */
+  grafcet: number;
   kind: ActionKind;
   /** Lower-cased name of the variable written (continuous and stored actions). */
   target?: string;
@@ -103,6 +106,8 @@ export interface Program {
   actions: CAction[];
   /** Actions per step index, in display order. */
   actionsByStep: CAction[][];
+  /** Actions without a step (always active), in grafcet order. */
+  alwaysActions: CAction[];
   /** Transitions leaving each step index (for enabling). */
   outgoing: number[][];
   variables: Map<string, Variable>;
@@ -243,10 +248,10 @@ export function compile(project: Project): Program {
     }
 
     for (const a of Object.values(g.actions).sort((x, y) => x.order - y.order)) {
-      // Unattached actions are drafts: they never execute.
-      const step = a.stepId === null ? undefined : stepIndex.get(a.stepId);
+      // An action without a step is always active (as if its step were always active).
+      const step = a.stepId === null ? null : stepIndex.get(a.stepId);
       if (step === undefined) continue;
-      const ca: CAction = { idx: actions.length, id: a.id, step, kind: a.kind };
+      const ca: CAction = { idx: actions.length, id: a.id, step, grafcet: cg.idx, kind: a.kind };
       if (a.condition !== undefined && a.condition.trim() && a.kind !== 'forcing') {
         ca.condition =
           bool(`c:${a.id}`, a.condition, a.id, a.kind === 'continuous' ? 'output' : 'evolution') ??
@@ -308,7 +313,7 @@ export function compile(project: Project): Program {
   const forcedBy = new Map<number, Set<number>>();
   for (const a of actions) {
     if (!a.forcing) continue;
-    const forcer = steps[a.step]!.grafcet;
+    const forcer = a.grafcet;
     if (forcer === a.forcing.target) continue;
     const set = forcedBy.get(a.forcing.target) ?? new Set<number>();
     set.add(forcer);
@@ -332,7 +337,8 @@ export function compile(project: Project): Program {
   for (const g of grafcets) g.level = levelOf(g.idx);
 
   const actionsByStep: CAction[][] = steps.map(() => []);
-  for (const a of actions) actionsByStep[a.step]!.push(a);
+  for (const a of actions) if (a.step !== null) actionsByStep[a.step]!.push(a);
+  const alwaysActions = actions.filter((a) => a.step === null);
   const outgoing: number[][] = steps.map(() => []);
   for (const t of transitions) for (const s of t.from) outgoing[s]!.push(t.idx);
   const continuousTargets = new Set(
@@ -345,6 +351,7 @@ export function compile(project: Project): Program {
     transitions,
     actions,
     actionsByStep,
+    alwaysActions,
     outgoing,
     variables,
     continuousTargets,

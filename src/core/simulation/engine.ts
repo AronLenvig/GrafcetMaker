@@ -375,12 +375,17 @@ export class Simulator {
           (t.guard === undefined || this.activeOf(t.guard)) &&
           this.eval(t.receptivity),
       );
-      // Stored actions on event, for the steps active in this situation.
+      // Stored actions on event, for the steps active in this situation (and actions without a
+      // step, which are always active).
       for (const s of steps) {
         if (this.active[s] !== 1) continue;
         for (const a of p.actionsByStep[s]!) {
           if (a.kind === 'storedOnEvent' && a.condition && this.eval(a.condition)) this.assign(a);
         }
+      }
+      for (const a of p.alwaysActions) {
+        if (a.kind !== 'storedOnEvent' || !grafcets.includes(a.grafcet)) continue;
+        if (a.condition && this.eval(a.condition)) this.assign(a);
       }
       // Stable: nothing clearable and no event action changed a variable a receptivity may read.
       if (!clearable.length && !this.assigned) {
@@ -453,7 +458,8 @@ export class Simulator {
     for (const name of p.continuousTargets) this.values.set(name, false);
     this.executing = [];
     for (const a of p.actions) {
-      if (a.kind !== 'continuous' || !a.target || !this.activeOf(a.step)) continue;
+      if (a.kind !== 'continuous' || !a.target) continue;
+      if (a.step !== null && !this.activeOf(a.step)) continue;
       if (a.condition && !this.eval(a.condition)) continue;
       this.values.set(a.target, true);
       this.executing.push(a.id);
@@ -492,6 +498,12 @@ export class Simulator {
             this.applyForcing(a.forcing, log);
           }
         }
+        // A forcing order without a step is always in force.
+        for (const a of this.program.alwaysActions) {
+          if (a.grafcet !== gi || !a.forcing) continue;
+          frozen.add(a.forcing.target);
+          this.applyForcing(a.forcing, log);
+        }
       }
     }
     // Grafcets frozen by forcing still observe this cycle's state, so events that happened while
@@ -526,6 +538,12 @@ export class Simulator {
       [],
       this.program.steps.filter((s) => s.initial).map((s) => s.idx),
     );
+    // Actions without a step are always active: those stored on activation run once, now.
+    for (const a of this.program.alwaysActions) {
+      if (a.kind !== 'storedOnActivation') continue;
+      if (a.condition && !this.eval(a.condition)) continue;
+      this.assign(a);
+    }
     return this.runCycle('start', []);
   }
 

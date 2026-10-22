@@ -97,9 +97,9 @@ function expressionRules(g: Grafcet, env: ExprEnv, used: Set<string>, out: Issue
       });
     }
   }
-  // An action attached to no step never executes.
+  // An action without a step is always active, so it is never deactivated.
   for (const a of Object.values(g.actions)) {
-    if (a.stepId !== null) continue;
+    if (a.stepId !== null || a.kind !== 'storedOnDeactivation') continue;
     out.push({
       ruleId: 'unattachedAction',
       severity: 'warning',
@@ -391,13 +391,36 @@ export function coActiveSteps(g: Grafcet, only?: ReadonlySet<Id>): Set<string> |
 
 function parallelOutputRule(g: Grafcet, out: Issue[]): void {
   const byOutput = new Map<string, { stepId: Id; actionId: Id; name: string }[]>();
+  const always = new Map<string, Id[]>();
   for (const a of Object.values(g.actions)) {
-    if (a.kind !== 'continuous' || !a.text.trim() || a.stepId === null) continue;
+    if (a.kind !== 'continuous' || !a.text.trim()) continue;
+    if (a.stepId === null) {
+      // Without a step the action is always active: active together with every other driver.
+      const key = a.text.trim().toLowerCase();
+      always.set(key, [...(always.get(key) ?? []), a.id]);
+      continue;
+    }
     const key = a.text.trim().toLowerCase();
     byOutput.set(key, [
       ...(byOutput.get(key) ?? []),
       { stepId: a.stepId, actionId: a.id, name: a.text.trim() },
     ]);
+  }
+  for (const [key, ids] of always) {
+    const steps = byOutput.get(key) ?? [];
+    if (ids.length + steps.length < 2) continue;
+    const name = g.actions[ids[0]!]!.text.trim();
+    out.push({
+      ruleId: 'parallelOutput',
+      severity: 'warning',
+      messageKey: 'problems.messages.parallelOutputAlways',
+      params: {
+        output: name,
+        steps: steps.map((x) => stepLabel(g.steps[x.stepId]!)).join(', ') || '–',
+      },
+      grafcetId: g.id,
+      elementIds: [...ids, ...steps.map((x) => x.actionId)],
+    });
   }
   const shared = [...byOutput.values()].filter(
     (list) => new Set(list.map((x) => x.stepId)).size > 1,

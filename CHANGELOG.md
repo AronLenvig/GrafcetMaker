@@ -8,13 +8,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
-- Actions can exist without a step: place one with the Action tool (or `A` with nothing
-  selected), drag it onto a step to attach it, or choose its step in the properties panel. An
-  unattached action never executes and is reported as a warning.
+- Actions without a step: place one with the Action tool (or `A` with nothing selected); drag it
+  onto a step to attach it, or choose its step in the properties panel. An action without a step
+  is always active: a continuous action follows its assignment condition, a stored action runs on
+  its event (on activation: once at start), a forcing order is always in force. Simulated and
+  generated (Structured Text; PLCopen XML through a GRAFCET_Always program).
 
 ### Changed
 
-- File format version 2 (unattached actions). Version 1 files open unchanged; GrafcetMaker 1.0.0
+- File format version 2 (actions without a step). Version 1 files open unchanged; GrafcetMaker 1.0.0
   reports version 2 files as made by a newer version.
 
 ### Fixed

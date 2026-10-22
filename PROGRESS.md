@@ -193,8 +193,11 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Unattached actions: `Action.stepId: Id | null` + `position`, file format 2 (identity migration
   from 1), geometry `freeActions` / `actionBoxOf`, ops add/attach/detach, move, clipboard, SVG/PDF
   export, Action tool (`Shift+A`; `A` falls back to it), drag onto a step to attach (highlighted
-  target), Properties step picker, outline, hints, warning `unattachedAction`; never simulated nor
-  generated. Tests in `tests/unit/actions.test.ts`.
+  target), Properties step picker, outline, hints. Semantics corrected by the owner: an action
+  without a step is **always active** (continuous → its condition; event → on each event;
+  activation → once at start; deactivation → never, warned; forcing → always). Simulator
+  (`Program.alwaysActions`), ST, PLCopen (`GRAFCET_Always` program) and validation (parallel
+  outputs with always-active drivers). Tests in `tests/unit/actions.test.ts`.
 - Fix: placing tools switched back to Select after creating the element, which closed the editor
   a new comment opened.
 

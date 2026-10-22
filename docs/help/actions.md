@@ -53,11 +53,19 @@ double frame. See [Macro-steps, enclosing steps and forcing](hierarchy.md).
 
 ## Actions without a step
 
-You can sketch an action before deciding which step it belongs to: with nothing selected, press
-<kbd>A</kbd> (or pick the **Action** tool) and click empty canvas. The action is drawn on its own,
-without a link. It never executes, and the Problems list reminds you of it. To attach it, drag it
-onto a step (the step lights up), or choose its **Step** in the Properties panel. Choosing **Not
-attached** there detaches an action again.
+An action does not have to belong to a step. With nothing selected, press <kbd>A</kbd> (or pick
+the **Action** tool) and click empty canvas: the action is drawn on its own, without a link, and
+it is **always active**.
+
+- A continuous action without a step sets its output whenever its **assignment condition** is
+  true, whatever the steps: `Lamp` with the condition `a * b` is the logic `Lamp = a · b`.
+  Without a condition the output is always true.
+- A stored action on an event runs every time the event occurs, e.g. `C := C + 1` on `↑pulse`
+  counts pulses. On activation, it runs once when the simulation starts. On deactivation it never
+  runs, since the action is never deactivated.
+
+To attach an action to a step, drag it onto the step (the step lights up), or choose its **Step**
+in the Properties panel. Choosing **No step (always active)** there detaches it again.
 
 ## Several actions
 

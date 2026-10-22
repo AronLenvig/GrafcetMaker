@@ -8,16 +8,21 @@ import {
   pasteElements,
   serializeClipboard,
 } from '@/core/model/clipboard';
-import { createProject } from '@/core/model/factory';
+import { createGrafcet, createProject } from '@/core/model/factory';
 import {
   addAction,
   addFreeAction,
+  addStep,
+  addTransition,
   attachAction,
   deleteElements,
   detachAction,
   moveElements,
 } from '@/core/model/ops';
-import type { Grafcet, Project } from '@/core/model/types';
+import type { Grafcet, Project, Variable } from '@/core/model/types';
+import { generatePlcOpen } from '@/core/codegen/plcopen';
+import { generateSt } from '@/core/codegen/st';
+import { Simulator } from '@/core/simulation/engine';
 import { compile } from '@/core/simulation/program';
 import { validateProject } from '@/core/validation/validate';
 
@@ -89,13 +94,107 @@ describe('unattached actions', () => {
     });
   });
 
-  it('are reported and never executed', () => {
+  it('only warn when stored on deactivation (never deactivated)', () => {
     const { p, g } = setup();
-    const free = addFreeAction(g, { x: 400, y: 300 }, 'continuous', 'Horn');
+    addFreeAction(g, { x: 400, y: 300 }, 'continuous', 'Horn');
+    const deact = addFreeAction(g, { x: 400, y: 380 }, 'storedOnDeactivation', 'Horn := 0');
     p.variables.h = { id: 'h', name: 'Horn', type: 'BOOL', direction: 'output' };
     const issues = validateProject(p).filter((i) => i.ruleId === 'unattachedAction');
-    expect(issues).toHaveLength(1);
-    expect(issues[0]!.elementIds).toEqual([free.id]);
-    expect(compile(p).actions.find((a) => a.id === free.id)).toBeUndefined();
+    expect(issues.map((i) => i.elementIds)).toEqual([[deact.id]]);
+  });
+});
+
+/** A project with one grafcet: initial step 0 → (go) → step 1 → (/go) → 0, plus actions. */
+function machine(actions: (g: Grafcet, s0: string, s1: string) => void, extra: Variable[] = []) {
+  const { p, g, step: s0 } = setup();
+  const s1 = addStep(g, { x: 200, y: 220 }, 'normal', 1).id;
+  addTransition(g, { x: 200, y: 160 }, [s0], [s1], 'go');
+  addTransition(g, { x: 200, y: 280 }, [s1], [s0], '/go');
+  for (const v of [
+    { id: 'go', name: 'go', type: 'BOOL', direction: 'input' },
+    { id: 'a', name: 'a', type: 'BOOL', direction: 'input' },
+    { id: 'pulse', name: 'pulse', type: 'BOOL', direction: 'input' },
+    { id: 'Horn', name: 'Horn', type: 'BOOL', direction: 'output' },
+    { id: 'C', name: 'C', type: 'INT', direction: 'internal' },
+    ...extra,
+  ] as Variable[])
+    p.variables[v.id] = v;
+  actions(g, s0, s1);
+  const sim = new Simulator(compile(p));
+  sim.start();
+  return { p, g, sim, value: (n: string) => sim.snapshot().values[n.toLowerCase()] };
+}
+
+describe('actions without a step are always active', () => {
+  it('a continuous action follows its assignment condition, whatever the steps', () => {
+    const { sim, value } = machine((g) => {
+      const h = addFreeAction(g, { x: 400, y: 100 }, 'continuous', 'Horn');
+      h.condition = 'a';
+    });
+    expect(value('Horn')).toBe(false);
+    sim.setInputs({ a: true });
+    expect(value('Horn')).toBe(true);
+    sim.setInputs({ go: true });
+    expect(value('Horn')).toBe(true);
+    sim.setInputs({ a: false });
+    expect(value('Horn')).toBe(false);
+  });
+
+  it('without a condition it is always true, and ORs with step actions', () => {
+    const { sim, value } = machine((g, _s0, s1) => {
+      addFreeAction(g, { x: 400, y: 100 }, 'continuous', 'Horn').condition = 'a';
+      addAction(g, s1, 'continuous', 'Horn');
+    });
+    expect(value('Horn')).toBe(false);
+    sim.setInputs({ go: true });
+    expect(value('Horn')).toBe(true);
+    expect(
+      machine((g) => void addFreeAction(g, { x: 0, y: 0 }, 'continuous', 'Horn')).value('Horn'),
+    ).toBe(true);
+  });
+
+  it('runs stored actions on its event, and on activation once at start', () => {
+    const { sim, value } = machine((g) => {
+      addFreeAction(g, { x: 400, y: 100 }, 'storedOnActivation', 'C := 5');
+      addFreeAction(g, { x: 400, y: 160 }, 'storedOnEvent', 'C := C + 1').condition = '↑pulse';
+    });
+    expect(value('C')).toBe(5);
+    sim.setInputs({ pulse: true });
+    sim.setInputs({ pulse: false });
+    sim.setInputs({ pulse: true });
+    expect(value('C')).toBe(7);
+    sim.setInputs({ go: true });
+    expect(value('C')).toBe(7);
+  });
+
+  it('a forcing order without a step is always in force', () => {
+    const { p, g } = setup();
+    const g2 = createGrafcet('G2');
+    const t0 = addStep(g2, { x: 200, y: 100 }, 'initial', 10).id;
+    const t1 = addStep(g2, { x: 200, y: 220 }, 'normal', 11).id;
+    addTransition(g2, { x: 200, y: 160 }, [t0], [t1], '1');
+    p.grafcets[g2.id] = g2;
+    p.grafcetOrder.push(g2.id);
+    addFreeAction(g, { x: 400, y: 100 }, 'forcing', 'G2{INIT}');
+    const sim = new Simulator(compile(p));
+    sim.start();
+    expect(sim.snapshot().active).toContain(t0);
+    expect(sim.snapshot().active).not.toContain(t1);
+  });
+
+  it('are generated as always-active code', () => {
+    const { p } = machine((g) => {
+      addFreeAction(g, { x: 400, y: 100 }, 'continuous', 'Horn').condition = 'a';
+      addFreeAction(g, { x: 400, y: 160 }, 'storedOnEvent', 'C := C + 1').condition = '↑pulse';
+      addFreeAction(g, { x: 400, y: 220 }, 'storedOnActivation', 'C := 5');
+    });
+    const opts = { version: '1.0.0', date: new Date('2026-01-02T03:04:00Z') };
+    const code = generateSt(p, opts).code;
+    expect(code).toContain('Horn := a;');
+    expect(code).toMatch(/IF RE_1.Q THEN .*on event/);
+    expect(code).toMatch(/IF Init THEN .*on activation/);
+    const xml = generatePlcOpen(p, opts).code;
+    expect(xml).toContain('<pou name="GRAFCET_Always" pouType="program">');
+    expect(xml).toContain('Horn := (a);');
   });
 });

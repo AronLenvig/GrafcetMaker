@@ -10,10 +10,9 @@ interpretation, the choice made is recorded here. Sections are added as features
   generated Structured Text valid.
 - Variable names must not look like step variables (`X` followed by digits, e.g. `X12`), since
   `Xn` denotes the activity of step _n_.
-- **Unattached actions**: IEC 60848 only defines actions associated with a step. GrafcetMaker
-  lets an action exist without a step (`stepId: null`, drawn where it was placed, without a link)
-  so it can be drafted first and attached later. Such an action is never executed by the simulator
-  nor by generated code, and validation reports it as a warning ("not attached to a step").
+- **Actions without a step** (`stepId: null`, drawn where they were placed, without a link) are
+  **always active**, as if their step were always active — common practice for continuous
+  assignments such as `Lamp` with the condition `a * b`. See "Actions and variables" below.
 - Step numbers should be unique per grafcet; duplicates are a validation error, not a load error.
 - Divergences/convergences are derived from transition `from`/`to` lists, so an AND divergence is
   exactly "a transition with several downstream steps" — the model cannot express an ill-formed
@@ -148,6 +147,13 @@ hand-verified charts (`tests/unit/simulation.test.ts`).
 
 ### Actions and variables
 
+- Actions without a step are always active: a continuous one sets its output whenever its
+  assignment condition is true (always, without a condition); a stored action on event runs
+  whenever its event occurs (in every search for stability of its grafcet, like the event
+  actions of active steps); a stored action on activation runs once, at initialization (the
+  always-active "step" is activated once); one on deactivation never runs (validation warns); a
+  forcing order is in force in every cycle. An output set both by an action without a step and by
+  step actions is true when any of them is (validation warns).
 - Continuous actions: a BOOL output is true when at least one active step sets it with a
   continuous action whose assignment condition (if any) is true; otherwise false. Variables driven
   by any continuous action are recomputed every cycle (a stored assignment to them is
@@ -250,7 +256,10 @@ One vendor-neutral `FUNCTION_BLOCK` runs every grafcet. Inputs become `VAR_INPUT
 6. Stored actions run when a step changed since the previous scan (`X AND NOT X_M` on activation,
    `NOT X AND X_M` on deactivation; deactivation first), with their condition; actions on event run
    while the step is active and the event is true. Then `X_M := X`.
-7. Continuous actions: each driven variable is assigned the OR of `X AND condition` of its steps.
+7. Continuous actions: each driven variable is assigned the OR of `X AND condition` of its steps
+   (an action without a step contributes its condition alone, or `TRUE`). Without a step, stored
+   actions on event are `IF event THEN …`, on activation `IF Init THEN …` (first scan), and forcing
+   flags are always TRUE.
 
 Differences from IEC 60848 (and from the simulator), by design of a cyclic PLC program: one
 clearing level per scan (no search for stability), so a chain of true transitions is crossed one
@@ -280,5 +289,8 @@ actions run per iteration, so transient steps execute their stored actions as in
   on activation → S / R for a constant BOOL, otherwise P1 with an inline assignment; on
   deactivation → P0; on event → N with `IF event THEN … END_IF`; macro-step actions are attached to
   every step of the expansion.
+- Actions without a step go to an ST program `GRAFCET_Always` run after the SFC programs:
+  continuous ones assign their condition (ORed with what the SFC programs set when steps also
+  drive the variable), event ones are `IF event THEN …`, activation ones run in the first scan.
 - Not representable in IEC 61131-3 SFC and reported: forcing orders (kept as a comment), enclosure
   semantics, source and sink transitions. Use the Structured Text export for those.

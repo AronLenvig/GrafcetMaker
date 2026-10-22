@@ -353,10 +353,11 @@ export const en = {
     action: {
       title: 'Action {{n}}',
       ofStep: 'Action of step {{n}}',
-      unattachedTitle: 'Unattached action',
+      unattachedTitle: 'Action without step (always active)',
       step: 'Step',
-      unattached: 'Not attached (never executed)',
-      unattachedHint: 'Choose a step here, or drag the action onto a step.',
+      unattached: 'No step (always active)',
+      unattachedHint:
+        'Without a step the action is always active: a continuous action follows its assignment condition, stored actions run on their event (or once at start). Drag it onto a step to attach it.',
       moveUp: 'Move action left',
       moveDown: 'Move action right',
       delete: 'Delete action',
@@ -477,7 +478,7 @@ export const en = {
       step: 'Step {{n}}',
       transition: 'Transition {{from}} → {{to}}',
       action: 'Action of step {{n}}',
-      freeAction: 'Unattached action',
+      freeAction: 'Action without step',
       comment: 'Comment',
     },
     messages: {
@@ -485,7 +486,9 @@ export const en = {
       duplicateStepNumber: '{{count}} steps are numbered {{number}}.',
       emptyReceptivity: 'Empty receptivity. Use 1 for a transition that is always true.',
       unattachedAction:
-        'The action “{{text}}” is not attached to a step, so it never executes. Drag it onto a step, or choose its step in Properties.',
+        'The action “{{text}}” has no step, so it is always active and never deactivated: a stored action on deactivation never runs. Attach it to a step, or change its kind.',
+      parallelOutputAlways:
+        'Output {{output}} is set by an action without a step (always active) and also by another action (steps: {{steps}}). It is true whenever any of them is.',
       missingEvent:
         'The action “{{text}}” is stored on an event but has no event, so it never executes. Enter one such as ↑b in Properties.',
       unreachableStep: 'Step {{step}} can never become active.',
@@ -990,7 +993,7 @@ export const en = {
     if: 'if {{condition}}',
     transition: 'Transition to {{to}}: {{receptivity}}',
     source: 'Source transition to {{to}}: {{receptivity}}',
-    unattached: 'Unattached action: {{text}}',
+    unattached: 'Always-active action (no step): {{text}}',
     active: 'active',
   },
   split: {
@@ -1080,10 +1083,10 @@ export const en = {
         step: 'place a step',
         transition: 'place a transition',
         comment: 'place a comment',
-        action: 'place an unattached action',
+        action: 'place an always-active action (no step)',
       },
       attachNew: 'to add an action to it',
-      attach: 'to attach it (it never executes while unattached)',
+      attach: 'to attach it (without a step it is always active)',
       chooseStep: 'choose its step',
       placeMany: 'place several',
       backToSelect: 'back to the Select tool',

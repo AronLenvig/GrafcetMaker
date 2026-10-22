@@ -395,6 +395,8 @@ export function generatePlcOpen(project: Project, opts: PlcOpenOptions): Codegen
         ? n.t1
         : undefined;
     for (const a of p.actions) {
+      // Actions without a step go to the GRAFCET_Always program.
+      if (a.step === null) continue;
       const stepsOf = isMacro(a.step) ? realMembers(a.step) : [a.step];
       if (!stepsOf.some((s) => stepSet.has(s))) continue;
       let xmlAction: string | null = null;
@@ -456,8 +458,7 @@ export function generatePlcOpen(project: Project, opts: PlcOpenOptions): Codegen
           xmlAction = actionXml('N', inline(`IF ${cond} THEN ${assign()} END_IF;`));
           break;
         case 'forcing': {
-          const text =
-            project.grafcets[p.grafcets[p.steps[a.step]!.grafcet]!.id]!.actions[a.id]!.text;
+          const text = project.grafcets[p.grafcets[a.grafcet]!.id]!.actions[a.id]!.text;
           warn({ code: 'forcing', elementId: a.id, params: { order: text } });
           xmlAction = actionXml(
             'N',
@@ -479,6 +480,52 @@ export function generatePlcOpen(project: Project, opts: PlcOpenOptions): Codegen
       nextId,
     });
   }
+  // ---- Actions without a step: always active, in an ST program run after the SFC programs ---
+  const always: string[] = [];
+  const alwaysDecls: Global[] = [];
+  if (p.alwaysActions.length) {
+    const first = names.take('FirstScan');
+    alwaysDecls.push({ name: first, type: 'BOOL', initial: 'TRUE', doc: 'first scan' });
+    const name = (lower: string) => p.variables.get(lower)?.name ?? lower;
+    const cond = (a: CAction) =>
+      a.condition ? stBool(a.condition.ast, a.condition.steps, helperTarget) : null;
+    const assign = (a: CAction) => {
+      if (!a.target) return null;
+      const v = p.variables.get(a.target);
+      if (a.boolValue)
+        return `${name(a.target)} := ${stBool(a.boolValue.ast, a.boolValue.steps, helperTarget)};`;
+      if (a.arithValue)
+        return `${name(a.target)} := ${stArith(a.arithValue.ast, helperTarget, 0, v?.type)};`;
+      return null;
+    };
+    const stepDriven = new Set(
+      p.actions.filter((a) => a.kind === 'continuous' && a.step !== null).map((a) => a.target),
+    );
+    const continuous = new Map<string, string[]>();
+    for (const a of p.alwaysActions) {
+      const c = cond(a);
+      const body = assign(a);
+      if (a.kind === 'continuous' && a.target)
+        continuous.set(a.target, [...(continuous.get(a.target) ?? []), c ? `(${c})` : 'TRUE']);
+      else if (a.kind === 'storedOnActivation' && body)
+        always.push(`IF ${first}${c ? ` AND (${c})` : ''} THEN ${body} END_IF;`);
+      else if (a.kind === 'storedOnEvent' && body && c) always.push(`IF ${c} THEN ${body} END_IF;`);
+      else if (a.kind === 'forcing') {
+        const text = project.grafcets[p.grafcets[a.grafcet]!.id]!.actions[a.id]!.text;
+        warn({ code: 'forcing', elementId: a.id, params: { order: text } });
+        always.push(
+          `(* forcing order ${text.replace(/\*\)/g, '* )')}: see the Structured Text export *)`,
+        );
+      }
+    }
+    // Variables also driven by steps keep what the SFC programs set this scan (OR).
+    for (const [lower, terms] of continuous)
+      always.push(
+        `${name(lower)} := ${stepDriven.has(lower) ? `${name(lower)} OR ` : ''}${terms.join(' OR ')};`,
+      );
+    always.push(`${first} := FALSE;`);
+  }
+
   const pous = pending.map((pp) => {
     for (const [i, m] of mirror)
       if (pp.stepIds.has(i))
@@ -507,6 +554,12 @@ export function generatePlcOpen(project: Project, opts: PlcOpenOptions): Codegen
       `    <pou name="${helperName}" pouType="program">\n      <interface>{externals}\n        <localVars>\n${helperDecls.map((d) => variableXml(d, '          ')).join('\n')}\n        </localVars>\n      </interface>\n      <body>${st(helperBody.join('\n'))}</body>\n    </pou>`,
     );
   }
+  const alwaysName = always.length ? names.take('GRAFCET_Always') : null;
+  if (alwaysName) {
+    pous.push(
+      `    <pou name="${alwaysName}" pouType="program">\n      <interface>{externals}\n        <localVars>\n${alwaysDecls.map((d) => variableXml(d, '          ')).join('\n')}\n        </localVars>\n      </interface>\n      <body>${st(`(* Actions without a step: always active *)\n${always.join('\n')}`)}</body>\n    </pou>`,
+    );
+  }
   for (const u of undeclared)
     globals.push({ name: u, type: 'BOOL', doc: 'not declared in the project' });
   const externals = `\n        <externalVars>\n${globals.map((g) => variableXml({ name: g.name, type: g.type }, '          ')).join('\n')}\n        </externalVars>`;
@@ -519,6 +572,9 @@ export function generatePlcOpen(project: Project, opts: PlcOpenOptions): Codegen
     ...pouNames.map(
       (n) => `          <pouInstance name="${esc(n)}_Instance" typeName="${esc(n)}"/>`,
     ),
+    ...(alwaysName
+      ? [`          <pouInstance name="${alwaysName}_Instance" typeName="${alwaysName}"/>`]
+      : []),
   ];
   const code = [
     '<?xml version="1.0" encoding="UTF-8"?>',

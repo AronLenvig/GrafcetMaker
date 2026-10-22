@@ -157,7 +157,7 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
   const forceFlag = new Map<CAction, string>();
   const forcedBy = new Map<number, string[]>();
   for (const a of forcingActions) {
-    const flag = names.take(`${gName(p.steps[a.step]!.grafcet)}_F${forceFlag.size + 1}`);
+    const flag = names.take(`${gName(a.grafcet)}_F${forceFlag.size + 1}`);
     forceFlag.set(a, flag);
     forcedBy.set(a.forcing!.target, [...(forcedBy.get(a.forcing!.target) ?? []), flag]);
   }
@@ -165,8 +165,10 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
   for (const gi of forcedBy.keys()) forcedName.set(gi, names.take(`${gName(gi)}_Forced`));
   const forcingLines: string[] = [];
   for (const a of forcingActions) {
-    const src = project.grafcets[p.grafcets[p.steps[a.step]!.grafcet]!.id]!.actions[a.id]!.text;
-    forcingLines.push(`${forceFlag.get(a)} := ${X[a.step]};   (* ${comment(src)} *)`);
+    const src = project.grafcets[p.grafcets[a.grafcet]!.id]!.actions[a.id]!.text;
+    // Without a step, the order is always in force.
+    const on = a.step === null ? 'TRUE' : X[a.step];
+    forcingLines.push(`${forceFlag.get(a)} := ${on};   (* ${comment(src)} *)`);
   }
   for (const [gi, flags] of forcedBy)
     forcingLines.push(`${forcedName.get(gi)} := ${flags.join(' OR ')};`);
@@ -261,8 +263,14 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
   }
 
   // ---- (6) Stored actions --------------------------------------------------------------------
-  const sourceText = (a: CAction) =>
-    project.grafcets[p.grafcets[p.steps[a.step]!.grafcet]!.id]!.actions[a.id]!;
+  const sourceText = (a: CAction) => project.grafcets[p.grafcets[a.grafcet]!.id]!.actions[a.id]!;
+  /** Where an action is, for comments. */
+  const placeOf = (a: CAction) =>
+    a.step === null
+      ? `${gName(a.grafcet)}, no step (always active)`
+      : `${gName(a.grafcet)} step ${p.steps[a.step]!.number}`;
+  /** Actions without a step run "on activation" once, in the first scan. */
+  const firstScan = loop ? `${initName} AND ${iterName} = 0` : initName;
   const assignment = (a: CAction): string | null => {
     if (!a.target) return null;
     const v = p.variables.get(a.target);
@@ -276,17 +284,18 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
     const emit = (kind: CAction['kind'], when: (i: number) => string, label: string) => {
       for (const a of p.actions) {
         if (a.kind !== kind) continue;
-        if (isMacro(a.step)) {
+        if (a.step !== null && isMacro(a.step)) {
           warn({ code: 'macroStoredAction', elementId: a.id, params: {} });
           continue;
         }
+        // An always-active action is never deactivated.
+        if (a.step === null && kind === 'storedOnDeactivation') continue;
         const body = assignment(a);
         if (!body) continue;
-        const parts = [when(a.step)];
+        const parts = [a.step === null ? firstScan : when(a.step)];
         if (a.condition) parts.push(stBool(a.condition.ast, a.condition.steps, target, 2));
-        const s = p.steps[a.step]!;
         out.push(
-          `IF ${parts.join(' AND ')} THEN   (* ${gName(s.grafcet)} step ${s.number}, ${label}: ${comment(sourceText(a).text)} *)`,
+          `IF ${parts.join(' AND ')} THEN   (* ${placeOf(a)}, ${label}: ${comment(sourceText(a).text)} *)`,
         );
         out.push(`    ${body}`);
         out.push('END_IF;');
@@ -295,12 +304,13 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
     emit('storedOnDeactivation', (i) => `NOT ${X[i]} AND ${M[i]}`, 'on deactivation');
     emit('storedOnActivation', (i) => `${X[i]} AND NOT ${M[i]}`, 'on activation');
     for (const a of p.actions) {
-      if (a.kind !== 'storedOnEvent' || isMacro(a.step) || !a.condition) continue;
+      if (a.kind !== 'storedOnEvent' || (a.step !== null && isMacro(a.step)) || !a.condition)
+        continue;
       const body = assignment(a);
       if (!body) continue;
-      const s = p.steps[a.step]!;
+      const event = stBool(a.condition.ast, a.condition.steps, target, 2);
       out.push(
-        `IF ${X[a.step]} AND ${stBool(a.condition.ast, a.condition.steps, target, 2)} THEN   (* ${gName(s.grafcet)} step ${s.number}, on event: ${comment(sourceText(a).text)} *)`,
+        `IF ${a.step === null ? event : `${X[a.step]} AND ${event}`} THEN   (* ${placeOf(a)}, on event: ${comment(sourceText(a).text)} *)`,
       );
       out.push(`    ${body}`);
       out.push('END_IF;');
@@ -314,9 +324,11 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
     const continuous = new Map<string, string[]>();
     for (const a of p.actions) {
       if (a.kind !== 'continuous' || !a.target) continue;
-      const term = a.condition
-        ? `${X[a.step]} AND ${stBool(a.condition.ast, a.condition.steps, target, 3)}`
-        : X[a.step]!;
+      // Without a step the action is always active: its condition alone (or TRUE).
+      const cond =
+        a.condition && stBool(a.condition.ast, a.condition.steps, target, a.step === null ? 1 : 3);
+      const term =
+        a.step === null ? (cond ?? 'TRUE') : cond ? `${X[a.step]} AND ${cond}` : X[a.step]!;
       continuous.set(a.target, [...(continuous.get(a.target) ?? []), term]);
     }
     return [...continuous].map(([lower, terms]) => `${varName(lower)} := ${terms.join(' OR ')};`);

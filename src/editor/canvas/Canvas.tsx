@@ -207,7 +207,8 @@ export function Canvas({
           ))}
         {actionBoxes.map(({ box, first }) => {
           const action = g.actions[box.id]!;
-          const stepActive = action.stepId !== null && !!sim?.active.has(action.stepId);
+          // Without a step an action is always active.
+          const stepActive = !!sim && (action.stepId === null || sim.active.has(action.stepId));
           const on =
             action.kind === 'continuous' && stepActive
               ? sim!.executing

@@ -34,7 +34,11 @@ export function DropOverlay() {
       depth = 0;
       setActive(false);
       const file = e.dataTransfer?.files[0];
-      if (file) void openFile(file);
+      if (!file) return;
+      // A CSV file is a variable list to import; anything else is opened as a project.
+      if (/\.csv$/i.test(file.name))
+        void import('./export/commands').then((m) => m.importVariablesFile(file));
+      else void openFile(file);
     };
     window.addEventListener('dragenter', enter);
     window.addEventListener('dragover', over);

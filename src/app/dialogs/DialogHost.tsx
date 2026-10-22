@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { COMMANDS, formatKeys, useAppDialog } from '@/editor/commands/registry';
 import { getProject, useDoc } from '@/editor/store/document';
@@ -6,6 +6,9 @@ import { listSnapshots, type Snapshot } from '../persistence/db';
 import { restoreSnapshot } from '../persistence/session';
 import { Button, Modal } from '../ui/primitives';
 import { closeDialog, useDialogs } from './dialogStore';
+
+// The export dialog (and the PDF/CSV code behind it) is loaded on first use.
+const ExportDialog = lazy(() => import('../export/ExportDialog'));
 
 /** Renders queued message dialogs (confirm, error, restore prompts) one at a time. */
 function MessageDialogs() {
@@ -154,6 +157,11 @@ export function DialogHost() {
       {open === 'localHistory' && <LocalHistoryDialog onClose={close} />}
       {open === 'shortcuts' && <ShortcutsDialog onClose={close} />}
       {open === 'about' && <AboutDialog onClose={close} />}
+      {open === 'export' && (
+        <Suspense fallback={null}>
+          <ExportDialog onClose={close} />
+        </Suspense>
+      )}
       <MessageDialogs />
     </>
   );

@@ -32,3 +32,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   stability with transient-loop detection, edges, timers, stored/event actions, forcing; tokens,
   enabled/cleared markers and live values on the diagram; inputs panel (toggle, momentary,
   numeric); evolution log; chronogram with time travel; scenario record and replay.
+- Export dialog (Ctrl+E) with live preview: vector PDF (A4/A3, fit or tiled, title block), SVG,
+  PNG 1×/2×/4×, variables CSV; black on white or current theme; copy as SVG/PNG to the clipboard.
+- Import variables from CSV (menu or drag-and-drop) with a preview of changes and row errors.

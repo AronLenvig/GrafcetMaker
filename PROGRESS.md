@@ -4,7 +4,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 
 ## Current phase
 
-**Phase 6** — exports.
+**Phase 7** — hierarchy (partial, macro, enclosing, forcing).
 
 ## Phases
 
@@ -16,7 +16,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 | 3     | OR/AND structures, loops, source/sink, auto-layout                   | done   |
 | 4     | Validation                                                           | done   |
 | 5     | Simulation                                                           | done   |
-| 6     | Exports                                                              |        |
+| 6     | Exports                                                              | done   |
 | 7     | Hierarchy (partial, macro, enclosing, forcing)                       |        |
 | 8     | Codegen                                                              |        |
 | 9     | Onboarding, examples, i18n, a11y audit, PWA, perf                    |        |
@@ -102,6 +102,19 @@ Autonomous build log. Read this first in every session and resume from **Current
   lazy-loaded chronogram with scrub cursor, simulation inspector, transient loop in Problems.
 - E2E smoke extended: declare inputs, simulate, toggle an input, stop.
 
+### Phase 6
+
+- `core/io/svgExport.ts`: standalone SVG renderer sharing editor geometry (explicit colors, escaped
+  text, overbars as lines, Latin-1 mode with vector arrows for PDF standard fonts).
+- `core/io/pdfLayout.ts`: A4/A3 pages, fit or fixed scale with tiling, title block; page SVGs
+  used for preview and, via svg2pdf, for the PDF (jsPDF + svg2pdf lazy-loaded).
+- `core/io/csv.ts`: variables CSV export/import (RFC 4180, delimiter detection, row errors,
+  merge by name). Tests.
+- Export dialog (lazy): PDF/SVG/PNG/CSV, scope (grafcet/selection/all), colors (print/theme),
+  textbook toggle, live preview, Download/Copy; settings per project in localStorage. Copy
+  diagram as PNG/SVG commands; CSV import via menu and drag-and-drop with summary dialog.
+- Validation worker made Zod-free (127 → 28 kB). Initial JS ≈ 229 kB gz.
+
 ## Decisions
 
 - TypeScript pinned to 6.0.x: typescript-eslint does not support TS 7 (native port) yet.
@@ -128,6 +141,10 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Simulation interpretation choices are all in `docs/semantics.md` (Simulation). Notable: a
   first stability search at t = 0; clearing without effect ends the search; edge memories advance
   per grafcet; forced grafcets observe the end-of-cycle state.
+- PDF text uses Courier (standard font, 0.6 em like the editor font) with ASCII comparison
+  operators and vector-drawn edge arrows; PNG/SVG embed the bundled font.
+- Export settings are per project per device (localStorage), not in the project file, so
+  changing them neither dirties the document nor creates undo steps.
 - Commits go directly to `main` (greenfield repo, as instructed by the build spec); never pushed.
 
 ## Known gaps

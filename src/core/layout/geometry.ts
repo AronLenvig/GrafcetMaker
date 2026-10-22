@@ -1,3 +1,5 @@
+import { cachedBool } from '../expr/cache';
+import { formatTextbook } from '../expr/format';
 import { indexGrafcet, type GrafcetIndex } from '../model/graph';
 import type { Action, Comment, Grafcet, Id, Point, Step, Transition } from '../model/types';
 
@@ -51,6 +53,17 @@ export function textWidth(text: string, fontSize = FONT_SIZE): number {
   let n = 0;
   for (const _ of text) n++;
   return n * fontSize * CHAR_WIDTH_EM;
+}
+
+/** Width of an expression as drawn: the longer of the typed text and its textbook form. */
+export function expressionWidth(source: string, fontSize = FONT_SIZE): number {
+  const r = source.trim() ? cachedBool(source) : null;
+  const display = r?.ok
+    ? formatTextbook(r.value)
+        .map((x) => x.text)
+        .join('')
+    : '';
+  return textWidth([...display].length > [...source].length ? display : source, fontSize);
 }
 
 export function stepRect(s: Step): Rect {
@@ -395,13 +408,18 @@ export function grafcetBounds(
       });
     }
     const boxes = layoutActions(s, geom.index.actions.get(s.id) ?? []);
-    for (const b of boxes) unionInto(acc, { ...b, y: b.y - 20, height: b.height + 20 });
+    for (const b of boxes) {
+      unionInto(acc, { ...b, y: b.y - 20, height: b.height + 20 });
+      const cond = g.actions[b.id]?.condition;
+      if (cond)
+        unionInto(acc, { x: b.x + 16, y: b.y - 20, width: expressionWidth(cond), height: 12 });
+    }
   }
   for (const t of Object.values(g.transitions)) {
     if (!take(t.id)) continue;
     const a = transitionTextAnchor(t);
     unionInto(acc, transitionHitRect(t));
-    unionInto(acc, { x: a.x, y: a.y - 10, width: textWidth(t.receptivity), height: 20 });
+    unionInto(acc, { x: a.x, y: a.y - 10, width: expressionWidth(t.receptivity), height: 20 });
   }
   for (const c of Object.values(g.comments)) if (take(c.id)) unionInto(acc, commentRect(c));
   for (const l of geom.links) {

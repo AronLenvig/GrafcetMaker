@@ -21,6 +21,7 @@ import {
   ROW,
   STEP_HALF,
   TRANSITION_WIDTH,
+  expressionWidth,
   layoutActions,
   snap,
   textWidth,
@@ -127,7 +128,7 @@ export function autoLayout(g: Grafcet, only?: ReadonlySet<Id>): Map<Id, Point> {
     const t = g.transitions[id]!;
     return {
       left: TRANSITION_WIDTH / 2 + (t.number !== undefined ? textWidth(`(${t.number})`) + 6 : 0),
-      right: TRANSITION_WIDTH / 2 + 8 + Math.max(GRID, textWidth(t.receptivity)),
+      right: TRANSITION_WIDTH / 2 + 8 + Math.max(GRID, expressionWidth(t.receptivity)),
     };
   };
 

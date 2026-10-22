@@ -62,7 +62,7 @@ export interface Command {
 }
 
 /** App-level dialogs opened by commands. */
-export type AppDialog = 'localHistory' | 'shortcuts' | 'about' | null;
+export type AppDialog = 'localHistory' | 'shortcuts' | 'about' | 'export' | null;
 export const useAppDialog = create<{ open: AppDialog }>(() => ({ open: null }));
 export const openAppDialog = (open: AppDialog) => useAppDialog.setState({ open });
 
@@ -114,6 +114,33 @@ export const COMMANDS: Command[] = [
     run: saveProjectAs,
   },
   { id: 'file.downloadCopy', label: 'file.downloadCopy', group: 'file', run: () => downloadCopy() },
+  {
+    id: 'file.export',
+    label: 'file.export',
+    group: 'file',
+    keys: ['Mod+E'],
+    global: true,
+    run: () => openAppDialog('export'),
+  },
+  {
+    id: 'file.importVariables',
+    label: 'file.importVariables',
+    group: 'file',
+    run: () => import('@/app/export/commands').then((m) => m.importVariablesDialog()),
+    enabled: () => useUi.getState().mode === 'edit',
+  },
+  {
+    id: 'file.copyPng',
+    label: 'file.copyPng',
+    group: 'file',
+    run: () => import('@/app/export/commands').then((m) => m.copyDiagram('png')),
+  },
+  {
+    id: 'file.copySvg',
+    label: 'file.copySvg',
+    group: 'file',
+    run: () => import('@/app/export/commands').then((m) => m.copyDiagram('svg')),
+  },
   {
     id: 'file.localHistory',
     label: 'file.localHistory',

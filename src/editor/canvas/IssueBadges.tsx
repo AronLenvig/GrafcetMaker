@@ -4,7 +4,7 @@ import {
   commentRect,
   layoutActions,
   STEP_HALF,
-  textWidth,
+  expressionWidth,
   transitionTextAnchor,
   type GrafcetGeometry,
 } from '@/core/layout/geometry';
@@ -19,7 +19,10 @@ function anchor(g: Grafcet, geom: GrafcetGeometry, id: Id): { at: Point; kind: s
   const t = g.transitions[id];
   if (t) {
     const a = transitionTextAnchor(t);
-    return { at: { x: a.x + textWidth(t.receptivity || ' ') + 10, y: a.y }, kind: 'transition' };
+    return {
+      at: { x: a.x + expressionWidth(t.receptivity || ' ') + 10, y: a.y },
+      kind: 'transition',
+    };
   }
   const act = g.actions[id];
   if (act) {

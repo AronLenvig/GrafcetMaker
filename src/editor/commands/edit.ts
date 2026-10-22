@@ -8,7 +8,7 @@ import {
 import { createGrafcet, createStep } from '@/core/model/factory';
 import { indexGrafcet } from '@/core/model/graph';
 import * as ops from '@/core/model/ops';
-import { IDENT_RE } from '@/core/model/schema';
+import { IDENT_RE } from '@/core/model/constants';
 import type { ActionKind, Grafcet, Id, Point, Project, Variable } from '@/core/model/types';
 import { revealElements, viewCenter } from '../canvas/viewport';
 import { doc, getActiveGrafcet, getProject } from '../store/document';

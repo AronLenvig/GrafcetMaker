@@ -1,5 +1,5 @@
 import { customAlphabet } from 'nanoid';
-import { SCHEMA_VERSION } from './schema';
+import { SCHEMA_VERSION } from './constants';
 import type { Grafcet, GrafcetKind, Point, Project, Step, StepKind } from './types';
 
 /** URL-safe, unambiguous ids; 12 chars keeps files compact with negligible collision risk. */

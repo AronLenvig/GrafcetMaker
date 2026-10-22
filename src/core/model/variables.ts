@@ -2,7 +2,7 @@ import { actionTextKind, analyze, buildEnv, type ExprEnv, type ProjectNames } fr
 import { renameIdentifier } from '../expr/format';
 import { RESERVED_WORDS, tokenize } from '../expr/lexer';
 import { STEP_REF_RE } from '../expr/parser';
-import { IDENT_RE } from './schema';
+import { IDENT_RE } from './constants';
 import type { Grafcet, Id, Project, Variable, VariableType } from './types';
 
 export type VariableNameError = 'empty' | 'invalid' | 'reserved' | 'stepLike' | 'duplicate';

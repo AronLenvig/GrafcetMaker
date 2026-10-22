@@ -3,6 +3,7 @@ import { createProject, createStep } from '@/core/model/factory';
 import { SCHEMA_VERSION } from '@/core/model/schema';
 import { MigrationError, migrate, type Migration } from '@/core/io/migrations';
 import { ProjectFileError, parseProjectFile, serializeProject } from '@/core/io/projectFile';
+import { applyVariableImport, planVariableImport, variablesToCsv } from '@/core/io/csv';
 
 function sampleProject() {
   const p = createProject('Sample', new Date('2026-01-01T00:00:00Z'));
@@ -123,5 +124,70 @@ describe('migration chain', () => {
 
   it('fails clearly when a step is missing', () => {
     expect(() => migrate({ schemaVersion: 0 }, 0, 3, chain)).toThrow(MigrationError);
+  });
+});
+
+describe('variables CSV', () => {
+  it('exports and re-imports without changes', () => {
+    const p = sampleProject();
+    p.variables.v3 = {
+      id: 'v3',
+      name: 'Count',
+      type: 'INT',
+      direction: 'internal',
+      initialValue: 5,
+      comment: 'Parts, "good" ones',
+    };
+    const csv = variablesToCsv(p);
+    expect(csv.split('\r\n')[0]).toBe('name,type,direction,initial,address,comment');
+    expect(csv).toContain('"Parts, ""good"" ones"');
+    const plan = planVariableImport(p, csv);
+    expect(plan).toMatchObject({ added: [], updated: [], unchanged: 3, errors: [] });
+  });
+
+  it('adds, updates and rejects rows with reasons (semicolon-separated, quoted, BOM)', () => {
+    const p = sampleProject();
+    const csv =
+      '\uFEFFname;type;direction;initial;address;comment\r\n' +
+      'a;BOOL;input;TRUE;%I0.1;\r\n' +
+      'Level;REAL;in;2.5;;"tank; level"\r\n' +
+      '1bad;BOOL;input;;;\r\n' +
+      'y2;WORD;input;;;\r\n' +
+      'level;REAL;input;;;\r\n' +
+      'T1;TIME;;3s;;\r\n';
+    const plan = planVariableImport(p, csv);
+    expect(plan.added.map((v) => v.name)).toEqual(['Level', 'T1']);
+    expect(plan.added[0]).toMatchObject({
+      type: 'REAL',
+      direction: 'input',
+      initialValue: 2.5,
+      comment: 'tank; level',
+    });
+    expect(plan.added[1]).toMatchObject({
+      type: 'TIME',
+      direction: 'internal',
+      initialValue: 3000,
+    });
+    expect(plan.updated).toEqual([
+      {
+        id: 'v1',
+        name: 'a',
+        type: 'BOOL',
+        direction: 'input',
+        initialValue: true,
+        address: '%I0.1',
+      },
+    ]);
+    expect(plan.errors.map((e) => [e.row, e.code])).toEqual([
+      [4, 'invalidName'],
+      [5, 'badType'],
+      [6, 'duplicateInFile'],
+    ]);
+    applyVariableImport(p, plan);
+    expect(Object.keys(p.variables)).toHaveLength(4);
+  });
+
+  it('rejects files without a name/type header', () => {
+    expect(planVariableImport(sampleProject(), 'foo,bar\n1,2\n').errors[0]!.code).toBe('noHeader');
   });
 });

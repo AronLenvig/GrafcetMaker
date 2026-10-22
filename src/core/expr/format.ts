@@ -11,7 +11,23 @@ export interface Run {
   bars: number;
 }
 
-const CMP_SYMBOL = { '=': '=', '<>': '≠', '<': '<', '<=': '≤', '>': '>', '>=': '≥' } as const;
+const CMP_SYMBOL: Record<string, string> = {
+  '=': '=',
+  '<>': '≠',
+  '<': '<',
+  '<=': '≤',
+  '>': '>',
+  '>=': '≥',
+};
+/** Comparison operators restricted to Latin-1 (PDF standard fonts). */
+const CMP_ASCII: Record<string, string> = {
+  '=': '=',
+  '<>': '<>',
+  '<': '<',
+  '<=': '<=',
+  '>': '>',
+  '>=': '>=',
+};
 const ARITH_PREC = { '+': 1, '-': 1, '*': 2, '/': 2, mod: 2 } as const;
 
 export function formatDuration(ms: number): string {
@@ -41,11 +57,18 @@ function arithText(n: ArithNode, parentPrec = 0): string {
   }
 }
 
+/** Operands that need no parentheses after ↑, ↓ or t/ (a comparison adds its own). */
 function isPrimary(n: BoolNode): boolean {
-  return n.type === 'const' || n.type === 'var' || n.type === 'step' || n.type === 'not';
+  return (
+    n.type === 'const' ||
+    n.type === 'var' ||
+    n.type === 'step' ||
+    n.type === 'not' ||
+    n.type === 'cmp'
+  );
 }
 
-function runs(n: BoolNode, bars: number, parentPrec: number, out: Run[]): void {
+function runs(n: BoolNode, bars: number, parentPrec: number, out: Run[], cmp = CMP_SYMBOL): void {
   const push = (text: string) => out.push({ text, bars });
   switch (n.type) {
     case 'const':
@@ -59,29 +82,29 @@ function runs(n: BoolNode, bars: number, parentPrec: number, out: Run[]): void {
       return;
     case 'not':
       // The bar itself groups its operand: no parentheses needed underneath.
-      runs(n.operand, bars + 1, 0, out);
+      runs(n.operand, bars + 1, 0, out, cmp);
       return;
     case 'or':
     case 'and': {
       const p = n.type === 'or' ? 1 : 2;
       const paren = p < parentPrec;
       if (paren) push('(');
-      runs(n.left, bars, p, out);
+      runs(n.left, bars, p, out, cmp);
       push(n.type === 'or' ? ' + ' : '·');
-      runs(n.right, bars, p, out);
+      runs(n.right, bars, p, out, cmp);
       if (paren) push(')');
       return;
     }
     case 'edge':
       push(n.rising ? '↑' : '↓');
       if (!isPrimary(n.operand)) push('(');
-      runs(n.operand, bars, 3, out);
+      runs(n.operand, bars, 3, out, cmp);
       if (!isPrimary(n.operand)) push(')');
       return;
     case 'timer':
       push(`${formatDuration(n.t1)}/`);
       if (!isPrimary(n.operand)) push('(');
-      runs(n.operand, bars, 3, out);
+      runs(n.operand, bars, 3, out, cmp);
       if (!isPrimary(n.operand)) push(')');
       if (n.t2 !== undefined) push(`/${formatDuration(n.t2)}`);
       return;
@@ -89,7 +112,7 @@ function runs(n: BoolNode, bars: number, parentPrec: number, out: Run[]): void {
       // Parenthesized unless it is the whole expression: comparisons read greedily.
       const paren = parentPrec > 0;
       push(
-        `${paren ? '(' : ''}${arithText(n.left)} ${CMP_SYMBOL[n.op]} ${arithText(n.right)}${paren ? ')' : ''}`,
+        `${paren ? '(' : ''}${arithText(n.left)} ${cmp[n.op]} ${arithText(n.right)}${paren ? ')' : ''}`,
       );
       return;
     }
@@ -97,9 +120,9 @@ function runs(n: BoolNode, bars: number, parentPrec: number, out: Run[]): void {
 }
 
 /** Textbook runs for a boolean expression; adjacent runs with the same bar count are merged. */
-export function formatTextbook(n: BoolNode): Run[] {
+export function formatTextbook(n: BoolNode, opts: { asciiComparisons?: boolean } = {}): Run[] {
   const raw: Run[] = [];
-  runs(n, 0, 0, raw);
+  runs(n, 0, 0, raw, opts.asciiComparisons ? CMP_ASCII : CMP_SYMBOL);
   const merged: Run[] = [];
   for (const r of raw) {
     const last = merged[merged.length - 1];

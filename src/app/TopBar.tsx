@@ -135,6 +135,11 @@ export function TopBar() {
           <Item id="file.saveAs" />
           <Item id="file.downloadCopy" />
           <MenuSeparator />
+          <Item id="file.export" />
+          <Item id="file.copyPng" />
+          <Item id="file.copySvg" />
+          <Item id="file.importVariables" />
+          <MenuSeparator />
           <Item id="file.localHistory" />
         </Menu>
         <Menu label={t('menu.edit')}>

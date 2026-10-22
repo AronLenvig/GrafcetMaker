@@ -1,4 +1,4 @@
-import { SCHEMA_VERSION } from '../model/schema';
+import { SCHEMA_VERSION } from '../model/constants';
 
 export type RawDocument = Record<string, unknown>;
 

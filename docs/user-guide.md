@@ -164,6 +164,30 @@ If the evolution never becomes stable (e.g. a loop of transitions that are all t
 simulator stops after 1000 iterations and reports a transient loop. The exact rules are in
 `docs/semantics.md`.
 
+## Exporting and sharing
+
+**File › Export…** (`Ctrl+E`) opens one dialog for every format, with a live preview. Settings are
+remembered per project on this device.
+
+- **PDF document**: vector, A4 or A3, portrait or landscape, fitted to the page or printed at a
+  fixed scale and tiled over several sheets, with a title block (project, grafcet, author,
+  company, revision, date, sheet number). Export the current grafcet, the selection, or all
+  grafcets one after another.
+- **SVG image**: vector, ideal for documents and the web; optionally embeds the diagram font so it
+  looks the same everywhere.
+- **PNG image**: 1×, 2× or 4× resolution, optionally with a transparent background.
+- **Variables (CSV)**: the variable table for spreadsheets and PLC tools.
+
+Exports are black on white by default; choose **Current theme** to keep the screen colors, and
+untick **Textbook notation** to print expressions as typed. **Copy** puts an SVG or PNG on the
+clipboard; **File › Copy diagram as PNG / SVG** does it in one step for the selection (or the
+whole grafcet), ready to paste into a report.
+
+**File › Import variables (CSV)…**, or dropping a `.csv` file on the window, adds and updates
+variables by name (columns `name`, `type`, `direction`, `initial`, `address`, `comment`; comma,
+semicolon or tab separated). You see what will be added, updated or rejected (with the reason
+for each row) before anything changes, and the import is one undo step.
+
 ## Navigating
 
 - Scroll to pan, `Ctrl`+scroll (or pinch) to zoom around the pointer, `Space`+drag or the middle

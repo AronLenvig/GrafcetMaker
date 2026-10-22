@@ -11,3 +11,4 @@ test-results
 
 # local probe scripts
 scripts/_*
+.claude/settings.json

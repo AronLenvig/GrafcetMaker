@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { TermHelp } from '@/app/ui/TermHelp';
 import { useTranslation } from 'react-i18next';
 import { indexGrafcet } from '@/core/model/graph';
-import type { Action, ActionKind, Grafcet, Id, Step, Transition } from '@/core/model/types';
+import type { Action, Grafcet, Id, Step, Transition } from '@/core/model/types';
 import { ChevronDownIcon, ChevronUpIcon, PlusIcon, TrashIcon } from '@/app/ui/icons';
 import { Button, IconButton } from '@/app/ui/primitives';
 import {
@@ -16,20 +16,14 @@ import {
 import { doc, getProject, useActiveGrafcet, useDoc } from '@/editor/store/document';
 import { ui, useUi } from '@/editor/store/uiStore';
 import { actionTextKind } from '@/core/expr/check';
+import { setUiKind, uiKindOf } from '@/core/model/actionKind';
 import { parentOf } from '@/core/model/hierarchy';
 import { goToParent, openChild, setStepKind } from '@/editor/commands/hierarchy';
 import { issueMessage } from '@/editor/validation/actions';
 import { useProblems } from '@/editor/validation/problems';
+import { ActionKindPicker } from './ActionKindPicker';
 import { CommitField, ExpressionField, Section, SelectField } from './fields';
 import { QuickFixButton, SeverityIcon } from './ProblemsPanel';
-
-const ACTION_KINDS: ActionKind[] = [
-  'continuous',
-  'storedOnActivation',
-  'storedOnDeactivation',
-  'storedOnEvent',
-  'forcing',
-];
 
 function useNumberValidator() {
   const { t } = useTranslation();
@@ -82,8 +76,7 @@ function ActionEditor({ action, index, count }: { action: Action; index: number;
       [list[i], list[j]] = [list[j]!, list[i]!];
       list.forEach((a, k) => (a.order = k));
     });
-  const conditionLabel =
-    action.kind === 'storedOnEvent' ? t('props.action.event') : t('props.action.condition');
+  const kind = uiKindOf(action);
   return (
     <div className="flex flex-col gap-2 rounded-md border border-border p-2">
       <div className="flex items-center gap-1">
@@ -128,12 +121,33 @@ function ActionEditor({ action, index, count }: { action: Action; index: number;
         </IconButton>
       </div>
       <ActionStepField action={action} />
-      <SelectField
-        label={t('props.action.kind')}
-        value={action.kind}
-        options={ACTION_KINDS.map((k) => ({ value: k, label: t(`actionKinds.${k}`) }))}
-        onChange={(kind) => update((a) => void (a.kind = kind))}
-      />
+      <ActionKindPicker value={kind} onChange={(k) => update((a) => setUiKind(a, k))} />
+      {/* Part of the kind: the condition of a conditional action, the event of an event action. */}
+      {(kind === 'conditional' || kind === 'storedOnEvent') && (
+        <ExpressionField
+          kind="condition"
+          label={kind === 'storedOnEvent' ? t('props.action.event') : t('props.action.condition')}
+          term={kind === 'storedOnEvent' ? 'event' : 'assignmentCondition'}
+          value={action.condition ?? ''}
+          placeholder={kind === 'storedOnEvent' ? '↑b' : t('props.action.conditionPlaceholder')}
+          onCommit={(v) => update((a) => void (a.condition = v.trim()))}
+        />
+      )}
+      {/* Files may hold a condition on a stored action: shown so it can be changed or cleared. */}
+      {(kind === 'storedOnActivation' || kind === 'storedOnDeactivation') &&
+        action.condition !== undefined && (
+          <ExpressionField
+            kind="condition"
+            label={t('props.action.onlyIf')}
+            value={action.condition}
+            onCommit={(v) =>
+              update((a) => {
+                if (v.trim()) a.condition = v.trim();
+                else delete a.condition;
+              })
+            }
+          />
+        )}
       <ExpressionField
         kind={actionTextKind(action.kind)}
         label={t(`props.action.textLabel.${action.kind}`)}
@@ -141,23 +155,6 @@ function ActionEditor({ action, index, count }: { action: Action; index: number;
         placeholder={t(`props.action.textPlaceholder.${action.kind}`)}
         onCommit={(v) => update((a) => void (a.text = v.trim()))}
       />
-      {action.kind !== 'forcing' && (
-        <ExpressionField
-          kind="condition"
-          label={conditionLabel}
-          term={action.kind === 'storedOnEvent' ? 'event' : 'assignmentCondition'}
-          value={action.condition ?? ''}
-          placeholder={
-            action.kind === 'storedOnEvent' ? '↑b' : t('props.action.conditionPlaceholder')
-          }
-          onCommit={(v) =>
-            update((a) => {
-              if (v.trim()) a.condition = v.trim();
-              else delete a.condition;
-            })
-          }
-        />
-      )}
     </div>
   );
 }

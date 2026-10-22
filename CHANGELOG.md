@@ -16,6 +16,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- The kind of an action is chosen with picture buttons showing its symbol (continuous,
+  conditional, activation ↑, deactivation ↓, event, forcing). "Conditional" is a kind of its own:
+  the condition input appears with it, like the event of an action on event; the separate
+  "Assignment condition" field is gone. A conditional action without its condition is reported.
 - File format version 2 (actions without a step). Version 1 files open unchanged; GrafcetMaker 1.0.0
   reports version 2 files as made by a newer version.
 

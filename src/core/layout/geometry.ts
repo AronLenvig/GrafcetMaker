@@ -154,7 +154,12 @@ export function actionDecor(a: Action, box: Rect): ActionDecor {
         : {}),
     };
   }
-  if (!cond) return {};
+  if (!cond) {
+    // A conditional action whose condition is not written yet still shows its condition line.
+    return a.kind === 'continuous' && a.condition !== undefined
+      ? { stem: `M${x} ${top}V${top - 10}` }
+      : {};
+  }
   return {
     stem: `M${x} ${top}V${top - 10}`,
     text: { source: cond, x: x + 4, y: textY, anchor: 'start' },

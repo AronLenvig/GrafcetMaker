@@ -7,6 +7,7 @@ export type RuleId =
   | 'duplicateStepNumber'
   | 'emptyReceptivity'
   | 'missingEvent'
+  | 'missingCondition'
   | 'unattachedAction'
   | 'parseError'
   | 'unknownVariable'

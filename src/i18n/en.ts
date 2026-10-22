@@ -363,8 +363,35 @@ export const en = {
       delete: 'Delete action',
       kind: 'Kind',
       event: 'Event',
-      condition: 'Assignment condition',
-      conditionPlaceholder: 'Optional, e.g. c * /d',
+      condition: 'Condition',
+      conditionPlaceholder: 'e.g. c * /d',
+      onlyIf: 'Only if',
+      kinds: {
+        continuous: {
+          label: 'Continuous',
+          help: 'Continuous action: the output is true while the step is active.',
+        },
+        conditional: {
+          label: 'Conditional',
+          help: 'Conditional action: the output is true while the step is active and the condition is true.',
+        },
+        storedOnActivation: {
+          label: 'Activation',
+          help: 'Stored action on activation (↑): the assignment runs once when the step becomes active.',
+        },
+        storedOnDeactivation: {
+          label: 'Deactivation',
+          help: 'Stored action on deactivation (↓): the assignment runs once when the step becomes inactive.',
+        },
+        storedOnEvent: {
+          label: 'Event',
+          help: 'Stored action on event (flag): the assignment runs each time the event occurs while the step is active.',
+        },
+        forcing: {
+          label: 'Forcing',
+          help: 'Forcing order (double frame): imposes a situation on another grafcet, e.g. G2{8}.',
+        },
+      },
       textLabel: {
         continuous: 'Output',
         storedOnActivation: 'Assignment',
@@ -489,6 +516,8 @@ export const en = {
         'The action “{{text}}” has no step, so it is always active and never deactivated: a stored action on deactivation never runs. Attach it to a step, or change its kind.',
       parallelOutputAlways:
         'Output {{output}} is set by an action without a step (always active) and also by another action (steps: {{steps}}). It is true whenever any of them is.',
+      missingCondition:
+        'The conditional action “{{text}}” has no condition yet, so it acts like a continuous action. Enter its condition in Properties.',
       missingEvent:
         'The action “{{text}}” is stored on an event but has no event, so it never executes. Enter one such as ↑b in Properties.',
       unreachableStep: 'Step {{step}} can never become active.',
@@ -1056,7 +1085,7 @@ export const en = {
       edges: 'rising / falling edge (↑ ↓) while editing',
       editAction: 'edit the action',
       nextAction: 'add another action',
-      actionKind: 'stored on activation ↑ / deactivation ↓, on event, forcing',
+      actionKind: 'kind: continuous, conditional, stored ↑ ↓, on event, forcing',
       delete: 'delete',
       editComment: 'edit the comment',
       move: 'move',

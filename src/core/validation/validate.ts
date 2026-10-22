@@ -109,6 +109,19 @@ function expressionRules(g: Grafcet, env: ExprEnv, used: Set<string>, out: Issue
       elementIds: [a.id],
     });
   }
+  // A conditional action without its condition behaves like a plain continuous action.
+  for (const a of Object.values(g.actions)) {
+    if (a.kind !== 'continuous' || a.condition === undefined || a.condition.trim()) continue;
+    out.push({
+      ruleId: 'missingCondition',
+      severity: 'warning',
+      messageKey: 'problems.messages.missingCondition',
+      params: { text: a.text },
+      grafcetId: g.id,
+      elementIds: [a.id],
+      field: 'condition',
+    });
+  }
   // An action stored on an event without an event never executes.
   for (const a of Object.values(g.actions)) {
     if (a.kind !== 'storedOnEvent' || a.condition?.trim()) continue;

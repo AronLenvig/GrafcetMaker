@@ -111,13 +111,18 @@ one), a stored action runs on its event (on activation: once at start), a forcin
 in force. Drag it onto a step to attach it (the step is highlighted), or choose its **Step** in the
 properties panel; choosing **No step (always active)** there detaches an action again.
 
-Choose the kind of each action in the properties panel:
+Choose the kind of each action with the **Kind** buttons of the properties panel; each shows the
+symbol the diagram uses. A conditional action and an action on event get their condition (or
+event) input right under the buttons:
 
-- **Continuous action**: the output is true while the step is active (and its assignment
-  condition, if any, is true). Text: the output name, e.g. `M1`.
+- **Continuous action**: the output is true while the step is active. Text: the output name,
+  e.g. `M1`.
+- **Conditional action**: a continuous action that is also subject to a condition, drawn on a line
+  above the box: the output is true while the step is active and the condition is true.
 - **Stored action on activation / on deactivation**: an assignment executed once when the step
   becomes active / inactive, e.g. `C := C + 1`. Drawn with an arrow ↑ above the box (activation)
-  or ↓ below it (deactivation); an optional condition is written next to the arrow.
+  or ↓ below it (deactivation). A condition already present in a file is written next to the arrow
+  and can be changed or cleared as **Only if**.
 - **Stored action on event**: executed when the event (e.g. `↑b`) occurs while the step is active.
   Drawn with a flag at the top right of the box, the event written to its left. An action on event
   without an event is reported as a warning.

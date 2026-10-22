@@ -2,14 +2,16 @@
 
 Actions are the rectangles to the right of a step. They say what the system does while, or when,
 the step is active. Select a step and press <kbd>A</kbd> to add one; press <kbd>A</kbd> again on
-an action to add the next one. Choose its **kind** in the **Properties** panel.
+an action to add the next one. Choose its **kind** with the picture buttons of the **Properties** panel: each one shows how the
+diagram draws that kind.
 
 ## Continuous actions
 
 The most common kind. The text is the name of an output (or internal variable), e.g. `Pump`. The
 output is true **while** the step is active, and false as soon as no active step drives it.
 
-An optional **assignment condition** makes it a _conditional action_: the output is true while the
+Choose the **Conditional** kind to add a condition (an _assignment condition_): its input appears
+under the kind buttons, and the output is true while the
 step is active **and** the condition is true. It is drawn on a short line above the box.
 
 <!-- figure: continuous | Lamp while step 4 is active; Horn only while alarm is also true -->

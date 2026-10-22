@@ -1,7 +1,7 @@
 /** Actions not attached to any step: model operations, file format, checks and simulation. */
 import { describe, expect, it } from 'vitest';
 import { parseProjectFile, ProjectFileError, serializeProject } from '@/core/io/projectFile';
-import { computeGeometry, grafcetBounds } from '@/core/layout/geometry';
+import { actionDecor, computeGeometry, grafcetBounds } from '@/core/layout/geometry';
 import {
   copyElements,
   parseClipboard,
@@ -19,7 +19,8 @@ import {
   detachAction,
   moveElements,
 } from '@/core/model/ops';
-import type { Grafcet, Project, Variable } from '@/core/model/types';
+import type { Action, Grafcet, Project, Variable } from '@/core/model/types';
+import { setUiKind, uiKindOf } from '@/core/model/actionKind';
 import { generatePlcOpen } from '@/core/codegen/plcopen';
 import { generateSt } from '@/core/codegen/st';
 import { Simulator } from '@/core/simulation/engine';
@@ -196,5 +197,53 @@ describe('actions without a step are always active', () => {
     const xml = generatePlcOpen(p, opts).code;
     expect(xml).toContain('<pou name="GRAFCET_Always" pouType="program">');
     expect(xml).toContain('Horn := (a);');
+  });
+});
+
+describe('action kinds', () => {
+  const action = (over: Partial<Action> = {}): Action => ({
+    id: 'a',
+    stepId: 's',
+    order: 0,
+    kind: 'continuous',
+    text: 'Lamp',
+    ...over,
+  });
+
+  it('reads "conditional" from a continuous action with a condition', () => {
+    expect(uiKindOf(action())).toBe('continuous');
+    expect(uiKindOf(action({ condition: '' }))).toBe('conditional');
+    expect(uiKindOf(action({ condition: 'a' }))).toBe('conditional');
+    expect(uiKindOf(action({ kind: 'storedOnEvent', condition: '↑b' }))).toBe('storedOnEvent');
+  });
+
+  it('keeps the condition only where it still means something', () => {
+    const a = action();
+    setUiKind(a, 'conditional');
+    expect(a).toMatchObject({ kind: 'continuous', condition: '' });
+    a.condition = 'x';
+    setUiKind(a, 'storedOnEvent');
+    expect(a).toMatchObject({ kind: 'storedOnEvent', condition: 'x' });
+    setUiKind(a, 'conditional');
+    expect(a).toMatchObject({ kind: 'continuous', condition: 'x' });
+    setUiKind(a, 'continuous');
+    expect(a.condition).toBeUndefined();
+    a.condition = 'y';
+    setUiKind(a, 'storedOnActivation');
+    expect(a.condition).toBeUndefined();
+  });
+
+  it('draws the condition line of a conditional action before its condition is written', () => {
+    const box = { x: 0, y: 0, width: 60, height: 40 };
+    expect(actionDecor(action({ condition: '' }), box).stem).toBeDefined();
+    expect(actionDecor(action(), box).stem).toBeUndefined();
+  });
+
+  it('warns about a conditional action without its condition', () => {
+    const { p, g, step } = setup();
+    const a = addAction(g, step, 'continuous', 'Lamp');
+    a.condition = '';
+    p.variables.l = { id: 'l', name: 'Lamp', type: 'BOOL', direction: 'output' };
+    expect(validateProject(p).map((i) => i.ruleId)).toContain('missingCondition');
   });
 });

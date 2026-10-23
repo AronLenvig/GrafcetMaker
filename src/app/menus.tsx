@@ -169,6 +169,7 @@ const MAIN_MENU: MenuSection[] = [
       cmd('help.gettingStarted'),
       cmd('help.basics'),
       cmd('help.expressions'),
+      cmd('help.guide'),
       SEP,
       cmd('help.shortcuts', { desktopOnly: true }),
       cmd('help.feedback'),

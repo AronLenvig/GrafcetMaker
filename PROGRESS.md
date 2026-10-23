@@ -215,8 +215,24 @@ Autonomous build log. Read this first in every session and resume from **Current
   touch hints; dialogs (start, export, settings, modal, inline editor) stack on phones. e2e: one
   phone test (double-tap, selection toolbar, sheet, simulation).
 
+- Search visibility of grafcet.org. `index.html`: keyword title and description, canonical,
+  Open Graph/Twitter tags (`public/og-image.png`, 1200×630), JSON-LD (WebSite +
+  SoftwareApplication), `<noscript>` text; `__SITE_URL__` placeholders filled from `SITE_URL`
+  (default `https://grafcet.org/`). The tab keeps that title on a first visit (`TopBar`). Static
+  GRAFCET guide per language (`docs/guide/{en,fr,de,es}.md` → `<lang>/index.html`): the
+  `website()` plugin in `vite.config.ts` loads `src/site/render.ts` with Vite's `runnerImport`
+  in `generateBundle`, reusing the help Markdown parser, the help figure builder
+  (`src/site/figures.ts`, words per language) and `grafcetToSvg` (sentinel colors restyled by
+  `src/site/site.css` after `tokens.css`, so figures follow light/dark), examples linked as share
+  links; CSP by hash like `index.html`; `sitemap.xml` with hreflang, `robots.txt`. Precached by
+  the service worker and kept out of its SPA fallback. Help › GRAFCET guide and a start screen
+  link (`guideUrl()`, browser language).
+
 ## Decisions
 
+- The website lives next to the app rather than in front of it: the app stays at `/` (share links,
+  installed PWAs, on-premise paths unchanged) and the guide pages are plain HTML generated from
+  Markdown at build time, so search engines get real text without a separate site or server.
 - Phones get their own layout rather than a squeezed desktop one; tablets keep the desktop layout
   plus the touch additions. The diagram always gets the whole width; panels share one sheet over
   it (not persisted, so each visit starts with the full diagram). One finger on the empty canvas
@@ -292,6 +308,9 @@ Autonomous build log. Read this first in every session and resume from **Current
 - An initial step cannot be a macro-step or an enclosing step (data model limitation).
 - Only English is translated; i18next keys are typed and complete, so adding a language is a new
   file in `src/i18n` (help pages would need `docs/help/<lang>/`).
+- The website guide exists in four languages kept in step by hand; the examples it opens and the
+  app itself stay English. Guide figures use the system monospace font (the app's JetBrains Mono
+  is not loaded there).
 - Generated code is not compiled by a real PLC toolchain in CI (no vendor tools available); the
   ST uses only standard IEC 61131-3 constructs and the XML follows TC6 2.01 by hand. Vendor
   profiles (TIA, CODESYS, TwinCAT, Rockwell) remain future adapters.

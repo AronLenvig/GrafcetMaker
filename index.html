@@ -7,8 +7,29 @@
       content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
     />
     <meta name="color-scheme" content="light dark" />
-    <meta name="description" content="GRAFCET (IEC 60848) editor and simulator" />
-    <title>GrafcetMaker</title>
+    <title>Free online GRAFCET editor and simulator (IEC 60848) | GrafcetMaker</title>
+    <meta
+      name="description"
+      content="Draw, check and simulate GRAFCET charts (IEC 60848) in your browser. Free and open source, works offline. Export to PDF, SVG, Structured Text and PLCopen XML."
+    />
+    <!-- The site URL placeholders are filled in from SITE_URL (vite.config.ts). -->
+    <link rel="canonical" href="__SITE_URL__" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GrafcetMaker" />
+    <meta property="og:title" content="GrafcetMaker: free online GRAFCET editor and simulator" />
+    <meta
+      property="og:description"
+      content="Draw, check and simulate GRAFCET charts (IEC 60848) in your browser. Free and open source, works offline, no account."
+    />
+    <meta property="og:url" content="__SITE_URL__" />
+    <meta property="og:image" content="__SITE_URL__og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="A GRAFCET chart drawn in GrafcetMaker, the free online GRAFCET editor"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
@@ -27,8 +48,50 @@
         document.documentElement.setAttribute('data-theme', d ? 'dark' : 'light');
       })();
     </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "name": "GrafcetMaker",
+            "alternateName": ["grafcet.org", "Grafcet Maker"],
+            "url": "__SITE_URL__"
+          },
+          {
+            "@type": "SoftwareApplication",
+            "name": "GrafcetMaker",
+            "url": "__SITE_URL__",
+            "image": "__SITE_URL__og-image.png",
+            "description": "Free, open-source GRAFCET (IEC 60848) editor and simulator that runs in the browser: draw, validate and simulate GRAFCET charts, and export them to PDF, SVG, PNG, Structured Text and PLCopen XML.",
+            "applicationCategory": "DesignApplication",
+            "operatingSystem": "Any (web browser)",
+            "isAccessibleForFree": true,
+            "license": "https://opensource.org/licenses/MIT",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+            "featureList": [
+              "GRAFCET editor with steps, transitions, receptivities and actions",
+              "Simulation following the IEC 60848 evolution rules, with chronogram",
+              "Validation of the chart with quick fixes",
+              "Macro-steps, enclosing steps and forcing orders",
+              "Export to PDF, SVG, PNG, Structured Text and PLCopen TC6 XML",
+              "Works offline, no account"
+            ]
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
+    <noscript>
+      <h1>GrafcetMaker: free online GRAFCET editor and simulator</h1>
+      <p>
+        GrafcetMaker draws, checks and simulates GRAFCET charts (IEC 60848) in your browser. It
+        needs JavaScript: please turn it on. New to GRAFCET? Read the
+        <a href="./en/">GRAFCET guide</a> (<a href="./fr/" lang="fr">français</a>,
+        <a href="./de/" lang="de">Deutsch</a>, <a href="./es/" lang="es">español</a>).
+      </p>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

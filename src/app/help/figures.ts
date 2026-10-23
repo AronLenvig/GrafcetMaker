@@ -20,7 +20,7 @@ interface Builder {
   note(text: string, row: number, x: number): void;
 }
 
-function build(make: (b: Builder) => void): Grafcet {
+export function build(make: (b: Builder) => void): Grafcet {
   const g = createGrafcet('G1');
   const b: Builder = {
     g,

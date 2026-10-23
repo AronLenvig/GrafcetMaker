@@ -32,6 +32,12 @@ export function toggleHelp(): void {
   else openHelp(useHelp.getState().page);
 }
 
+/** The website's GRAFCET guide (src/site), bundled with the app, in the browser's language if any. */
+export function guideUrl(): string {
+  const lang = navigator.language.slice(0, 2).toLowerCase();
+  return `./${['fr', 'de', 'es'].includes(lang) ? lang : 'en'}/`;
+}
+
 /** Opens the page named in the URL (a shared #help/... link). */
 export function openHelpFromHash(): void {
   const m = /^#help(?:\/([\w-]+)(?:\/([\w-]+))?)?$/.exec(location.hash);

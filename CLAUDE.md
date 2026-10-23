@@ -29,6 +29,7 @@ TypeScript strict · Vite · React 18 · Zustand + Immer (patches → undo/redo)
 ```
 src/core/{model,expr,validation,simulation,layout,codegen,io}  # pure TS, no React/DOM
 src/editor/{canvas,tools,commands}  src/panels  src/theme  src/i18n  src/workers  src/app
+src/site  # website GRAFCET guide (docs/guide/<lang>.md), sitemap, robots: rendered at build time
 tests/{unit,fixtures,e2e}  docs/{user-guide,semantics,file-format}.md
 ```
 - `core/` must run in Node and Web Workers. Simulation + validation run in workers.

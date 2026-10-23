@@ -6,7 +6,7 @@ import { useDoc } from '@/editor/store/document';
 import { useTheme } from '@/theme/theme';
 import { EXAMPLE_IDS, EXAMPLES, type ExampleId } from '../examples/examples';
 import { currentThemePalette } from '../export/exporters';
-import { openHelp } from '../help/helpStore';
+import { guideUrl, openHelp } from '../help/helpStore';
 import { listRecent, type RecentEntry } from '../persistence/db';
 import { newProject, openNewProject, openRecent, useSession } from '../persistence/session';
 import { setPrefs, usePrefs } from '../prefs';
@@ -126,6 +126,13 @@ export default function StartScreen({ onClose }: { onClose: () => void }) {
               >
                 <BookIcon size={15} /> {t('start.gettingStarted')}
               </button>
+              {/* A real link: the guide is a page of its own, for readers and search engines. */}
+              <a href={guideUrl()} target="_blank" rel="noopener" className={action}>
+                <span aria-hidden="true" className="w-[15px] text-center">
+                  ↗
+                </span>
+                {t('start.guide')}
+              </a>
             </nav>
             {recent.length > 0 && (
               <nav aria-label={t('commands.file.openRecent')} className="flex flex-col gap-0.5">

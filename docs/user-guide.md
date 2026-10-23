@@ -40,6 +40,10 @@ available, a card offers to reload; your work is kept. **Help › What's new** s
   it again from **View › Hints** or Settings.
 - **Help center** (`F1`): docked on the right so you can read and draw at the same time; search,
   contents, previous / next. Links like `#help/expressions` open a page directly.
+- **GRAFCET guide** (**Help › GRAFCET guide**, or the start screen): a web page that explains the
+  language itself (elements, the five evolution rules, actions, branches, hierarchy, GRAFCET and
+  SFC) in English, French, German and Spanish, with examples that open in the editor. It is part
+  of the app, so it also works offline and on-premise (`en/`, `fr/`, `de/`, `es/` next to the app).
 
 ### Phones and tablets
 

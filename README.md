@@ -26,7 +26,8 @@ browser. Built for automation engineers: correct semantics first, then editing s
 - **Exports**: vector PDF (A4/A3, title block, tiling), SVG, PNG, WebP, clipboard; variables to
   Excel and CSV (and back); **Structured Text** and **PLCopen XML** (SFC) generation.
 - **Learn as you go**: start screen with examples, guided tour, help center with a beginner
-  tutorial and diagrams, glossary of standard terms, in-app changelog.
+  tutorial and diagrams, glossary of standard terms, in-app changelog, and a GRAFCET guide web
+  page in English, French, German and Spanish.
 - **Phones and tablets**: a one-handed phone layout (bottom toolbar, panels in a sheet, menu
   drawer), pinch-zoom, double-tap, and a selection toolbar for what the shortcuts do.
 - **Accessible and offline**: WCAG 2.2 AA (keyboard everywhere, outline tree view, light/dark
@@ -91,6 +92,24 @@ New feedback then arrives as GitHub notifications (web, mobile app or the email 
 account, which stays private). Renew the token before it expires. Without these settings the
 endpoint answers `{ "ok": false }` and the app falls back to email or copy.
 
+### Website pages and search engines
+
+Besides the app, the build writes the public website's pages for search engines and visitors:
+
+- `en/`, `fr/`, `de/`, `es/`: the GRAFCET guide, static HTML rendered at build time from
+  [`docs/guide/<lang>.md`](docs/guide/en.md) by [`src/site/`](src/site/render.ts), with diagrams
+  drawn by the editor's own exporter and examples that open in the app;
+- `sitemap.xml` and `robots.txt`;
+- in `index.html`: a descriptive title, canonical link, Open Graph preview (`og-image.png`) and
+  structured data.
+
+Absolute URLs use `SITE_URL` (default `https://grafcet.org/`). A public mirror builds with its own
+address, `SITE_URL=https://grafcet.example.com/ npm run build`; on-premise installs need nothing.
+
+After deploying the public site, add it to [Google Search Console](https://search.google.com/search-console)
+and [Bing Webmaster Tools](https://www.bing.com/webmasters), submit `sitemap.xml` and request
+indexing of the home page and the four guide pages.
+
 ### Docker
 
 ```sh
@@ -116,8 +135,15 @@ Architecture overview:
 src/core/{model,expr,validation,simulation,layout,codegen,io}  pure TypeScript (Node + Workers)
 src/editor/{canvas,tools,commands}                              SVG editor
 src/panels  src/theme  src/i18n  src/workers  src/app           UI shell
+src/site                                                        website guide pages (build time)
 docs/{user-guide,semantics,file-format}.md   docs/help/*.md (in-app help pages)
+docs/guide/<lang>.md (website GRAFCET guide)
 ```
+
+To edit the guide, change `docs/guide/<lang>.md` (the same Markdown subset as the help pages;
+`<!-- figure: id | caption -->` draws a diagram of `src/site/figures.ts`, `example-<id>` one of the
+start screen examples, and `app:` links lead into the editor), keep the four languages in step, and
+update `updated` in `src/site/locales.ts`. Preview with `npm run build && npm run preview`.
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for conventions and
 [`docs/semantics.md`](docs/semantics.md) for the exact IEC 60848 interpretation used.

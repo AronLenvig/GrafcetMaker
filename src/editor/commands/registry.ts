@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { startTour } from '@/app/start/tourStore';
 import { closeSplit, focusOtherPane, openSplit, swapPanes } from './split';
-import { openHelp, toggleHelp } from '@/app/help/helpStore';
+import { guideUrl, openHelp, toggleHelp } from '@/app/help/helpStore';
 import { setPrefs, showBottomTab, showSideTab, usePrefs } from '@/app/prefs';
 import {
   newProject,
@@ -666,6 +666,12 @@ export const COMMANDS: Command[] = [
     label: 'help.expressions',
     group: 'help',
     run: () => openHelp('expressions'),
+  },
+  {
+    id: 'help.guide',
+    label: 'help.guide',
+    group: 'help',
+    run: () => void window.open(guideUrl(), '_blank', 'noopener'),
   },
   {
     id: 'help.shortcuts',

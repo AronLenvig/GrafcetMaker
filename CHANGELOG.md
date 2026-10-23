@@ -8,6 +8,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- GRAFCET guide on the website in English, French, German and Spanish (`en/`, `fr/`, `de/`,
+  `es/`): the elements, the five evolution rules, receptivities, actions, branches, hierarchy and
+  GRAFCET versus SFC, with diagrams and examples that open in the editor. **Help › GRAFCET guide**
+  and the start screen link to it; it works offline like the app.
+- Search engines and link previews: a descriptive page title on a first visit, description,
+  canonical link, Open Graph image, structured data, `sitemap.xml` and `robots.txt`. Public
+  mirrors set their address with `SITE_URL` at build time.
 - Actions without a step: place one with the Action tool (or `A` with nothing selected); drag it
   onto a step to attach it, or choose its step in the properties panel. An action without a step
   is always active: a continuous action follows its assignment condition, a stored action runs on

@@ -14,19 +14,26 @@ import { LogoIcon, MenuIcon, PlayIcon, SearchIcon, SettingsIcon } from './ui/ico
 import { useCompact } from './ui/media';
 import { Button, IconButton, Tip } from './ui/primitives';
 
+/** The page title of index.html, written for search results. */
+const SITE_TITLE = document.title;
+
 /** Project name; double-click (or Enter / F2 when focused) renames it in place. */
 function Title() {
   const { t } = useTranslation();
   const name = useDoc((s) => s.project.name);
   const dirty = useDoc(isDirty);
   const fileName = useSession((s) => s.fileName);
+  // A first visit (what search engines see): the starting project, neither opened nor drawn.
+  const fresh = useSession((s) => s.fresh);
+  const untouched = useDoc((s) => s.past.length === 0);
+  const firstVisit = fresh && untouched;
   const locked = useUi((s) => s.mode === 'simulate');
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(name);
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    document.title = `${dirty ? '● ' : ''}${name} — ${t('app.name')}`;
-  }, [dirty, name, t]);
+    document.title = firstVisit ? SITE_TITLE : `${dirty ? '● ' : ''}${name} — ${t('app.name')}`;
+  }, [dirty, firstVisit, name, t]);
   useEffect(() => {
     if (!editing) return;
     inputRef.current?.focus();
@@ -47,7 +54,9 @@ function Title() {
 
   return (
     <div className="flex min-w-0 items-center gap-1.5" title={fileName ?? undefined}>
-      <h1 className="sr-only">{t('app.heading', { name })}</h1>
+      <h1 className="sr-only">
+        {t('app.heading', { name: firstVisit ? t('app.tagline') : name })}
+      </h1>
       {dirty && (
         <span className="text-accent" aria-label={t('file.unsaved')} title={t('file.unsaved')}>
           ●

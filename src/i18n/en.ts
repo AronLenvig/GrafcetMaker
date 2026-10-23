@@ -288,6 +288,7 @@ export const en = {
       gettingStarted: 'Getting started',
       basics: 'GRAFCET basics',
       expressions: 'Writing receptivities',
+      guide: 'GRAFCET guide (web page)',
       shortcuts: 'Keyboard shortcuts',
       feedback: 'Send feedback…',
       whatsNew: 'What’s new',
@@ -903,6 +904,7 @@ export const en = {
     tour: 'Take the tour (5 steps)',
     tourAgain: 'Take the tour again',
     gettingStarted: 'Getting started tutorial',
+    guide: 'GRAFCET guide',
     examples: 'Examples',
     showAtStart: 'Show this screen when GrafcetMaker opens',
     exampleNames: {

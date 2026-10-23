@@ -23,27 +23,19 @@ Names are not case-sensitive, use letters, digits and `_`, and cannot be reserve
 - **Add variable** in the Variables list or table.
 - **Import** a list from Excel or CSV (below).
 
-## The variables list (side panel)
+## The variable table
 
-The **Variables** tab of the right panel is made for long lists:
+The **Variables** button at the bottom right opens the table, with every field in columns. Edit any
+cell in place (<kbd>Enter</kbd> or leaving the cell applies, <kbd>Esc</kbd> reverts), sort by
+clicking a column header, filter by text, direction and type. The table stays fast with thousands
+of variables.
 
-- **Search** by name, address or comment, and filter by direction with the chips (**Inputs**,
-  **Outputs**, **Internal**), each with its count.
-- Variables are grouped by direction; click a group header to fold it.
-- Click a variable to open it: edit all its fields, and see **where it is used**. Click a use to
-  jump to that receptivity or action on the diagram.
-- Keyboard: <kbd>↑</kbd> <kbd>↓</kbd> move between variables, <kbd>Enter</kbd> opens one,
-  <kbd>Esc</kbd> closes it.
+The **Uses** column counts the expressions that use each variable; an unused variable shows `0` in
+orange. Click the number to open the variable in the properties card: edit all its fields and see
+**where it is used**; click a use to jump to that receptivity or action on the diagram.
 
-The number on the right of each variable is how many expressions use it; an unused variable shows
-`0` in orange.
-
-## The variable table (bottom panel)
-
-The **Variables** tab of the bottom panel shows every field in columns. Edit any cell in place
-(<kbd>Enter</kbd> or leaving the cell applies, <kbd>Esc</kbd> reverts), sort by clicking a column
-header, filter by text, direction and type. Click the number in the **Uses** column to see where a
-variable is used. The table stays fast with thousands of variables.
+On a phone the Variables panel is a compact list instead: search, filter chips (**Inputs**,
+**Outputs**, **Internal**), groups by direction, and a tap opens a variable with its uses.
 
 ## Renaming
 

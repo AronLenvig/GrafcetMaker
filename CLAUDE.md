@@ -85,14 +85,14 @@ UI: Problems panel grouped/sorted; click → pan/zoom/flash element; on-element 
 - Features: multiple partial grafcets (tabs), macro-steps with expansion sheets, enclosing steps, comments, renumber, variable table with autocomplete + rename refactor.
 
 ## Simulation UI
-Separate mode (locks editing, distinct top bar + badge). Token dot in active steps; enabled transitions marked; cleared flash (respect `prefers-reduced-motion`). Input panel: momentary + toggle + numeric. Live values inline. Timers on steps. Chronogram with scrub cursor. Transient log per cycle. Scenario record/replay saved in project.
+Separate mode (locks editing, distinct simulation controls in place of the tools + badge). Token dot in active steps; enabled transitions marked; cleared flash (respect `prefers-reduced-motion`). Input panel: momentary + toggle + numeric. Live values inline. Timers on steps. Chronogram with scrub cursor. Transient log per cycle. Scenario record/replay saved in project.
 
 ## Layout
-Top bar (File/Edit/View/Simulate/theme/help) · left tools · center canvas with grafcet tabs · right properties · bottom tabs: Variables, Problems, Simulation, Chronogram. Resizable/collapsible, sizes persisted. Start screen: new/open/recent/examples (traffic light, drilling station, tank filling, parallel conveyor). Skippable ≤5-step tour. Help panel with GRAFCET quick reference + glossary tooltips using standard terms (step, transition, receptivity, clear, enabled).
+Owner decision: the canvas fills the window and everything else floats over it as islands (Excalidraw-like), shown when needed: top-left ☰ menu (File/Edit/View/Simulate/Help submenus + theme), project name, properties toggle · top-center tools (simulation controls while simulating) with hints below · top-right problems, Simulate, share link · left properties card while something is selected (or pinned) · bottom-left zoom + undo/redo · bottom-center grafcet tabs · bottom-right panel buttons (Variables, Problems, Simulation, Chronogram, Outline → one floating card, resizable, height persisted) + help + feedback. Step and action kinds are picture buttons. Start screen: new/open/recent/examples (traffic light, drilling station, tank filling, parallel conveyor). Skippable ≤5-step tour. Help panel with GRAFCET quick reference + glossary tooltips using standard terms (step, transition, receptivity, clear, enabled).
 Phones (`src/app/ui/media.ts`: ≤639 px wide or ≤479 px tall, Tailwind `compact:` variant): top bar with ☰ menu drawer, canvas, bottom toolbar, panels in one sheet, help full screen, no split view. Touch screens (`pointer: coarse`): pan/pinch/double-tap/long-press gestures, selection toolbar, larger handles and hit areas.
 
 ## Theme
-- Modes: System (default, live `prefers-color-scheme` listener) / Light / Dark; segmented control in top bar + palette + settings; persisted in localStorage (try/catch).
+- Modes: System (default, live `prefers-color-scheme` listener) / Light / Dark; main menu + palette + settings; persisted in localStorage (try/catch).
 - All colors as tokens on `:root` and `:root[data-theme="dark"]`, set `color-scheme`; no hard-coded colors. Diagram tokens: canvas, grid, ink, step-active, token, selection.
 - Inline hashed `<head>` script sets `data-theme` before CSS (no flash).
 - Contrast ≥4.5:1 text, ≥3:1 lines, both themes. Never color-only state (token dot, icons, handles).

@@ -8,13 +8,14 @@ waits for the next start. It takes about ten minutes.
 
 ## 1. Find your way around
 
-- **Center**: the canvas, where you draw. Each grafcet of the project has a tab above it.
-- **Left**: the tools (select, pan, place step, transition or comment), undo and redo.
-- **Right**: the **Properties** of what you select, and the **Variables** list.
-- **Bottom**: the variable table, the **Problems** list, the **Simulation** panel and the
-  **Chronogram**.
-- **Bottom of the canvas**: the hint bar shows what you can do right now. Watch it while you
-  follow this tutorial.
+- The **canvas** fills the window: that is where you draw. Everything else floats over it.
+- **Top**: the main menu ☰ and the project name on the left; the tools in the middle (select,
+  pan, place step, transition, comment or action); problems and **Simulate** on the right.
+- **Under the tools**: the hints show what you can do right now. Watch them while you follow this
+  tutorial.
+- **Left**: the **Properties** of what you select appear in a card while it is selected.
+- **Bottom**: zoom, undo and redo on the left; one tab per grafcet in the middle; the
+  **Variables**, **Problems**, **Simulation**, **Chronogram** and **Outline** panels on the right.
 
 A new project already contains the grafcet **G1** with step **0**. Its double square means it is an
 **initial step**: it is active when the system starts.
@@ -45,7 +46,7 @@ Step 1 is still selected. Press <kbd>A</kbd>, type `Pump` and press <kbd>Enter</
 
 The cycle has to go back to step 0 when the tank is empty.
 
-1. With step **2** selected, press <kbd>L</kbd>. The hint bar says **Click a step to loop back to
+1. With step **2** selected, press <kbd>L</kbd>. The hints say **Click a step to loop back to
    it**.
 2. Click step **0**. A transition is added below step 2 with a link going up to step 0, drawn with
    an arrow because it goes upward.

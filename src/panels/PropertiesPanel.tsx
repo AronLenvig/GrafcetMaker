@@ -22,6 +22,7 @@ import { goToParent, openChild, setStepKind } from '@/editor/commands/hierarchy'
 import { issueMessage } from '@/editor/validation/actions';
 import { useProblems } from '@/editor/validation/problems';
 import { ActionKindPicker } from './ActionKindPicker';
+import { StepKindPicker } from './StepKindPicker';
 import { CommitField, ExpressionField, Section, SelectField } from './fields';
 import { QuickFixButton, SeverityIcon } from './ProblemsPanel';
 
@@ -203,17 +204,9 @@ function StepProps({ g, step }: { g: Grafcet; step: Step }) {
             })
           }
         />
-        <SelectField
-          label={t('props.step.kind')}
+        <StepKindPicker
           value={step.kind}
-          options={(['normal', 'initial', 'macro', 'enclosing'] as const).map((k) => ({
-            value: k,
-            label: t(
-              g.kind === 'enclosed' && k === 'initial'
-                ? 'props.step.kinds.enclosedInitial'
-                : `props.step.kinds.${k}`,
-            ),
-          }))}
+          enclosed={g.kind === 'enclosed'}
           onChange={(k) => setStepKind(step.id, k)}
         />
         {step.refGrafcetId && project.grafcets[step.refGrafcetId] && (

@@ -6,8 +6,8 @@ import { endTour, useTour } from './tourStore';
 /** The five stops of the tour: an element marked `data-tour` and where the card goes. */
 const STEPS = [
   { id: 'canvas', place: 'inside' },
-  { id: 'tools', place: 'right' },
-  { id: 'side', place: 'left' },
+  { id: 'tools', place: 'below' },
+  { id: 'side', place: 'below' },
   { id: 'problems', place: 'below' },
   { id: 'bottom', place: 'above' },
 ] as const;
@@ -77,13 +77,9 @@ export function Tour() {
           left: clampX(r.left + r.width / 2 - CARD_W / 2),
           top: clampY(r.top + r.height / 2 - cardH / 2),
         }
-      : current.place === 'right'
-        ? { left: clampX(r.right + GAP), top: clampY(r.top + 40) }
-        : current.place === 'left'
-          ? { left: clampX(r.left - CARD_W - GAP), top: clampY(r.top + 40) }
-          : current.place === 'below'
-            ? { left: clampX(r.right - CARD_W), top: clampY(r.bottom + GAP) }
-            : { left: clampX(r.left + 40), top: clampY(r.top - cardH - GAP) };
+      : current.place === 'below'
+        ? { left: clampX(r.left + r.width / 2 - CARD_W / 2), top: clampY(r.bottom + GAP) }
+        : { left: clampX(r.right - CARD_W), top: clampY(r.top - cardH - GAP) };
 
   return (
     <div className="fixed inset-0 z-50" aria-live="polite">

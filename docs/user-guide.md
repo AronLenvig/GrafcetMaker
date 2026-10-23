@@ -21,25 +21,36 @@ available, a card offers to reload; your work is kept. **Help › What's new** s
 
 ## Screen layout
 
-- **Top bar**: File, Edit, View, Simulate and Help menus, the project name (a dot `●` means
-  unsaved changes; double-click it to rename the project), the problem counters, the command
-  palette button, the System / Light / Dark theme switch and **Settings** (gear, `Ctrl+,`).
-- **Left rail**: tools (select, pan, place step, place transition, place comment), add action,
-  undo and redo.
-- **Center**: the diagram of the active partial grafcet, with one tab per grafcet above it.
-- **Right panel**: two tabs. **Properties** of the selection (or of the grafcet and project when
-  nothing is selected; the live inspector while simulating) and **Variables**, a searchable list
-  of all variables. Drag its left edge to resize it (or focus the edge and use the arrow keys).
-- **Outline** tab of the right panel: every grafcet, step, action and transition as a tree, an
-  accessible alternative to the diagram. Arrow keys move and fold, `Enter` shows the element on the
-  diagram, `F2` edits it there; active steps are marked while simulating.
+The diagram fills the window. Everything else floats over it in small "islands" and shows only
+when it is needed:
+
+- **Top left**: the main menu ☰ (File, Edit, View, Simulate and Help as submenus, and the System /
+  Light / Dark theme), the project name (a dot `●` means unsaved changes; double-click it to
+  rename the project) and the **properties** button.
+- **Top centre**: the tools: select (`V`), pan (`H`), step (`S`), transition (`T`), comment (`C`)
+  and action (`Shift+A`); the letter in each button is its key. While simulating, the simulation
+  controls take their place. Under them, the **hints** list the keys and gestures available for
+  the current selection, tool or drag, with a **Learn more** link; hide them with their `×` and
+  show them again from **View › Hints** or Settings.
+- **Top right**: the problem counters, ▶ **Simulate** (`F5`) and **Copy share link**.
+- **Properties card** (left): appears while something is selected, with its number, label, kind
+  (picture buttons), receptivity and actions; the live inspector while simulating. Its `×` hides
+  it for this selection. With nothing selected, the properties button (or **View › Properties
+  panel**) shows the grafcet and the project.
+- **Bottom left**: zoom out, the zoom (click it for 100 %), zoom in and fit; undo and redo.
+- **Bottom centre**: one tab per partial grafcet, and `+` to add one.
+- **Bottom right**: the panels **Variables**, **Problems**, **Simulation**, **Chronogram** and
+  **Outline**. Each opens in a card above the bottom islands; click its button again or `×` to
+  close it, drag its top edge to resize it. Simulation opens by itself when a simulation starts.
+  Then **Help** (`F1`) and **Send feedback**.
+- **Outline** panel: every grafcet, step, action and transition as a tree, an accessible
+  alternative to the diagram. Arrow keys move and fold, `Enter` shows the element on the diagram,
+  `F2` edits it there; active steps are marked while simulating.
 - **Glossary**: the small `?` next to standard terms (step, transition, receptivity, stored action,
-  macro-step…) in the properties panel explains them and links to the help.
-- **Hint bar** (bottom left of the canvas): the keys and gestures available for the current
-  selection, tool or drag, with a **Learn more** link to the help. Hide it with its `×`, and show
-  it again from **View › Hints** or Settings.
-- **Help center** (`F1`): docked on the right so you can read and draw at the same time; search,
+  macro-step…) in the properties card explains them and links to the help.
+- **Help center** (`F1`): a card on the right, so you can read and draw at the same time; search,
   contents, previous / next. Links like `#help/expressions` open a page directly.
+- **Command palette** (`Ctrl+K`) runs any command by name; **Settings** is `Ctrl+,`.
 - **GRAFCET guide** (**Help › GRAFCET guide**, or the start screen): a web page that explains the
   language itself (elements, the five evolution rules, actions, branches, hierarchy, GRAFCET and
   SFC) in English, French, German and Spanish, with examples that open in the editor. It is part
@@ -141,7 +152,7 @@ Divergences and convergences are never drawn by hand: they follow from the links
 ### Actions
 
 Select a step and press `A` to add an action to it. With nothing selected, `A` (or the **Action**
-tool of the left rail, `Shift+A`) lets you click a step to add an action to it, or click empty
+tool of the toolbar, `Shift+A`) lets you click a step to add an action to it, or click empty
 canvas to place an **action without a step**, drawn without a link. It is **always active**: a
 continuous action sets its output whenever its assignment condition is true (always, without
 one), a stored action runs on its event (on activation: once at start), a forcing order is always
@@ -194,19 +205,15 @@ You can always commit an expression with a problem; it is shown with a dashed re
 ### Variables
 
 Variables have a name, a type (BOOL, INT, REAL, TIME), a direction (input, output, internal), an
-initial value, a PLC address and a comment. There are two views:
+initial value, a PLC address and a comment. The **Variables** panel (bottom right) shows them in a
+table: edit any cell in place (`Enter` or leaving the cell commits, `Escape` reverts), sort by any
+column header, filter by text, direction and type. Click the **Uses** count to open the variable
+in the properties card: all its fields and **where it is used** (every receptivity and action,
+with read or write; click one to jump to it on the diagram). Long tables render only the visible
+rows, so thousands of variables stay fast. On a phone the panel is a compact list instead: search,
+filter chips, direction groups, and a tap opens a variable.
 
-- **Variables tab of the right panel**: a compact list for long lists. Search by name, address or
-  comment; filter with the **Inputs / Outputs / Internal** chips (with counts); fold the direction
-  groups. Click a variable (or `Enter`; `↑` `↓` move, `Esc` closes) to edit all its fields and
-  see **where it is used**: every receptivity and action, with read or write; click one to jump to
-  it on the diagram.
-- **Variables tab of the bottom panel**: a table with every field. Edit any cell in place (`Enter`
-  or leaving the cell commits, `Escape` reverts), sort by any column header, filter by text,
-  direction and type. Click the **Uses** count to open the variable in the side panel. Long
-  tables render only the visible rows, so thousands of variables stay fast.
-
-Both have a `⋯` menu to import and export the table (Excel or CSV).
+The `⋯` menu imports and exports the table (Excel or CSV).
 Renaming a variable updates every receptivity, action and condition that uses it, in one undo
 step. Names are not case-sensitive. Copying elements to another project brings the variables they
 use along.
@@ -247,7 +254,7 @@ When the tabs do not fit, scroll them with the mouse wheel or the ‹ › button
 
 ## Problems
 
-GrafcetMaker checks the project continuously. The counters in the top bar show errors and
+GrafcetMaker checks the project continuously. The counters at the top right show errors and
 warnings; click them (or the **Problems** tab) to see the list, grouped by grafcet. Each problem
 says what is wrong and where; click it to jump to the element (the view pans and zooms to it and
 it flashes). Many problems have a one-click fix: use `1` for an empty receptivity, create a
@@ -267,8 +274,9 @@ exact definitions are in `docs/semantics.md`.
 
 ## Simulation
 
-Press `F5`, the **Simulate** button of the top bar, or **Simulate › Start simulation**. The diagram is locked for editing, the top bar
-turns into the simulation bar and the **Simulation** tab opens.
+Press `F5`, the **Simulate** button at the top right, or **Simulate › Start simulation**. The
+diagram is locked for editing, the simulation controls replace the tools and the **Simulation**
+panel opens.
 
 - **Inputs**: switch a BOOL input on/off, or hold its **Hold** button for a momentary press
   (keyboard: hold `Space` on the button). Type values for INT, REAL and TIME inputs.
@@ -285,7 +293,7 @@ turns into the simulation bar and the **Simulation** tab opens.
   in it to move the cursor back in time (the diagram follows); **Back to live** returns.
 - **Scenarios**: **Record** restarts the simulation and records your input changes with their
   times; stop to save the scenario in the project. **Replay** restarts and plays it back exactly.
-- Select a step or transition to see its live state in the right panel.
+- Select a step or transition to see its live state in the properties card (Inspector).
 - `Shift+F5` stops the simulation.
 
 If the evolution never becomes stable (e.g. a loop of transitions that are all true), the
@@ -381,7 +389,7 @@ for each row) before anything changes, and the import is one undo step.
 
 ## Feedback
 
-**Help › Send feedback…** (or the speech-bubble button at the bottom left) composes a message —
+**Help › Send feedback…** (or the speech-bubble button at the bottom right) composes a message —
 idea, problem, question or praise. On the public site **Send** delivers it anonymously to the
 developers: no account is needed, and you can leave an email address if you would like a reply.
 Optionally it adds the app version and browser details; it never includes project data.
@@ -392,7 +400,7 @@ yourself.
 
 ## Settings
 
-**Settings** (`Ctrl+,`, the gear in the top bar, or **File › Settings…**) are applied at once and
+**Settings** (`Ctrl+,` or **File › Settings…**) are applied at once and
 remembered on this device:
 
 - **Appearance**: theme, textbook notation, welcome screen at startup.
@@ -405,5 +413,5 @@ remembered on this device:
 
 ## Theme
 
-Use the System / Light / Dark switch at the right of the top bar. _System_ follows your operating
+Choose System, Light or Dark at the bottom of the main menu ☰ (or in Settings). _System_ follows your operating
 system setting and updates live when it changes. The choice is remembered on this device.

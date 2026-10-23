@@ -5,8 +5,9 @@ import type { Id } from '@/core/model/types';
 import { fitToContent, setZoom, zoomBy } from './viewport';
 
 const btn =
-  'flex h-7 min-w-7 items-center justify-center rounded px-1 text-muted hover:bg-surface-2 hover:text-text';
+  'flex h-9 min-w-9 items-center justify-center rounded-lg px-1 text-muted hover:bg-surface-2 hover:text-text';
 
+/** Zoom out, the zoom (click: 100 %), zoom in and fit. Phones: only fit, over the canvas. */
 export function ZoomControls({ gid, zoom }: { gid: Id; zoom: number }) {
   const { t } = useTranslation();
   // Phones zoom with two fingers: only "fit", out of the way of the selection toolbar.
@@ -23,7 +24,7 @@ export function ZoomControls({ gid, zoom }: { gid: Id; zoom: number }) {
       </button>
     );
   return (
-    <div className="absolute right-3 bottom-3 flex items-center gap-0.5 rounded-md border border-border bg-surface p-0.5 shadow-pop">
+    <div className="gm-island flex items-center gap-0.5 p-0.5">
       <button
         type="button"
         className={btn}

@@ -54,7 +54,7 @@ export default function HelpPanel() {
   return (
     <aside
       aria-label={t('help.panel')}
-      className="flex h-full min-h-0 flex-col border-l border-border bg-surface"
+      className="flex h-full min-h-0 flex-col bg-surface"
       onKeyDown={(e) => {
         if (e.key === 'Escape' && !query) {
           e.stopPropagation();

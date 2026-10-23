@@ -1,9 +1,10 @@
 import * as Tabs from '@radix-ui/react-tabs';
 import { lazy, Suspense, useLayoutEffect, useRef, useState, type ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
-import { closeSheet, SHEET_TABS, useSheet, type SheetTab } from '@/app/sheet';
+import { setPrefs, usePrefs } from '@/app/prefs';
+import { closeSheet, PANEL_TABS, SHEET_TABS, useSheet, type SheetTab } from '@/app/sheet';
 import { CloseIcon } from '@/app/ui/icons';
-import { IconButton } from '@/app/ui/primitives';
+import { cx, IconButton } from '@/app/ui/primitives';
 import { useSim } from '@/editor/simulation/simStore';
 import { useProblems } from '@/editor/validation/problems';
 import { OutlinePanel } from './OutlinePanel';
@@ -11,8 +12,10 @@ import { ProblemsPanel } from './ProblemsPanel';
 import { PropertiesPanel } from './PropertiesPanel';
 import { SimInspector } from './SimInspector';
 import { SimulationPanel } from './SimulationPanel';
+import { VariablesPanel } from './VariablesPanel';
 import { VariablesSidePanel } from './variables/VariablesSidePanel';
 
+// Loaded on first use: the chronogram is only needed while simulating.
 const LazyChronogram = lazy(() => import('./ChronogramPanel'));
 function ChronogramPanel() {
   return (
@@ -39,15 +42,18 @@ const CONTENT: Record<SheetTab, ComponentType> = {
 const MIN_HEIGHT = 140;
 
 /**
- * Phones: the side and bottom panels in one sheet over the lower part of the canvas. The grab
- * handle resizes it (drag, or arrow keys); the diagram stays visible and usable above it.
+ * The panels, only when asked for. Phones: a sheet over the lower part of the canvas with every
+ * panel as a tab (the narrow variable list). Desktops (`floating`): a card above the bottom
+ * islands, with the variable table; its height is remembered. The grab handle resizes it (drag,
+ * or arrow keys); the diagram stays visible and usable above it.
  */
-export function MobileSheet() {
+export function PanelSheet({ floating = false }: { floating?: boolean }) {
   const { t } = useTranslation();
   const open = useSheet((s) => s.open);
   const tab = useSheet((s) => s.tab);
   const simulating = useSim((s) => s.on);
   const problems = useProblems((s) => s.counts.error + s.counts.warning);
+  const remembered = usePrefs((s) => s.bottomHeight);
   const ref = useRef<HTMLElement>(null);
   const drag = useRef<{ y: number; height: number } | null>(null);
   const [height, setHeight] = useState<number | null>(null);
@@ -63,10 +69,17 @@ export function MobileSheet() {
     return () => ro.disconnect();
   }, [open]);
 
-  if (!open) return null;
-  const max = Math.max(MIN_HEIGHT, room - 48);
-  const h = Math.min(max, Math.max(MIN_HEIGHT, height ?? Math.round(room * 0.5)));
-  const resize = (v: number) => setHeight(Math.min(max, Math.max(MIN_HEIGHT, Math.round(v))));
+  const tabs: readonly SheetTab[] = floating ? PANEL_TABS : SHEET_TABS;
+  if (!open || !tabs.includes(tab)) return null;
+  // Desktops keep the top islands visible; phones leave a strip of diagram.
+  const max = Math.max(MIN_HEIGHT, room - (floating ? 140 : 48));
+  const wanted = floating ? remembered : (height ?? Math.round(room * 0.5));
+  const h = Math.min(max, Math.max(MIN_HEIGHT, wanted));
+  const resize = (v: number) => {
+    const next = Math.min(max, Math.max(MIN_HEIGHT, Math.round(v)));
+    if (floating) setPrefs({ bottomHeight: next });
+    else setHeight(next);
+  };
   const label = (x: SheetTab) =>
     x === 'properties'
       ? simulating
@@ -80,7 +93,12 @@ export function MobileSheet() {
     <section
       ref={ref}
       aria-label={t('panels.label')}
-      className="absolute inset-x-0 bottom-0 z-20 flex flex-col rounded-t-xl border-t border-border bg-surface shadow-pop"
+      className={cx(
+        'absolute z-20 flex flex-col bg-surface',
+        floating
+          ? 'gm-island right-3 bottom-[60px] left-3 overflow-hidden'
+          : 'inset-x-0 bottom-0 rounded-t-xl border-t border-border shadow-pop',
+      )}
       style={{ height: h }}
     >
       <div
@@ -91,7 +109,10 @@ export function MobileSheet() {
         aria-valuemin={MIN_HEIGHT}
         aria-valuemax={max}
         tabIndex={0}
-        className="flex h-5 shrink-0 cursor-row-resize touch-none items-center justify-center"
+        className={cx(
+          'flex shrink-0 cursor-row-resize touch-none items-center justify-center',
+          floating ? 'h-3' : 'h-5',
+        )}
         onPointerDown={(e) => {
           e.currentTarget.setPointerCapture(e.pointerId);
           drag.current = { y: e.clientY, height: h };
@@ -120,11 +141,14 @@ export function MobileSheet() {
             aria-label={t('panels.label')}
             className="gm-no-scrollbar flex min-w-0 flex-1 items-stretch overflow-x-auto"
           >
-            {SHEET_TABS.map((x) => (
+            {tabs.map((x) => (
               <Tabs.Trigger
                 key={x}
                 value={x}
-                className="flex h-10 shrink-0 items-center gap-1.5 border-b-2 border-transparent px-3 whitespace-nowrap text-muted data-[state=active]:border-accent data-[state=active]:text-text"
+                className={cx(
+                  'flex shrink-0 items-center gap-1.5 border-b-2 border-transparent px-3 whitespace-nowrap text-muted hover:text-text data-[state=active]:border-accent data-[state=active]:text-text',
+                  floating ? 'h-8' : 'h-10',
+                )}
               >
                 {label(x)}
                 {x === 'problems' && problems > 0 && (
@@ -135,12 +159,17 @@ export function MobileSheet() {
               </Tabs.Trigger>
             ))}
           </Tabs.List>
-          <IconButton label={t('common.close')} className="h-10 w-10 shrink-0" onClick={closeSheet}>
+          <IconButton
+            label={t('common.close')}
+            title={t('common.close')}
+            className={cx('shrink-0', floating ? 'h-8 w-8' : 'h-10 w-10')}
+            onClick={closeSheet}
+          >
             <CloseIcon size={16} />
           </IconButton>
         </div>
-        {SHEET_TABS.map((x) => {
-          const Content = CONTENT[x];
+        {tabs.map((x) => {
+          const Content = floating && x === 'variables' ? VariablesPanel : CONTENT[x];
           return (
             <Tabs.Content key={x} value={x} className="min-h-0 flex-1 overflow-auto outline-none">
               <Content />

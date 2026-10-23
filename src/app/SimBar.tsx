@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { formatSimTime } from '@/editor/canvas/SimOverlay';
-import { formatKeys, runCommand } from '@/editor/commands/registry';
+import { formatKeys } from '@/editor/commands/registry';
 import { useDoc } from '@/editor/store/document';
 import {
   nextEvent,
@@ -14,7 +14,6 @@ import {
   useSim,
   type Speed,
 } from '@/editor/simulation/simStore';
-import { ThemeSwitcher } from '@/theme/ThemeSwitcher';
 import { toast } from './toasts';
 import {
   ErrorIcon,
@@ -23,7 +22,6 @@ import {
   PlayIcon,
   RecordIcon,
   ResetIcon,
-  SearchIcon,
   StepForwardIcon,
   StopIcon,
 } from './ui/icons';
@@ -38,7 +36,10 @@ import {
   Tip,
 } from './ui/primitives';
 
-/** Top bar while simulating: visibly different, with transport controls and the virtual clock. */
+/**
+ * The simulation controls (transport, speed, virtual clock, recording, Stop): a floating island in
+ * place of the tools on desktops, the top bar on phones. Visibly different from editing.
+ */
 export function SimBar() {
   const { t } = useTranslation();
   const playing = useSim((s) => s.playing);
@@ -140,9 +141,13 @@ export function SimBar() {
     );
   }
 
+  // Desktops: a floating island in place of the tools, visibly different (accent frame and badge).
   return (
-    <header className="flex h-10 shrink-0 items-center gap-1.5 border-b-2 border-accent bg-accent-soft px-2">
-      <h1 className="sr-only">{t('app.heading', { name })}</h1>
+    <div
+      role="toolbar"
+      aria-label={t('simulation.controls')}
+      className="gm-island flex h-11 max-w-full items-center gap-1.5 border-2 border-accent bg-accent-soft px-1.5"
+    >
       <span
         role="status"
         className="rounded bg-accent px-2 py-0.5 text-xs font-bold tracking-wider text-accent-fg"
@@ -183,7 +188,7 @@ export function SimBar() {
           onChange={(e) =>
             setSpeed((e.target.value === 'fast' ? 'fast' : Number(e.target.value)) as Speed)
           }
-          className="gm-input gm-input-sm w-auto pr-2"
+          className="gm-input gm-input-sm w-20 pr-2"
         >
           {SPEEDS.map((s) => (
             <option key={String(s)} value={String(s)}>
@@ -192,7 +197,7 @@ export function SimBar() {
           ))}
         </select>
       </label>
-      <span className="ml-1 font-mono text-xs tabular-nums" aria-live="off">
+      <span className="ml-1 font-mono text-xs whitespace-nowrap tabular-nums" aria-live="off">
         {t('simulation.clock', { time: formatSimTime(cursor ?? time), cycle })}
         {next !== null && !error && (
           <span className="text-muted">
@@ -211,7 +216,6 @@ export function SimBar() {
           {t('simulation.replaying', { name: replay.name })}
         </span>
       )}
-      <div className="mx-2 min-w-0 flex-1 truncate text-center font-medium">{name}</div>
       <Button
         size="sm"
         variant={recording ? 'danger' : 'default'}
@@ -223,15 +227,9 @@ export function SimBar() {
           ? t('simulation.stopRecording', { count: recording.length })
           : t('simulation.record')}
       </Button>
-      <Tip label={t('commands.view.palette')} keys={formatKeys('Mod+K')} side="bottom">
-        <IconButton label={t('commands.view.palette')} onClick={() => runCommand('view.palette')}>
-          <SearchIcon size={16} />
-        </IconButton>
-      </Tip>
-      <ThemeSwitcher />
       <Button size="sm" variant="primary" onClick={stopSimulation}>
         <StopIcon size={12} /> {t('simulation.stop')}
       </Button>
-    </header>
+    </div>
   );
 }

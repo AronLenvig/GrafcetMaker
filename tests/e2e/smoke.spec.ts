@@ -66,7 +66,8 @@ test('create a sequence, save it, reopen it', async ({ page }, testInfo) => {
   await expect(page.locator('[data-el="action"]')).toContainText('M1');
 
   // New project, then reopen the saved file.
-  await page.getByRole('button', { name: 'File' }).click();
+  await page.getByRole('button', { name: 'Menu', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'File' }).click();
   await page.getByRole('menuitem', { name: 'New project' }).click();
   await expect(page.locator('[data-el="step"]')).toHaveCount(1);
   const chooserPromise = page.waitForEvent('filechooser');
@@ -76,7 +77,8 @@ test('create a sequence, save it, reopen it', async ({ page }, testInfo) => {
   await expect(page.locator('[data-el="transition"]').first()).toContainText('start·stop'); // textbook notation: NOT drawn as an overbar
 
   // Simulate: declare the inputs, start the simulation and drive an input.
-  await page.getByRole('tab', { name: 'Variables', exact: true }).click();
+  // The panels float over the canvas and open on demand.
+  await page.getByRole('button', { name: 'Variables', exact: true }).click();
   for (const name of ['start', 'stop']) {
     await page.getByRole('button', { name: 'Add variable' }).click();
     await page.keyboard.type(name);
@@ -114,9 +116,12 @@ test('unsaved work is back after a reload, without asking', async ({ page }) => 
 test('theme can be switched', async ({ page }) => {
   await page.goto('./');
   await closeStartScreen(page);
-  await page.getByRole('radio', { name: 'Dark' }).click();
+  // The theme is in the main menu (the canvas keeps the screen).
+  await page.getByRole('button', { name: 'Menu', exact: true }).click();
+  await page.getByRole('menuitemradio', { name: 'Dark' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await page.getByRole('radio', { name: 'Light' }).click();
+  await page.getByRole('button', { name: 'Menu', exact: true }).click();
+  await page.getByRole('menuitemradio', { name: 'Light' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 });
 

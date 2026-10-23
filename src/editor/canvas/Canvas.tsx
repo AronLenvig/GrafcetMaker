@@ -9,6 +9,7 @@ import {
   type Rect,
 } from '@/core/layout/geometry';
 import { usePrefs } from '@/app/prefs';
+import { useCompact } from '@/app/ui/media';
 import type { Id } from '@/core/model/types';
 import { stateAt, useSim } from '../simulation/simStore';
 import { useDoc } from '../store/document';
@@ -90,6 +91,7 @@ export function Canvas({
   const showGrid = usePrefs((s) => s.showGrid);
   const panning = useInteraction((s) => s.panning);
   const pending = useUi((s) => s.pending);
+  const compact = useCompact();
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState(() => (gid ? canvasSizeOf(gid) : { width: 800, height: 600 }));
   const handlers = useCanvasInteraction(containerRef, gid, readOnly);
@@ -340,13 +342,14 @@ export function Canvas({
         {focused && g && geom && <Overlay g={g} geom={geom} readOnly={readOnly} />}
       </svg>
       {focused && g && geom && <InlineEditor g={g} geom={geom} viewport={viewport} />}
-      {gid && <ZoomControls gid={gid} zoom={viewport.zoom} />}
-      {focused && <HintBar />}
+      {/* Desktops show zoom and hints as islands around the canvas (see App). */}
+      {gid && compact && <ZoomControls gid={gid} zoom={viewport.zoom} />}
+      {focused && compact && <HintBar />}
       {focused && g && !readOnly && <SelectionBar g={g} />}
       {focused && pending && (
         <div
           role="status"
-          className="pointer-events-none absolute top-2 left-1/2 -translate-x-1/2 rounded-md border border-accent bg-surface px-3 py-1.5 text-text shadow-pop"
+          className="pointer-events-none absolute top-[60px] left-1/2 -translate-x-1/2 rounded-md border border-accent bg-surface px-3 py-1.5 text-text shadow-pop compact:top-2"
         >
           {t('canvas.loopHint')}
         </div>

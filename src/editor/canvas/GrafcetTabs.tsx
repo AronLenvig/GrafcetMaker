@@ -72,7 +72,7 @@ const EDGE_SCROLL = 24;
  * several), right-click for more. When the tabs do not fit they
  * scroll (wheel, ‹ › buttons) without a scrollbar, and the active tab is kept in view.
  */
-export function GrafcetTabs() {
+export function GrafcetTabs({ floating = false }: { floating?: boolean }) {
   const { t } = useTranslation();
   const order = useDoc((s) => s.project.grafcetOrder);
   const grafcets = useDoc((s) => s.project.grafcets);
@@ -244,12 +244,18 @@ export function GrafcetTabs() {
   const scrollBy = (dx: number) => listRef.current?.scrollBy({ left: dx, behavior: 'smooth' });
 
   return (
-    <div className="flex h-9 shrink-0 items-end gap-0.5 border-b border-border bg-surface-2 px-1">
+    <div
+      className={
+        floating
+          ? 'gm-island flex h-11 max-w-full items-center gap-0.5 p-1'
+          : 'flex h-9 shrink-0 items-end gap-0.5 border-b border-border bg-surface-2 px-1'
+      }
+    >
       {overflow.left && (
         <IconButton
           label={t('grafcet.scrollLeft')}
           title={t('grafcet.scrollLeft')}
-          className="mb-0.5 h-7 w-6 shrink-0"
+          className={floating ? 'h-8 w-6 shrink-0' : 'mb-0.5 h-7 w-6 shrink-0'}
           onClick={() => scrollBy(-160)}
         >
           <ChevronLeftIcon size={14} />
@@ -265,7 +271,10 @@ export function GrafcetTabs() {
           const el = listRef.current;
           if (el && Math.abs(e.deltaY) > Math.abs(e.deltaX)) el.scrollLeft += e.deltaY;
         }}
-        className="gm-no-scrollbar relative flex min-w-0 items-end gap-0.5 overflow-x-auto"
+        className={cx(
+          'gm-no-scrollbar relative flex min-w-0 gap-0.5 overflow-x-auto',
+          floating ? 'items-center' : 'items-end',
+        )}
       >
         {order.map((gid, i) => {
           const g = grafcets[gid];
@@ -298,10 +307,15 @@ export function GrafcetTabs() {
                     onKeyDown(e, gid, i);
                   }}
                   className={cx(
-                    'flex h-8 shrink-0 cursor-default items-center gap-1 rounded-t-md border border-b-0 px-3 font-mono whitespace-nowrap select-none',
-                    selected
-                      ? 'border-border bg-canvas text-text'
-                      : 'border-transparent text-muted hover:bg-surface-3 hover:text-text',
+                    'flex h-8 shrink-0 cursor-default items-center gap-1 px-3 font-mono whitespace-nowrap select-none',
+                    floating ? 'rounded-lg' : 'rounded-t-md border border-b-0',
+                    floating
+                      ? selected
+                        ? 'bg-accent-soft text-text'
+                        : 'text-muted hover:bg-surface-2 hover:text-text'
+                      : selected
+                        ? 'border-border bg-canvas text-text'
+                        : 'border-transparent text-muted hover:bg-surface-3 hover:text-text',
                     picked.length > 1 &&
                       picked.includes(gid) &&
                       'bg-accent-soft text-text ring-1 ring-accent ring-inset',
@@ -388,7 +402,7 @@ export function GrafcetTabs() {
         <IconButton
           label={t('grafcet.scrollRight')}
           title={t('grafcet.scrollRight')}
-          className="mb-0.5 h-7 w-6 shrink-0"
+          className={floating ? 'h-8 w-6 shrink-0' : 'mb-0.5 h-7 w-6 shrink-0'}
           onClick={() => scrollBy(160)}
         >
           <ChevronRightIcon size={14} />
@@ -398,7 +412,7 @@ export function GrafcetTabs() {
         disabled={locked}
         label={t('commands.insert.grafcet')}
         title={t('commands.insert.grafcet')}
-        className="mb-0.5 h-7 w-7 shrink-0"
+        className={floating ? 'h-8 w-8 shrink-0' : 'mb-0.5 h-7 w-7 shrink-0'}
         onClick={() => addGrafcet()}
       >
         <PlusIcon size={14} />

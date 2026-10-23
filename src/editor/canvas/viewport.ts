@@ -13,6 +13,31 @@ const REVEAL_MARGIN = 80;
 const sizes = new Map<Id, { width: number; height: number }>();
 let lastSize = { width: 800, height: 600 };
 
+/** Edges of the canvas covered by floating controls (the desktop islands), in CSS px. */
+export interface ViewInsets {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
+
+let insets: ViewInsets = { top: 0, right: 0, bottom: 0, left: 0 };
+
+/** Fit, reveal and "center of the view" use the canvas minus these insets. */
+export function setViewInsets(next: ViewInsets): void {
+  insets = next;
+}
+
+/** The part of the canvas not covered by floating controls, in screen px. */
+function freeArea(gid: Id): Rect {
+  const size = canvasSizeOf(gid);
+  const width = Math.max(1, size.width - insets.left - insets.right);
+  const height = Math.max(1, size.height - insets.top - insets.bottom);
+  // A canvas too small for the insets (a split pane) uses all of itself.
+  if (width < 200 || height < 160) return { x: 0, y: 0, ...size };
+  return { x: insets.left, y: insets.top, width, height };
+}
+
 export function setCanvasSize(gid: Id, size: { width: number; height: number }): void {
   sizes.set(gid, size);
   lastSize = size;
@@ -64,14 +89,14 @@ export function panBy(gid: Id, dxScreen: number, dyScreen: number): void {
 }
 
 function showRect(gid: Id, r: Rect, maxZoom: number): void {
-  const canvasSize = canvasSizeOf(gid);
-  const w = Math.max(1, canvasSize.width - 2 * FIT_PADDING);
-  const h = Math.max(1, canvasSize.height - 2 * FIT_PADDING);
+  const a = freeArea(gid);
+  const w = Math.max(1, a.width - 2 * FIT_PADDING);
+  const h = Math.max(1, a.height - 2 * FIT_PADDING);
   const zoom = clampZoom(Math.min(w / Math.max(r.width, 1), h / Math.max(r.height, 1), maxZoom));
   setViewport(gid, {
     zoom,
-    x: r.x + r.width / 2 - canvasSize.width / 2 / zoom,
-    y: r.y + r.height / 2 - canvasSize.height / 2 / zoom,
+    x: r.x + r.width / 2 - (a.x + a.width / 2) / zoom,
+    y: r.y + r.height / 2 - (a.y + a.height / 2) / zoom,
   });
 }
 
@@ -93,27 +118,32 @@ export function revealElements(gid: Id, ids: Iterable<Id>): void {
   const r = boundsOf(gid, ids);
   if (!r) return;
   const v = getViewport(gid);
-  const canvasSize = canvasSizeOf(gid);
-  const vw = canvasSize.width / v.zoom;
-  const vh = canvasSize.height / v.zoom;
+  const a = freeArea(gid);
+  const left = v.x + a.x / v.zoom;
+  const top = v.y + a.y / v.zoom;
+  const vw = a.width / v.zoom;
+  const vh = a.height / v.zoom;
   // Keep a margin so editors and popups next to the element stay on screen.
   const m = REVEAL_MARGIN / v.zoom;
   const inside =
-    r.x >= v.x + m &&
-    r.y >= v.y + m &&
-    r.x + r.width <= v.x + vw - m &&
-    r.y + r.height <= v.y + vh - m;
+    r.x >= left + m &&
+    r.y >= top + m &&
+    r.x + r.width <= left + vw - m &&
+    r.y + r.height <= top + vh - m;
   if (inside) return;
   if (r.width + (2 * FIT_PADDING) / v.zoom <= vw && r.height + (2 * FIT_PADDING) / v.zoom <= vh) {
-    setViewport(gid, { ...v, x: r.x + r.width / 2 - vw / 2, y: r.y + r.height / 2 - vh / 2 });
+    setViewport(gid, {
+      ...v,
+      x: r.x + r.width / 2 - (a.x + a.width / 2) / v.zoom,
+      y: r.y + r.height / 2 - (a.y + a.height / 2) / v.zoom,
+    });
   } else {
     showRect(gid, r, v.zoom);
   }
 }
 
-/** Center of the visible area in diagram coordinates. */
+/** Center of the visible (uncovered) area in diagram coordinates. */
 export function viewCenter(gid: Id): Point {
-  const v = getViewport(gid);
-  const size = canvasSizeOf(gid);
-  return screenToDiagram(v, { x: size.width / 2, y: size.height / 2 });
+  const a = freeArea(gid);
+  return screenToDiagram(getViewport(gid), { x: a.x + a.width / 2, y: a.y + a.height / 2 });
 }

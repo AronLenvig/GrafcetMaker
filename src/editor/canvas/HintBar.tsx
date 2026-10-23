@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { openHelp } from '@/app/help/helpStore';
 import { setPrefs, usePrefs } from '@/app/prefs';
 import { CloseIcon } from '@/app/ui/icons';
-import { useCoarsePointer } from '@/app/ui/media';
+import { useCoarsePointer, useCompact } from '@/app/ui/media';
 import type { Grafcet } from '@/core/model/types';
 import { tDynamic } from '@/i18n/dynamic';
 import { formatKeys } from '../commands/registry';
@@ -116,8 +116,8 @@ function selectionHints(g: Grafcet, ids: string[]): Hint[] {
 }
 
 /**
- * Contextual hints at the bottom of the canvas: what can be done with the current selection,
- * tool or gesture, with its keys. Hidden from View › Hints or Settings.
+ * Contextual hints (under the toolbar; on phones, in the canvas corner): what can be done with the
+ * current selection, tool or gesture, with its keys. Hidden from View › Hints or Settings.
  */
 export function HintBar() {
   const { t } = useTranslation();
@@ -134,6 +134,7 @@ export function HintBar() {
   const moving = useInteraction((s) => s.moving);
   const marquee = useInteraction((s) => s.marquee);
   const coarse = useCoarsePointer();
+  const compact = useCompact();
   const hasSelection = Object.keys(selection).length > 0 || !!selectedLink;
   if (!show || !g || editing) return null;
   if (coarse && !simulating && (moving || marquee || (hasSelection && !link))) return null;
@@ -191,7 +192,11 @@ export function HintBar() {
     <div
       role="note"
       aria-label={t('hints.label')}
-      className="pointer-events-auto absolute bottom-3 left-3 flex max-w-[calc(100%-230px)] items-start gap-2 rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs text-muted shadow-pop compact:top-2 compact:bottom-auto compact:left-2 compact:max-w-[calc(100%-64px)]"
+      className={
+        compact
+          ? 'pointer-events-auto absolute top-2 left-2 flex max-w-[calc(100%-64px)] items-start gap-2 rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs text-muted shadow-pop'
+          : 'pointer-events-auto flex max-w-full items-start gap-2 rounded-lg border border-border bg-surface/90 px-2.5 py-1 text-xs text-muted backdrop-blur-sm'
+      }
     >
       <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
         {hints.map(([keys, what]) => (

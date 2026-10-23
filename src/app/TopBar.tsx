@@ -1,24 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { formatKeys, runCommand } from '@/editor/commands/registry';
+import { runCommand } from '@/editor/commands/registry';
 import { doc, useDoc } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
 import { isDirty } from '@/editor/store/documentStore';
 import { useProblems } from '@/editor/validation/problems';
 import { SeverityIcon } from '@/panels/ProblemsPanel';
-import { ThemeSwitcher } from '@/theme/ThemeSwitcher';
-import { MenuBar, MenuDrawer } from './menus';
+import { MenuDrawer } from './menus';
 import { useSession } from './persistence/session';
 import { showBottomTab } from './prefs';
-import { LogoIcon, MenuIcon, PlayIcon, SearchIcon, SettingsIcon } from './ui/icons';
-import { useCompact } from './ui/media';
-import { Button, IconButton, Tip } from './ui/primitives';
+import { MenuIcon, PlayIcon } from './ui/icons';
+import { IconButton } from './ui/primitives';
 
 /** The page title of index.html, written for search results. */
 const SITE_TITLE = document.title;
 
 /** Project name; double-click (or Enter / F2 when focused) renames it in place. */
-function Title() {
+export function Title() {
   const { t } = useTranslation();
   const name = useDoc((s) => s.project.name);
   const dirty = useDoc(isDirty);
@@ -92,19 +90,16 @@ function Title() {
           }}
           title={t('file.renameHint')}
           aria-label={t('file.renameProject', { name })}
-          className="max-w-[40vw] cursor-text truncate rounded px-1.5 py-0.5 font-medium hover:bg-surface-2"
+          className="max-w-full cursor-text truncate rounded px-1.5 py-0.5 font-medium hover:bg-surface-2"
         >
           {name}
         </button>
-      )}
-      {fileName && !editing && (
-        <span className="hidden truncate text-muted md:inline">— {fileName}</span>
       )}
     </div>
   );
 }
 
-function ProblemsIndicator() {
+export function ProblemsIndicator() {
   const { t } = useTranslation();
   const counts = useProblems((s) => s.counts);
   return (
@@ -129,7 +124,7 @@ function ProblemsIndicator() {
 }
 
 /** Phones: the menu drawer, the project name, problems and Simulate. */
-function CompactTopBar() {
+export function TopBar() {
   const { t } = useTranslation();
   const [menu, setMenu] = useState(false);
   return (
@@ -151,45 +146,6 @@ function CompactTopBar() {
         </IconButton>
       </div>
       <MenuDrawer open={menu} onOpenChange={setMenu} />
-    </header>
-  );
-}
-
-export function TopBar() {
-  const { t } = useTranslation();
-  const compact = useCompact();
-  if (compact) return <CompactTopBar />;
-  return (
-    <header className="flex h-10 shrink-0 items-center gap-2 border-b border-border bg-surface px-2">
-      <LogoIcon size={18} className="mx-1 text-text" />
-      <MenuBar />
-      <div className="mx-2 flex min-w-0 flex-1 justify-center">
-        <Title />
-      </div>
-      <ProblemsIndicator />
-      {/* Start the simulation (the simulation bar replaces this bar while it runs). */}
-      <Tip label={t('commands.simulate.start')} keys="F5" side="bottom">
-        <Button
-          size="sm"
-          aria-label={t('simulation.simulateLabel')}
-          onClick={() => runCommand('sim.toggle')}
-          className="gap-1.5"
-        >
-          <PlayIcon size={12} className="text-success" />
-          {t('simulation.simulate')}
-        </Button>
-      </Tip>
-      <Tip label={t('commands.view.palette')} keys={formatKeys('Mod+K')} side="bottom">
-        <IconButton label={t('commands.view.palette')} onClick={() => runCommand('view.palette')}>
-          <SearchIcon size={16} />
-        </IconButton>
-      </Tip>
-      <ThemeSwitcher />
-      <Tip label={t('commands.file.settings')} keys={formatKeys('Mod+,')} side="bottom">
-        <IconButton label={t('commands.file.settings')} onClick={() => runCommand('file.settings')}>
-          <SettingsIcon size={16} />
-        </IconButton>
-      </Tip>
     </header>
   );
 }

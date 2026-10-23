@@ -1,7 +1,7 @@
 # Editing diagrams
 
 GrafcetMaker is built so you rarely place anything by hand: select an element and use a key, and
-the new elements are numbered, linked and positioned for you. The hint bar at the bottom of the
+the new elements are numbered, linked and positioned for you. The hints under the toolbar at the top of the
 canvas lists the keys that apply to the current selection.
 
 ## The essential keys
@@ -63,7 +63,7 @@ button at the bottom right. Drag the sheet's handle to make it taller or shorter
 
 ## Tools
 
-The left rail holds the tools: **Select** (<kbd>V</kbd>), **Pan** (<kbd>H</kbd>), **Step**
+The toolbar at the top of the window holds the tools (the letter in each button is its key): **Select** (<kbd>V</kbd>), **Pan** (<kbd>H</kbd>), **Step**
 (<kbd>S</kbd>), **Transition** (<kbd>T</kbd>), **Comment** (<kbd>C</kbd>) and **Action**
 (<kbd>Shift+A</kbd>). With a placing tool, click empty canvas to place an element; hold
 <kbd>Shift</kbd> to place several. <kbd>Esc</kbd> returns to Select. The Action tool also adds an
@@ -120,8 +120,11 @@ picker at the top. Click in a pane to work in it: its header is highlighted, and
 keyboard and Properties panel follow it. Drag the bar between the panes to resize them; × closes a
 pane.
 
-## The side panel
+## Properties and panels
 
-The right panel has two tabs: **Properties** of the selection (or of the grafcet and project when
-nothing is selected) and **Variables**. Hide it with the button at its top right or in the View
-menu.
+The diagram has the whole window; the rest floats over it and shows when needed. Select something
+and its **properties** appear in a card on the left: the kind of a step or action is chosen with
+picture buttons showing its symbol. The card's × hides it for this selection; with nothing
+selected, the properties button next to the project name shows the grafcet and the project. The
+**Variables**, **Problems**, **Simulation**, **Chronogram** and **Outline** panels open from the
+buttons at the bottom right, in a card you can resize by its top edge.

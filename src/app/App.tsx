@@ -3,14 +3,14 @@ import { lazy, Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Canvas } from '@/editor/canvas/Canvas';
 import { CanvasArea } from '@/editor/canvas/CanvasArea';
+import { setViewInsets } from '@/editor/canvas/viewport';
 import { GrafcetTabs } from '@/editor/canvas/GrafcetTabs';
 import { installShortcuts } from '@/editor/commands/shortcuts';
-import { BottomToolbar, RailFooter, Toolbar } from '@/editor/tools/Toolbar';
+import { BottomToolbar } from '@/editor/tools/Toolbar';
 import { openAppDialog } from '@/editor/commands/registry';
 import { startValidation } from '@/editor/validation/problems';
-import { BottomPanel } from '@/panels/BottomPanel';
-import { MobileSheet } from '@/panels/MobileSheet';
-import { RightPanel } from '@/panels/RightPanel';
+import { PanelSheet } from '@/panels/PanelSheet';
+import { PropertiesCard } from '@/panels/PropertiesCard';
 import { useSim } from '@/editor/simulation/simStore';
 import { useUi } from '@/editor/store/uiStore';
 import { SimBar } from './SimBar';
@@ -18,6 +18,7 @@ import { CommandPalette } from './CommandPalette';
 import { DialogHost } from './dialogs/DialogHost';
 import { isDialogOpen } from './dialogs/dialogStore';
 import { DropOverlay } from './DropOverlay';
+import { Islands } from './Islands';
 import { startPwa } from './pwa';
 import { Tour } from './start/Tour';
 import { UpdateBanner } from './UpdateBanner';
@@ -25,13 +26,12 @@ import { openHelpFromHash, useHelp } from './help/helpStore';
 import { startAutosave } from './persistence/autosave';
 import { onStorageError } from './persistence/db';
 import { openSharedLink, startup, useSession } from './persistence/session';
-import { setPrefs, usePrefs } from './prefs';
-import { closeSheet, showSheet, useSheet } from './sheet';
+import { usePrefs } from './prefs';
+import { closeSheet, showSheet, usePropertiesVisible, useSheet } from './sheet';
 import { toast, useToasts } from './toasts';
 import { TopBar } from './TopBar';
 import { useCompact } from './ui/media';
 import { cx } from './ui/primitives';
-import { Splitter } from './ui/Splitter';
 
 // The help center (pages, figures, search) is loaded when first opened.
 const HelpPanel = lazy(() => import('./help/HelpPanel'));
@@ -73,7 +73,7 @@ function Toasts() {
   return (
     <div
       aria-live="polite"
-      className="pointer-events-none fixed bottom-4 left-1/2 z-50 flex w-max max-w-[calc(100vw-24px)] -translate-x-1/2 flex-col items-center gap-2 compact:bottom-20"
+      className="pointer-events-none fixed bottom-[68px] left-1/2 z-50 flex w-max max-w-[calc(100vw-24px)] -translate-x-1/2 flex-col items-center gap-2 compact:bottom-20"
     >
       {toasts.map((x) => (
         <div
@@ -103,11 +103,7 @@ function CompactLayout() {
   const simulating = useSim((s) => s.on);
   const helpOpen = useHelp((s) => s.open);
   const active = useUi((s) => s.activeGrafcetId);
-  // The inputs are what a simulation needs first; the sheet closes again when it stops.
-  useEffect(() => {
-    if (simulating) showSheet('simulation');
-    else if (['simulation', 'chronogram'].includes(useSheet.getState().tab)) closeSheet();
-  }, [simulating]);
+  useEffect(() => setViewInsets({ top: 0, right: 0, bottom: 0, left: 0 }), []);
   return (
     <>
       <div className="flex h-full flex-col">
@@ -116,7 +112,7 @@ function CompactLayout() {
           <GrafcetTabs />
           <div data-tour="canvas" className="relative min-h-0 flex-1">
             <Canvas gid={active} />
-            <MobileSheet />
+            <PanelSheet />
           </div>
         </main>
         <BottomToolbar />
@@ -132,85 +128,65 @@ function CompactLayout() {
   );
 }
 
+/**
+ * Desktops and tablets: the diagram fills the window; everything else floats over it as islands
+ * (see Islands) and appears only when needed: the properties card while something is selected,
+ * the panel card when a panel is opened, the help on the right.
+ */
 function DesktopLayout() {
   const { t } = useTranslation();
-  const prefs = usePrefs();
-  const simulating = useSim((s) => s.on);
   const helpOpen = useHelp((s) => s.open);
+  const split = useUi((s) => s.split !== null);
+  const properties = usePropertiesVisible();
+  const panel = useSheet((s) => s.open && s.tab !== 'properties');
+  const panelHeight = usePrefs((s) => s.bottomHeight);
+  const hints = usePrefs((s) => s.showHints);
+  // Fit and reveal keep the diagram clear of the islands that are showing.
+  useEffect(() => {
+    setViewInsets({
+      top: split ? 0 : hints ? 104 : 64,
+      bottom: 64 + (panel ? panelHeight + 8 : 0),
+      left: properties && !split ? 300 : 0,
+      right: helpOpen ? Math.min(440, window.innerWidth * 0.4) + 12 : 0,
+    });
+  }, [split, hints, panel, panelHeight, properties, helpOpen]);
   return (
-    <div className="flex h-full flex-col">
-      {simulating ? <SimBar /> : <TopBar />}
-      <div className="flex min-h-0 flex-1">
-        {!prefs.leftCollapsed && (
-          <div data-tour="tools" className="w-12 shrink-0 border-r border-border bg-surface">
-            {simulating ? (
-              <div className="flex h-full flex-col items-center py-2">
-                <RailFooter />
-              </div>
-            ) : (
-              <Toolbar />
-            )}
-          </div>
-        )}
-        <main className="flex min-w-0 flex-1 flex-col" aria-label={t('canvas.region')}>
-          <GrafcetTabs />
-          <div data-tour="canvas" className="min-h-0 flex-1">
-            <CanvasArea />
-          </div>
-          {!prefs.bottomCollapsed && (
-            <Splitter
-              orientation="horizontal"
-              value={prefs.bottomHeight}
-              min={120}
-              max={Math.max(160, window.innerHeight - 220)}
-              sign={-1}
-              label={t('panels.resize')}
-              onChange={(v) => setPrefs({ bottomHeight: v })}
-            />
-          )}
-          <div
-            data-tour="bottom"
-            className="shrink-0"
-            style={{ height: prefs.bottomCollapsed ? 32 : prefs.bottomHeight }}
-          >
-            <BottomPanel />
-          </div>
-        </main>
-        {!prefs.rightCollapsed && (
-          <aside aria-label={t('props.panel')} className="flex shrink-0">
-            <Splitter
-              orientation="vertical"
-              value={prefs.rightWidth}
-              min={220}
-              max={640}
-              sign={-1}
-              label={t('props.resize')}
-              onChange={(v) => setPrefs({ rightWidth: v })}
-            />
-            <div
-              data-tour="side"
-              className="shrink-0 bg-surface"
-              style={{ width: prefs.rightWidth }}
-            >
-              <RightPanel />
-            </div>
-          </aside>
-        )}
-        {helpOpen && (
-          <div className="w-[min(440px,40vw)] min-w-72 shrink-0">
-            <Suspense fallback={null}>
-              <HelpPanel />
-            </Suspense>
-          </div>
-        )}
-      </div>
+    <div className="relative h-full overflow-hidden bg-canvas">
+      {/* Split panes have headers: they start below the top islands. */}
+      <main
+        aria-label={t('canvas.region')}
+        data-tour="canvas"
+        className={cx('absolute inset-x-0 bottom-0', split ? 'top-16' : 'top-0')}
+      >
+        <CanvasArea />
+      </main>
+      <Islands />
+      <PropertiesCard />
+      <PanelSheet floating />
+      {helpOpen && (
+        <div className="gm-island absolute top-[60px] right-3 bottom-[60px] z-30 w-[min(440px,40vw)] min-w-72 overflow-hidden">
+          <Suspense fallback={null}>
+            <HelpPanel />
+          </Suspense>
+        </div>
+      )}
     </div>
   );
+}
+
+/** The inputs are what a simulation needs first: their panel opens, and closes again after. */
+function useSimulationPanel() {
+  const simulating = useSim((s) => s.on);
+  useEffect(() => {
+    if (simulating) showSheet('simulation');
+    else if (['simulation', 'chronogram'].includes(useSheet.getState().tab)) closeSheet();
+  }, [simulating]);
 }
 
 export function App() {
   const compact = useCompact();
   useAppLifecycle();
+  useSimulationPanel();
   return (
     <Tooltip.Provider>
       {compact ? <CompactLayout /> : <DesktopLayout />}

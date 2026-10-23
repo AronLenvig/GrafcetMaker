@@ -97,8 +97,9 @@ export function Tip({
 
 export const menuContentClass =
   'z-50 min-w-56 rounded-md border border-border bg-surface p-1 text-text shadow-pop';
-const itemClass =
-  'flex cursor-default items-center gap-2 rounded px-2 py-1.5 outline-none select-none data-[disabled]:opacity-45 data-[highlighted]:bg-accent-soft data-[highlighted]:text-text';
+export const menuItemClass =
+  'flex cursor-default items-center gap-2 rounded px-2 py-1.5 outline-none select-none data-[disabled]:opacity-45 data-[highlighted]:bg-accent-soft data-[highlighted]:text-text pointer-coarse:py-2.5';
+const itemClass = menuItemClass;
 
 export function MenuItem({
   children,
@@ -114,7 +115,7 @@ export function MenuItem({
   return (
     <DropdownMenu.Item className={itemClass} onSelect={onSelect} disabled={disabled}>
       <span className="flex-1">{children}</span>
-      {keys && <kbd className="font-mono text-xs text-muted">{keys}</kbd>}
+      {keys && <kbd className="font-mono text-xs text-muted pointer-coarse:hidden">{keys}</kbd>}
     </DropdownMenu.Item>
   );
 }
@@ -162,7 +163,7 @@ export function SubMenu({
         <span aria-hidden="true">›</span>
       </DropdownMenu.SubTrigger>
       <DropdownMenu.Portal>
-        <DropdownMenu.SubContent className={menuContentClass} sideOffset={4}>
+        <DropdownMenu.SubContent className={menuContentClass} sideOffset={4} collisionPadding={8}>
           {children}
         </DropdownMenu.SubContent>
       </DropdownMenu.Portal>

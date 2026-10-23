@@ -3,11 +3,9 @@ import {
   ActionIcon,
   CommentIcon,
   HandIcon,
+  PanelBottomIcon,
   PointerIcon,
   RedoIcon,
-  FeedbackIcon,
-  HelpIcon,
-  PanelBottomIcon,
   StepIcon,
   TransitionIcon,
   UndoIcon,
@@ -33,66 +31,78 @@ function keysOf(id: string): string | undefined {
   return k ? formatKeys(k) : undefined;
 }
 
-/** Left tool rail. */
-export function Toolbar() {
+/**
+ * Desktops and tablets: the tools as a floating island at the top of the canvas. Each button shows
+ * its key in the corner (single keys only; the tooltip has the full combination).
+ */
+export function ToolIsland() {
   const { t } = useTranslation();
   const tool = useUi((s) => s.tool);
+  return (
+    <div
+      role="radiogroup"
+      aria-label={t('tools.label')}
+      data-tour="tools"
+      className="gm-island flex items-center gap-0.5 p-1"
+    >
+      {TOOLS.map(({ id, Icon }) => {
+        const keys = keysOf(`tools.${id}`);
+        const label = t(`commands.tools.${id}`);
+        return (
+          <Tip key={id} label={label} keys={keys} side="bottom">
+            <button
+              type="button"
+              role="radio"
+              aria-checked={tool === id}
+              aria-label={label}
+              onClick={() => ui.setTool(id)}
+              className={cx(
+                'relative flex h-9 w-9 items-center justify-center rounded-lg',
+                tool === id ? 'bg-accent-soft text-accent' : 'text-text hover:bg-surface-2',
+              )}
+            >
+              <Icon size={20} />
+              {keys && keys.length === 1 && (
+                <span
+                  aria-hidden="true"
+                  className="absolute right-1 bottom-0.5 text-[9px] leading-none text-muted"
+                >
+                  {keys}
+                </span>
+              )}
+            </button>
+          </Tip>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Undo and redo, as a floating island. */
+export function UndoRedoIsland() {
+  const { t } = useTranslation();
   const canUndo = useDoc((s) => s.past.length > 0);
   const canRedo = useDoc((s) => s.future.length > 0);
   return (
-    <nav aria-label={t('tools.label')} className="flex h-full flex-col items-center gap-1 py-2">
-      <div role="radiogroup" aria-label={t('tools.label')} className="flex flex-col gap-1">
-        {TOOLS.map(({ id, Icon }) => (
-          <Tip key={id} label={t(`commands.tools.${id}`)} keys={keysOf(`tools.${id}`)}>
-            <IconButton
-              role="radio"
-              aria-checked={tool === id}
-              label={t(`commands.tools.${id}`)}
-              active={tool === id}
-              onClick={() => ui.setTool(id)}
-            >
-              <Icon size={18} />
-            </IconButton>
-          </Tip>
-        ))}
-      </div>
-      <div className="my-1 h-px w-6 bg-border" />
-      <Tip label={t('commands.edit.undo')} keys={keysOf('edit.undo')}>
+    <div className="gm-island flex items-center p-0.5">
+      <Tip label={t('commands.edit.undo')} keys={keysOf('edit.undo')} side="top">
         <IconButton
           label={t('commands.edit.undo')}
           disabled={!canUndo}
+          className="h-9 w-9"
           onClick={() => runCommand('edit.undo')}
         >
           <UndoIcon size={18} />
         </IconButton>
       </Tip>
-      <Tip label={t('commands.edit.redo')} keys={keysOf('edit.redo')}>
+      <Tip label={t('commands.edit.redo')} keys={keysOf('edit.redo')} side="top">
         <IconButton
           label={t('commands.edit.redo')}
           disabled={!canRedo}
+          className="h-9 w-9"
           onClick={() => runCommand('edit.redo')}
         >
           <RedoIcon size={18} />
-        </IconButton>
-      </Tip>
-      <RailFooter />
-    </nav>
-  );
-}
-
-/** Bottom of the left rail (also shown while simulating): help and feedback. */
-export function RailFooter() {
-  const { t } = useTranslation();
-  return (
-    <div className="mt-auto flex flex-col items-center gap-1">
-      <Tip label={t('commands.help.open')} keys="F1">
-        <IconButton label={t('commands.help.open')} onClick={() => runCommand('help.open')}>
-          <HelpIcon size={18} />
-        </IconButton>
-      </Tip>
-      <Tip label={t('commands.help.feedback')}>
-        <IconButton label={t('commands.help.feedback')} onClick={() => runCommand('help.feedback')}>
-          <FeedbackIcon size={18} />
         </IconButton>
       </Tip>
     </div>
@@ -133,7 +143,7 @@ export function BottomToolbar() {
                   className={big}
                   onClick={() => ui.setTool(id)}
                 >
-                  <Icon size={20} />
+                  <Icon size={22} />
                 </IconButton>
               ))}
             </div>

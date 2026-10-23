@@ -54,6 +54,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- The canvas fills the window. Everything else floats over it and appears when needed: the main
+  menu ☰ with the project name at the top left, the tools at the top centre (new icons, each
+  showing its key) with the hints below, problems / Simulate / share at the top right, zoom and
+  undo at the bottom left, the grafcet tabs at the bottom centre, and the panels (Variables,
+  Problems, Simulation, Chronogram, Outline) at the bottom right, each opening in a floating card.
+  The properties show in a floating card while something is selected; the variable list left
+  that card (the Variables panel and a variable's details remain). The simulation controls take
+  the tools' place while simulating.
+- The kind of a step is chosen with picture buttons (step, initial, macro-step, enclosing), like
+  the kind of an action.
 - Mobile friendly. On phones the diagram gets the whole screen: a bottom toolbar (tools, undo,
   redo, panels), the menus in a ☰ drawer, the panels in a resizable sheet, a compact simulation
   bar, and dialogs that fit the screen. On every touch screen: one-finger pan, pinch-zoom,

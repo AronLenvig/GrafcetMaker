@@ -69,34 +69,43 @@ export const FitIcon = (p: IconProps) => (
   </Icon>
 );
 
+/*
+ * Tool icons: light 1.5 strokes with rounded joins (the toolbar look of whiteboard apps), each the
+ * GRAFCET symbol the tool places.
+ */
 export const PointerIcon = (p: IconProps) => (
-  <Icon {...p}>
-    <path d="M5 3l14 8-6 2-3 6z" />
+  <Icon strokeWidth={1.5} {...p}>
+    <path d="M6 3.5l12.5 6.2-5.4 1.6 3.6 5.9-2.3 1.4-3.6-5.9-3.9 4.1z" />
   </Icon>
 );
 
 export const HandIcon = (p: IconProps) => (
-  <Icon {...p}>
-    <path d="M8 13V5a1.5 1.5 0 0 1 3 0v6M11 11V3.5a1.5 1.5 0 0 1 3 0V11M14 11V5a1.5 1.5 0 0 1 3 0v8a7 7 0 0 1-7 7h-.5a6 6 0 0 1-4.6-2.2L3 15a1.5 1.5 0 0 1 2.3-2L8 15" />
+  <Icon strokeWidth={1.5} {...p}>
+    <path d="M8 12.5V6a1.5 1.5 0 0 1 3 0v5.5M11 11V4.5a1.5 1.5 0 0 1 3 0V11M14 11V6a1.5 1.5 0 0 1 3 0v5M17 9.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-1.4a6 6 0 0 1-4.7-2.3L3.6 15.4a1.6 1.6 0 0 1 2.4-2.1L8 15" />
   </Icon>
 );
 
+/** A step: the square with its links above and below. */
 export const StepIcon = (p: IconProps) => (
-  <Icon {...p}>
-    <rect x="5" y="5" width="14" height="14" />
+  <Icon strokeWidth={1.5} {...p}>
+    <rect x="6.5" y="6.5" width="11" height="11" rx="1" />
+    <path d="M12 2.5v4M12 17.5v4" />
   </Icon>
 );
 
+/** A transition: the bar across a link. */
 export const TransitionIcon = (p: IconProps) => (
-  <Icon {...p}>
-    <path d="M12 2v20" strokeWidth={1.25} />
-    <rect x="4" y="10" width="16" height="4" fill="currentColor" stroke="none" />
+  <Icon strokeWidth={1.5} {...p}>
+    <path d="M12 3v18" />
+    <path d="M6 12h12" strokeWidth={3} />
   </Icon>
 );
 
+/** A comment: the dashed note box. */
 export const CommentIcon = (p: IconProps) => (
-  <Icon {...p}>
-    <path d="M4 4h16v12H8l-4 4z" />
+  <Icon strokeWidth={1.5} {...p}>
+    <rect x="3.5" y="5" width="17" height="14" rx="2" strokeDasharray="3 2.2" />
+    <path d="M7.5 10h9M7.5 14h5.5" />
   </Icon>
 );
 
@@ -184,11 +193,12 @@ export const PanelBottomIcon = (p: IconProps) => (
   </Icon>
 );
 
+/** An action: a step with its action box. */
 export const ActionIcon = (p: IconProps) => (
-  <Icon {...p}>
-    <rect x="3" y="8" width="5" height="8" />
-    <path d="M8 12h3" />
-    <rect x="11" y="8" width="10" height="8" />
+  <Icon strokeWidth={1.5} {...p}>
+    <rect x="2.5" y="8" width="7" height="8" rx="1" />
+    <path d="M9.5 12h2.5" />
+    <rect x="12" y="8" width="9.5" height="8" rx="1" />
   </Icon>
 );
 
@@ -357,5 +367,36 @@ export const PropertiesIcon = (p: IconProps) => (
     <circle cx="16" cy="6" r="2" />
     <circle cx="10" cy="12" r="2" />
     <circle cx="18" cy="18" r="2" />
+  </Icon>
+);
+
+/** Signals over time. */
+export const ChronogramIcon = (p: IconProps) => (
+  <Icon strokeWidth={1.5} {...p}>
+    <path d="M3 9h4V4h5v5h3V4h6M3 20h6v-5h6v5h6" />
+  </Icon>
+);
+
+/** A tree of elements. */
+export const OutlineIcon = (p: IconProps) => (
+  <Icon strokeWidth={1.5} {...p}>
+    <path d="M4 5h4M8 12h4M8 19h4M6 5v14M6 12h2M6 19h2" />
+    <path d="M12 5h8M14 12h6M14 19h6" />
+  </Icon>
+);
+
+export const LinkIcon = (p: IconProps) => (
+  <Icon strokeWidth={1.5} {...p}>
+    <path d="M10 14a4 4 0 0 0 5.7 0l3.6-3.6a4 4 0 0 0-5.7-5.7L12.5 5.8" />
+    <path d="M14 10a4 4 0 0 0-5.7 0l-3.6 3.6a4 4 0 0 0 5.7 5.7l1.1-1.1" />
+  </Icon>
+);
+
+/** Inputs and outputs of a running simulation. */
+export const GaugeIcon = (p: IconProps) => (
+  <Icon strokeWidth={1.5} {...p}>
+    <path d="M4.5 17a8.5 8.5 0 1 1 15 0" />
+    <path d="M12 13l3.5-4" />
+    <circle cx="12" cy="13.5" r="1.2" fill="currentColor" stroke="none" />
   </Icon>
 );

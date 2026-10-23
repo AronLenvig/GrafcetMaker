@@ -12,7 +12,7 @@ export function UpdateBanner() {
   return (
     <div
       role="status"
-      className="fixed right-4 bottom-4 z-40 flex max-w-sm flex-col gap-2 rounded-lg border border-border bg-surface p-3 text-text shadow-pop"
+      className="fixed right-3 bottom-[68px] z-40 flex max-w-sm flex-col gap-2 rounded-lg border border-border bg-surface p-3 text-text shadow-pop"
     >
       {needRefresh ? (
         <>

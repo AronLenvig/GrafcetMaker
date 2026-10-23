@@ -3,6 +3,7 @@ import { startTour } from '@/app/start/tourStore';
 import { closeSplit, focusOtherPane, openSplit, swapPanes } from './split';
 import { guideUrl, openHelp, toggleHelp } from '@/app/help/helpStore';
 import { setPrefs, showBottomTab, showSideTab, usePrefs } from '@/app/prefs';
+import { toggleProperties } from '@/app/sheet';
 import {
   newProject,
   openProjectDialog,
@@ -483,16 +484,10 @@ export const COMMANDS: Command[] = [
     run: () => setPrefs({ snapToGrid: !usePrefs.getState().snapToGrid }),
   },
   {
-    id: 'view.toggleLeft',
-    label: 'view.toggleLeft',
-    group: 'view',
-    run: () => setPrefs({ leftCollapsed: !usePrefs.getState().leftCollapsed }),
-  },
-  {
     id: 'view.toggleRight',
     label: 'view.toggleRight',
     group: 'view',
-    run: () => setPrefs({ rightCollapsed: !usePrefs.getState().rightCollapsed }),
+    run: toggleProperties,
   },
   {
     id: 'view.themeSystem',
@@ -572,12 +567,6 @@ export const COMMANDS: Command[] = [
     label: 'view.outline',
     group: 'view',
     run: () => showSideTab('outline'),
-  },
-  {
-    id: 'view.variableList',
-    label: 'view.variableList',
-    group: 'view',
-    run: () => showSideTab('variables'),
   },
   {
     id: 'view.palette',

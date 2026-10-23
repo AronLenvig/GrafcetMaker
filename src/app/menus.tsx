@@ -1,18 +1,28 @@
 import * as Dialog from '@radix-ui/react-dialog';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatKeys, getCommand, runCommand } from '@/editor/commands/registry';
 import { useDoc } from '@/editor/store/document';
 import { tDynamic } from '@/i18n/dynamic';
+import { useTheme, type ThemeMode } from '@/theme/theme';
 import { ThemeSwitcher } from '@/theme/ThemeSwitcher';
 import { listRecent, type RecentEntry } from './persistence/db';
 import { openRecent } from './persistence/session';
 import { setPrefs, usePrefs } from './prefs';
-import { ChevronDownIcon, CloseIcon, LogoIcon } from './ui/icons';
-import { cx, Menu, MenuCheckItem, MenuItem, MenuSeparator, SubMenu } from './ui/primitives';
+import { ChevronDownIcon, CloseIcon, LogoIcon, MenuIcon } from './ui/icons';
+import {
+  cx,
+  IconButton,
+  MenuCheckItem,
+  menuContentClass,
+  MenuItem,
+  menuItemClass,
+  MenuSeparator,
+  SubMenu,
+} from './ui/primitives';
 
-type BoolPref =
-  'textbookNotation' | 'showGrid' | 'snapToGrid' | 'showHints' | 'leftCollapsed' | 'rightCollapsed';
+type BoolPref = 'textbookNotation' | 'showGrid' | 'snapToGrid' | 'showHints';
 
 /**
  * One entry of the main menu. `desktopOnly` entries make no sense on a phone (panels and split
@@ -137,16 +147,9 @@ const MAIN_MENU: MenuSection[] = [
       { pref: 'showGrid', label: 'commands.view.showGrid' },
       { pref: 'snapToGrid', label: 'commands.view.snapToGrid' },
       { pref: 'showHints', label: 'commands.view.hints', desktopOnly: true },
-      { pref: 'leftCollapsed', invert: true, label: 'commands.view.showTools', desktopOnly: true },
-      {
-        pref: 'rightCollapsed',
-        invert: true,
-        label: 'commands.view.showProperties',
-        desktopOnly: true,
-      },
       SEP,
+      cmd('view.toggleRight', { desktopOnly: true }),
       cmd('view.showVariables'),
-      cmd('view.variableList', { desktopOnly: true }),
       cmd('view.showProblems'),
       cmd('view.palette'),
     ],
@@ -291,19 +294,59 @@ function BarNode({ node }: { node: MenuNode }) {
   return <BarCommand node={node} />;
 }
 
-/** File, Edit, View, Simulate and Help as a menu bar. */
-export function MenuBar() {
+const THEMES: ThemeMode[] = ['system', 'light', 'dark'];
+
+/**
+ * Desktops and tablets: the main menu behind one button (File, Edit, View, Simulate and Help as
+ * submenus) with the theme at the bottom, so the canvas keeps the screen.
+ */
+export function MainMenuButton() {
   const { t } = useTranslation();
+  const mode = useTheme((s) => s.mode);
+  const setMode = useTheme((s) => s.setMode);
   return (
-    <nav aria-label={t('menu.label')} className="flex items-center">
-      {MAIN_MENU.map((s) => (
-        <Menu key={s.label} label={t(`menu.${s.label}`)}>
-          {s.items.map((n, i) => (
-            <BarNode key={i} node={n} />
+    <DropdownMenu.Root modal={false}>
+      <DropdownMenu.Trigger asChild>
+        <IconButton
+          label={t('menu.open')}
+          title={t('menu.open')}
+          className="h-9 w-9 data-[state=open]:bg-surface-2"
+        >
+          <MenuIcon size={18} />
+        </IconButton>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content
+          aria-label={t('menu.label')}
+          className={menuContentClass}
+          align="start"
+          sideOffset={8}
+          collisionPadding={8}
+        >
+          {MAIN_MENU.map((s) => (
+            <SubMenu key={s.label} label={t(`menu.${s.label}`)}>
+              {s.items.map((n, i) => (
+                <BarNode key={i} node={n} />
+              ))}
+            </SubMenu>
           ))}
-        </Menu>
-      ))}
-    </nav>
+          <MenuSeparator />
+          <DropdownMenu.Label className="px-2 py-1 text-[11px] font-semibold tracking-wider text-muted uppercase">
+            {t('theme.label')}
+          </DropdownMenu.Label>
+          <DropdownMenu.RadioGroup value={mode} onValueChange={(v) => setMode(v as ThemeMode)}>
+            {THEMES.map((m) => (
+              <DropdownMenu.RadioItem key={m} value={m} className={menuItemClass}>
+                <span className="w-4 text-center" aria-hidden="true">
+                  {mode === m ? '•' : ''}
+                </span>
+                <span className="flex-1">{t(`theme.${m}`)}</span>
+              </DropdownMenu.RadioItem>
+            ))}
+          </DropdownMenu.RadioGroup>
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
   );
 }
 

@@ -206,7 +206,7 @@ Autonomous build log. Read this first in every session and resume from **Current
   `tests/unit/shareLink.test.ts`.
 - Mobile friendly. `src/app/ui/media.ts` (`useCompact`: ≤639 px wide or ≤479 px tall; `useCoarsePointer`)
   and the Tailwind `compact:` variant. Phone layout (`App` → `CompactLayout`): `CompactTopBar` with
-  the `MenuDrawer`, canvas without split view, `BottomToolbar`, `MobileSheet` (panels as tabs,
+  the `MenuDrawer`, canvas without split view, `BottomToolbar`, `PanelSheet` (panels as tabs,
   state in `src/app/sheet.ts`; `showBottomTab` / `showSideTab` open it on phones), help full
   screen, compact `SimBar`. The main menu is data (`src/app/menus.tsx`) rendered as menu bar or
   drawer. Touch in `useCanvasInteraction`: pinch (two pointers), one-finger pan on empty canvas,
@@ -214,6 +214,13 @@ Autonomous build log. Read this first in every session and resume from **Current
   screens; link handles offset outside the element with a 24 px+ target; wider hit areas;
   touch hints; dialogs (start, export, settings, modal, inline editor) stack on phones. e2e: one
   phone test (double-tap, selection toolbar, sheet, simulation).
+- Floating layout: canvas-first desktop/tablet UI with islands (menu + project + properties
+  toggle; tools with key letters and new 1.5-stroke icons; problems / Simulate / share; zoom +
+  undo; grafcet tabs; panel buttons + help + feedback), floating properties card and panel card,
+  simulation controls as an island, help as a card. Removed: top bar, left rail, docked right
+  and bottom panels, the side variable list (desktop), `view.toggleLeft`, `view.variableList`
+  and their prefs. Step kind picker (`StepKindPicker`, shared `PicturePicker` with the action
+  kinds). Tour stops moved to the islands. e2e selectors follow the ☰ menu and panel buttons.
 
 - Search visibility of grafcet.org. `index.html`: keyword title and description, canonical,
   Open Graph/Twitter tags (`public/og-image.png`, 1200×630), JSON-LD (WebSite +
@@ -240,6 +247,13 @@ Autonomous build log. Read this first in every session and resume from **Current
   `minimalParentheses` (comparisons parenthesized only under NOT). Snapshots per construct.
 
 ## Decisions
+
+- Floating layout (owner request): no docked bars on desktops and tablets. `src/app/Islands.tsx`
+  composes the islands (`.gm-island`); `PropertiesCard` shows the properties while something is
+  selected (`src/app/sheet.ts`: `hiddenFor` per selection, `pinned` with nothing selected,
+  `focusedVariable` shows a variable's details); `PanelSheet floating` is the one panel card
+  (session state, height in prefs); the main menu is a ☰ dropdown (`MainMenuButton`). Fit and
+  reveal avoid the islands through `setViewInsets`. Phones keep their own layout.
 
 - grafcet.io: several steps into one transition without an `andNode` are alternatives (one
   transition per step), since only the AND bar draws a synchronization; a loop into a

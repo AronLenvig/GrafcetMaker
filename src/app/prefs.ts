@@ -1,23 +1,16 @@
 import { create } from 'zustand';
-import { showSheet } from './sheet';
+import { openProperties, showSheet } from './sheet';
 import { isCompact } from './ui/media';
 
 /** Per-device UI preferences persisted in localStorage (best effort: storage may be unavailable). */
 export interface Prefs {
-  leftWidth: number;
-  rightWidth: number;
+  /** Height of the floating panel (Variables, Problems, Simulation…). */
   bottomHeight: number;
-  leftCollapsed: boolean;
-  rightCollapsed: boolean;
-  bottomCollapsed: boolean;
-  bottomTab: string;
-  /** Right panel: element properties or the variable list. */
-  rightTab: 'properties' | 'variables' | 'outline';
   /** Textbook display of expressions (overbar NOT, · and +) instead of the typed ASCII. */
   textbookNotation: boolean;
   showGrid: boolean;
   snapToGrid: boolean;
-  /** Contextual hints at the bottom of the canvas. */
+  /** Contextual hints under the toolbar. */
   showHints: boolean;
   /** Split view: share of the first pane. */
   splitRatio: number;
@@ -36,14 +29,7 @@ export interface Prefs {
 const KEY = 'grafcetmaker.prefs';
 
 export const DEFAULT_PREFS: Prefs = {
-  leftWidth: 48,
-  rightWidth: 300,
-  bottomHeight: 220,
-  leftCollapsed: false,
-  rightCollapsed: false,
-  bottomCollapsed: false,
-  bottomTab: 'variables',
-  rightTab: 'properties',
+  bottomHeight: 260,
   textbookNotation: true,
   showGrid: true,
   snapToGrid: true,
@@ -91,14 +77,13 @@ export function setPrefs(patch: Partial<Prefs>): void {
   usePrefs.setState(patch);
 }
 
-/** Opens the bottom panel on a tab (Variables, Problems, …); on phones, the panel sheet. */
+/** Opens a panel (Variables, Problems, Simulation, Chronogram, Outline). */
 export function showBottomTab(id: string): void {
-  setPrefs({ bottomTab: id, bottomCollapsed: false });
-  if (isCompact()) showSheet(id);
+  showSheet(id);
 }
 
-/** Opens the side panel on a tab (Properties, Variables, Outline); on phones, the panel sheet. */
-export function showSideTab(tab: Prefs['rightTab']): void {
-  setPrefs({ rightTab: tab, rightCollapsed: false });
-  if (isCompact()) showSheet(tab);
+/** Opens the properties (the floating card; on phones, the panel sheet) or another panel. */
+export function showSideTab(tab: 'properties' | 'variables' | 'outline'): void {
+  if (tab === 'properties' && !isCompact()) openProperties();
+  else showSheet(tab);
 }

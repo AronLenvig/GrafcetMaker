@@ -12,7 +12,9 @@ pages are the Markdown files in [`docs/help/`](help/index.md).
 When GrafcetMaker opens it shows the **start screen**: continue with the project you had open,
 start a new one, open a file or a recent project, take the five-step **tour**, open the
 **getting started** tutorial, or open an **example** (traffic light, drilling station, tank filling,
-parallel conveyor). Untick "Show this screen when GrafcetMaker opens" to go straight to your
+parallel conveyor, and two larger ones: a **bottling line** with a macro-step, three parallel
+stations and an inspection, and **operating modes** with an enclosing step, a pause that freezes
+the cycle and an emergency stop that forces the modes). Untick "Show this screen when GrafcetMaker opens" to go straight to your
 project; **Help › Start screen and examples** brings it back.
 
 GrafcetMaker can be installed as an app (the install button of the browser's address bar) and works

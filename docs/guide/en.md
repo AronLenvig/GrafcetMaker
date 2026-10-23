@@ -201,8 +201,10 @@ A machining cycle: clamp the part, drill down, retract, unclamp. The clamp is se
 stored actions, and step 4 counts the parts. After step 4, an OR divergence with exclusive
 receptivities goes back to the start, or to maintenance every 100 parts.
 
-The editor has two more examples, a tank filling with numeric inputs and a parallel conveyor with
-a safety grafcet that forces the line: open them from the start screen of [GrafcetMaker](app:).
+The editor has more examples: a tank filling with numeric inputs, a parallel conveyor with a
+safety grafcet that forces the line, a bottling line (macro-step, three stations in parallel,
+inspection and counters) and operating modes (an enclosing step, a pause that freezes the cycle,
+an emergency stop). Open them from the start screen of [GrafcetMaker](app:).
 
 ## Draw and simulate GRAFCET online
 

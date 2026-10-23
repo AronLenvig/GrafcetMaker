@@ -142,9 +142,12 @@ Autonomous build log. Read this first in every session and resume from **Current
 
 ### Phase 9
 
-- Examples (`app/examples`): traffic light, drilling station, tank filling, parallel conveyor, built
-  from a compact spec with model ops + auto-layout, comments and scenarios; tested valid, free of
-  problems, and the traffic light's behaviour.
+- Examples (`app/examples`): traffic light, drilling station, tank filling, parallel conveyor,
+  bottling line (macro-step, AND stations, inspection, transient count, action without a step),
+  operating modes (enclosing step, stop at end of cycle, pause by `Cycle{*}`, emergency stop by
+  `Modes{0}`), built from a compact spec with model ops + auto-layout (`ref` links sub-grafcets,
+  `free` adds actions without a step), comments and scenarios; tested valid, free of problems,
+  and the behaviour of the traffic light and of both large examples' scenarios.
 - Start screen (default on, "show at startup"), five-step tour with dimmed cut-out, glossary
   popovers (24 px targets) linked to help sections (tested), outline tree view (WAI-ARIA tree).
 - PWA (vite-plugin-pwa, prompt mode): manifest, PNG/maskable icons, every chunk precached (works

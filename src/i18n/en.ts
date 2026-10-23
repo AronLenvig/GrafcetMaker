@@ -400,8 +400,7 @@ export const en = {
       title: 'Action {{n}}',
       ofStep: 'Action of step {{n}}',
       unattachedTitle: 'Action without step (always active)',
-      unattachedHint:
-        'Without a step the action is always active: a continuous action follows its assignment condition, stored actions run on their event (or once at start). Drag it onto a step to attach it; drag an action off its step to detach it.',
+      unattachedHint: 'Always active (no step). Drag it onto a step to attach it.',
       moveUp: 'Move action left',
       moveDown: 'Move action right',
       delete: 'Delete action',
@@ -971,12 +970,16 @@ export const en = {
       drillingStation: 'Drilling station',
       tankFilling: 'Tank filling',
       parallelConveyor: 'Parallel conveyor',
+      bottlingLine: 'Bottling line',
+      operatingModes: 'Operating modes',
     },
     exampleHints: {
       trafficLight: 'Timers, a pedestrian request remembered by a stored action',
       drillingStation: 'Machining cycle, part counter, alternative branch to maintenance',
       tankFilling: 'Numeric inputs, comparisons, a conditional action, a recorded batch',
       parallelConveyor: 'Parallel branches and a safety grafcet forcing the line',
+      bottlingLine: 'A macro-step, three stations in parallel, inspection, counters, a batch end',
+      operatingModes: 'An enclosing step, stop at end of cycle, pause by freezing, emergency stop',
     },
   },
   tour: {

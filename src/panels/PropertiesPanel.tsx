@@ -3,7 +3,7 @@ import { TermHelp, type Term } from '@/app/ui/TermHelp';
 import { useTranslation } from 'react-i18next';
 import { indexGrafcet } from '@/core/model/graph';
 import type { Action, Grafcet, Id, Step, Transition } from '@/core/model/types';
-import { ChevronDownIcon, ChevronUpIcon, PlusIcon, TrashIcon } from '@/app/ui/icons';
+import { ChevronDownIcon, ChevronUpIcon, InfoIcon, PlusIcon, TrashIcon } from '@/app/ui/icons';
 import { Button, cx, IconButton } from '@/app/ui/primitives';
 import {
   addActionToSelection,
@@ -139,7 +139,10 @@ function ActionFields({ action }: { action: Action }) {
           />
         )}
       {action.stepId === null && (
-        <p className="text-xs text-warning">{t('props.action.unattachedHint')}</p>
+        <p className="flex items-center gap-1.5 text-xs text-muted">
+          <InfoIcon size={13} className="shrink-0" />
+          {t('props.action.unattachedHint')}
+        </p>
       )}
     </>
   );

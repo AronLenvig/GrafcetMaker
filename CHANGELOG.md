@@ -8,6 +8,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- Two larger examples on the start screen. **Bottling line**: a macro-step for filling, three
+  stations in parallel, a camera inspection that counts or rejects bottles (with a transient
+  step), a batch end and an action without a step, plus a scenario. **Operating modes**: an
+  enclosing step runs the production cycle, a stop request ends it at the end of the cycle, a
+  pause freezes it (`Cycle{*}`) and an emergency stop forces the modes back (`Modes{0}`), with two
+  scenarios.
 - Open grafcet.io files (`.grafcetio`) with **File › Open** or by dropping them on the window.
   They become a new project: one partial grafcet per frame or separate chart (a frame of actions
   without steps too), branch bars and loop markers followed (separate loops that keep the default

@@ -1,4 +1,5 @@
 import Dexie, { type Table } from 'dexie';
+import type { Change } from '@/core/collab/records';
 import type { Project } from '@/core/model/types';
 
 export interface StoredProject {
@@ -33,10 +34,21 @@ export interface RecentEntry {
   handle?: FileSystemFileHandle;
 }
 
+/** A live session's records on this device, so a reload rejoins with offline edits (src/app/collab). */
+export interface StoredRoom {
+  /** = room id */
+  id: string;
+  /** The room's project id. */
+  pid: string;
+  records: Change[];
+  savedAt: number;
+}
+
 class GrafcetDb extends Dexie {
   projects!: Table<StoredProject, string>;
   snapshots!: Table<Snapshot, number>;
   recent!: Table<RecentEntry, string>;
+  rooms!: Table<StoredRoom, string>;
 
   constructor() {
     super('grafcetmaker');
@@ -45,6 +57,7 @@ class GrafcetDb extends Dexie {
       snapshots: '++id, projectId, takenAt',
       recent: 'id, openedAt',
     });
+    this.version(2).stores({ rooms: 'id' });
   }
 }
 

@@ -8,6 +8,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- **Live collaboration** (**File › Live collaboration…**, or the people button at the top right,
+  where the share link button was): edit a project together in real time from a link. Everyone's
+  pointer, selection and the element they edit appear with their name and color; avatars show who
+  is there, on which grafcet and who is simulating, and a click goes where they are. Changes merge
+  field by field (a move and a rename of the same step both stay), undo takes back only your own
+  changes, work goes on offline and merges on reconnect, and a reload rejoins by itself. While you
+  simulate, the others' changes wait until **Restart with changes**. End-to-end encrypted: the key
+  is only in the link. The public site relays sessions with a Cloudflare Durable Object;
+  self-hosted installs can run `server/relay.ts` (`deploy/docker-compose.yml`).
 - Right-click menu on the canvas (desktops): the commands for the element under the pointer, the
   selection, or empty canvas (**Add step here**, paste, auto-layout, renumber, fit).
 - Simulation: click a BOOL input where it is written in a receptivity or condition to switch it;

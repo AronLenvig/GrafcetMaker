@@ -179,6 +179,26 @@ export async function openFile(file: File, handle?: FileSystemFileHandle): Promi
   await loadIntoEditor(project, { fileName: file.name, handle: handle ?? null });
 }
 
+/**
+ * Opens the project of a live session. Rejoining (the same project is open, e.g. after a reload)
+ * updates it in place; another project asks about unsaved changes first. Returns false when the
+ * user cancelled.
+ */
+export async function openLiveProject(project: Project): Promise<boolean> {
+  if (getProject().id === project.id) {
+    doc.applyRemote(project);
+    useSession.setState({ fresh: false });
+    rememberLastProject(project.id);
+    return true;
+  }
+  if (!(await confirmDiscardIfDirty())) return false;
+  const existing = await safely(() => db.projects.get(project.id));
+  if (existing?.dirty) await addSnapshot(existing.project, 'beforeReplace');
+  // Never saved to a file on this device.
+  await loadIntoEditor(project, { dirty: true });
+  return true;
+}
+
 /** Links longer than this may be cut by some chat and email apps; the user is told so. */
 const LONG_LINK = 8000;
 

@@ -268,6 +268,34 @@ Autonomous build log. Read this first in every session and resume from **Current
   single-token, otherwise BOOL equations as in `st.ts`. `stBool` gained `stepIsComparison` and
   `minimalParentheses` (comparisons parenthesized only under NOT). Snapshots per construct.
 
+- Live collaboration (owner request). Model (`src/core/collab/records.ts`): the project as records
+  (project, grafcet order, variables, scenarios, grafcets, steps, transitions, actions, comments)
+  whose fields are last-writer-wins registers (version, random nonce: Excalidraw's per-element
+  model, per field), tombstones for deletions; local edits diffed by identity against the last
+  synced project; the shown project derived from the records with a deterministic repair (dangling
+  links, actions of missing steps, duplicate grafcet/variable names, grafcet order), sharing
+  unchanged objects. Messages and links (`wire.ts`, `link.ts`): `#room=<id>,<key>`, AES-GCM
+  sealed JSON (deflated over 1 KB), Zod-checked, protocol + schema version. Document store:
+  `applyRemote` (no history), `generation` (another project opened → leave), undo/redo check each
+  field against the state the entry left and skip what others changed (`replay`), cancel applies
+  what still fits. Session (`src/app/collab/session.ts`, lazy): WebSocket with backoff and ping,
+  full state + request on (re)connect answered by the lowest joined relay id, which also stores the
+  sealed snapshot 2 s after changes settle; flush ≤ 50 ms, presence ≤ 80 ms; records kept in
+  IndexedDB (`rooms`, Dexie v2) and the room in sessionStorage so a reload rejoins; while
+  simulating remote changes wait (`held`) until Stop or **Restart with changes**
+  (`reloadSimulation`). UI: `LiveIsland` (top right, in place of the share link button, which is
+  the fallback without a relay; avatars with initials, ▶ when simulating, click follows),
+  `LiveDialog` (start / join / session), `PeerLayer` (pointers, selections, ✎ edited element;
+  colors `--peer-0…7`, `--peer-fg`), `HeldChanges` in the simulation bar, **File › Live
+  collaboration…**. Relays: `worker/room.ts` (protocol), `worker/collab.ts` (Durable Object
+  `CollabRoom`, hibernation, auto ping/pong, alarm deletes after 30 days), `server/relay.ts`
+  (Node + `ws`, on premises; `deploy/relay.Dockerfile`, `relay-proxy.conf`,
+  `docker-compose.yml`). Tests: convergence of three replicas under random concurrent edits
+  (valid and identical projects), field merges, repairs, undo with remote changes, sealing;
+  Playwright: two contexts through the Node relay (edit both ways, presence, held changes while
+  simulating, leave). Checked by hand against `wrangler dev` (join from the snapshot alone,
+  reload rejoins).
+
 ## Decisions
 
 - Floating layout (owner request): no docked bars on desktops and tablets. `src/app/Islands.tsx`
@@ -356,6 +384,13 @@ Autonomous build log. Read this first in every session and resume from **Current
 - The help center is a docked, non-modal panel so beginners can follow a tutorial while drawing.
 - Variable table windowing: fixed 34 px rows above 120 rows; a cell scrolled out of the window
   commits its pending edit.
+- Live collaboration (owner decisions): Excalidraw-style last-writer-wins per field rather than a
+  CRDT library (no dependency, small relay, fits the patch-based store); text fields merge as whole
+  values (two people typing in one receptivity: the last one wins). End-to-end encrypted, no
+  accounts: anyone with the link edits. Undo is per person. Each person simulates on their own,
+  and remote changes wait while they do; a shared simulation (one host broadcasting its state) is
+  a later feature. The relay is an optional backend like the feedback endpoint; without it the
+  share link button stays.
 
 ## Known gaps
 
@@ -372,3 +407,9 @@ Autonomous build log. Read this first in every session and resume from **Current
   profiles (TIA, CODESYS, TwinCAT, Rockwell) remain future adapters.
 - SFC export: forcing orders, enclosure semantics and source/sink transitions are not
   representable and are reported; conditional continuous actions keep their value after the step.
+- Live collaboration: tombstones and records of deleted grafcets are kept for the life of a room
+  (no garbage collection); projects whose sealed state exceeds 1 MiB (about 5 MB of JSON) cannot
+  be stored as a room snapshot (a warning says so; editing with those connected still works). The
+  on-premise Docker files (`deploy/relay.Dockerfile`, `docker-compose.yml`) were not built here
+  (no Docker on the build machine); the relay itself is covered by the e2e test. WebSockets rely on
+  CSP `connect-src 'self'` matching `wss:` on the same host (CSP 3, current browsers).

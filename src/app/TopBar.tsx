@@ -6,6 +6,7 @@ import { useUi } from '@/editor/store/uiStore';
 import { isDirty } from '@/editor/store/documentStore';
 import { useProblems } from '@/editor/validation/problems';
 import { SeverityIcon } from '@/panels/ProblemsPanel';
+import { LiveIsland } from './collab/LiveIsland';
 import { MenuDrawer } from './menus';
 import { useSession } from './persistence/session';
 import { showBottomTab } from './prefs';
@@ -136,6 +137,7 @@ export function TopBar() {
         <div className="flex min-w-0 flex-1 justify-center">
           <Title />
         </div>
+        <LiveIsland compact />
         <ProblemsIndicator />
         <IconButton
           label={t('simulation.simulateLabel')}

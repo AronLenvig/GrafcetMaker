@@ -24,6 +24,10 @@ export interface Prefs {
   simFlash: boolean;
   /** Simulation: show for how long each active step has been active. */
   simStepTimers: boolean;
+  /** Live sessions: the name shown to the others. */
+  liveName: string;
+  /** Live sessions: random id of this device (picks its color for the others). */
+  liveId: string;
 }
 
 const KEY = 'grafcetmaker.prefs';
@@ -40,6 +44,8 @@ export const DEFAULT_PREFS: Prefs = {
   simSpeed: '1',
   simFlash: true,
   simStepTimers: true,
+  liveName: '',
+  liveId: '',
 };
 
 function load(): Prefs {
@@ -70,7 +76,8 @@ usePrefs.subscribe((state) => {
 
 /** Back to the defaults (layout, view and simulation preferences). */
 export function resetPrefs(): void {
-  usePrefs.setState(DEFAULT_PREFS);
+  // The live session identity is not a preference: the others know this device by it.
+  usePrefs.setState((s) => ({ ...DEFAULT_PREFS, liveName: s.liveName, liveId: s.liveId }));
 }
 
 export function setPrefs(patch: Partial<Prefs>): void {

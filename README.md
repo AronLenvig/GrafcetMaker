@@ -20,6 +20,10 @@ browser. Built for automation engineers: correct semantics first, then editing s
 - **Checks while you draw**: syntax and types of every expression, unknown variables with
   one-click creation, reachability, dead ends, non-exclusive alternatives, possible transient loops,
   outputs driven from parallel branches, hierarchy and forcing consistency.
+- **Live collaboration**: edit a project together in real time from a link, with everyone's
+  pointer, selection and name on the diagram, changes merged field by field, undo of your own
+  changes only, offline edits merged on reconnect, and end-to-end encryption (the key is only in
+  the link).
 - **Simulation** by the IEC 60848 rules (search for stability, simultaneous clearing, edges, timers,
   forcing) with virtual time, tokens on the diagram, evolution log, chronogram with time travel and
   recorded scenarios.
@@ -91,6 +95,12 @@ To enable the feedback endpoint:
 4. Recommended: a Cloudflare rate-limiting rule on `/api/feedback` (e.g. 5 requests per minute per
    IP) against spam.
 
+Live collaboration needs nothing to set up: the same Worker relays live sessions at
+`/api/room/<id>` with one Durable Object per room ([`worker/collab.ts`](worker/collab.ts), SQLite
+storage, available on the Workers Free plan). The migration in `wrangler.jsonc` creates it on the
+first deploy. Messages are end-to-end encrypted in the browser, so the Worker forwards and stores
+data it cannot read; a room's storage is deleted 30 days after its last change.
+
 New feedback then arrives as GitHub notifications (web, mobile app or the email of your GitHub
 account, which stays private). Renew the token before it expires. Without these settings the
 endpoint answers `{ "ok": false }` and the app falls back to email or copy.
@@ -123,22 +133,45 @@ docker run --rm -p 8080:8080 grafcetmaker
 
 The image is an unprivileged nginx serving the static build on port 8080 with security headers.
 
+### Live collaboration on premises
+
+Live sessions need a small relay next to the app, on the same origin at `<app path>/api/room`:
+[`server/relay.ts`](server/relay.ts) (Node 22.18 or later, package `ws`). It forwards encrypted
+messages and keeps each room's encrypted snapshot (in memory, or in `RELAY_DATA_DIR`). With
+Docker:
+
+```sh
+docker compose -f deploy/docker-compose.yml up -d --build
+# open http://localhost:8080
+```
+
+This runs the app and the relay ([`deploy/relay.Dockerfile`](deploy/relay.Dockerfile)); nginx
+forwards `api/room` to it with [`deploy/relay-proxy.conf`](deploy/relay-proxy.conf). Behind another
+web server, proxy `…/api/room` and `…/api/room/<id>` (with WebSocket upgrade) to the relay's port
+(`PORT`, default 8081). Without a relay the app works as before and shows the share link instead.
+
 ## Development
 
 ```sh
 npm ci
 npm run dev       # dev server
 npm run check     # typecheck + lint + unit tests + build
-npm run e2e       # Playwright smoke test (Chromium)
+npm run e2e       # Playwright smoke and live collaboration tests (Chromium)
+npm run relay     # live collaboration relay on port 8081
 ```
+
+To try live sessions locally, run `npm run relay` and start the dev server with
+`GM_RELAY_URL=http://localhost:8081 npm run dev` (it proxies `api/room` to the relay); or run the
+Worker itself with `npm run build && npx wrangler dev`.
 
 Architecture overview:
 
 ```
-src/core/{model,expr,validation,simulation,layout,codegen,io}  pure TypeScript (Node + Workers)
+src/core/{model,expr,validation,simulation,layout,codegen,io,collab}  pure TypeScript
 src/editor/{canvas,tools,commands}                              SVG editor
 src/panels  src/theme  src/i18n  src/workers  src/app           UI shell
 src/site                                                        website guide pages (build time)
+worker/  server/relay.ts           Cloudflare Worker (feedback, live relay), on-premise relay
 docs/{user-guide,semantics,file-format}.md   docs/help/*.md (in-app help pages)
 docs/guide/<lang>.md (website GRAFCET guide)
 ```

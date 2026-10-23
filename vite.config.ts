@@ -110,6 +110,13 @@ function website(): Plugin {
 
 const pkg = JSON.parse(read('./package.json')) as { version: string };
 
+/**
+ * Live collaboration while developing: run the relay (`npm run relay`), then start the dev or
+ * preview server with GM_RELAY_URL=http://localhost:8081 so the app finds it at api/room.
+ */
+const relayUrl = process.env.GM_RELAY_URL;
+const relayProxy = relayUrl ? { '/api/room': { target: relayUrl, ws: true } } : undefined;
+
 export default defineConfig({
   base: './',
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
@@ -165,6 +172,8 @@ export default defineConfig({
   ],
   resolve: { alias },
   worker: { format: 'es' },
+  server: { proxy: relayProxy },
+  preview: { proxy: relayProxy },
   build: {
     target: 'es2022',
     sourcemap: false,

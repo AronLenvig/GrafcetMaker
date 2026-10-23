@@ -121,10 +121,12 @@ export const projectMetaSchema = z.object({
   updatedAt: z.string().max(64),
 });
 
+export const projectNameSchema = z.string().min(1).max(200);
+
 const projectShape = z.object({
   schemaVersion: z.literal(SCHEMA_VERSION),
   id,
-  name: z.string().min(1).max(200),
+  name: projectNameSchema,
   meta: projectMetaSchema,
   variables: z.record(z.string(), variableSchema),
   grafcets: z.record(z.string(), grafcetSchema),

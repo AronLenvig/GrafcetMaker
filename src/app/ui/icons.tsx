@@ -379,6 +379,16 @@ export const LinkIcon = (p: IconProps) => (
   </Icon>
 );
 
+/** Live collaboration: people editing together. */
+export const UsersIcon = (p: IconProps) => (
+  <Icon strokeWidth={1.5} {...p}>
+    <circle cx="9" cy="8" r="3.5" />
+    <path d="M2.5 20a6.5 6.5 0 0 1 13 0" />
+    <path d="M16 4.6a3.5 3.5 0 0 1 0 6.8" />
+    <path d="M18 14a6.5 6.5 0 0 1 3.5 6" />
+  </Icon>
+);
+
 /** Inputs and outputs of a running simulation. */
 export const GaugeIcon = (p: IconProps) => (
   <Icon strokeWidth={1.5} {...p}>

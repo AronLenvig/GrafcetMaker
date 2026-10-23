@@ -60,7 +60,7 @@ export default defineConfig(
     },
   },
   {
-    files: ['*.config.{js,ts}', 'scripts/**', 'tests/e2e/**'],
+    files: ['*.config.{js,ts}', 'scripts/**', 'tests/e2e/**', 'server/**'],
     languageOptions: { globals: { ...globals.node } },
   },
 );

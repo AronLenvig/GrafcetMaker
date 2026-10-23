@@ -138,6 +138,17 @@ export function revealElements(gid: Id, ids: Iterable<Id>): void {
   }
 }
 
+/** Pans so the diagram point is in the middle of the visible area (zoom unchanged). */
+export function centerOn(gid: Id, p: Point): void {
+  const v = getViewport(gid);
+  const a = freeArea(gid);
+  setViewport(gid, {
+    ...v,
+    x: p.x - (a.x + a.width / 2) / v.zoom,
+    y: p.y - (a.y + a.height / 2) / v.zoom,
+  });
+}
+
 /** Center of the visible (uncovered) area in diagram coordinates. */
 export function viewCenter(gid: Id): Point {
   const a = freeArea(gid);

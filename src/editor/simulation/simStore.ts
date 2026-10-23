@@ -314,6 +314,22 @@ export function stopSimulation(): void {
   useUi.setState({ mode: 'edit' });
 }
 
+/**
+ * Loads the diagram as it is now into the running simulation and starts over (live sessions:
+ * changes others made while this one was simulating).
+ */
+export async function reloadSimulation(): Promise<void> {
+  if (!useSim.getState().on) return;
+  pause();
+  useSim.setState({
+    replay: null,
+    cursor: null,
+    recording: useSim.getState().recording ? [] : null,
+  });
+  apply(await send({ type: 'load', project: getProject() }), { restart: true });
+  if (useSim.getState().snapshot) play();
+}
+
 export async function resetSimulation(): Promise<void> {
   pause();
   useSim.setState({

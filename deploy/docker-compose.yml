@@ -1,0 +1,26 @@
+# GrafcetMaker on premises with live collaboration: the app (nginx, port 8080) and the relay that
+# connects the people editing together. From the repository root:
+#   docker compose -f deploy/docker-compose.yml up -d --build
+# then open http://localhost:8080. Without the relay, the app runs alone (Dockerfile).
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./relay-proxy.conf:/etc/nginx/snippets/relay.conf:ro
+    depends_on:
+      - relay
+    restart: unless-stopped
+  relay:
+    build:
+      context: ..
+      dockerfile: deploy/relay.Dockerfile
+    volumes:
+      # Room snapshots (sealed: the server cannot read them), deleted 30 days after the last change.
+      - relay-data:/data
+    restart: unless-stopped
+volumes:
+  relay-data:

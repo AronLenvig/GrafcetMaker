@@ -41,6 +41,46 @@ with raw DEFLATE (`CompressionStream('deflate-raw')`) and encoded as base64url w
 server. On open, the data is inflated with the 10 MB file limit enforced while inflating, then
 loaded exactly like a file (migrations, validation, newer versions rejected).
 
+## Live sessions
+
+Live collaboration ([`src/core/collab/`](../src/core/collab/records.ts),
+[`src/app/collab/`](../src/app/collab/session.ts)) exchanges the project as **records** rather than
+files, so that edits merge.
+
+**Link**: `<app URL>#room=<id>,<key>`: a room id of 20 characters `[0-9a-z]` and a 128-bit AES-GCM
+key in base64url. The fragment never reaches a server.
+
+**Records**: `p` (project name, meta), `o` (grafcet order), `v/<id>` variables, `x/<id>` scenarios,
+`g/<id>` grafcets (name, kind) and `s|t|a|c/<grafcet id>/<id>` steps, transitions, actions and
+comments. Each field of a record (a transition's `receptivity`, a step's `position`…) is a
+last-writer-wins register `{ v, n, x }`: version, random 32-bit nonce, value (no `x`: field
+unset). The higher version wins, then the lower nonce, so every replica keeps the same register
+whatever order the messages arrive in. Deleting sets the field `$d`; the record stays as a
+tombstone. Every field is checked against the file schema when merged; unknown fields and invalid
+values are dropped.
+
+**Derived project**: the project shown is computed from the records, with a deterministic repair
+so that it always passes the integrity rules below: elements of a deleted grafcet are hidden,
+`from` / `to` lose steps that no longer exist, an action whose step is gone is hidden, a reference
+to a missing grafcet is removed, a duplicate grafcet name (case-insensitive) gets `_2`, `_3`… (the
+lowest id keeps it), a duplicate variable name is hidden (the lowest id is shown), and the grafcet
+order lists every grafcet once.
+
+**Messages** are JSON `{ p: 1, s: <schemaVersion>, type, … }`: `sync` (project id and every
+record; `want` asks for the others' state), `changes` (records edited since) and `presence` (name,
+grafcet, pointer, selection, element edited, simulating). Messages over 1 KB are compressed (raw
+DEFLATE), then sealed with AES-GCM and a random 96-bit IV, and sent as base64url of IV and
+ciphertext, at most 1 MiB (larger `changes` are split). Messages from a newer protocol or schema
+version are refused with an explanation.
+
+**Relay** ([`worker/room.ts`](../worker/room.ts)): `GET <app path>/api/room` answers
+`{ "ok": true }` where live collaboration is available; `<app path>/api/room/<id>` is the room's
+WebSocket. The relay forwards sealed messages (to everyone, or to one participant), tells who
+joins and leaves, and keeps the latest sealed `sync` as the room snapshot, written 2 s after
+changes settle by the participant with the lowest relay id. Limits: 20 people per room, 600
+messages per 10 s per person; rooms are deleted 30 days after their last snapshot. Each browser
+also keeps its records in IndexedDB (table `rooms`), so a reload rejoins with offline edits.
+
 ## Importing grafcet.io files
 
 Opening a `.grafcetio` file (or any JSON with `"createdWith": "grafcet.io"`) converts it into a

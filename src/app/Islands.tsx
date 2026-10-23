@@ -7,6 +7,7 @@ import { useSim } from '@/editor/simulation/simStore';
 import { useUi } from '@/editor/store/uiStore';
 import { ToolIsland, UndoRedoIsland } from '@/editor/tools/Toolbar';
 import { ProblemsBadge, usePanelLabel } from '@/panels/panelParts';
+import { LiveIsland } from './collab/LiveIsland';
 import { MainMenuButton } from './menus';
 import { SimBar } from './SimBar';
 import {
@@ -58,9 +59,26 @@ function ProjectIsland() {
   );
 }
 
-/** Top right: the problems, Export and the share link. */
+/**
+ * Top right: the problems, Export and live collaboration (the share link where this site has no
+ * live collaboration; otherwise it is in the File menu).
+ */
 function ShareIsland() {
   const { t } = useTranslation();
+  const shareLink = (
+    <div className="hidden md:block">
+      <Tip label={t('commands.file.copyLink')} side="bottom">
+        <button
+          type="button"
+          aria-label={t('commands.file.copyLink')}
+          onClick={() => runCommand('file.copyLink')}
+          className="gm-island flex h-11 w-11 items-center justify-center text-muted hover:bg-surface-2 hover:text-text"
+        >
+          <LinkIcon size={18} />
+        </button>
+      </Tip>
+    </div>
+  );
   return (
     <div className="flex items-center gap-2">
       <div className="gm-island p-1">
@@ -77,18 +95,7 @@ function ShareIsland() {
           <span className="hidden lg:inline">{t('export.title')}</span>
         </button>
       </Tip>
-      <div className="hidden md:block">
-        <Tip label={t('commands.file.copyLink')} side="bottom">
-          <button
-            type="button"
-            aria-label={t('commands.file.copyLink')}
-            onClick={() => runCommand('file.copyLink')}
-            className="gm-island flex h-11 w-11 items-center justify-center text-muted hover:bg-surface-2 hover:text-text"
-          >
-            <LinkIcon size={18} />
-          </button>
-        </Tip>
-      </div>
+      <LiveIsland fallback={shareLink} />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import {
   type ActionBox,
   type Rect,
 } from '@/core/layout/geometry';
+import { useLive } from '@/app/collab/liveState';
 import { usePrefs } from '@/app/prefs';
 import { useCoarsePointer, useCompact } from '@/app/ui/media';
 import { cachedBool } from '@/core/expr/cache';
@@ -33,6 +34,7 @@ import { InlineEditor } from './InlineEditor';
 import { IssueBadges } from './IssueBadges';
 import { useInteraction } from './interactionStore';
 import { Overlay } from './Overlay';
+import { PeerLayer, useLiveCursor } from './PeerLayer';
 import { SimOverlay } from './SimOverlay';
 import { SimWhy } from './SimWhy';
 import { pointsToPath } from './svg';
@@ -145,6 +147,8 @@ export function Canvas({
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState(() => (gid ? canvasSizeOf(gid) : { width: 800, height: 600 }));
   const handlers = useCanvasInteraction(containerRef, gid, readOnly);
+  const live = useLive((s) => s.status !== 'off');
+  useLiveCursor(containerRef, gid, live && focused);
   const activate = () => {
     if (!focused) onActivate?.();
   };
@@ -389,6 +393,7 @@ export function Canvas({
             </>
           )}
           <g>{content}</g>
+          {live && g && geom && <PeerLayer g={g} geom={geom} zoom={viewport.zoom} />}
           {g && geom && !readOnly && <IssueBadges g={g} geom={geom} />}
           {g && geom && sim && (
             <SimOverlay

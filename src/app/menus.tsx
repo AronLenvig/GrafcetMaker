@@ -59,6 +59,7 @@ const MAIN_MENU: MenuSection[] = [
       cmd('file.saveAs'),
       cmd('file.downloadCopy'),
       cmd('file.copyLink'),
+      cmd('file.live'),
       SEP,
       cmd('file.export'),
       {

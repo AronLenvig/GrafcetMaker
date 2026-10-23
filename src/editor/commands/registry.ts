@@ -1,9 +1,11 @@
+import i18next from 'i18next';
 import { create } from 'zustand';
 import { startTour } from '@/app/start/tourStore';
 import { closeSplit, focusOtherPane, openSplit, swapPanes } from './split';
 import { guideUrl, openHelp, toggleHelp } from '@/app/help/helpStore';
 import { setPrefs, showBottomTab, showSideTab, usePrefs } from '@/app/prefs';
 import { toggleProperties } from '@/app/sheet';
+import { toast } from '@/app/toasts';
 import { isCompact } from '@/app/ui/media';
 import {
   newProject,
@@ -52,6 +54,11 @@ import {
 } from './edit';
 import { removeUnusedVariables } from './variables';
 
+/** Undo / redo, saying so when changes someone else made since (live session) were kept. */
+function stepHistory(step: () => boolean): void {
+  if (step()) toast(i18next.t('live.keptOthers'), 'info', 5000);
+}
+
 export type CommandGroup = 'file' | 'edit' | 'insert' | 'view' | 'tools' | 'simulate' | 'help';
 
 export interface Command {
@@ -79,6 +86,7 @@ export type AppDialog =
   | 'feedback'
   | 'start'
   | 'changelog'
+  | 'live'
   | null;
 export const useAppDialog = create<{ open: AppDialog }>(() => ({ open: null }));
 export const openAppDialog = (open: AppDialog) => useAppDialog.setState({ open });
@@ -144,6 +152,7 @@ export const COMMANDS: Command[] = [
   },
   { id: 'file.downloadCopy', label: 'file.downloadCopy', group: 'file', run: () => downloadCopy() },
   { id: 'file.copyLink', label: 'file.copyLink', group: 'file', run: copyShareLink },
+  { id: 'file.live', label: 'file.live', group: 'file', run: () => openAppDialog('live') },
   {
     id: 'insert.macroStep',
     label: 'insert.macroStep',
@@ -235,7 +244,7 @@ export const COMMANDS: Command[] = [
     label: 'edit.undo',
     group: 'edit',
     keys: ['Mod+Z'],
-    run: doc.undo,
+    run: () => stepHistory(doc.undo),
     enabled: () => doc.store.getState().past.length > 0,
   },
   {
@@ -243,7 +252,7 @@ export const COMMANDS: Command[] = [
     label: 'edit.redo',
     group: 'edit',
     keys: ['Mod+Shift+Z', 'Mod+Y'],
-    run: doc.redo,
+    run: () => stepHistory(doc.redo),
     enabled: () => doc.store.getState().future.length > 0,
   },
   {

@@ -1,10 +1,13 @@
-// Cloudflare Workers deployment of the public site: the built app (dist/) as static assets plus the
-// anonymous feedback endpoint (worker/index.ts). Build with `npm run build`, deploy with
-// `npx wrangler deploy` (Workers Builds runs both on every push).
+// Cloudflare Workers deployment of the public site: the built app (dist/) as static assets, the
+// anonymous feedback endpoint and the live collaboration relay (worker/index.ts). Build with
+// `npm run build`, deploy with `npx wrangler deploy` (Workers Builds runs both on every push).
 // The feedback issues go to GITHUB_REPO; the token is a secret set in the dashboard (Worker ›
 // Settings › Variables and Secrets, or `npx wrangler secret put GITHUB_TOKEN`), never here.
 // Secrets survive deploys, plain variables only when they are in this file.
-// Self-hosted and on-premise installs do not need this file.
+// Live collaboration: one Durable Object per room (CollabRoom, worker/collab.ts), SQLite storage
+// (available on the Workers Free plan). The migration below creates it on the first deploy; never
+// rename or remove the class without a new migration.
+// Self-hosted and on-premise installs do not need this file (see server/relay.ts).
 {
   "name": "grafcetmaker",
   "main": "worker/index.ts",
@@ -16,4 +19,8 @@
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/api/*"],
   },
+  "durable_objects": {
+    "bindings": [{ "name": "ROOMS", "class_name": "CollabRoom" }],
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["CollabRoom"] }],
 }

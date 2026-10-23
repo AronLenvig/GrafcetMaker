@@ -52,6 +52,25 @@ its grafcets and variables, and can change it without affecting yours.
 - Opening a link works like opening a file: if your project has unsaved changes you are asked
   first, and a damaged link is rejected with an explanation without touching your project.
 
+## Edit together live
+
+**File › Live collaboration…** (or the people button at the top right) lets several people edit
+the same project at the same time, each on their own computer.
+
+1. Type your name and choose **Start live session**. Send the link that appears to the others.
+2. They open the link, type their name and choose **Join**.
+3. Everyone sees the others' pointers and selections with their names, and every change appears
+   for everyone within a moment.
+
+- Changes merge field by field: moving a step while someone renames it keeps both.
+- **Undo** takes back only your own changes.
+- While you simulate, the others' changes wait so the diagram keeps matching your simulation:
+  **Restart with changes** in the simulation controls takes them in.
+- Without a connection you can keep working; changes are exchanged when it is back.
+- **Leave session** keeps the project on your device as your own copy.
+- The project is end-to-end encrypted with a key that is only in the link: anyone who has the link
+  can see and change the project, so share it like the file itself.
+
 ## Export
 
 **File › Export…** (<kbd>Ctrl+E</kbd>, or the **Export** button at the top right) opens one dialog for every format, with a live preview. Its

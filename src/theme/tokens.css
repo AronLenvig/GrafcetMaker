@@ -46,6 +46,17 @@
   --fired: #f79009;
   --comment-bg: #fffaeb;
   --comment-border: #b5891a;
+
+  /* Live collaboration: one color per participant, with --peer-fg text on it (>= 4.5:1). */
+  --peer-0: #b91c1c;
+  --peer-1: #c2410c;
+  --peer-2: #a16207;
+  --peer-3: #15803d;
+  --peer-4: #0f766e;
+  --peer-5: #0369a1;
+  --peer-6: #6d28d9;
+  --peer-7: #be185d;
+  --peer-fg: #ffffff;
 }
 
 :root[data-theme='dark'] {
@@ -88,4 +99,14 @@
   --fired: #fdb022;
   --comment-bg: #2a2410;
   --comment-border: #c9a43a;
+
+  --peer-0: #fca5a5;
+  --peer-1: #fdba74;
+  --peer-2: #fde047;
+  --peer-3: #86efac;
+  --peer-4: #5eead4;
+  --peer-5: #7dd3fc;
+  --peer-6: #c4b5fd;
+  --peer-7: #f9a8d4;
+  --peer-fg: #0b0d12;
 }

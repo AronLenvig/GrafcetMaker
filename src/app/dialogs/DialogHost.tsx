@@ -14,6 +14,9 @@ const ExportDialog = lazy(() => import('../export/ExportDialog'));
 // The start screen builds the example projects and their thumbnails.
 const StartScreen = lazy(() => import('../start/StartScreen'));
 const ChangelogDialog = lazy(() => import('../help/ChangelogDialog'));
+const LiveDialog = lazy(() =>
+  import('../collab/LiveDialog').then((m) => ({ default: m.LiveDialog })),
+);
 
 /** Renders queued message dialogs (confirm, error, restore prompts) one at a time. */
 function MessageDialogs() {
@@ -172,6 +175,11 @@ export function DialogHost() {
       {open === 'about' && <AboutDialog onClose={close} />}
       {open === 'settings' && <SettingsDialog onClose={close} />}
       {open === 'feedback' && <FeedbackDialog onClose={close} />}
+      {open === 'live' && (
+        <Suspense fallback={null}>
+          <LiveDialog onClose={close} />
+        </Suspense>
+      )}
       {open === 'changelog' && (
         <Suspense fallback={null}>
           <ChangelogDialog onClose={close} />

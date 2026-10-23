@@ -14,8 +14,11 @@ import {
   useSim,
   type Speed,
 } from '@/editor/simulation/simStore';
+import { useLive } from './collab/liveState';
+import { restartWithChanges } from './collab/liveStore';
 import { toast } from './toasts';
 import {
+  AlertIcon,
   ErrorIcon,
   MoreIcon,
   PauseIcon,
@@ -57,6 +60,39 @@ function SimClock({ compact, error }: { compact: boolean; error: boolean }) {
         </span>
       )}
     </>
+  );
+}
+
+/**
+ * Live sessions: the others changed the diagram while this one simulates. Their changes wait (the
+ * diagram must keep matching the simulation) until a restart takes them in, or Stop.
+ */
+function HeldChanges({ compact }: { compact: boolean }) {
+  const { t } = useTranslation();
+  const held = useLive((s) => s.held);
+  if (!held) return null;
+  const label = t('live.held', { names: held.join(', ') });
+  if (compact)
+    return (
+      <IconButton
+        label={`${label}. ${t('live.restart')}`}
+        className="h-10 w-10 text-warning"
+        onClick={() => void restartWithChanges()}
+      >
+        <AlertIcon size={18} />
+      </IconButton>
+    );
+  return (
+    <Tip label={t('live.heldHint')} side="bottom">
+      <Button
+        size="sm"
+        className="border-warning text-warning"
+        onClick={() => void restartWithChanges()}
+      >
+        <AlertIcon size={12} />
+        <span className="max-w-48 truncate">{label}</span>· {t('live.restart')}
+      </Button>
+    </Tip>
   );
 }
 
@@ -132,6 +168,7 @@ export function SimBar() {
               <ErrorIcon size={18} aria-label={t('simulation.transientLoop')} />
             </span>
           )}
+          <HeldChanges compact />
           <IconMenu label={t('simulation.options')} icon={<MoreIcon size={18} />}>
             {SPEEDS.map((s) => (
               <MenuCheckItem
@@ -230,6 +267,7 @@ export function SimBar() {
           {t('simulation.replaying', { name: replay.name })}
         </span>
       )}
+      <HeldChanges compact={false} />
       <Button
         size="sm"
         variant={recording ? 'danger' : 'default'}

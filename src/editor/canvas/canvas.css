@@ -327,3 +327,48 @@
   stroke-width: 3;
   animation: gm-flash 0.9s ease-out 1 forwards;
 }
+
+/* Live collaboration: the others' pointers, selections and the elements they edit. One color per
+   person (--peer, set per participant), always with their name: never color alone. */
+.gm-peers {
+  pointer-events: none;
+}
+
+.gm-peer-selection {
+  fill: none;
+  stroke: var(--peer);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.gm-peer-editing {
+  fill: none;
+  stroke: var(--peer);
+  stroke-width: 2;
+  stroke-dasharray: 6 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.gm-peer-pointer {
+  fill: var(--peer);
+  stroke: var(--canvas);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.gm-peer-tag {
+  fill: var(--peer);
+}
+
+.gm-canvas text.gm-peer-name {
+  fill: var(--peer-fg);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gm-peer-cursor {
+    transition: transform 90ms linear;
+  }
+}

@@ -34,7 +34,9 @@ when it is needed:
   bar. While simulating, the simulation controls take its place. Under them, the **hints** list the keys and gestures available for
   the current selection, tool or drag, with a **Learn more** link; hide them with their `×` and
   show them again from **View › Hints** or Settings.
-- **Top right**: the problem counters, **Export** (`Ctrl+E`) and **Copy share link**.
+- **Top right**: the problem counters, **Export** (`Ctrl+E`) and **Live collaboration** (in a
+  session: the others' avatars). Where the site offers no live collaboration, the share link
+  button takes its place; **File › Copy share link** is always there.
 - **Properties card** (left): appears while something is selected, with its number, label, kind
   (picture buttons), receptivity and actions. Its `×` hides it for this selection. With nothing
   selected, the properties button (or **View › Properties panel**) shows the grafcet and the
@@ -422,6 +424,41 @@ for each row) before anything changes, and the import is one undo step.
   then removed from the address bar, so a reload keeps their edits. A damaged or cut-off link is
   rejected with an explanation. Links over 8000 characters trigger a warning, since some apps cut
   long links.
+
+## Live collaboration
+
+Edit one project together in real time, each on their own computer (**File › Live
+collaboration…**, or the people button at the top right).
+
+- **Start**: enter the name the others will see and choose **Start live session**. The link to send
+  appears (and is copied); the address bar holds it too.
+- **Join**: open the link. You are asked first, since joining replaces the open project (unsaved
+  changes are offered for saving, as when opening a file). The project opens and stays on your
+  device when you leave.
+- **Seeing each other**: everyone's pointer with their name, what they selected (in their color)
+  and the element they are editing (dashed, ✎). Their avatars are at the top right: point at one to
+  see their grafcet and whether they simulate, click it to go where they are.
+- **Changes merge field by field**: one person moving a step while another renames it keeps both
+  changes. When two people change the same field at the same moment, the same one wins for
+  everyone. A link to a step someone deleted meanwhile is dropped, an action of a deleted step goes
+  with it, and a name created twice at once is made unique (a grafcet gets `_2`).
+- **Undo** (`Ctrl+Z`) takes back only your own changes. A change someone else has since made to
+  the same field is kept; a message says so.
+- **Simulating**: your simulation runs on the diagram as it was when it started. Changes the others
+  make meanwhile wait, and a button in the simulation controls says who changed the diagram:
+  **Restart with changes** takes them in and starts the simulation over; **Stop** takes them in
+  too. The others see that you are simulating (▶ on your avatar).
+- **Offline**: when the connection drops, keep working; your changes are sent, and the others'
+  received, when it is back. A reload rejoins by itself, edits made offline included.
+- **Leave session** (in the dialog) disconnects you; the project stays open as your own copy and
+  the others go on. Opening another project leaves the session too.
+- **Privacy**: everything is end-to-end encrypted with a key that exists only in the link (after
+  the `#`, never sent to a server): the server only relays and stores data it cannot read.
+  Anyone who has the link can see and change the project, so share it like the file itself. A
+  session is deleted 30 days after its last change.
+
+Live collaboration needs a relay server: the public site has one; self-hosted installations add
+it as described in the README. Elsewhere the menu entry is unavailable.
 
 ## Feedback
 

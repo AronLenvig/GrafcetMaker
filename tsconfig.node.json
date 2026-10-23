@@ -11,6 +11,8 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
     "types": ["node"]
   },
   "include": [
@@ -18,6 +20,7 @@
     "vitest.config.ts",
     "playwright.config.ts",
     "tests/e2e",
+    "server/**/*.ts",
     "scripts/**/*.ts"
   ]
 }

@@ -35,6 +35,10 @@ const isProjectWide = (f: ExportFormat) => isVariables(f) || isCode(f);
 /** Generated PLC code (the generators are loaded on first use). */
 async function generateCode(project: Project, settings: ExportSettings): Promise<CodegenResult> {
   const opts = { version: __APP_VERSION__, date: new Date() };
+  if (settings.format === 'st' && settings.st.style === 'case') {
+    const { generateStCase } = await import('@/core/codegen/stCase');
+    return generateStCase(project, opts);
+  }
   if (settings.format === 'st') {
     const { generateSt } = await import('@/core/codegen/st');
     return generateSt(project, { ...opts, stabilityLoop: settings.st.stabilityLoop });
@@ -392,12 +396,26 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
       case 'st':
         return (
           <>
-            <p className="text-muted">{t('export.stHint')}</p>
-            <Check
-              label={t('export.stabilityLoop')}
-              checked={settings.st.stabilityLoop}
-              onChange={(v) => update({ st: { stabilityLoop: v } })}
+            <Radio
+              name="st-style"
+              label={t('export.stStyle')}
+              value={settings.st.style}
+              onChange={(v) => update({ st: { ...settings.st, style: v } })}
+              options={[
+                { value: 'case', label: t('export.stStyles.case') },
+                { value: 'bits', label: t('export.stStyles.bits') },
+              ]}
             />
+            <p className="text-muted">
+              {settings.st.style === 'case' ? t('export.stHintCase') : t('export.stHint')}
+            </p>
+            {settings.st.style === 'bits' && (
+              <Check
+                label={t('export.stabilityLoop')}
+                checked={settings.st.stabilityLoop}
+                onChange={(v) => update({ st: { ...settings.st, stabilityLoop: v } })}
+              />
+            )}
           </>
         );
       case 'xml':

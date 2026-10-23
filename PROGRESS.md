@@ -228,8 +228,26 @@ Autonomous build log. Read this first in every session and resume from **Current
   the service worker and kept out of its SPA fallback. Help › GRAFCET guide and a start screen
   link (`guideUrl()`, browser language).
 
+- grafcet.io import (`src/core/io/grafcetIo.ts`, tests `tests/unit/grafcetIo.test.ts`): edges
+  joined into nets through loop nodes/markers and branch bars, frames and separate charts as
+  partial grafcets, all action types, conditional forcing as a helper grafcet, `*`/comparison
+  disambiguation, variables from the checker's create suggestions, per-sequence auto-layout.
+  Opened from `openFile` (extension or `createdWith` marker, lazy-loaded) as an unsaved project
+  with a notes dialog. Checked on two real files from the owner (0 validation errors).
+- Structured Text CASE style (`src/core/codegen/stCase.ts`), default in the Export dialog
+  (`st.style`): sequences = union of steps over transitions after macro inlining; CASE when
+  single-token, otherwise BOOL equations as in `st.ts`. `stBool` gained `stepIsComparison` and
+  `minimalParentheses` (comparisons parenthesized only under NOT). Snapshots per construct.
+
 ## Decisions
 
+- grafcet.io: several steps into one transition without an `andNode` are alternatives (one
+  transition per step), since only the AND bar draws a synchronization; a loop into a
+  transition's bottom joins that transition's output; a forcing order with a condition becomes a
+  two-step helper grafcet (GrafcetMaker forcing orders have no condition).
+- ST CASE style: alternative branches take the first true receptivity left to right (one
+  transition per scan per sequence), the trade-off of the hand-written style; documented in the
+  header and `docs/semantics.md`. Stored actions of steps changed by forcing do not run there.
 - The website lives next to the app rather than in front of it: the app stays at `/` (share links,
   installed PWAs, on-premise paths unchanged) and the guide pages are plain HTML generated from
   Markdown at build time, so search engines get real text without a separate site or server.

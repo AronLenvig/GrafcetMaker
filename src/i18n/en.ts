@@ -33,7 +33,7 @@ export const en = {
   },
   file: {
     types: {
-      project: 'GRAFCET project',
+      project: 'GRAFCET project (GrafcetMaker or grafcet.io)',
       variables: 'Variables (CSV or Excel)',
     },
     untitled: 'Untitled',
@@ -66,6 +66,31 @@ export const en = {
         'Share link copied ({{count}} characters). Some chat and email apps cut long links: if it arrives broken, send the project file instead.',
       opened: 'Opened “{{name}}” from a shared link.',
       openTitle: 'Could not open the shared link',
+    },
+    import: {
+      done: 'Imported “{{name}}” from grafcet.io. Save it to keep it as a GrafcetMaker project.',
+      title: 'Imported {{name}}',
+      notesIntro:
+        'The grafcet.io file was converted. Save it to keep it as a GrafcetMaker project. What changed:',
+      notes: {
+        splitTransition:
+          'The transition “{{receptivity}}” had several steps above it (steps {{steps}}) but no double line for parallel branches: it is now one transition per step, so either step can clear it.',
+        renumbered:
+          'Step {{from}} appeared twice in {{grafcet}}: the second one is now step {{to}}.',
+        stepNumber: 'The step “{{label}}” has no number: it is now step {{to}}.',
+        forcingHelper:
+          'The forcing order {{order}} applies only while “{{condition}}” is true. In GrafcetMaker a forcing order belongs to a step, so the new grafcet {{grafcet}} has a step that holds the order while the condition is true.',
+        invalidLink:
+          '{{count}} links joined two steps or two transitions directly and were left out.',
+        unsupported: '{{count}} element(s) of type “{{type}}” are not supported and were left out.',
+        macroStep:
+          'Macro-step {{number}} has no expansion yet: grafcet.io files do not say which chart it stands for.',
+        enclosingStep:
+          'Enclosing step {{number}} does not enclose a grafcet yet: grafcet.io files do not say which chart it contains.',
+        actionRenamed: 'The action “{{from}}” is not a valid variable name: it is now {{to}}.',
+        pulseAction:
+          'The pulse action {{name}} is now a continuous action with the condition {{condition}}, so it is true for one cycle.',
+      },
     },
   },
   dialogs: {
@@ -666,6 +691,13 @@ export const en = {
       'One function block running every grafcet, once per PLC scan: transitions, then steps, then timers and edges, then actions. Vendor-neutral IEC 61131-3; review before use.',
     stabilityLoop:
       'Search for stability in each scan (repeat clearing until the situation is stable, as IEC 60848 does)',
+    stStyle: 'Code style',
+    stStyles: {
+      case: 'CASE per sequence',
+      bits: 'One BOOL per step',
+    },
+    stHintCase:
+      'One INT step variable per sequence and a CASE with the transitions of each step, then every output as one expression of the steps. Sequences with parallel branches keep one BOOL per step. Vendor-neutral IEC 61131-3; review before use.',
     xmlHint:
       'PLCopen TC6 XML 2.01 for import into PLC tools: one SFC program per partial grafcet (macro-steps inlined), the variables as globals, and a program computing edges and timers. Review before use.',
     taskInterval: 'Task cycle time',
@@ -686,6 +718,10 @@ export const en = {
         '{{name}}: a conditional continuous action becomes an N action assigning the condition; the variable keeps its last value after the step.',
       stepSignal:
         'Step {{step}} is read by another program or by the signals program through the global {{mirror}}, one scan late.',
+      parallelSequence:
+        '{{grafcet}} has parallel branches, source or sink transitions, several initial steps or is enclosed: it uses one BOOL per step instead of a CASE.',
+      forcingSteps:
+        '{{order}} activates several steps of one sequence, which a CASE cannot hold: only step {{step}} is set.',
     },
     scope: 'What to export',
     scopes: {

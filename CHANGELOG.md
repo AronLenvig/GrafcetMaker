@@ -8,6 +8,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- Open grafcet.io files (`.grafcetio`) with **File › Open** or by dropping them on the window.
+  They become a new project: one partial grafcet per frame or separate chart, branch bars and loop
+  markers followed, every action type converted, variables created from what the charts use, and
+  a clean layout. A dialog lists anything the conversion changed.
+- Structured Text in the style PLC programmers write by hand, now the default: one INT step
+  variable per sequence and a `CASE` with the transitions of each step, stored actions inside the
+  transitions, then each output as one expression of the steps
+  (`M5U1_Grab := step_G1 >= 2 AND step_G1 <= 4;`). The previous style stays available as
+  **Code style › One BOOL per step**.
+
 - GRAFCET guide on the website in English, French, German and Spanish (`en/`, `fr/`, `de/`,
   `es/`): the elements, the five evolution rules, receptivities, actions, branches, hierarchy and
   GRAFCET versus SFC, with diagrams and examples that open in the editor. **Help › GRAFCET guide**

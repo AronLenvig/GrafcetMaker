@@ -9,6 +9,7 @@ import {
   suggestedFileName,
 } from '@/core/io/projectFile';
 import { decodeShareHash, encodeShareHash, SHARE_PREFIX } from '@/core/io/shareLink';
+import { tDynamic } from '@/i18n/dynamic';
 import { fitToContent } from '@/editor/canvas/viewport';
 import { doc, getProject } from '@/editor/store/document';
 import { isDirty } from '@/editor/store/documentStore';
@@ -126,11 +127,47 @@ export async function openNewProject(project: Project): Promise<boolean> {
   return true;
 }
 
+/**
+ * Converts a grafcet.io file into a new, unsaved project (saving writes a .grafcet.json; the
+ * original file is never overwritten), then lists what the conversion changed, if anything.
+ */
+async function importGrafcetIoFile(file: File, text: string): Promise<void> {
+  const { importGrafcetIo } = await import('@/core/io/grafcetIo');
+  const name = file.name.replace(/\.grafcetio$/i, '').replace(/\.json$/i, '');
+  let result: Awaited<ReturnType<typeof importGrafcetIo>>;
+  try {
+    result = importGrafcetIo(text, name, file.size);
+  } catch (e) {
+    const { message, details } = loadErrorMessage(e);
+    await showError(t('file.errors.openTitle', { name: file.name }), message, details);
+    return;
+  }
+  if (!(await confirmDiscardIfDirty())) return;
+  await loadIntoEditor(result.project, { dirty: true });
+  if (!result.notes.length) {
+    toast(t('file.import.done', { name: file.name }), 'success', 5000);
+    return;
+  }
+  await showDialog({
+    title: t('file.import.title', { name: file.name }),
+    message: t('file.import.notesIntro'),
+    details: result.notes.map((n) => tDynamic(i18next.t, `file.import.notes.${n.code}`, n.params)),
+    actions: [{ id: 'ok', label: t('common.ok'), variant: 'primary' }],
+    cancelId: 'ok',
+  });
+}
+
 /** Opens a project file (dialog, drag-and-drop, recent). Invalid files never replace the document. */
 export async function openFile(file: File, handle?: FileSystemFileHandle): Promise<void> {
   let project: Project;
   try {
-    project = parseProjectFile(await file.text(), file.size);
+    const text = await file.text();
+    // grafcet.io files (.grafcetio) are converted; the check runs on the cheap marker first.
+    if (/\.grafcetio$/i.test(file.name) || text.includes('grafcet.io')) {
+      const { isGrafcetIo } = await import('@/core/io/grafcetIo');
+      if (isGrafcetIo(file.name, text)) return await importGrafcetIoFile(file, text);
+    }
+    project = parseProjectFile(text, file.size);
   } catch (e) {
     const { message, details } = loadErrorMessage(e);
     await showError(t('file.errors.openTitle', { name: file.name }), message, details);

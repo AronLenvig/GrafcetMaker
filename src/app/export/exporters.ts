@@ -21,8 +21,11 @@ export interface ExportSettings {
   webp: { scale: 1 | 2 | 4; quality: number; transparent: boolean };
   svg: { embedFont: boolean };
   pdf: PageOptions;
-  /** Structured Text: repeat clearing within the scan until stable. */
-  st: { stabilityLoop: boolean };
+  /**
+   * Structured Text: `case` = one INT step variable and a CASE per sequence (core/codegen/stCase);
+   * `bits` = one BOOL per step, optionally repeating clearing within the scan until stable.
+   */
+  st: { style: 'case' | 'bits'; stabilityLoop: boolean };
   /** PLCopen XML: cycle time of the generated task, in ms. */
   xml: { taskInterval: number };
 }
@@ -36,7 +39,7 @@ export const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
   webp: { scale: 2, quality: 0.92, transparent: false },
   svg: { embedFont: true },
   pdf: { paper: 'A4', orientation: 'portrait', scale: 'fit', titleBlock: true },
-  st: { stabilityLoop: false },
+  st: { style: 'case', stabilityLoop: false },
   xml: { taskInterval: 10 },
 };
 

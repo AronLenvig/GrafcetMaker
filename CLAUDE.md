@@ -101,12 +101,12 @@ Phones (`src/app/ui/media.ts`: ≤639 px wide or ≤479 px tall, Tailwind `compa
 ## Persistence & export
 - Autosave to IndexedDB per command (debounce 500 ms, flushed when the page is hidden), local snapshot history. On reload or after a crash the last work reopens automatically (no restore prompt), then the start screen. Unsaved-changes dot in title; no `beforeunload` warning (owner decision).
 - Save: `Ctrl/Cmd+S` saves to the same file (File System Access API) or downloads `<name>.grafcet.json` where unsupported; `Ctrl/Cmd+Shift+S` Save As. `Ctrl/Cmd+O` open.
-- Import: open dialog, drag-and-drop a file anywhere on the window, recent files list. Clear error for invalid or newer files; never lose the current project.
+- Import: open dialog, drag-and-drop a file anywhere on the window, recent files list. Clear error for invalid or newer files; never lose the current project. grafcet.io files (`.grafcetio`) are converted on open (`src/core/io/grafcetIo.ts`, rules in `docs/file-format.md`).
 - Export: one Export dialog (`Ctrl/Cmd+E`) with format picker, live preview, settings remembered per project. Formats: SVG (sanitized), PNG 1/2/4×, vector PDF A4/A3 with title block + tiling, variables CSV (import too), Structured Text, PLCopen TC6 XML. "Copy as SVG/PNG" to clipboard for pasting into documents.
 - Lazy-load PDF/codegen/chronogram.
 
 ## Codegen (vendor-neutral, header "generated – review before use")
-ST pattern: compute all `Tn := Xpre AND cond` first, then `Xn := (Xn AND NOT Tout) OR Tin [OR init]`, then timers/edges (TON, R_TRIG), then outputs. Note: one clearing level per scan (no stability search) — document; optional loop variant.
+ST default style (owner decision): one INT step variable per sequence, `CASE step_G OF n: IF cond THEN step_G := m; END_IF; … ELSE step_G_range_error := TRUE; END_CASE;`, stored actions inside the transition, then each output as one expression (`M := step_G >= 2 AND step_G <= 4;`); sequences with parallel branches keep BOOL steps (`src/core/codegen/stCase.ts`). Option "One BOOL per step": compute all `Tn := Xpre AND cond` first, then `Xn := (Xn AND NOT Tout) OR Tin [OR init]`, then timers/edges (TON, R_TRIG), then outputs. Note: one clearing level per scan (no stability search) — document; optional loop variant.
 SFC qualifiers: continuous→N, on activation→P1/S, on deactivation→P0, time-limited→L, delayed→D; forcing→generated ST; macro-steps inlined. Vendor profiles (TIA, CODESYS, TwinCAT, Rockwell) later as adapters.
 
 ## Non-functional

@@ -49,7 +49,8 @@ export const PROJECT_FILE: FileKind = {
   get description() {
     return i18next.t('file.types.project');
   },
-  accept: { 'application/json': ['.json'] },
+  // .grafcetio: grafcet.io files, converted on opening.
+  accept: { 'application/json': ['.json', '.grafcetio'] },
 };
 
 const isAbort = (e: unknown) => e instanceof DOMException && e.name === 'AbortError';

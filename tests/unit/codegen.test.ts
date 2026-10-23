@@ -5,6 +5,7 @@
 import { describe, expect, it } from 'vitest';
 import { generatePlcOpen } from '@/core/codegen/plcopen';
 import { generateSt } from '@/core/codegen/st';
+import { generateStCase } from '@/core/codegen/stCase';
 import { timeLiteral } from '@/core/codegen/common';
 import { SCHEMA_VERSION } from '@/core/model/constants';
 import type {
@@ -386,6 +387,101 @@ describe('Structured Text', () => {
       .sort();
     expect(codes).toEqual(['expression', 'undeclared']);
     expect(st(p).code).toContain('ghost : BOOL;   (* not declared in the project *)');
+  });
+});
+
+describe('Structured Text, CASE style', () => {
+  const stCase = (p: Project) => generateStCase(p, OPTS);
+
+  it.each([
+    ['sequence and loop', SEQUENCE],
+    ['OR divergence and convergence', OR],
+    ['AND divergence and convergence', AND],
+    ['timers and edges', TIMERS],
+    ['stored actions, comparisons and types', STORED],
+    ['forcing orders', FORCING],
+    ['macro-step', MACRO],
+    ['enclosing step', ENCLOSING],
+    ['source and sink transitions', SOURCE_SINK],
+  ])('%s', (_, project) => {
+    const r = stCase(project);
+    expect(r.warnings.filter((w) => w.code !== 'parallelSequence')).toEqual([]);
+    expect(r.code).toMatchSnapshot();
+  });
+
+  it('runs each sequence as a CASE on one step variable', () => {
+    const code = stCase(SEQUENCE).code;
+    expect(code).toContain('step_G1 : INT := 0;');
+    expect(code).toContain(
+      ['CASE step_G1 OF', '\t0:', '\t\tIF start THEN', '\t\t\tstep_G1 := 1;', '\t\tEND_IF;'].join(
+        '\n',
+      ),
+    );
+    expect(code).toContain('\tELSE\n\t\tstep_G1_range_error := TRUE;\nEND_CASE;');
+    expect(code).toContain('Pump := step_G1 = 1;');
+  });
+
+  it('gives alternative branches priority from left to right and skips IF for 1', () => {
+    const code = stCase(OR).code;
+    expect(code).toMatch(/IF a THEN\n\t\t\tstep_G1 := 1;\n\t\tELSIF NOT a AND b THEN\n/);
+    expect(code).toContain('\t3:\n\t\tstep_G1 := 0;');
+  });
+
+  it('writes outputs as step ranges and parenthesizes comparisons only under NOT', () => {
+    const p = build(
+      [
+        ['a', 'BOOL', 'input'],
+        ['Run', 'BOOL', 'output'],
+        ['Lamp', 'BOOL', 'output'],
+      ],
+      {
+        name: 'Main',
+        initial: [0],
+        steps: [0, 1, 2, 3, 4, 6],
+        transitions: [
+          [[0], 'a', [1]],
+          [[1], 'a', [2]],
+          [[2], 'a', [3]],
+          [[3], 'a', [4]],
+          [[4], 'a', [6]],
+          [[6], '/a * /X2', [0]],
+        ],
+        actions: [
+          [1, 'continuous', 'Run'],
+          [2, 'continuous', 'Run'],
+          [3, 'continuous', 'Run'],
+          [6, 'continuous', 'Run'],
+          [4, 'continuous', 'Lamp', '/X1 + a'],
+        ],
+      },
+    );
+    const code = stCase(p).code;
+    expect(code).toContain('Run := (step_Main >= 1 AND step_Main <= 3) OR step_Main = 6;');
+    expect(code).toContain('Lamp := step_Main = 4 AND (NOT (step_Main = 1) OR a);');
+    expect(code).toContain('IF NOT a AND NOT (step_Main = 2) THEN');
+  });
+
+  it('runs stored actions in the transitions and on events', () => {
+    const code = stCase(STORED).code;
+    expect(code).toMatch(/\t\t\tstep_G1 := 1;\n\t\t\tC := C \+ 1;\n\t\t\tMotor := TRUE;\n/);
+    expect(code).toMatch(/\t\t\tMotor := FALSE;\n\t\t\tstep_G1 := 0;\n/);
+    expect(code).toContain('IF step_G1 = 1 AND RE_reset.Q THEN');
+    expect(code).toContain('IF Init THEN\n\tDone := C >= 3 AND NOT reset;\nEND_IF;');
+  });
+
+  it('replaces the CASE of a forced grafcet while the order is active', () => {
+    const code = stCase(FORCING).code;
+    expect(code).toContain('IF step_Safety = 3 THEN\t// Cycle{INIT}\n\tstep_Cycle := 10;');
+    expect(code).toContain('ELSIF step_Safety = 2 THEN\t// Cycle{*}\n\t;\t// frozen');
+    expect(code).toContain('ELSIF step_Safety = 1 THEN\t// Cycle{11}\n\tstep_Cycle := 11;');
+    expect(code.indexOf('CASE step_Safety')).toBeLessThan(code.indexOf('CASE step_Cycle'));
+  });
+
+  it('keeps one BOOL per step for parallel branches', () => {
+    const r = stCase(AND);
+    expect(r.warnings.map((w) => w.code)).toEqual(['parallelSequence']);
+    expect(r.code).toContain('G1_X1 := (G1_X1 AND NOT G1_T2) OR G1_T1;');
+    expect(r.code).not.toMatch(/^CASE /m);
   });
 });
 

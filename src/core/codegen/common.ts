@@ -18,7 +18,9 @@ export interface CodegenWarning {
     | 'enclosed'
     | 'forcing'
     | 'conditionalAction'
-    | 'stepSignal';
+    | 'stepSignal'
+    | 'parallelSequence'
+    | 'forcingSteps';
   elementId?: Id;
   params: Record<string, string>;
 }
@@ -126,6 +128,13 @@ export interface ExprTarget {
   undeclared(name: string): void;
   /** A step number that does not resolve. */
   unknownStep(n: number): void;
+  /** True when `step(index)` is a comparison (`step_G1 = 3`), parenthesized like comparisons. */
+  stepIsComparison?(index: number): boolean;
+  /**
+   * Parenthesize comparisons only where ST precedence needs it (under NOT): `a = 1 AND b`.
+   * Otherwise every comparison inside a larger expression gets parentheses.
+   */
+  minimalParentheses?: boolean;
 }
 
 const P_OR = 1;
@@ -135,8 +144,8 @@ const P_NOT = 3;
 /** A boolean expression in Structured Text, parenthesized only where needed. */
 export function stBool(n: BoolNode, steps: Map<number, number>, t: ExprTarget, outer = 0): string {
   const wrap = (s: string, p: number) => (p < outer ? `(${s})` : s);
-  // Comparisons are always parenthesized inside a larger expression (NOT binds tighter in ST).
-  const cmp = (s: string) => (outer ? `(${s})` : s);
+  // NOT binds tighter than a comparison in ST; AND and OR bind looser.
+  const cmp = (s: string) => ((t.minimalParentheses ? outer >= P_NOT : outer) ? `(${s})` : s);
   switch (n.type) {
     case 'const':
       return n.value ? 'TRUE' : 'FALSE';
@@ -154,7 +163,7 @@ export function stBool(n: BoolNode, steps: Map<number, number>, t: ExprTarget, o
         t.unknownStep(n.number);
         return 'FALSE';
       }
-      return t.step(idx);
+      return t.stepIsComparison?.(idx) ? cmp(t.step(idx)) : t.step(idx);
     }
     case 'not':
       return wrap(`NOT ${stBool(n.operand, steps, t, P_NOT)}`, P_NOT);

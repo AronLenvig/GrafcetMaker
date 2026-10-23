@@ -294,9 +294,12 @@ remembered per project on this device.
 - **Variables (Excel)**: an `.xlsx` workbook with a frozen, filterable header and drop-down lists
   for type and direction.
 - **Variables (CSV)**: the variable table for spreadsheets and PLC tools.
-- **Structured Text**: an IEC 61131-3 function block implementing every grafcet (transitions,
-  steps, timers and edges, then actions, once per PLC scan; optionally with a search for stability
-  in each scan).
+- **Structured Text**: an IEC 61131-3 function block implementing every grafcet, in one of two
+  code styles. **CASE per sequence** (default): one INT step variable per sequence and a `CASE`
+  with the transitions of each step, stored actions inside the transitions, then each output as one
+  expression of the steps (`M := step_G1 = 3 OR step_G1 = 4;`); sequences with parallel branches
+  keep one BOOL per step. **One BOOL per step**: transitions, steps, timers and edges, then actions,
+  once per PLC scan, optionally with a search for stability in each scan.
 - **PLCopen XML**: PLCopen TC6 XML for import into PLC engineering tools, with one SFC program per
   partial grafcet (N, P1, P0, S, R, D, L qualifiers) and a program computing edges and timers.
 
@@ -341,6 +344,11 @@ for each row) before anything changes, and the import is one undo step.
 - **Open** (`Ctrl+O`), **File › Open recent**, or drag a `.grafcet.json` file onto the window. An
   invalid file, or one saved by a newer version, is rejected with an explanation; the open project
   is never lost. If it has unsaved changes you are asked first.
+- **grafcet.io files** (`.grafcetio`) open the same way and are converted into a new, unsaved
+  project: one partial grafcet per frame or separate chart (named after the frame or the heading
+  above the chart), variables created from what the expressions use, and an automatic layout. A
+  dialog lists what the conversion changed (for example a transition drawn under two alternative
+  steps, which becomes one transition per step). The details are in `docs/file-format.md`.
 - **File › Local history** lists snapshots kept in the browser (taken on save, every few minutes of
   editing and before a project is closed). Restoring one opens it as unsaved changes.
 - **File › Download a copy** downloads the project without changing which file Save writes to.

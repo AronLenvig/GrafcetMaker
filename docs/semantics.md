@@ -235,7 +235,49 @@ express are listed as warnings in the Export dialog; nothing is silently dropped
 
 ### Structured Text
 
-One vendor-neutral `FUNCTION_BLOCK` runs every grafcet. Inputs become `VAR_INPUT`, outputs
+One vendor-neutral `FUNCTION_BLOCK` runs every grafcet, in one of two styles (Export dialog ›
+Code style).
+
+#### CASE per sequence (default)
+
+The style PLC programmers write by hand ([`stCase.ts`](../src/core/codegen/stCase.ts)). A
+**sequence** is a set of steps joined by transitions; macro-steps are inlined, so an expansion
+belongs to the sequence of its macro-step. A sequence becomes a CASE when one step at a time can be
+active: at most one initial step, every transition from one step to one step, unique step numbers,
+not enclosed. It gets one INT variable `step_<grafcet>` (`step_<grafcet>_<first step>` when a
+grafcet holds several sequences) holding the number of its active step, and a flag
+`<variable>_range_error` set by the CASE's `ELSE`. Each scan:
+
+1. Timers and edges are called first: `t/Xn` → `TON(IN := step_G = n, PT := t)`, `↑c` → R_TRIG
+   (named after their operand: `TON_G1_X1`, `RE_start`), so the CASE sees this scan's values.
+2. First scan (`Init`): the actions on activation of the initial steps, and the actions without a
+   step that run on activation.
+3. Sequences in forcing order (a grafcet before the grafcets it forces), then enclosure depth:
+   `CASE step_G OF n: IF receptivity THEN step_G := m; END_IF; … ELSE range_error END_CASE;`.
+   Only the active step's transitions are evaluated, so a sequence clears **at most one transition
+   per scan**. Alternative branches become `IF … ELSIF …` in left-to-right order: the first true
+   receptivity wins (IEC 60848 would clear both if both were true; make them exclusive). The
+   receptivity `1` needs no `IF`. Stored actions run inside the transition: on deactivation of the
+   step left, then the new step number, then on activation of the step entered (none when a
+   transition leads back to its own step, rule 5). A forced sequence's CASE is wrapped in
+   `IF order THEN step_G := n; ELSIF … ELSE CASE … END_IF` (the last order listed wins; `{*}`
+   leaves the variable unchanged; `{}`, or `{n}` naming steps of another sequence, writes `-1`, "no
+   active step", which then gets its own empty CASE label). Stored actions of steps changed by
+   forcing do not run.
+4. Actions on events: `IF step_G = n AND event THEN …`.
+5. Outputs: each variable driven by continuous actions is one expression, the steps of a sequence
+   as `step_G = 3 OR step_G = 4` and runs of three or more as `step_G >= 2 AND step_G <= 4`,
+   conditions as `step_G = 4 AND condition`, actions without a step as their condition (or TRUE).
+
+Comparisons are parenthesized only where ST needs it (`NOT (step_G = 11)`). Sequences that cannot
+be a CASE (parallel branches, source or sink transitions, several initial steps, enclosed grafcets)
+keep one BOOL per step in the same function block, with the equations of the other style (items 2,
+3, 4 and 6 below, `X` initialized TRUE for initial steps); the Export dialog says which. Comments
+use `//` and indentation tabs.
+
+#### One BOOL per step
+
+Inputs become `VAR_INPUT`, outputs
 `VAR_OUTPUT`, internal variables `VAR` (addresses and comments as comments). Generated names are
 `<grafcet>_X<n>` (step activity), `<grafcet>_T<k>` (transitions, numbered top to bottom),
 `<step>_M` (activity at the previous scan), `RE_k` / `FE_k` (R_TRIG / F_TRIG), `TON_k` /

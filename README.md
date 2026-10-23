@@ -24,7 +24,8 @@ browser. Built for automation engineers: correct semantics first, then editing s
   forcing) with virtual time, tokens on the diagram, evolution log, chronogram with time travel and
   recorded scenarios.
 - **Exports**: vector PDF (A4/A3, title block, tiling), SVG, PNG, WebP, clipboard; variables to
-  Excel and CSV (and back); **Structured Text** and **PLCopen XML** (SFC) generation.
+  Excel and CSV (and back); **Structured Text** (a CASE per sequence, as written by hand, or one
+  BOOL per step) and **PLCopen XML** (SFC) generation.
 - **Learn as you go**: start screen with examples, guided tour, help center with a beginner
   tutorial and diagrams, glossary of standard terms, in-app changelog, and a GRAFCET guide web
   page in English, French, German and Spanish.
@@ -33,7 +34,8 @@ browser. Built for automation engineers: correct semantics first, then editing s
 - **Accessible and offline**: WCAG 2.2 AA (keyboard everywhere, outline tree view, light/dark
   contrast), installable PWA that works without a network.
 - Projects are human-readable `.grafcet.json` files (versioned, validated on load), autosaved in
-  the browser with crash recovery and local history.
+  the browser with crash recovery and local history. Files from grafcet.io (`.grafcetio`) open
+  too, converted into a project.
 
 See [`docs/user-guide.md`](docs/user-guide.md) for the complete reference, the in-app help
 ([`docs/help/`](docs/help/index.md)) for guides, and [`PROGRESS.md`](PROGRESS.md) for the build log.

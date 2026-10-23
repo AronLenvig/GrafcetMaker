@@ -41,6 +41,42 @@ with raw DEFLATE (`CompressionStream('deflate-raw')`) and encoded as base64url w
 server. On open, the data is inflated with the 10 MB file limit enforced while inflating, then
 loaded exactly like a file (migrations, validation, newer versions rejected).
 
+## Importing grafcet.io files
+
+Opening a `.grafcetio` file (or any JSON with `"createdWith": "grafcet.io"`) converts it into a
+new, unsaved project; saving writes a `.grafcet.json` and never touches the original
+([`src/core/io/grafcetIo.ts`](../src/core/io/grafcetIo.ts), format described at
+<https://grafcet.io/dateiformat>). The file is untrusted: it is validated with Zod and size-capped,
+and the result is checked against the project schema. Interpretation choices:
+
+- **Links.** Edges are wires between handles (`top` = input, `bottom` = output; `handle-n` /
+  `source-n` on branch bars). Wires joined through `loopNode`, `startLoop`, `endLoop`, `andNode` and
+  `orNode` form one link, and loop markers with the same reference label are one link. A transition
+  activates every step input on its output link and is enabled by every step output on its input
+  link. A loop drawn into the **bottom of a transition** joins that transition's output.
+- **Alternatives drawn into one transition.** Several steps into one transition without an AND bar
+  (`andNode`) become one transition per step (either step can clear it); with the bar it is an AND
+  convergence. Links from step to step or transition to transition are left out.
+- **Grafcets.** The charts inside a frame (`boxNode`) form one partial grafcet named after its
+  lower label (`G1`); every other separate chart is a partial grafcet named after the text just
+  above it (made a valid identifier), else `G1`, `G2`…. A fragment without an initial step joins
+  the nearest chart. Step numbers come from the labels; a duplicate takes the next free number.
+- **Actions.** `continuous` (and no type) → continuous; `conditional` → continuous with condition,
+  or with `:=` a stored action on event; `set` / `reset` → on activation `X := 1` / `X := 0`;
+  `pulse` → on activation (`:=`) or a continuous action with condition `↑Xn` (or its condition);
+  `delayed` / `limited` → continuous with condition `t/Xn` / `/(t/Xn)`; `forcedCommand` or a label
+  like `G1{}` → forcing order. A forcing order with a condition becomes a grafcet
+  `Forcing_<target>` whose step holds the order while the condition is true. Actions linked to a
+  step (directly or along a chain of actions) belong to it; the others are actions without a step.
+- **Expressions.** `%` → `MOD`, `≥ ≤ ≠ != ==` → `>= <= <> <> =`, an underlined `1` or `*` alone →
+  `1`. Since `*` means AND in grafcet.io, comparisons joined by `*` (or two joined by `+`) get
+  parentheses: `n > 0 * a` → `(n > 0) * a`.
+- **Variables** are created from what the expressions use, as the Create variable quick fix
+  would (type and direction guessed from use). Macro-steps and enclosing steps keep their kind but
+  no expansion or enclosed grafcet (the file does not link them). Text becomes comments. Each chart
+  is auto-laid out, separate sequences of one grafcet one below the other; actions without a step
+  and comments form a column on the right. What was changed or left out is listed after opening.
+
 ## Structure
 
 Collections are normalized maps keyed by id (ids are random 12-character strings); the key must

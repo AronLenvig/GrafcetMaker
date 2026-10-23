@@ -126,7 +126,11 @@ export function pasteElements(
       to: remap(t.to),
       position: move(t.position),
     };
-    if (tr.routing?.sideX !== undefined) tr.routing = { sideX: tr.routing.sideX + offset.x };
+    if (tr.routing)
+      tr.routing = {
+        ...(tr.routing.sideX !== undefined ? { sideX: tr.routing.sideX + offset.x } : {}),
+        ...(tr.routing.dropY !== undefined ? { dropY: tr.routing.dropY + offset.y } : {}),
+      };
     g.transitions[id] = tr;
     created.push(id);
   }

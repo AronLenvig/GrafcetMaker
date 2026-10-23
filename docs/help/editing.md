@@ -41,7 +41,9 @@ placing tool, a ghost under the pointer shows what a click will place.
   valid targets (a step to a transition, a transition to a step) are highlighted. Drop on empty
   canvas to create the missing element there.
 - Click a **link** to select it; <kbd>Del</kbd> removes just that link. Drag an upward link
-  sideways to move its side line.
+  (a loop) sideways to move its side line, or drag its bottom line up or down; double-click it
+  to return to the automatic route. Automatically, a loop passes below the steps and wires of its
+  own sequence rather than crossing them.
 
 ## Touch: phones and tablets
 

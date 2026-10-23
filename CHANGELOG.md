@@ -54,6 +54,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- Loop (upward) links: their bottom line drops below the steps and wires of their own sequence
+  instead of crossing them (a loop from a right-hand branch passes below the chart), lanes ignore
+  separate sequences drawn beside the chart, and loops to the same step share one arrow. Drag a
+  loop's bottom line up or down (saved as `routing.dropY`); double-click a loop to return to the
+  automatic route.
 - The panels (Variables, Problems, Chronogram, Outline) open in a card on the right, widened by
   its left edge (wide enough, the variables show as the full table). The simulation panel is no
   longer among them: it floats on the left while simulating and folds to its title. The

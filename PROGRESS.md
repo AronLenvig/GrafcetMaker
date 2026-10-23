@@ -214,6 +214,13 @@ Autonomous build log. Read this first in every session and resume from **Current
   screens; link handles offset outside the element with a 24 px+ target; wider hit areas;
   touch hints; dialogs (start, export, settings, modal, inline editor) stack on phones. e2e: one
   phone test (double-tap, selection toolbar, sheet, simulation).
+- Loop routing (`computeGeometry`): bottom lines are placed sources left to right, each the
+  first y below its source where a line to the left crosses nothing of its sequence (elements,
+  texts, wires, bottom lines of loops further left: `freeDropY`); lanes then go by bottom line
+  (higher inside) and only around the loop's own connected sequence (`sequences`); one arrow per
+  shared lane. `routing.dropY` (optional, no schema bump: older versions ignore it), dragged on
+  the bottom line, moved/pasted with the transition; double-click resets routing. Tests in
+  `tests/unit/routing.test.ts`.
 - Code health pass (review by area, verified before applying): validation memoizes atom keys,
   builds one index and one expression environment factory (`envFactory`) per run; auto-layout
   measures each node once; expression widths are memoized; SVG export computes geometry once;

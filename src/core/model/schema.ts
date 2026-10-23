@@ -51,8 +51,11 @@ export const transitionSchema = z.object({
   receptivity: expression,
   /** Center of the transition bar, in diagram units. */
   position: point,
-  /** Manual routing: x of the vertical segment used by upward (loop) links of this transition. */
-  routing: z.object({ sideX: z.number().optional() }).optional(),
+  /**
+   * Manual routing of the upward (loop) links of this transition: x of their vertical segment
+   * (side lane) and y of their bottom line. Missing values are routed automatically.
+   */
+  routing: z.object({ sideX: z.number().optional(), dropY: z.number().optional() }).optional(),
 });
 
 export const actionKindSchema = z.enum([

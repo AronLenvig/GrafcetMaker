@@ -46,8 +46,18 @@ type Gesture =
   | { kind: 'move'; startD: Point; applied: Point; ids: Id[] }
   | { kind: 'marquee'; startD: Point; additive: boolean }
   | { kind: 'link'; drag: LinkDrag }
-  /** Dragging the side lane of a loop link (sets the transition's routing.sideX). */
-  | { kind: 'route'; transitionId: Id; startX: number; startSide: number; moved: boolean };
+  /**
+   * Dragging a loop link: its side lane sideways (routing.sideX) or its bottom line up and down
+   * (routing.dropY). `start` is the pointer and `value` the line's position, on that axis.
+   */
+  | {
+      kind: 'route';
+      transitionId: Id;
+      axis: 'x' | 'y';
+      start: number;
+      value: number;
+      moved: boolean;
+    };
 
 const DRAG_THRESHOLD = 3;
 /** Fingers jitter: movement below this is still a tap. */
@@ -268,14 +278,33 @@ export function useCanvasInteraction(
     if (hit?.kind === 'link' && hit.key) {
       ui.set({ selection: {}, selectedLink: hit.key });
       const link = computeGeometry(g).links.find((l) => l.key === hit.key);
-      if (!readOnly && link?.arrow) {
-        gesture.current = {
-          kind: 'route',
-          transitionId: link.transitionId,
-          startX: d.x,
-          startSide: link.arrow.x,
-          moved: false,
-        };
+      if (!readOnly && link?.loop) {
+        // Loop points: source, below it, the lane's foot, the lane's top, above the target, target.
+        const [, below, foot] = link.points;
+        const tolerance = (touch ? 16 : 8) / getViewport(gid).zoom;
+        const onBottom =
+          !!below &&
+          !!foot &&
+          Math.abs(d.y - below.y) <= tolerance &&
+          d.x >= Math.min(below.x, foot.x) - tolerance &&
+          d.x <= Math.max(below.x, foot.x) + tolerance;
+        gesture.current = onBottom
+          ? {
+              kind: 'route',
+              transitionId: link.transitionId,
+              axis: 'y',
+              start: d.y,
+              value: below.y,
+              moved: false,
+            }
+          : {
+              kind: 'route',
+              transitionId: link.transitionId,
+              axis: 'x',
+              start: d.x,
+              value: link.loop.sideX,
+              moved: false,
+            };
         capture();
       }
       return;
@@ -439,15 +468,17 @@ export function useCanvasInteraction(
         return;
       case 'route': {
         const d = toDiagram(p);
-        const sideX = snap(g0.startSide + d.x - g0.startX);
+        const delta = g0.axis === 'x' ? d.x - g0.start : d.y - g0.start;
         if (!g0.moved) {
-          if (Math.abs(d.x - g0.startX) * getViewport(gid).zoom < DRAG_THRESHOLD) return;
+          if (Math.abs(delta) * getViewport(gid).zoom < DRAG_THRESHOLD) return;
           g0.moved = true;
           doc.begin('history.route');
         }
+        const value = snap(g0.value + delta);
+        const key = g0.axis === 'x' ? 'sideX' : 'dropY';
         doc.update((proj) => {
           const tr = proj.grafcets[gid]?.transitions[g0.transitionId];
-          if (tr && tr.routing?.sideX !== sideX) tr.routing = { sideX };
+          if (tr && tr.routing?.[key] !== value) tr.routing = { ...tr.routing, [key]: value };
         });
         return;
       }
@@ -586,6 +617,16 @@ export function useCanvasInteraction(
     // Macro-steps and enclosing steps open their sub-grafcet (F2 still edits the number).
     if (hit?.kind === 'step' && hit.id && openChild(hit.id)) return;
     if (readOnly) return;
+    // A loop link dragged elsewhere goes back to its automatic route.
+    if (hit?.kind === 'link' && hit.key) {
+      const tid = hit.key.split(':')[0]!;
+      if (getProject().grafcets[gid]?.transitions[tid]?.routing)
+        editActive('history.route', (g) => {
+          const t = g.transitions[tid];
+          if (t) delete t.routing;
+        });
+      return;
+    }
     if (hit?.id && hit.kind !== 'link') {
       ui.select([hit.id]);
       editSelection();

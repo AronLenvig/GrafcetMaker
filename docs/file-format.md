@@ -136,7 +136,10 @@ Transition {
   to: Id[]                    // downstream steps; [] = sink transition; 2+ = AND divergence
   receptivity: string         // expression, see semantics.md
   position: { x, y }          // center of the transition bar
-  routing?: { sideX?: number }// x of the vertical segment of upward (loop) links
+  routing?: {                 // manual routing of upward (loop) links; missing = automatic
+    sideX?: number            //   x of their vertical segment (side lane)
+    dropY?: number            //   y of their bottom line (kept below the source)
+  }
 }
 
 Action {

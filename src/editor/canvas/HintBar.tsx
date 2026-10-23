@@ -72,6 +72,8 @@ const MANY: Hint[] = [
 ];
 const LINK: Hint[] = [
   ['@dragSideways', 'route'],
+  ['@dragBottom', 'routeDown'],
+  ['@dblclick', 'routeAuto'],
   ['Delete', 'deleteLink'],
 ];
 

@@ -120,7 +120,12 @@ A new project contains grafcet `G1` with initial step 0.
   menu names the change that will be undone.
 
 Upward links (loops) are routed along the left side and drawn with an arrow, as IEC 60848
-requires. Drag a loop link sideways to move its lane.
+requires. A loop drops below its source far enough not to cross its own sequence: a loop from a
+branch on the right passes below the steps and wires to its left instead of through them. Only
+the loop's own sequence is avoided, so a separate sequence drawn beside it does not push it
+aside. Loops returning to the same step share their lane (one arrow). Drag a loop link sideways
+to move its lane, or drag its bottom line up or down; double-click it to return to the automatic
+route.
 
 ### Divergences, convergences and loops
 

@@ -123,6 +123,7 @@ export function moveElements(g: Grafcet, ids: Iterable<Id>, dx: number, dy: numb
     el.position.y += dy;
     const t = g.transitions[id];
     if (t?.routing?.sideX !== undefined) t.routing.sideX += dx;
+    if (t?.routing?.dropY !== undefined) t.routing.dropY += dy;
   }
 }
 

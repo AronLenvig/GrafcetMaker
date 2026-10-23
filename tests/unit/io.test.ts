@@ -33,7 +33,7 @@ function sampleProject() {
     to: [s0.id],
     receptivity: '3s/X1',
     position: { x: 200, y: 280 },
-    routing: { sideX: 120 },
+    routing: { sideX: 120, dropY: 400 },
   };
   g.actions.a1 = {
     id: 'a1',

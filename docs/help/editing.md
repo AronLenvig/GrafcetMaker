@@ -20,6 +20,17 @@ With nothing selected, <kbd>Enter</kbd> continues the sequence from its last ste
 a step that already continues inserts the new transition and step and moves everything below
 down.
 
+While you edit a receptivity or an action, <kbd>Shift+Enter</kbd> applies it and opens the next one:
+the next receptivity down the sequence (a new transition and step at its end), or the next action
+of the step (a new one after the last). Type a whole sequence, or a row of actions, in one go.
+
+## Ghosts
+
+A selected step shows dashed **ghosts** of what <kbd>A</kbd> and <kbd>Enter</kbd> would add: an action
+after its last action and, at the end of a sequence, a transition and a step with the number it
+will get. A transition that leads nowhere shows a ghost step. Click a ghost to add it. With a
+placing tool, a ghost under the pointer shows what a click will place.
+
 ## Mouse
 
 - **Click** selects; <kbd>Shift</kbd>+click or <kbd>Ctrl</kbd>+click adds to or removes from the

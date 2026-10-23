@@ -65,7 +65,7 @@ settings are remembered per project. **File › Export as** opens it on a given 
 | **WebP**              | the same as PNG with smaller files                                                                                |
 | **Variables (Excel)** | the variable table as an `.xlsx` workbook                                                                         |
 | **Variables (CSV)**   | the variable table for other tools                                                                                |
-| **Structured Text**   | PLC code: an IEC 61131-3 function block running every grafcet                                                     |
+| **Structured Text**   | PLC code running every grafcet: IEC 61131-3, Siemens TIA Portal (SCL), Beckhoff TwinCAT 3 or Allen-Bradley Logix  |
 | **PLCopen XML**       | importing the grafcets into a PLC tool as SFC programs                                                            |
 
 Exports are black on white by default; choose **Current theme** to keep the screen colors.
@@ -76,8 +76,19 @@ ready to paste into a report.
 
 ## PLC code
 
-**Structured Text** and **PLCopen XML** turn your grafcets into PLC code, vendor-neutral. Structured
-Text comes in two styles:
+**Structured Text** and **PLCopen XML** turn your grafcets into PLC code. Pick the PLC under
+**PLC**:
+
+- **IEC 61131-3**: a function block (`.st`) for CODESYS and most other tools.
+- **Siemens TIA Portal (SCL)**: an SCL source (`.scl`) for S7-1200/1500. In TIA Portal, add it under
+  **External source files** and choose **Generate blocks from source**.
+- **Beckhoff TwinCAT 3**: a POU file (`.TcPOU`). Right-click a folder of the PLC project ›
+  **Add › Existing Item**.
+- **Allen-Bradley Studio 5000**: a Structured Text routine. Create the tags listed in its header
+  (program scope), then paste the code into an ST routine. Timers use TONR/TOFR, edges OSRI/OSFI,
+  and the first scan (`S:FS`) sets the initial values.
+
+Structured Text comes in two styles:
 
 - **CASE per sequence** (default): one INT variable per sequence holds the number of its active
   step, and a `CASE` lists the transitions of each step (`IF receptivity THEN step_G1 := 2;`).
@@ -86,6 +97,10 @@ Text comes in two styles:
 - **One BOOL per step**: every transition, then every step, then the timers, edges and actions
   once per PLC scan; tick **Search for stability in each scan** to cross chains of true transitions
   within one scan, as GRAFCET does.
+
+A stored action such as `Q1 := 1` on activation runs once, and Q1 keeps its value after the step
+is left. Tick **Hold stored actions with a constant value** to assign it in every scan while its
+step is active instead.
 
 The PLCopen file contains one SFC program per
 grafcet for import into engineering tools. The preview lists anything the format cannot express.

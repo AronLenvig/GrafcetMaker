@@ -244,8 +244,8 @@ express are listed as warnings in the Export dialog; nothing is silently dropped
 
 ### Structured Text
 
-One vendor-neutral `FUNCTION_BLOCK` runs every grafcet, in one of two styles (Export dialog ›
-Code style).
+One `FUNCTION_BLOCK` runs every grafcet, in one of two styles (Export dialog › Code style), for one
+of four PLC tools (Export dialog › PLC; see [PLC dialects](#plc-dialects)).
 
 #### CASE per sequence (default)
 
@@ -324,6 +324,38 @@ The **stability loop** option wraps steps 2, 3, the macro-step update and 6 in a
 that ends when no step changed (at most 1000 iterations, then `Unstable` is TRUE). Initial steps are
 set once before the loop, edges are only true in the first iteration (`AND Iter = 0`), and stored
 actions run per iteration, so transient steps execute their stored actions as in IEC 60848.
+
+#### Stored actions: once (default) or held while the step is active
+
+By default a stored action runs **once**, when its step is activated or deactivated (inside the
+transition in the CASE style, on the change of `X` in the other), and the variable keeps its value
+afterwards: `Q1 := 1` on activation sets Q1 and Q1 stays TRUE after the step is left, until
+another action writes it, exactly as in the simulator. It only lasts one scan when the same
+variable is also driven by a continuous action, whose output line rewrites it every scan (as in
+the simulator; validation warns about such mixes).
+
+The option **Hold stored actions with a constant value while their step is active** writes the
+stored actions that assign a constant (`Q := 1`, `Q := 0`, `M`, `N := 5`, without condition) as
+assignments repeated in **every scan while their step is active**: at the top of the step's CASE
+branch, before its transitions, or `IF X THEN …` after the stored actions that run once (one BOOL
+per step). Common PLC practice: an output set this way is re-asserted if something else writes
+it. Actions on deactivation are held too (assigned while the step is active, so earlier than IEC
+60848's "when the step is left"), except when the same step sets the same variable on activation
+(`Motor := 1` ↑ and `Motor := 0` ↓ means "Motor on during the step"): that one still runs when the
+step is left. Stored actions with a condition or a computed value (`C := C + 1`) always run once.
+The simulator keeps the IEC 60848 timing.
+
+#### PLC dialects
+
+The generators build the declarations and the body once, in IEC 61131-3, using hooks for what
+differs between tools ([`dialect.ts`](../src/core/codegen/dialect.ts)):
+
+| PLC                               | File     | Differences                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| --------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| IEC 61131-3 (CODESYS and others)  | `.st`    | The reference: `FUNCTION_BLOCK … END_FUNCTION_BLOCK`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Siemens TIA Portal (SCL)          | `.scl`   | Source for S7-1200/1500 (External source files › Generate blocks from source): `FUNCTION_BLOCK "name"`, `{ S7_Optimized_Access := 'TRUE' }`, `VERSION : 0.1`, the header as `//` block comment, `BEGIN` before the body, `#` before every local name (not before formal parameters such as `IN :=`, members such as `.Q`, or in comments), timers declared `TON_TIME` / `TOF_TIME`. ASCII only (our symbols in comments become `RE`, `FE`, `->`).                                                                                                                                                      |
+| Beckhoff TwinCAT 3                | `.TcPOU` | The IEC code in a POU file (Add › Existing Item): declaration and implementation in their CDATA sections, a GUID derived from the project id and block name (the same on every export).                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Allen-Bradley Studio 5000 (Logix) | `.st`    | A Structured Text **routine**, not a block: the tags to create (program scope) are listed in the header with their Logix type (INT and TIME → DINT, TON/TOF → FBD_TIMER, R_TRIG/F_TRIG → FBD_ONESHOT). Timers: `t.PRE := ms; t.TimerEnable := in; TONR(t);`, output `t.DN` (TOFR for TOF). Edges: `e.InputBit := c; OSRI(e);`, output `e.OutputBit`. Durations in ms, `1` / `0` for TRUE / FALSE, BOOL operands of arithmetic unconverted. Logix keeps tag values over a restart, so `IF S:FS THEN` sets every non-input tag to its initial value (FALSE / 0 when none) on the first scan. ASCII only. |
 
 ### PLCopen TC6 XML
 

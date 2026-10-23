@@ -13,13 +13,15 @@
  * sequences, forcing grafcets before the grafcets they force: a CASE clears at most one transition
  * (the first true receptivity, left to right) and runs the stored actions of the steps it leaves
  * and enters; an active forcing order replaces the CASE, (4) actions on events, (5) outputs.
+ * With `storedActions: 'whileActive'`, stored actions that assign a constant are held instead:
+ * each scan, at the top of their step's CASE branch (or `IF X THEN` for one BOOL per step).
  */
 import { compile, type CAction } from '../simulation/program';
 import type { BoolNode } from '../expr/ast';
 import type { Project, Variable } from '../model/types';
 import {
   comment,
-  initialLiteral,
+  heldActions,
   NameTable,
   ST_KEYWORDS,
   stArith,
@@ -30,6 +32,7 @@ import {
   type CodegenWarning,
   type ExprTarget,
 } from './common';
+import { CALL_CYCLICALLY, dialectHooks, renderModule, type Decl } from './dialect';
 
 const TAB = '\t';
 /** Step variable value of a sequence with no active step (`G{}`, sequences without initial step). */
@@ -74,6 +77,9 @@ const anyOf = (terms: string[]) =>
 
 export function generateStCase(project: Project, opts: CodegenOptions): CodegenResult {
   const p = compile(project);
+  const hooks = dialectHooks(opts.dialect ?? 'iec');
+  const heldSet = heldActions(p, opts);
+  const held = (a: CAction) => heldSet.has(a);
   const warnings: CodegenWarning[] = [];
   const seen = new Set<string>();
   const warn = (w: CodegenWarning) => {
@@ -190,7 +196,7 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
   const M: string[] = [];
   for (const s of p.steps) {
     const flags = X[s.idx] !== undefined;
-    const stored = p.actionsByStep[s.idx]!.some((a) => storedKinds.has(a.kind));
+    const stored = p.actionsByStep[s.idx]!.some((a) => storedKinds.has(a.kind) && !held(a));
     if ((flags && stored) || p.enclosures.has(s.idx))
       M[s.idx] = names.take(`${gName(s.grafcet)}_X${s.number}_M`);
   }
@@ -214,7 +220,7 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
   /** A step reference as an operand of NOT. */
   const notRef = (i: number) => (refInfo(i).cmp ? `NOT (${ref(i)})` : `NOT ${ref(i)}`);
 
-  const fbDecls: string[] = [];
+  const fbDecls: Decl[] = [];
   const fbCalls: string[] = [];
   const edges = new Map<string, string>();
   const timers = new Map<string, string>();
@@ -231,19 +237,25 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
     step: (i) => ref(i),
     stepIsComparison: (i) => refInfo(i).cmp,
     minimalParentheses: true,
+    time: hooks.time,
+    boolToInt: hooks.boolToInt,
     edge(rising, operand, node, steps) {
       const key = `${rising}|${operand}`;
-      let inst = edges.get(key);
-      if (!inst) {
+      let q = edges.get(key);
+      if (!q) {
         const kind = rising ? 'RE' : 'FE';
-        inst = names.take(`${kind}_${operandName(node, steps) ?? edges.size + 1}`);
-        edges.set(key, inst);
-        fbDecls.push(
-          `${TAB}${inst} : ${rising ? 'R_TRIG' : 'F_TRIG'};${TAB}// ${rising ? '↑' : '↓'}${comment(operand)}`,
-        );
-        fbCalls.push(`${inst}(CLK := ${operand});`);
+        const inst = names.take(`${kind}_${operandName(node, steps) ?? edges.size + 1}`);
+        fbDecls.push({
+          name: inst,
+          type: rising ? 'R_TRIG' : 'F_TRIG',
+          comment: `${rising ? '↑' : '↓'}${comment(operand)}`,
+        });
+        const e = hooks.edge(inst, rising, operand);
+        fbCalls.push(...e.call);
+        q = e.q;
+        edges.set(key, q);
       }
-      return `${inst}.Q`;
+      return q;
     },
     timer(t1, t2, operand, node, steps) {
       const key = `${t1}|${t2 ?? ''}|${operand}`;
@@ -251,14 +263,20 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
       if (!q) {
         const suffix = operandName(node, steps) ?? String(timers.size + 1);
         const on = names.take(`TON_${suffix}`);
-        fbDecls.push(`${TAB}${on} : TON;${TAB}// ${timeLiteral(t1)} after ${comment(operand)}`);
-        fbCalls.push(`${on}(IN := ${operand}, PT := ${timeLiteral(t1)});`);
-        q = `${on}.Q`;
+        fbDecls.push({
+          name: on,
+          type: 'TON',
+          comment: `${timeLiteral(t1)} after ${comment(operand)}`,
+        });
+        const c = hooks.timer(on, 'TON', operand, t1);
+        fbCalls.push(...c.call);
+        q = c.q;
         if (t2 !== undefined) {
           const off = names.take(`TOF_${suffix}`);
-          fbDecls.push(`${TAB}${off} : TOF;${TAB}// held ${timeLiteral(t2)}`);
-          fbCalls.push(`${off}(IN := ${on}.Q, PT := ${timeLiteral(t2)});`);
-          q = `${off}.Q`;
+          fbDecls.push({ name: off, type: 'TOF', comment: `held ${timeLiteral(t2)}` });
+          const c2 = hooks.timer(off, 'TOF', q, t2);
+          fbCalls.push(...c2.call);
+          q = c2.q;
         }
         timers.set(key, q);
       }
@@ -306,8 +324,15 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
   for (const a of p.actions)
     if (a.step !== null && isMacro(a.step) && a.kind !== 'continuous' && a.kind !== 'forcing')
       warn({ code: 'macroStoredAction', elementId: a.id, params: {} });
+  /** Stored actions of a kind that run once (held ones are assigned while their step is active). */
   const actionsOf = (i: number, kind: CAction['kind']) =>
-    p.actionsByStep[i]!.filter((a) => a.kind === kind);
+    p.actionsByStep[i]!.filter((a) => a.kind === kind && !held(a));
+  const heldOf = (i: number) => p.actionsByStep[i]!.filter(held);
+  const heldLines = (i: number, indent: string) =>
+    heldOf(i).flatMap((a) => {
+      const body = assignment(a);
+      return body ? [`${indent}${body}`] : [];
+    });
   const forcingText = (a: CAction) =>
     comment(project.grafcets[p.grafcets[a.grafcet]!.id]!.actions[a.id]!.text);
   const orderActive = (a: CAction) => (a.step === null ? 'TRUE' : ref(a.step));
@@ -331,16 +356,18 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
     };
     for (const s of seq.steps) {
       const outs = p.outgoing[s]!;
+      const inner = TAB + TAB;
+      const holding = heldLines(s, inner);
       if (!outs.length) {
-        lines.push(`${TAB}${num(s)}:${TAB}// no transition leaves this step`, `${TAB}${TAB};`);
+        lines.push(`${TAB}${num(s)}:${TAB}// no transition leaves this step`);
+        lines.push(...(holding.length ? holding : [`${inner};`]));
         continue;
       }
-      lines.push(`${TAB}${num(s)}:`);
+      lines.push(`${TAB}${num(s)}:`, ...holding);
       const branches = outs.map((ti) => {
         const r = p.transitions[ti]!.receptivity;
         return { ti, cond: !r ? 'FALSE' : isTrue(r.ast) ? 'TRUE' : bool(r) };
       });
-      const inner = TAB + TAB;
       if (branches.length === 1 && branches[0]!.cond === 'TRUE') {
         lines.push(...transitionBody(branches[0]!.ti, inner));
         continue;
@@ -430,6 +457,8 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
       lines.push('END_IF;');
     }
     for (const s of seq.steps) {
+      const holding = heldLines(s, TAB);
+      if (holding.length) lines.push(`IF ${X[s]} THEN`, ...holding, 'END_IF;');
       if (M[s] === undefined) continue;
       for (const [kind, when] of [
         ['storedOnDeactivation', `NOT ${X[s]} AND ${M[s]}`],
@@ -536,56 +565,58 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
   if (initName) body.push('', `${initName} := FALSE;`);
 
   // ---- Declarations ----------------------------------------------------------------------------
-  const declare = (v: Variable) => {
+  const declare = (v: Variable): Decl => {
     const notes = [v.address, v.comment].filter(Boolean).join(' · ');
-    const init = v.initialValue !== undefined ? ` := ${initialLiteral(v)}` : '';
-    return `${TAB}${v.name} : ${v.type}${init};${notes ? `${TAB}// ${comment(notes)}` : ''}`;
+    return {
+      name: v.name,
+      type: v.type,
+      ...(v.initialValue !== undefined ? { init: v.initialValue } : {}),
+      ...(notes ? { comment: comment(notes) } : {}),
+    };
   };
   const byDir = (d: Variable['direction']) =>
     userVars
       .filter((v) => v.direction === d)
       .sort((a, b) => a.name.localeCompare(b.name, 'en', { numeric: true }))
       .map(declare);
-  const decls: string[] = [];
-  const block = (head: string, lines: string[]) => {
-    if (lines.length) decls.push(head, ...lines, 'END_VAR');
-  };
-  block('VAR_INPUT', byDir('input'));
-  block('VAR_OUTPUT', byDir('output'));
-  block('VAR', [
-    ...byDir('internal'),
-    ...[...undeclared].map(([n, ty]) => `${TAB}${n} : ${ty};${TAB}// not declared in the project`),
-  ]);
-  const state: string[] = [];
+  const state: Decl[] = [];
   for (const seq of order) {
     if (!seq.caseVar) continue;
     const g = gName(seq.grafcet);
     const start = seq.initial[0] === undefined ? NONE : num(seq.initial[0]);
     state.push(
-      `${TAB}${seq.caseVar} : INT := ${start};${TAB}// ${g}: number of the active step${seq.none ? ` (${NONE}: none)` : ''}`,
-      `${TAB}${seq.errorVar} : BOOL;${TAB}// ${seq.caseVar} holds no step of ${g}`,
+      {
+        name: seq.caseVar,
+        type: 'INT',
+        init: start,
+        comment: `${g}: number of the active step${seq.none ? ` (${NONE}: none)` : ''}`,
+      },
+      { name: seq.errorVar!, type: 'BOOL', comment: `${seq.caseVar} holds no step of ${g}` },
     );
   }
-  if (initName) state.push(`${TAB}${initName} : BOOL := TRUE;${TAB}// first scan`);
+  if (initName) state.push({ name: initName, type: 'BOOL', init: true, comment: 'first scan' });
   for (const seq of order) {
     if (seq.caseVar) continue;
     for (const s of seq.steps)
-      state.push(
-        `${TAB}${X[s]} : BOOL${p.steps[s]!.initial ? ' := TRUE' : ''};${TAB}// ${gName(p.steps[s]!.grafcet)} step ${num(s)}`,
-      );
-    for (const ti of seq.transitions) state.push(`${TAB}${T[ti]} : BOOL;`);
+      state.push({
+        name: X[s]!,
+        type: 'BOOL',
+        ...(p.steps[s]!.initial ? { init: true } : {}),
+        comment: `${gName(p.steps[s]!.grafcet)} step ${num(s)}`,
+      });
+    for (const ti of seq.transitions) state.push({ name: T[ti]!, type: 'BOOL' });
   }
   M.forEach((m, i) => {
-    if (m) state.push(`${TAB}${m} : BOOL;${TAB}// step ${num(i)} active in the previous scan`);
+    if (m)
+      state.push({ name: m, type: 'BOOL', comment: `step ${num(i)} active in the previous scan` });
   });
   state.push(...fbDecls);
-  block(`VAR${TAB}// GRAFCET state`, state);
 
   const flags = sequences.some((s) => !s.caseVar);
   const cases = sequences.some((s) => s.caseVar);
+  const holds = p.actions.some(held);
   const when = opts.date.toISOString().slice(0, 16).replace('T', ' ');
   const header = [
-    '(*',
     `  ${comment(project.name)}: Structured Text generated by GrafcetMaker ${opts.version}`,
     '  generated – review before use',
     `  ${when} UTC · revision ${comment(project.meta.revision || '–')}${project.meta.author ? ` · ${comment(project.meta.author)}` : ''}`,
@@ -605,17 +636,40 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
           '  with every transition computed from the situation at the start of the scan.',
         ]
       : []),
-    '  Timers and edges are updated at the start of the scan. Call this function block cyclically.',
-    '*)',
+    ...(holds
+      ? [
+          '  Stored actions that assign a constant (Q := 1) are assigned in every scan while their step',
+          '  is active, those on deactivation too unless the step sets the same variable on activation.',
+        ]
+      : []),
+    `  Timers and edges are updated at the start of the scan. ${CALL_CYCLICALLY}`,
   ];
-  const code = [
-    ...header,
-    `FUNCTION_BLOCK ${fbName}`,
-    ...decls,
-    ...body,
-    '',
-    'END_FUNCTION_BLOCK',
-    '',
-  ].join('\n');
+  const code = renderModule(
+    {
+      name: fbName,
+      header,
+      blocks: [
+        { kind: 'input', decls: byDir('input') },
+        { kind: 'output', decls: byDir('output') },
+        {
+          kind: 'local',
+          decls: [
+            ...byDir('internal'),
+            ...[...undeclared].map(([n, ty]) => ({
+              name: n,
+              type: ty,
+              comment: 'not declared in the project',
+            })),
+          ],
+        },
+        { kind: 'local', title: 'GRAFCET state', decls: state },
+      ],
+      body,
+      indent: TAB,
+      comments: 'line',
+    },
+    opts.dialect ?? 'iec',
+    project.id,
+  );
   return { code, warnings };
 }

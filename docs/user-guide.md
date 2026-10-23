@@ -78,6 +78,15 @@ A new project contains grafcet `G1` with initial step 0.
 - **Insert in the middle**: `Enter` on a step that already continues inserts the new transition
   and step; everything below moves down.
 - **Add an action**: select a step and press `A`, type the output name, press `Enter`.
+- **Keep going with `Shift+Enter`**: in the editor of an action, `Shift+Enter` applies it and opens
+  the next action of the step (a new one of the same kind after the last); in a receptivity, it
+  applies it and opens the next receptivity down the sequence (a new transition and step at its
+  end). Type a whole sequence or a row of actions without touching the mouse.
+- **Ghosts**: a selected step shows a dashed **ghost** action after its last action and, at the
+  end of a sequence, a ghost transition and step with the number the step will get; a transition
+  leading nowhere shows a ghost step. Click a ghost to add what it shows. With a placing tool, a
+  ghost under the pointer shows what a click will place (and, with the Action tool over a step,
+  where the action will go).
 - **Edit text**: `F2` or double-click (step number, receptivity, action text, comment).
 - **Place elements freely**: pick a tool (`S` step, `T` transition, `C` comment) and click; hold
   `Shift` to place several. Double-click empty space to add a step.
@@ -172,7 +181,10 @@ parentheses (wrapping the selection), a timer template and a link to the express
 
 While you type, the editor:
 
-- suggests variables (and `Xn` step references) — use the arrow keys and `Enter` or `Tab`;
+- suggests variables (and `Xn` step references) — use the arrow keys and `Enter` or `Tab`. The
+  rest of the highlighted name is also shown in grey after the cursor: `Tab` or `→` accepts it;
+- in an empty field, shows in grey the first variable of the table that nothing uses yet (an
+  input for a receptivity, a BOOL output or internal variable for an action): `Tab` accepts it;
 - explains any problem right under the input, marks where it is, and offers fixes:
   **Use “Start”** for a misspelt name, **Create BOOL input “Start”** for a new one.
 
@@ -296,12 +308,19 @@ remembered per project on this device.
 - **Variables (Excel)**: an `.xlsx` workbook with a frozen, filterable header and drop-down lists
   for type and direction.
 - **Variables (CSV)**: the variable table for spreadsheets and PLC tools.
-- **Structured Text**: an IEC 61131-3 function block implementing every grafcet, in one of two
-  code styles. **CASE per sequence** (default): one INT step variable per sequence and a `CASE`
-  with the transitions of each step, stored actions inside the transitions, then each output as one
-  expression of the steps (`M := step_G1 = 3 OR step_G1 = 4;`); sequences with parallel branches
-  keep one BOOL per step. **One BOOL per step**: transitions, steps, timers and edges, then actions,
-  once per PLC scan, optionally with a search for stability in each scan.
+- **Structured Text**: a function block implementing every grafcet, for the PLC you pick:
+  **IEC 61131-3** (`.st`, CODESYS and most tools), **Siemens TIA Portal** (an SCL source `.scl`
+  for S7-1200/1500: External source files › Add new external file, then Generate blocks from
+  source), **Beckhoff TwinCAT 3** (a `.TcPOU` file: Add › Existing Item) or **Allen-Bradley Studio
+  5000** (a Structured Text routine: create the tags listed in its header, then paste it into an ST
+  routine). Two code styles: **CASE per sequence** (default): one INT step variable per sequence
+  and a `CASE` with the transitions of each step, stored actions inside the transitions, then each
+  output as one expression of the steps (`M := step_G1 = 3 OR step_G1 = 4;`); sequences with
+  parallel branches keep one BOOL per step. **One BOOL per step**: transitions, steps, timers and
+  edges, then actions, once per PLC scan, optionally with a search for stability in each scan.
+  A stored action such as `Q1 := 1` on activation runs once and Q1 keeps its value; tick **Hold
+  stored actions with a constant value** to assign it in every scan while its step is active
+  instead (`docs/semantics.md` has the details).
 - **PLCopen XML**: PLCopen TC6 XML for import into PLC engineering tools, with one SFC program per
   partial grafcet (N, P1, P0, S, R, D, L qualifiers) and a program computing edges and timers.
 

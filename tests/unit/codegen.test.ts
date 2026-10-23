@@ -7,6 +7,7 @@ import { generatePlcOpen } from '@/core/codegen/plcopen';
 import { generateSt } from '@/core/codegen/st';
 import { generateStCase } from '@/core/codegen/stCase';
 import { timeLiteral } from '@/core/codegen/common';
+import { dialectFile, mapIdentifiers, type StDialect } from '@/core/codegen/dialect';
 import { SCHEMA_VERSION } from '@/core/model/constants';
 import type {
   ActionKind,
@@ -530,5 +531,123 @@ describe('literals', () => {
     expect(timeLiteral(500)).toBe('T#500ms');
     expect(timeLiteral(90_500)).toBe('T#1m30s500ms');
     expect(timeLiteral(3_600_000)).toBe('T#1h');
+  });
+});
+
+describe('stored actions held while the step is active (option)', () => {
+  const HOLD = { ...OPTS, storedActions: 'whileActive' as const };
+  const HELD = build(
+    [
+      ['a', 'BOOL', 'input'],
+      ['Lamp', 'BOOL', 'output'],
+      ['Horn', 'BOOL', 'output'],
+    ],
+    {
+      name: 'G1',
+      initial: [0],
+      steps: [0, 1, 2],
+      transitions: [
+        [[0], 'a', [1]],
+        [[1], '/a', [2]],
+      ],
+      actions: [
+        [1, 'storedOnActivation', 'Lamp := 1'],
+        [2, 'storedOnDeactivation', 'Horn := 0'],
+      ],
+    },
+  );
+
+  it('runs once by default: the variable keeps the value assigned in the transition', () => {
+    const code = generateStCase(HELD, OPTS).code;
+    expect(code).toContain('\t\t\tstep_G1 := 1;\n\t\t\tLamp := TRUE;\n');
+    expect(code).not.toMatch(/\bLamp :=.*\n[\s\S]*\bLamp :=/);
+  });
+
+  it('CASE: assigns constants at the top of the branch of their step, every scan', () => {
+    const code = generateStCase(HELD, HOLD).code;
+    expect(code).toContain('\t1:\n\t\tLamp := TRUE;\n\t\tIF NOT a THEN');
+    // A step without outgoing transition holds its assignment instead of the empty statement.
+    expect(code).toContain('\t2:\t// no transition leaves this step\n\t\tHorn := FALSE;\n');
+    expect(code).toContain('\t\t\tstep_G1 := 1;\n\t\tEND_IF;');
+    expect(code).toMatch(/assigned in every scan while their step/);
+  });
+
+  it('keeps set on activation / reset on deactivation of one step, and non-constants, once', () => {
+    const code = generateStCase(STORED, HOLD).code;
+    expect(code).toContain('\t1:\n\t\tMotor := TRUE;\n');
+    expect(code).toMatch(/\t\t\tMotor := FALSE;\n\t\t\tstep_G1 := 0;\n/);
+    expect(code).toMatch(/\t\t\tstep_G1 := 1;\n\t\t\tC := C \+ 1;\n\t\t\tIF level < 10 THEN/);
+    expect(generateStCase(STORED, HOLD).code).toMatchSnapshot();
+  });
+
+  it('one BOOL per step: IF X THEN, and no previous-scan memory for held actions only', () => {
+    const code = generateSt(HELD, HOLD).code;
+    expect(code).toContain(
+      'IF G1_X1 THEN   (* G1 step 1, while active: Lamp := 1 *)\n    Lamp := TRUE;\nEND_IF;',
+    );
+    expect(code).toContain('IF G1_X2 THEN   (* G1 step 2, while active: Horn := 0 *)');
+    expect(code).not.toContain('_M :=');
+    expect(generateSt(STORED, HOLD).code).toMatchSnapshot();
+  });
+});
+
+describe('vendor dialects', () => {
+  const dialect = (d: StDialect, p: Project) => generateStCase(p, { ...OPTS, dialect: d });
+  /** Code without its comments. */
+  const codeOnly = (s: string) => s.replace(/\(\*[\s\S]*?\*\)/g, '').replace(/\/\/.*$/gm, '');
+
+  it.each(['siemens', 'twincat', 'rockwell'] as const)('%s', (d) => {
+    expect(dialect(d, TIMERS).code).toMatchSnapshot();
+    expect(dialect(d, STORED).code).toMatchSnapshot();
+  });
+
+  it('one BOOL per step in Logix: initial values on the first scan', () => {
+    expect(generateSt(STORED, { ...OPTS, dialect: 'rockwell' }).code).toMatchSnapshot();
+  });
+
+  it('Siemens SCL: quoted block, # before locals (not formal parameters or comments), TIA timers', () => {
+    const code = dialect('siemens', TIMERS).code;
+    expect(code).toMatch(/^FUNCTION_BLOCK "FB_Test_cell"\n\{ S7_Optimized_Access := 'TRUE' \}\n/);
+    expect(code).toContain('\nBEGIN\n');
+    expect(code).toContain('#TON_G1_X1(IN := #step_G1 = 1, PT := T#5s);');
+    expect(code).toContain('TON_G1_X1 : TON_TIME;\t// T#5s after step_G1 = 1');
+    expect(code).toContain('IF #TON_G1_X1.Q OR #FE_b.Q THEN');
+    expect(code).toContain('// generated - review before use');
+    // ASCII only: tabs, newlines and printable characters.
+    expect([...code].every((c) => c === '\t' || c === '\n' || (c >= ' ' && c <= '~'))).toBe(true);
+  });
+
+  it('TwinCAT: a well-formed POU with a stable id', () => {
+    const code = dialect('twincat', TIMERS).code;
+    expect(wellFormed(code)).toBe(true);
+    expect(code).toMatch(
+      /<POU Name="FB_Test_cell" Id="\{[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\}"/,
+    );
+    expect(code).toContain('<Declaration><![CDATA[FUNCTION_BLOCK FB_Test_cell\n(*');
+    expect(code).toContain('<ST><![CDATA[// Timers and edges\nRE_b(CLK := b);');
+    expect(dialect('twincat', TIMERS).code).toBe(code);
+  });
+
+  it('Rockwell: Logix instructions, DINT milliseconds, 1/0, a tag list and S:FS', () => {
+    const code = dialect('rockwell', TIMERS).code;
+    expect(code).toContain(
+      'TON_G1_X1.PRE := 5000;\nTON_G1_X1.TimerEnable := step_G1 = 1;\nTONR(TON_G1_X1);',
+    );
+    expect(code).toContain('TOF_b.TimerEnable := TON_b.DN;\nTOFR(TOF_b);');
+    expect(code).toContain('RE_b.InputBit := b;\nOSRI(RE_b);');
+    expect(code).toContain('IF RE_b.OutputBit THEN');
+    expect(code).toMatch(/\n {2}step_G1 +DINT +local +G1: number of the active step\n/);
+    expect(code).toContain('IF S:FS THEN\n\tHorn := 0;\n\tLamp := 0;\n\tstep_G1 := 0;');
+    expect(code).toContain('Call this routine every scan.');
+    expect(codeOnly(code)).not.toMatch(/\b(TRUE|FALSE|FUNCTION_BLOCK|VAR)\b/);
+  });
+
+  it('rewrites identifiers outside comments and literals', () => {
+    const upper = (s: string) => mapIdentifiers(s, (id) => id.toUpperCase());
+    expect(upper('t := T#5s + x1; // keep\n(* keep *) a.b')).toBe(
+      'T := T#5s + X1; // keep\n(* keep *) A.B',
+    );
+    expect(upper('y := 1.5E3 + 16#FF;')).toBe('Y := 1.5E3 + 16#FF;');
+    expect(dialectFile('twincat')).toEqual({ extension: 'TcPOU', mime: 'application/xml' });
   });
 });

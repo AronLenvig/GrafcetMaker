@@ -142,6 +142,48 @@
 }
 
 /* Valid link targets: dashed outline + a "+" marker so state is never conveyed by color alone. */
+.gm-ghost {
+  fill: none;
+  stroke: var(--selection);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.7;
+}
+
+.gm-ghost rect {
+  fill: var(--selection-fill);
+}
+
+.gm-ghost .gm-ghost-bar {
+  fill: var(--selection);
+  stroke: none;
+}
+
+.gm-ghost text {
+  fill: var(--selection);
+  stroke: none;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.gm-ghost-hit {
+  pointer-events: all;
+  cursor: pointer;
+}
+
+.gm-ghost-hit:hover {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gm-ghost-hit {
+    transition: opacity 120ms;
+  }
+}
+
 .gm-target {
   fill: none;
   stroke: var(--link-target);

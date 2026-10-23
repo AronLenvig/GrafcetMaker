@@ -6,12 +6,14 @@
  * `X := (X AND NOT Tout) OR Tin` (rules 3 and 5), (4) forcing, (5) timer and edge function
  * blocks, (6) stored actions from the change of each step since the previous scan, (7) continuous
  * actions. One clearing level per scan; `stabilityLoop` repeats (2)–(6) within the scan instead.
+ * With `storedActions: 'whileActive'`, stored actions that assign a constant are held instead:
+ * `IF X THEN Q := TRUE; END_IF;` in every scan, after the stored actions that run once.
  */
 import { compile, type CAction } from '../simulation/program';
 import type { Project, Variable } from '../model/types';
 import {
   comment,
-  initialLiteral,
+  heldActions,
   NameTable,
   ST_KEYWORDS,
   stArith,
@@ -22,6 +24,7 @@ import {
   type CodegenWarning,
   type ExprTarget,
 } from './common';
+import { CALL_CYCLICALLY, dialectHooks, renderModule, type Decl } from './dialect';
 
 export interface StOptions extends CodegenOptions {
   /** Repeat clearing within one scan until the situation is stable (IEC 60848 search for stability). */
@@ -35,6 +38,9 @@ const or = (xs: string[]) => (xs.length > 1 ? `(${xs.join(' OR ')})` : xs[0]!);
 export function generateSt(project: Project, opts: StOptions): CodegenResult {
   const p = compile(project);
   const loop = !!opts.stabilityLoop;
+  const hooks = dialectHooks(opts.dialect ?? 'iec');
+  const heldSet = heldActions(p, opts);
+  const held = (a: CAction) => heldSet.has(a);
   const warnings: CodegenWarning[] = [];
   const seen = new Set<string>();
   const warn = (w: CodegenWarning) => {
@@ -79,12 +85,13 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
   const needsMemory = p.steps.map(
     (s) =>
       !isMacro(s.idx) &&
-      (p.enclosures.has(s.idx) || p.actionsByStep[s.idx]!.some((a) => storedKinds.has(a.kind))),
+      (p.enclosures.has(s.idx) ||
+        p.actionsByStep[s.idx]!.some((a) => storedKinds.has(a.kind) && !held(a))),
   );
   const M = p.steps.map((_, i) => (needsMemory[i] ? names.take(`${X[i]}_M`) : ''));
 
   // ---- Expressions ---------------------------------------------------------------------------
-  const fbDecls: string[] = [];
+  const fbDecls: Decl[] = [];
   const fbCalls: string[] = [];
   const edges = new Map<string, string>();
   const timers = new Map<string, string>();
@@ -93,21 +100,27 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
   const iterName = loop ? names.take('Iter') : '';
   const target: ExprTarget = {
     step: (i) => X[i]!,
+    time: hooks.time,
+    boolToInt: hooks.boolToInt,
     edge(rising, operand) {
       const key = `${rising}|${operand}`;
-      let inst = edges.get(key);
-      if (!inst) {
-        inst = names.take(
+      let q = edges.get(key);
+      if (!q) {
+        const inst = names.take(
           `${rising ? 'RE' : 'FE'}_${[...edges.keys()].filter((k) => k.startsWith(`${rising}|`)).length + 1}`,
         );
-        edges.set(key, inst);
-        fbDecls.push(
-          `    ${inst} : ${rising ? 'R_TRIG' : 'F_TRIG'};   (* ${rising ? '↑' : '↓'}${comment(operand)} *)`,
-        );
-        fbCalls.push(`${inst}(CLK := ${operand});`);
+        fbDecls.push({
+          name: inst,
+          type: rising ? 'R_TRIG' : 'F_TRIG',
+          comment: `${rising ? '↑' : '↓'}${comment(operand)}`,
+        });
+        const e = hooks.edge(inst, rising, operand);
+        fbCalls.push(...e.call);
+        q = e.q;
+        edges.set(key, q);
       }
       // Edges are seen in the first iteration of the scan only (IEC 60848).
-      return firstOnly ? `(${inst}.Q AND ${iterName} = 0)` : `${inst}.Q`;
+      return firstOnly ? `(${q} AND ${iterName} = 0)` : q;
     },
     timer(t1, t2, operand) {
       const key = `${t1}|${t2 ?? ''}|${operand}`;
@@ -115,14 +128,20 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
       if (!q) {
         const k = timers.size + 1;
         const on = names.take(`TON_${k}`);
-        fbDecls.push(`    ${on} : TON;   (* ${timeLiteral(t1)} after ${comment(operand)} *)`);
-        fbCalls.push(`${on}(IN := ${operand}, PT := ${timeLiteral(t1)});`);
-        q = `${on}.Q`;
+        fbDecls.push({
+          name: on,
+          type: 'TON',
+          comment: `${timeLiteral(t1)} after ${comment(operand)}`,
+        });
+        const c = hooks.timer(on, 'TON', operand, t1);
+        fbCalls.push(...c.call);
+        q = c.q;
         if (t2 !== undefined) {
           const off = names.take(`TOF_${k}`);
-          fbDecls.push(`    ${off} : TOF;   (* held ${timeLiteral(t2)} *)`);
-          fbCalls.push(`${off}(IN := ${on}.Q, PT := ${timeLiteral(t2)});`);
-          q = `${off}.Q`;
+          fbDecls.push({ name: off, type: 'TOF', comment: `held ${timeLiteral(t2)}` });
+          const c2 = hooks.timer(off, 'TOF', q, t2);
+          fbCalls.push(...c2.call);
+          q = c2.q;
         }
         timers.set(key, q);
       }
@@ -288,6 +307,7 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
           warn({ code: 'macroStoredAction', elementId: a.id, params: {} });
           continue;
         }
+        if (held(a)) continue;
         // An always-active action is never deactivated.
         if (a.step === null && kind === 'storedOnDeactivation') continue;
         const body = assignment(a);
@@ -303,6 +323,17 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
     };
     emit('storedOnDeactivation', (i) => `NOT ${X[i]} AND ${M[i]}`, 'on deactivation');
     emit('storedOnActivation', (i) => `${X[i]} AND NOT ${M[i]}`, 'on activation');
+    // Held: assigned in every scan while the step is active, after those that run once.
+    for (const a of p.actions) {
+      if (!held(a) || isMacro(a.step!)) continue;
+      const body = assignment(a);
+      if (!body) continue;
+      out.push(
+        `IF ${X[a.step!]} THEN   (* ${placeOf(a)}, while active: ${comment(sourceText(a).text)} *)`,
+        `    ${body}`,
+        'END_IF;',
+      );
+    }
     for (const a of p.actions) {
       if (a.kind !== 'storedOnEvent' || (a.step !== null && isMacro(a.step)) || !a.condition)
         continue;
@@ -387,33 +418,31 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
   body.push('', `${initName} := FALSE;`);
 
   // ---- Declarations --------------------------------------------------------------------------
-  const declare = (v: Variable) => {
+  const declare = (v: Variable): Decl => {
     const notes = [v.address, v.comment].filter(Boolean).join(' · ');
-    const init = v.initialValue !== undefined ? ` := ${initialLiteral(v)}` : '';
-    return `    ${v.name} : ${v.type}${init};${notes ? `   (* ${comment(notes)} *)` : ''}`;
+    return {
+      name: v.name,
+      type: v.type,
+      ...(v.initialValue !== undefined ? { init: v.initialValue } : {}),
+      ...(notes ? { comment: comment(notes) } : {}),
+    };
   };
   const byDir = (d: Variable['direction']) =>
     userVars
       .filter((v) => v.direction === d)
       .sort((a, b) => a.name.localeCompare(b.name, 'en', { numeric: true }))
       .map(declare);
-  const decls: string[] = [];
-  const block = (head: string, lines: string[]) => {
-    if (lines.length) decls.push(head, ...lines, 'END_VAR');
-  };
-  block('VAR_INPUT', byDir('input'));
-  block('VAR_OUTPUT', byDir('output'));
-  block('VAR', [
-    ...byDir('internal'),
-    ...[...undeclared].map(([n, ty]) => `    ${n} : ${ty};   (* not declared in the project *)`),
-  ]);
-  const state: string[] = [`    ${initName} : BOOL := TRUE;   (* first scan *)`];
+  const state: Decl[] = [{ name: initName, type: 'BOOL', init: true, comment: 'first scan' }];
   if (loop)
     state.push(
-      `    ${iterName} : INT;`,
-      `    ${changedName} : BOOL;`,
-      `    ${nextName} : BOOL;`,
-      `    ${unstableName} : BOOL;   (* the last search for stability hit ${MAX_ITERATIONS} iterations *)`,
+      { name: iterName, type: 'INT' },
+      { name: changedName, type: 'BOOL' },
+      { name: nextName, type: 'BOOL' },
+      {
+        name: unstableName,
+        type: 'BOOL',
+        comment: `the last search for stability hit ${MAX_ITERATIONS} iterations`,
+      },
     );
   for (const s of p.steps) {
     const kind = s.initial
@@ -423,19 +452,22 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
         : p.enclosures.has(s.idx)
           ? ', enclosing'
           : '';
-    state.push(`    ${X[s.idx]} : BOOL;   (* ${gName(s.grafcet)} step ${s.number}${kind} *)`);
+    state.push({
+      name: X[s.idx]!,
+      type: 'BOOL',
+      comment: `${gName(s.grafcet)} step ${s.number}${kind}`,
+    });
     if (needsMemory[s.idx])
-      state.push(`    ${M[s.idx]} : BOOL;   (* activity at the previous scan *)`);
+      state.push({ name: M[s.idx]!, type: 'BOOL', comment: 'activity at the previous scan' });
   }
-  for (const ti of transitionOrder) state.push(`    ${T[ti]} : BOOL;`);
-  for (const f of forceFlag.values()) state.push(`    ${f} : BOOL;`);
-  for (const f of forcedName.values()) state.push(`    ${f} : BOOL;`);
+  for (const ti of transitionOrder) state.push({ name: T[ti]!, type: 'BOOL' });
+  for (const f of forceFlag.values()) state.push({ name: f, type: 'BOOL' });
+  for (const f of forcedName.values()) state.push({ name: f, type: 'BOOL' });
   state.push(...fbDecls);
-  block('VAR (* GRAFCET state *)', state);
 
+  const holds = p.actions.some((a) => held(a) && !isMacro(a.step!));
   const when = opts.date.toISOString().slice(0, 16).replace('T', ' ');
   const header = [
-    '(*',
     `  ${comment(project.name)}: Structured Text generated by GrafcetMaker ${opts.version}`,
     '  generated – review before use',
     `  ${when} UTC · revision ${comment(project.meta.revision || '–')}${project.meta.author ? ` · ${comment(project.meta.author)}` : ''}`,
@@ -448,17 +480,40 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
       : '  one transition per scan (IEC 60848 crosses them in one evolution). Edges and timers are',
     loop ? '' : '  updated at the end of the scan and seen by the transitions of the next scan.',
     '  Stored actions run when a step changes between two scans; forcing orders take effect in the',
-    '  scan after their step becomes active. Call this function block cyclically.',
-    '*)',
+    `  scan after their step becomes active. ${CALL_CYCLICALLY}`,
+    ...(holds
+      ? [
+          '  Stored actions that assign a constant (Q := 1) are assigned in every scan while their step',
+          '  is active, those on deactivation too unless the step sets the same variable on activation.',
+        ]
+      : []),
   ].filter((l, i, a) => l !== '' || a[i - 1] !== '');
-  const code = [
-    ...header,
-    `FUNCTION_BLOCK ${fbName}`,
-    ...decls,
-    ...body,
-    '',
-    'END_FUNCTION_BLOCK',
-    '',
-  ].join('\n');
+  const code = renderModule(
+    {
+      name: fbName,
+      header,
+      blocks: [
+        { kind: 'input', decls: byDir('input') },
+        { kind: 'output', decls: byDir('output') },
+        {
+          kind: 'local',
+          decls: [
+            ...byDir('internal'),
+            ...[...undeclared].map(([n, ty]) => ({
+              name: n,
+              type: ty,
+              comment: 'not declared in the project',
+            })),
+          ],
+        },
+        { kind: 'local', title: 'GRAFCET state', decls: state },
+      ],
+      body,
+      indent: '    ',
+      comments: 'block',
+    },
+    opts.dialect ?? 'iec',
+    project.id,
+  );
   return { code, warnings };
 }

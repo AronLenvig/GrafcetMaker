@@ -14,6 +14,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   label `*` stay separate), every action type converted, variables created from what the charts
   use, and a clean layout. A dialog lists anything the conversion changed, including transitions
   not linked to a step.
+- Structured Text for your PLC: **Export › Structured Text › PLC** writes plain IEC 61131-3,
+  a **Siemens TIA Portal** SCL source (`.scl`, S7-1200/1500: `#` locals, TON_TIME timers, ready for
+  Generate blocks from source), a **Beckhoff TwinCAT 3** POU (`.TcPOU`) or an **Allen-Bradley
+  Studio 5000** routine (TONR/TOFR timers, OSRI/OSFI edges, the tags to create in the header,
+  initial values on the first scan).
+- Option **Hold stored actions with a constant value while their step is active**: `Q := 1` is
+  assigned in every scan of its step instead of once (stored actions already keep their value; this
+  re-asserts it, PLC style).
+- Ghost completion while typing a receptivity or an action: the rest of the suggested name shows
+  in grey after the cursor (`Tab` or `→` accepts it), and an empty field suggests the first
+  variable nothing uses yet.
+- `Shift+Enter` in the editor of an action or a receptivity applies it and opens the next one (a
+  new action, or a new transition and step at the end of the sequence).
+- Ghosts on the diagram: a selected step shows where `A` and `Enter` would add the next action and
+  the next transition and step (click a ghost to add it); placing tools show a ghost of what a
+  click will place.
 - Structured Text in the style PLC programmers write by hand, now the default: one INT step
   variable per sequence and a `CASE` with the transitions of each step, stored actions inside the
   transitions, then each output as one expression of the steps

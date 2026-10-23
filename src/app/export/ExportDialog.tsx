@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { variablesToCsv, variablesToXlsx } from '@/core/io/csv';
 import type { CodegenResult, CodegenWarning } from '@/core/codegen/common';
+import { dialectFile, ST_DIALECTS } from '@/core/codegen/dialect';
 import type { Id, Project } from '@/core/model/types';
 import { tDynamic } from '@/i18n/dynamic';
 import { useDoc } from '@/editor/store/document';
@@ -35,13 +36,18 @@ const isProjectWide = (f: ExportFormat) => isVariables(f) || isCode(f);
 /** Generated PLC code (the generators are loaded on first use). */
 async function generateCode(project: Project, settings: ExportSettings): Promise<CodegenResult> {
   const opts = { version: __APP_VERSION__, date: new Date() };
+  const st = {
+    ...opts,
+    dialect: settings.st.dialect,
+    storedActions: settings.st.holdStored ? ('whileActive' as const) : ('once' as const),
+  };
   if (settings.format === 'st' && settings.st.style === 'case') {
     const { generateStCase } = await import('@/core/codegen/stCase');
-    return generateStCase(project, opts);
+    return generateStCase(project, st);
   }
   if (settings.format === 'st') {
     const { generateSt } = await import('@/core/codegen/st');
-    return generateSt(project, { ...opts, stabilityLoop: settings.st.stabilityLoop });
+    return generateSt(project, { ...st, stabilityLoop: settings.st.stabilityLoop });
   }
   const { generatePlcOpen } = await import('@/core/codegen/plcopen');
   return generatePlcOpen(project, { ...opts, taskInterval: settings.xml.taskInterval });
@@ -210,8 +216,13 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
       case 'xml': {
         const { code } = await generateCode(project, settings);
         const name = safeFileName(project.name, '');
+        const file = dialectFile(settings.st.dialect);
         return settings.format === 'st'
-          ? { blob: new Blob([code], { type: 'text/plain' }), name: `${name}.st`, text: code }
+          ? {
+              blob: new Blob([code], { type: file.mime }),
+              name: `${name}.${file.extension}`,
+              text: code,
+            }
           : {
               blob: new Blob([code], { type: 'application/xml' }),
               name: `${name}.xml`,
@@ -397,6 +408,14 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
         return (
           <>
             <Radio
+              name="st-dialect"
+              label={t('export.stDialect')}
+              value={settings.st.dialect}
+              onChange={(v) => update({ st: { ...settings.st, dialect: v } })}
+              options={ST_DIALECTS.map((d) => ({ value: d, label: t(`export.stDialects.${d}`) }))}
+            />
+            <p className="text-muted">{t(`export.stDialectHints.${settings.st.dialect}`)}</p>
+            <Radio
               name="st-style"
               label={t('export.stStyle')}
               value={settings.st.style}
@@ -416,6 +435,11 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
                 onChange={(v) => update({ st: { ...settings.st, stabilityLoop: v } })}
               />
             )}
+            <Check
+              label={t('export.holdStored')}
+              checked={settings.st.holdStored}
+              onChange={(v) => update({ st: { ...settings.st, holdStored: v } })}
+            />
           </>
         );
       case 'xml':

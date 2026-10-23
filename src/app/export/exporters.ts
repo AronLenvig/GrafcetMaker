@@ -6,6 +6,7 @@ import {
   type ExportPalette,
   type SvgResult,
 } from '@/core/io/svgExport';
+import type { StDialect } from '@/core/codegen/dialect';
 import type { Grafcet, Id, Project } from '@/core/model/types';
 
 export type ExportFormat = 'pdf' | 'svg' | 'png' | 'webp' | 'csv' | 'xlsx' | 'st' | 'xml';
@@ -24,8 +25,10 @@ export interface ExportSettings {
   /**
    * Structured Text: `case` = one INT step variable and a CASE per sequence (core/codegen/stCase);
    * `bits` = one BOOL per step, optionally repeating clearing within the scan until stable.
+   * `dialect` = the PLC tool (core/codegen/dialect); `holdStored` = constant stored actions
+   * assigned while their step is active.
    */
-  st: { style: 'case' | 'bits'; stabilityLoop: boolean };
+  st: { style: 'case' | 'bits'; stabilityLoop: boolean; dialect: StDialect; holdStored: boolean };
   /** PLCopen XML: cycle time of the generated task, in ms. */
   xml: { taskInterval: number };
 }
@@ -39,7 +42,7 @@ export const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
   webp: { scale: 2, quality: 0.92, transparent: false },
   svg: { embedFont: true },
   pdf: { paper: 'A4', orientation: 'portrait', scale: 'fit', titleBlock: true },
-  st: { style: 'case', stabilityLoop: false },
+  st: { style: 'case', stabilityLoop: false, dialect: 'iec', holdStored: false },
   xml: { taskInterval: 10 },
 };
 

@@ -70,7 +70,10 @@ See [Actions](actions.md).
 ## Help while you type
 
 - **Suggestions**: start typing a name and pick a variable or step (`X…`) with the arrow keys, then
-  <kbd>Enter</kbd> or <kbd>Tab</kbd>.
+  <kbd>Enter</kbd> or <kbd>Tab</kbd>. The rest of the highlighted name shows in grey after the
+  cursor; <kbd>Tab</kbd> or <kbd>→</kbd> accepts it.
+- **Empty field**: the first variable of the table that nothing uses yet shows in grey (an input
+  for a receptivity, an output for an action); <kbd>Tab</kbd> accepts it.
 - **Problems**: a box under the field explains what is wrong, underlines where, and offers fixes:
   **Use “Start”** for a misspelt name, **Create BOOL input “start”** for a new one.
 - **Symbol bar**: buttons for ↑ ↓ NOT AND OR, parentheses (they wrap the selected text) and a timer

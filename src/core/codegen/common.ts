@@ -4,6 +4,8 @@
  */
 import type { ArithNode, BoolNode } from '../expr/ast';
 import type { Id, Variable, VariableType } from '../model/types';
+import type { CAction, Program } from '../simulation/program';
+import type { StDialect } from './dialect';
 
 /** Something the generated code cannot express exactly; shown to the user before downloading. */
 export interface CodegenWarning {
@@ -30,6 +32,50 @@ export interface CodegenOptions {
   version: string;
   /** Generation time written in the header (fixed in tests). */
   date: Date;
+  /** Vendor flavour of Structured Text (default: plain IEC 61131-3). */
+  dialect?: StDialect;
+  /**
+   * Stored actions on activation or deactivation that assign a constant (`Q := 1`, `M`): `once`
+   * (default, IEC 60848) runs them when the step is activated or deactivated and the variable
+   * keeps its value; `whileActive` assigns them in every scan while their step is active, those
+   * on deactivation too (see heldActions). Other stored actions always run once.
+   */
+  storedActions?: 'whileActive' | 'once';
+}
+
+/** A stored action that may be held: on (de)activation of a step, no condition, a constant value. */
+function holdable(a: CAction): boolean {
+  if (a.kind !== 'storedOnActivation' && a.kind !== 'storedOnDeactivation') return false;
+  if (a.step === null || a.condition || !a.target) return false;
+  const v = a.boolValue?.ast ?? a.arithValue?.ast;
+  if (!v) return false;
+  return (
+    v.type === 'const' ||
+    v.type === 'num' ||
+    v.type === 'dur' ||
+    (v.type === 'neg' && v.operand.type === 'num')
+  );
+}
+
+/**
+ * Stored actions written as assignments held in every scan while their step is active
+ * (`storedActions: 'whileActive'`): on activation or deactivation, without condition, assigning a
+ * constant. An action on deactivation still runs when its step is left if the step also holds the
+ * same variable on activation (`Motor := 1` ↑ and `Motor := 0` ↓: Motor on during the step).
+ */
+export function heldActions(p: Program, opts: CodegenOptions): Set<CAction> {
+  const held = new Set<CAction>();
+  if (opts.storedActions !== 'whileActive') return held;
+  for (const a of p.actions) {
+    if (!holdable(a)) continue;
+    const setOnEntry =
+      a.kind === 'storedOnDeactivation' &&
+      p.actionsByStep[a.step!]!.some(
+        (b) => b.kind === 'storedOnActivation' && b.target === a.target && holdable(b),
+      );
+    if (!setOnEntry) held.add(a);
+  }
+  return held;
 }
 
 export interface CodegenResult {
@@ -135,6 +181,10 @@ export interface ExprTarget {
    * Otherwise every comparison inside a larger expression gets parentheses.
    */
   minimalParentheses?: boolean;
+  /** Duration literal (default: IEC `T#1m30s`). */
+  time?(ms: number): string;
+  /** A BOOL operand of arithmetic (default: `BOOL_TO_INT(b)`). */
+  boolToInt?(operand: string): string;
 }
 
 const P_OR = 1;
@@ -207,14 +257,15 @@ export function stArith(n: ArithNode, t: ExprTarget, outer = 0, type?: VariableT
     case 'num':
       return type === 'REAL' && n.isInt ? `${n.value}.0` : String(n.value);
     case 'dur':
-      return timeLiteral(n.ms);
+      return t.time ? t.time(n.ms) : timeLiteral(n.ms);
     case 'avar': {
       const v = t.variable(n.name);
       if (!v) {
         t.undeclared(n.name);
         return n.name;
       }
-      return v.type === 'BOOL' ? `BOOL_TO_INT(${v.name})` : v.name;
+      if (v.type !== 'BOOL') return v.name;
+      return t.boolToInt ? t.boolToInt(v.name) : `BOOL_TO_INT(${v.name})`;
     }
     case 'neg':
       return wrap(`-${stArith(n.operand, t, A_NEG, type)}`, A_NEG);

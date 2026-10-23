@@ -98,6 +98,58 @@ export function addActionToSelection(kind: ActionKind = 'continuous'): void {
   }
 }
 
+/**
+ * What Shift+Enter continues with after editing an element: the next action of its step (or a new
+ * one at the end), or the next receptivity of the sequence (or a new transition and step at its
+ * end). Null when there is nothing to continue with.
+ */
+export function nextAfter(g: Grafcet, id: Id): 'action' | 'step' | null {
+  if (g.actions[id]?.stepId) return 'action';
+  return nextTransition(g, id) === undefined ? null : 'step';
+}
+
+/**
+ * After a transition leading to one step (or none): the step's only outgoing transition, null to
+ * append a new one, undefined when there is no single next (parallel or alternative branches).
+ */
+function nextTransition(g: Grafcet, id: Id): Id | null | undefined {
+  const t = g.transitions[id];
+  if (!t || t.to.length > 1) return undefined;
+  const outs = t.to[0] ? (indexGrafcet(g).outgoing.get(t.to[0]) ?? []) : [];
+  return outs.length > 1 ? undefined : (outs[0]?.id ?? null);
+}
+
+/** Shift+Enter in the editor of an action text or a receptivity (see `nextAfter`). */
+export function continueAfter(id: Id): void {
+  const g = getActiveGrafcet();
+  if (!g) return;
+  const a = g.actions[id];
+  if (a?.stepId) {
+    const siblings = Object.values(g.actions)
+      .filter((b) => b.stepId === a.stepId)
+      .sort((x, y) => x.order - y.order);
+    const next = siblings[siblings.indexOf(a) + 1];
+    if (next) {
+      ui.select([next.id]);
+      ui.edit({ id: next.id, field: 'text' });
+      return;
+    }
+    ui.select([a.stepId]);
+    addActionToSelection(a.kind);
+    return;
+  }
+  const next = nextTransition(g, id);
+  if (next === undefined) return;
+  if (next) {
+    ui.select([next]);
+    reveal([next]);
+    ui.edit({ id: next, field: 'receptivity' });
+    return;
+  }
+  ui.select([g.transitions[id]!.to[0] ?? id]);
+  appendSequence();
+}
+
 /** Action tool click: a new action on the step clicked, or unattached at `at` (left middle). */
 export function addActionAt(at: Point, stepId: Id | null): Id | null {
   let created: Id | null = null;

@@ -14,7 +14,7 @@ import {
 import { actionTextKind, type ExpressionKind } from '@/core/expr/check';
 import type { Grafcet } from '@/core/model/types';
 import { ExpressionInput, type ExpressionInputHandle } from '@/panels/ExpressionInput';
-import { editActive } from '../commands/edit';
+import { continueAfter, editActive, nextAfter } from '../commands/edit';
 import { ui, useUi, type EditTarget, type Viewport } from '../store/uiStore';
 import { useCoarsePointer, useCompact } from '@/app/ui/media';
 import { canvasSizeOf } from './viewport';
@@ -195,11 +195,13 @@ function EditorHint({
   top,
   multiline,
   error,
+  next,
 }: {
   left: number;
   top: number;
   multiline: boolean;
   error: string | null;
+  next: 'action' | 'step' | null;
 }) {
   const { t } = useTranslation();
   return (
@@ -217,6 +219,12 @@ function EditorHint({
       )}
       <div className="flex items-center gap-1 rounded-md bg-surface/90 px-1.5 py-0.5 text-[11px] text-muted shadow-sm">
         <kbd className="gm-kbd">{multiline ? 'Ctrl+↵' : '↵'}</kbd> {t('fields.apply')}
+        {next && (
+          <>
+            <kbd className="gm-kbd ml-1">⇧↵</kbd>{' '}
+            {t(next === 'action' ? 'fields.nextAction' : 'fields.nextStep')}
+          </>
+        )}
         <kbd className="gm-kbd ml-1">Esc</kbd> {t('fields.cancel')}
       </div>
     </div>
@@ -279,6 +287,18 @@ function EditorField({
     focusCanvas();
   };
 
+  // Shift+Enter: apply, then edit the next action or receptivity (created at the end).
+  const next =
+    target.field === 'text' || target.field === 'receptivity' ? nextAfter(g, target.id) : null;
+  const finishNext = (v: string) => {
+    if (done.current) return;
+    applyEdit(target, v);
+    done.current = true;
+    ui.edit(null);
+    continueAfter(target.id);
+    if (!ui.get().editing) focusCanvas();
+  };
+
   // Clicking elsewhere keeps valid edits and drops invalid ones; focus stays where the user clicked.
   const onBlur = () => {
     if (done.current) return;
@@ -304,6 +324,7 @@ function EditorField({
         top={box.top + box.height + 6}
         multiline={!!place.multiline}
         error={error}
+        next={next}
       />
     );
 
@@ -318,6 +339,7 @@ function EditorField({
           value={value}
           onChange={setValue}
           onCommit={() => finish(true)}
+          onCommitNext={next ? finishNext : undefined}
           onCancel={() => finish(false)}
           onBlur={onBlur}
           label={label}

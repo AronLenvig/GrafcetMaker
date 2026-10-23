@@ -1,11 +1,24 @@
+import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
+  ACTION_GAP,
+  ACTION_HEIGHT,
+  ACTION_MIN_WIDTH,
   elementBounds,
+  layoutActions,
+  PITCH,
   portPosition,
+  ROW,
+  STEP_HALF,
+  STEP_SIZE,
+  TRANSITION_THICKNESS,
+  TRANSITION_WIDTH,
   type GrafcetGeometry,
   type Rect,
 } from '@/core/layout/geometry';
 import { useCoarsePointer } from '@/app/ui/media';
-import type { Grafcet, Id } from '@/core/model/types';
+import { nextStepNumber, preferredStepNumber } from '@/core/model/ops';
+import type { Grafcet, Id, Point } from '@/core/model/types';
 import { useUi } from '../store/uiStore';
 import { useInteraction } from './interactionStore';
 import { pointsToPath } from './svg';
@@ -81,6 +94,166 @@ function Handles({ g, id }: { g: Grafcet; id: Id }) {
   );
 }
 
+/** Where the next action of a step goes: right after its last action box. */
+function nextActionBox(g: Grafcet, geom: GrafcetGeometry, stepId: Id): Rect & { first: boolean } {
+  const s = g.steps[stepId]!;
+  const boxes = layoutActions(s, geom.index.actions.get(stepId) ?? []);
+  const last = boxes[boxes.length - 1];
+  return {
+    x: last ? last.x + last.width : s.position.x + STEP_HALF + ACTION_GAP,
+    y: s.position.y - ACTION_HEIGHT / 2,
+    width: ACTION_MIN_WIDTH,
+    height: ACTION_HEIGHT,
+    first: !last,
+  };
+}
+
+/*
+ * Ghost elements: where `A` or `Enter` would add the next action or step (clickable), or what a
+ * placing tool would place under the pointer.
+ */
+
+function GhostAction({
+  g,
+  box,
+  stepId,
+  title,
+}: {
+  g: Grafcet;
+  box: Rect & { first?: boolean };
+  stepId: Id | null;
+  title?: string;
+}) {
+  const s = stepId ? g.steps[stepId] : undefined;
+  const cy = box.y + box.height / 2;
+  return (
+    <g
+      className={title ? 'gm-ghost gm-ghost-hit' : 'gm-ghost'}
+      data-ghost={title ? 'action' : undefined}
+    >
+      {title && <title>{title}</title>}
+      {s && box.first && <path d={`M${s.position.x + STEP_HALF} ${cy}H${box.x}`} />}
+      <rect x={box.x} y={box.y} width={box.width} height={box.height} />
+      <text x={box.x + box.width / 2} y={cy}>
+        +
+      </text>
+    </g>
+  );
+}
+
+function GhostStep({ at, number }: { at: Point; number: number }) {
+  return (
+    <>
+      <rect x={at.x - STEP_HALF} y={at.y - STEP_HALF} width={STEP_SIZE} height={STEP_SIZE} />
+      <text x={at.x} y={at.y}>
+        {number}
+      </text>
+    </>
+  );
+}
+
+function GhostBar({ at }: { at: Point }) {
+  return (
+    <rect
+      className="gm-ghost-bar"
+      x={at.x - TRANSITION_WIDTH / 2}
+      y={at.y - TRANSITION_THICKNESS / 2}
+      width={TRANSITION_WIDTH}
+      height={TRANSITION_THICKNESS}
+    />
+  );
+}
+
+/** Ghosts of the single selected step, transition or action: click to add what they show. */
+function SelectionGhosts({ g, geom, id }: { g: Grafcet; geom: GrafcetGeometry; id: Id }) {
+  const { t } = useTranslation();
+  const step = g.steps[id];
+  const tr = g.transitions[id];
+  const stepId = step ? id : (g.actions[id]?.stepId ?? null);
+  const out: ReactNode[] = [];
+  if (stepId)
+    out.push(
+      <GhostAction
+        key="action"
+        g={g}
+        box={nextActionBox(g, geom, stepId)}
+        stepId={stepId}
+        title={t('canvas.ghost.action')}
+      />,
+    );
+  if (step && !geom.index.outgoing.has(id)) {
+    const { x, y } = step.position;
+    out.push(
+      <g key="sequence" className="gm-ghost gm-ghost-hit" data-ghost="sequence">
+        <title>{t('canvas.ghost.sequence')}</title>
+        <path d={`M${x} ${y + STEP_HALF}V${y + PITCH - STEP_HALF}`} />
+        <GhostBar at={{ x, y: y + ROW }} />
+        <GhostStep at={{ x, y: y + PITCH }} number={preferredStepNumber(g, step.number)} />
+      </g>,
+    );
+  }
+  if (tr && tr.to.length === 0) {
+    const { x, y } = tr.position;
+    const prev = Math.max(-1, ...tr.from.map((s) => g.steps[s]?.number ?? -1));
+    out.push(
+      <g key="step" className="gm-ghost gm-ghost-hit" data-ghost="sequence">
+        <title>{t('canvas.ghost.step')}</title>
+        <path d={`M${x} ${y}V${y + ROW - STEP_HALF}`} />
+        <GhostStep at={{ x, y: y + ROW }} number={preferredStepNumber(g, prev)} />
+      </g>,
+    );
+  }
+  return <>{out}</>;
+}
+
+/** What the active placing tool would add where the pointer is. */
+function ToolGhost({ g, geom }: { g: Grafcet; geom: GrafcetGeometry }) {
+  const tool = useUi((s) => s.tool);
+  const cursor = useInteraction((s) => s.cursor);
+  if (!cursor) return null;
+  const { at, stepId } = cursor;
+  switch (tool) {
+    case 'step':
+      return (
+        <g className="gm-ghost">
+          <GhostStep at={at} number={nextStepNumber(g)} />
+        </g>
+      );
+    case 'transition':
+      return (
+        <g className="gm-ghost">
+          <path d={`M${at.x} ${at.y - 10}V${at.y + 10}`} />
+          <GhostBar at={at} />
+        </g>
+      );
+    case 'comment':
+      return (
+        <g className="gm-ghost">
+          <rect x={at.x} y={at.y} width={80} height={30} />
+        </g>
+      );
+    case 'action':
+      return (
+        <GhostAction
+          g={g}
+          stepId={stepId}
+          box={
+            stepId && g.steps[stepId]
+              ? nextActionBox(g, geom, stepId)
+              : {
+                  x: at.x,
+                  y: at.y - ACTION_HEIGHT / 2,
+                  width: ACTION_MIN_WIDTH,
+                  height: ACTION_HEIGHT,
+                }
+          }
+        />
+      );
+    default:
+      return null;
+  }
+}
+
 /** Selection, link handles, link-drag preview, marquee and flash: everything that is not the diagram. */
 export function Overlay({
   g,
@@ -95,6 +268,8 @@ export function Overlay({
   const selectedLink = useUi((s) => s.selectedLink);
   const flash = useUi((s) => s.flash);
   const pending = useUi((s) => s.pending);
+  const editing = useUi((s) => s.editing);
+  const tool = useUi((s) => s.tool);
   const { marquee, link, hover, moving, dropTarget } = useInteraction();
 
   const ids = Object.keys(selection);
@@ -105,6 +280,18 @@ export function Overlay({
     if (link) handleIds.clear();
   }
   const selLink = selectedLink ? geom.links.find((l) => l.key === selectedLink) : undefined;
+  // Ghosts of the selection with the Select tool only (a placing tool shows its own ghost).
+  const ghostsOf =
+    !readOnly &&
+    tool === 'select' &&
+    !moving &&
+    !marquee &&
+    !pending &&
+    !link &&
+    !editing &&
+    ids.length === 1
+      ? ids[0]!
+      : null;
 
   let targets: Id[] = [];
   if (link) {
@@ -137,6 +324,8 @@ export function Overlay({
         );
       })}
       {link && <path className="gm-link-preview" d={pointsToPath([link.origin, link.current])} />}
+      {ghostsOf && <SelectionGhosts g={g} geom={geom} id={ghostsOf} />}
+      {!readOnly && <ToolGhost g={g} geom={geom} />}
       {[...handleIds].map((id) => (
         <Handles key={id} g={g} id={id} />
       ))}

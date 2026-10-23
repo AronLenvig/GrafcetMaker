@@ -121,6 +121,14 @@ function ShortcutsDialog({ onClose }: { onClose: () => void }) {
             </tr>
           ))}
           <tr className="border-b border-border">
+            <td className="py-1.5">{t('help.keys.acceptGhost')}</td>
+            <td className="py-1.5 text-right font-mono text-xs">Tab / →</td>
+          </tr>
+          <tr className="border-b border-border">
+            <td className="py-1.5">{t('help.keys.continueNext')}</td>
+            <td className="py-1.5 text-right font-mono text-xs">Shift+Enter</td>
+          </tr>
+          <tr className="border-b border-border">
             <td className="py-1.5">{t('help.keys.nudge')}</td>
             <td className="py-1.5 text-right font-mono text-xs">← ↑ → ↓ / Shift</td>
           </tr>

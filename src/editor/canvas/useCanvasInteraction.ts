@@ -18,9 +18,11 @@ import type { Id, Point } from '@/core/model/types';
 import { usePrefs } from '@/app/prefs';
 import {
   addActionAt,
+  addActionToSelection,
   addCommentAt,
   addStepAt,
   addTransitionAt,
+  appendSequence,
   editActive,
   editSelection,
 } from '../commands/edit';
@@ -76,6 +78,9 @@ function elementAt(
     key: hit.getAttribute('data-key'),
   };
 }
+
+/** Tools that place an element with a click (the overlay shows its ghost under the pointer). */
+const PLACING = new Set(['step', 'transition', 'comment', 'action']);
 
 function rectFrom(a: Point, b: Point): Rect {
   return {
@@ -219,6 +224,12 @@ export function useCanvasInteraction(
       gesture.current = { kind: 'place', start: p, place };
       capture();
     };
+    // A ghost of the selection: add the action or the transition and step it shows.
+    const ghost = target.closest('[data-ghost]')?.getAttribute('data-ghost');
+    if (!readOnly && ghost) {
+      placeOrWait(() => (ghost === 'action' ? addActionToSelection() : appendSequence()));
+      return;
+    }
     if (!readOnly && tool === 'action') {
       // On a step (or one of its actions): attach. On empty canvas: unattached action.
       const stepId =
@@ -310,6 +321,30 @@ export function useCanvasInteraction(
     capture();
   };
 
+  /**
+   * With a placing tool and a mouse or pen: where a click would place the element (the overlay
+   * draws its ghost there), or null over an element where a click places nothing.
+   */
+  const updateCursor = (e: ReactPointerEvent<SVGSVGElement>, hit: ReturnType<typeof elementAt>) => {
+    const tool = useUi.getState().tool;
+    const g = gid ? getProject().grafcets[gid] : undefined;
+    let next: { at: Point; stepId: Id | null } | null = null;
+    if (!readOnly && g && e.pointerType !== 'touch' && PLACING.has(tool)) {
+      const stepId =
+        tool !== 'action' || !hit?.id
+          ? null
+          : hit.kind === 'step'
+            ? hit.id
+            : hit.kind === 'action'
+              ? (g.actions[hit.id]?.stepId ?? null)
+              : null;
+      if (!hit || stepId) next = { at: snapPoint(toDiagram(local(e))), stepId };
+    }
+    const cur = useInteraction.getState().cursor;
+    if (cur?.stepId !== next?.stepId || cur?.at.x !== next?.at.x || cur?.at.y !== next?.at.y)
+      useInteraction.setState({ cursor: next });
+  };
+
   const onPointerMove = (e: ReactPointerEvent<SVGSVGElement>) => {
     if (!gid) return;
     const g0 = gesture.current;
@@ -338,6 +373,7 @@ export function useCanvasInteraction(
           handle?.getAttribute('data-id') ??
           (hit && (hit.kind === 'step' || hit.kind === 'transition') ? hit.id : null);
         if (useInteraction.getState().hover !== id) useInteraction.setState({ hover: id });
+        updateCursor(e, hit);
         return;
       }
       case 'pan':
@@ -590,6 +626,7 @@ export function useCanvasInteraction(
   const onPointerLeave = () => {
     if (gesture.current.kind === 'idle' && useInteraction.getState().hover)
       useInteraction.setState({ hover: null });
+    if (useInteraction.getState().cursor) useInteraction.setState({ cursor: null });
   };
 
   return {

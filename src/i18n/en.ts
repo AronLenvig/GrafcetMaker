@@ -160,6 +160,8 @@ export const en = {
     apply: 'apply',
     revert: 'revert',
     cancel: 'cancel',
+    nextAction: 'next action',
+    nextStep: 'next step',
   },
   editor: {
     invalidNumber: 'Enter a whole number between 0 and 999999.',
@@ -176,6 +178,11 @@ export const en = {
     label: 'Grafcet {{name}}',
     roleDescription: 'GRAFCET diagram editor',
     loopHint: 'Click the step to loop back to. Esc cancels.',
+    ghost: {
+      action: 'Add an action (A)',
+      sequence: 'Add a transition and a step (Enter)',
+      step: 'Add the step this transition leads to (Enter)',
+    },
   },
   view: {
     zoomIn: 'Zoom in',
@@ -492,6 +499,9 @@ export const en = {
   help: {
     keys: {
       nudge: 'Move selection by 10 (Shift: 50)',
+      acceptGhost: 'While editing: accept the grey suggestion',
+      continueNext:
+        'While editing an action or receptivity: apply and edit the next one (added at the end)',
       clipboard: 'Cut, copy, paste (works across projects and tabs)',
       pan: 'Pan',
       zoom: 'Zoom',
@@ -686,12 +696,12 @@ export const en = {
       webp: 'Compact bitmap for the web',
       csv: 'Variable list for spreadsheets and PLC tools',
       xlsx: 'Workbook with drop-down lists',
-      st: 'IEC 61131-3 function block',
+      st: 'IEC 61131-3, Siemens SCL, TwinCAT, Logix',
       xml: 'SFC programs for PLC tools',
     },
     codeInfo: '{{count}} lines · generated – review before use',
     stHint:
-      'One function block running every grafcet, once per PLC scan: transitions, then steps, then timers and edges, then actions. Vendor-neutral IEC 61131-3; review before use.',
+      'One function block running every grafcet, once per PLC scan: transitions, then steps, then timers and edges, then actions. Review before use.',
     stabilityLoop:
       'Search for stability in each scan (repeat clearing until the situation is stable, as IEC 60848 does)',
     stStyle: 'Code style',
@@ -700,7 +710,25 @@ export const en = {
       bits: 'One BOOL per step',
     },
     stHintCase:
-      'One INT step variable per sequence and a CASE with the transitions of each step, then every output as one expression of the steps. Sequences with parallel branches keep one BOOL per step. Vendor-neutral IEC 61131-3; review before use.',
+      'One INT step variable per sequence and a CASE with the transitions of each step, then every output as one expression of the steps. Sequences with parallel branches keep one BOOL per step. Review before use.',
+    stDialect: 'PLC',
+    stDialects: {
+      iec: 'IEC 61131-3',
+      siemens: 'Siemens TIA Portal (SCL)',
+      twincat: 'Beckhoff TwinCAT 3',
+      rockwell: 'Allen-Bradley Studio 5000',
+    },
+    stDialectHints: {
+      iec: 'Plain IEC 61131-3 function block (.st) for CODESYS and most other tools.',
+      siemens:
+        'SCL source (.scl) for S7-1200/1500. In TIA Portal: External source files › Add new external file, then Generate blocks from source.',
+      twincat:
+        'POU file (.TcPOU). In TwinCAT 3: right-click a folder of the PLC project › Add › Existing Item.',
+      rockwell:
+        'Structured Text routine for Logix Designer: create the tags listed in the header (program scope), then paste the code into an ST routine. Timers use TONR/TOFR (FBD_TIMER, ms), edges OSRI/OSFI; the first scan (S:FS) sets the initial values.',
+    },
+    holdStored:
+      'Hold stored actions with a constant value (Q := 1) while their step is active, instead of assigning them once',
     xmlHint:
       'PLCopen TC6 XML 2.01 for import into PLC tools: one SFC program per partial grafcet (macro-steps inlined), the variables as globals, and a program computing edges and timers. Review before use.',
     taskInterval: 'Task cycle time',

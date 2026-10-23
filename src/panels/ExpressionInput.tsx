@@ -17,6 +17,7 @@ import {
   type ExpressionKind,
 } from '@/core/expr/check';
 import { toggleEdge, type Edge } from '@/core/expr/edges';
+import { variableUsage } from '@/core/model/variables';
 import type { Id, Variable } from '@/core/model/types';
 import { openHelp } from '@/app/help/helpStore';
 import { cx } from '@/app/ui/primitives';
@@ -74,6 +75,44 @@ function rank(v: Variable, kind: ExpressionKind): number {
   return 1;
 }
 
+/**
+ * What an empty field suggests (grey, Tab accepts): the first variable in the table, of the kind
+ * the field expects, that no expression uses yet (an input for a condition, an output or internal
+ * BOOL for an action).
+ */
+function unusedVariable(
+  kind: ExpressionKind,
+  variables: Record<Id, Variable>,
+  grafcets: Parameters<typeof variableUsage>[0]['grafcets'],
+): string {
+  if (kind === 'forcing') return '';
+  const wanted = (v: Variable) =>
+    v.type === 'BOOL' && (kind === 'condition' ? v.direction === 'input' : v.direction !== 'input');
+  const candidates = Object.values(variables).filter(wanted);
+  if (!candidates.length) return '';
+  const usage = variableUsage({ variables, grafcets });
+  return candidates.find((v) => !usage.get(v.name.toLowerCase()))?.name ?? '';
+}
+
+/** Where the grey completion starts, in the input's own coordinates. */
+interface GhostBox {
+  left: number;
+  top: number;
+  height: number;
+  maxWidth: number;
+  font: string;
+}
+
+let measureCanvas: HTMLCanvasElement | null = null;
+
+function textWidthIn(font: string, text: string): number {
+  measureCanvas ??= document.createElement('canvas');
+  const ctx = measureCanvas.getContext('2d');
+  if (!ctx) return text.length * 8;
+  ctx.font = font;
+  return ctx.measureText(text).width;
+}
+
 export interface ExpressionInputHandle {
   focus: () => void;
   select: () => void;
@@ -91,6 +130,8 @@ export const ExpressionInput = forwardRef<
     value: string;
     onChange: (v: string) => void;
     onCommit: () => void;
+    /** Shift+Enter: commit this value (suggestion accepted) and continue with the next element. */
+    onCommitNext?: (value: string) => void;
     onCancel: () => void;
     onBlur?: () => void;
     onFocus?: () => void;
@@ -109,6 +150,7 @@ export const ExpressionInput = forwardRef<
     value,
     onChange,
     onCommit,
+    onCommitNext,
     onCancel,
     onBlur,
     onFocus,
@@ -205,6 +247,58 @@ export const ExpressionInput = forwardRef<
     replaceRange(ident.start, ident.end, s.text);
     setPopupClosed(true);
   };
+  /** The value with a suggestion accepted. */
+  const withSuggestion = (s: Suggestion | undefined) =>
+    s && ident ? value.slice(0, ident.start) + s.text + value.slice(ident.end) : value;
+
+  // Grey completion after the caret: the rest of the highlighted suggestion, or, in an empty
+  // field, an unused variable of the expected kind. Tab or → accepts it.
+  const variables = useDoc((s) => s.project.variables);
+  const grafcets = useDoc((s) => s.project.grafcets);
+  const empty = !value.trim();
+  const emptyGhost = useMemo(
+    () => (focused && empty ? unusedVariable(kind, variables, grafcets) : ''),
+    [focused, empty, kind, variables, grafcets],
+  );
+  const atEnd = caret === value.length;
+  const highlighted = open ? suggestions[active] : undefined;
+  const ghost =
+    !focused || !atEnd
+      ? ''
+      : highlighted &&
+          ident &&
+          highlighted.text.toLowerCase().startsWith(ident.prefix.toLowerCase())
+        ? highlighted.text.slice(ident.prefix.length)
+        : empty && !value
+          ? emptyGhost
+          : '';
+  const [ghostBox, setGhostBox] = useState<GhostBox | null>(null);
+  useLayoutEffect(() => {
+    const el = inputRef.current;
+    if (!ghost || !el) {
+      setGhostBox(null);
+      return;
+    }
+    const cs = getComputedStyle(el);
+    if (cs.textAlign !== 'left' && cs.textAlign !== 'start') {
+      setGhostBox(null);
+      return;
+    }
+    const font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const padL = parseFloat(cs.paddingLeft) + parseFloat(cs.borderLeftWidth);
+    const padR = parseFloat(cs.paddingRight) + parseFloat(cs.borderRightWidth);
+    const left = el.offsetLeft + padL + textWidthIn(font, value) - el.scrollLeft;
+    const right = el.offsetLeft + el.offsetWidth - padR;
+    setGhostBox(
+      left >= right - 4
+        ? null
+        : { left, top: el.offsetTop, height: el.offsetHeight, maxWidth: right - left, font },
+    );
+  }, [ghost, value]);
+  const acceptGhost = () => {
+    if (highlighted) accept(highlighted);
+    else replaceRange(0, value.length, emptyGhost);
+  };
 
   const first = diagnostics[0];
 
@@ -251,6 +345,23 @@ export const ExpressionInput = forwardRef<
         }}
         onKeyDown={(e) => {
           e.stopPropagation();
+          if (e.key === 'Enter' && e.shiftKey && onCommitNext) {
+            e.preventDefault();
+            onCommitNext(withSuggestion(highlighted));
+            return;
+          }
+          const caretAtEnd =
+            e.currentTarget.selectionStart === value.length &&
+            e.currentTarget.selectionEnd === value.length;
+          if (
+            ghost &&
+            caretAtEnd &&
+            ((e.key === 'Tab' && !e.shiftKey) || (e.key === 'ArrowRight' && !e.shiftKey))
+          ) {
+            e.preventDefault();
+            acceptGhost();
+            return;
+          }
           if (kind === 'condition' && e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
             e.preventDefault();
             applyEdge(e.key === 'ArrowUp' ? '↑' : '↓');
@@ -273,6 +384,22 @@ export const ExpressionInput = forwardRef<
           }
         }}
       />
+      {ghostBox && (
+        <span
+          aria-hidden
+          data-ghost-text
+          className="gm-ghost-text pointer-events-none absolute flex items-center overflow-hidden whitespace-pre"
+          style={{
+            left: ghostBox.left,
+            top: ghostBox.top,
+            height: ghostBox.height,
+            maxWidth: ghostBox.maxWidth,
+            font: ghostBox.font,
+          }}
+        >
+          {ghost}
+        </span>
+      )}
       {symbols && (
         <div
           role="toolbar"

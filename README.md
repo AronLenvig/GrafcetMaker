@@ -25,7 +25,8 @@ browser. Built for automation engineers: correct semantics first, then editing s
   recorded scenarios.
 - **Exports**: vector PDF (A4/A3, title block, tiling), SVG, PNG, WebP, clipboard; variables to
   Excel and CSV (and back); **Structured Text** (a CASE per sequence, as written by hand, or one
-  BOOL per step) and **PLCopen XML** (SFC) generation.
+  BOOL per step) for IEC 61131-3, Siemens TIA Portal (SCL), Beckhoff TwinCAT 3 and Allen-Bradley
+  Studio 5000, and **PLCopen XML** (SFC) generation.
 - **Learn as you go**: start screen with examples, guided tour, help center with a beginner
   tutorial and diagrams, glossary of standard terms, in-app changelog, and a GRAFCET guide web
   page in English, French, German and Spanish.

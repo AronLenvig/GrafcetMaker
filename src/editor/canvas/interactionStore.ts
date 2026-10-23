@@ -22,6 +22,11 @@ export interface InteractionState {
   moving: boolean;
   /** Step an unattached action being dragged would be attached to. */
   dropTarget: Id | null;
+  /**
+   * Where a placing tool would place its element (snapped, diagram units), and the step an action
+   * would be attached to; null when a click would place nothing.
+   */
+  cursor: { at: Point; stepId: Id | null } | null;
 }
 
 export const useInteraction = create<InteractionState>(() => ({
@@ -31,4 +36,5 @@ export const useInteraction = create<InteractionState>(() => ({
   panning: false,
   moving: false,
   dropTarget: null,
+  cursor: null,
 }));

@@ -5,8 +5,9 @@
  * A cycle runs when an input changes or a timer expires. Grafcets are processed by forcing level:
  * each level searches for stability (rules 2–5 repeated with the same inputs), then its active
  * forcing orders are applied to lower levels, which are frozen for the rest of the cycle.
- * Continuous actions are computed from the stable situation only; when they change a variable that
- * a receptivity reads, a follow-up cycle runs at the same time (the change is a new event).
+ * Continuous actions are computed from the stable situation only. When a cycle changes a variable
+ * that a receptivity reads after that receptivity's grafcet was stable (continuous actions, stored
+ * actions of a grafcet processed later), a follow-up cycle runs at the same time.
  */
 import type { ArithNode, BoolNode } from '../expr/ast';
 import type { Id } from '../model/types';
@@ -140,7 +141,7 @@ export class Simulator {
   private readonly stepTimers: Stateful[] = [];
   private readonly genericTimers = new Map<string, Stateful>();
   private readonly levels: number[];
-  /** Variables driven by continuous actions that a receptivity or an event condition reads. */
+  /** Variables that a receptivity or an event condition reads. */
   private readonly feedback = new Set<string>();
   /** Enclosed step → its enclosing step. */
   private readonly enclosedBy = new Map<number, number>();
@@ -164,12 +165,12 @@ export class Simulator {
       }
     }
     this.levels = [...new Set(program.grafcets.map((g) => g.level))].sort((a, b) => a - b);
-    const reads = new Set<string>();
-    for (const t of program.transitions) if (t.receptivity) collectReads(t.receptivity.ast, reads);
-    for (const a of program.actions) {
-      if (a.kind === 'storedOnEvent' && a.condition) collectReads(a.condition.ast, reads);
+    for (const t of program.transitions) {
+      if (t.receptivity) collectReads(t.receptivity.ast, this.feedback);
     }
-    for (const name of reads) if (program.continuousTargets.has(name)) this.feedback.add(name);
+    for (const a of program.actions) {
+      if (a.kind === 'storedOnEvent' && a.condition) collectReads(a.condition.ast, this.feedback);
+    }
     for (const [enclosing, e] of program.enclosures)
       for (const m of e.members) this.enclosedBy.set(m, enclosing);
     this.resetValues();
@@ -560,8 +561,9 @@ export class Simulator {
   }
 
   /**
-   * Runs a cycle, then one follow-up cycle (same time, same inputs) for as long as continuous
-   * actions change a variable that a receptivity or an event condition reads.
+   * Runs a cycle, then one follow-up cycle (same time, same inputs) for as long as a cycle changes
+   * a variable that a receptivity or an event condition reads. A follow-up in which nothing
+   * evolves (the change was already seen during the search for stability) is not logged.
    */
   private evolve(
     trigger: CycleLog['trigger'],
@@ -579,7 +581,7 @@ export class Simulator {
       }
       logs.push(log);
       if (logs.length > MAX_ITERATIONS && !this.error) {
-        // Continuous actions and receptivities keep switching each other: never stable.
+        // Outputs and receptivities keep switching each other: never stable.
         this.error = {
           kind: 'transientLoop',
           cycle: this.cycle,

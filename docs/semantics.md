@@ -129,13 +129,15 @@ hand-verified charts (`tests/unit/simulation.test.ts`).
   situation only).
 - After **1000 iterations** the cycle stops with a **transient loop** error, shown in the
   simulation bar and in Problems. The simulation halts until it is restarted.
-- **Feedback of continuous actions.** When the outputs computed on the stable situation change a
-  variable that a receptivity or an event condition reads (e.g. step 1 sets `Running` and the
-  next receptivity is `Running · Auto`), the change is a new event: a follow-up cycle of kind
-  _internal_ runs at the same virtual time with the same inputs, like the next PLC scan. The
-  stable situation and its outputs are still recorded (log, chronogram). Edges on such a variable
-  are true in the first iteration of the follow-up cycle. If continuous actions and receptivities
-  keep switching each other for 1000 cycles, the simulation stops with a transient loop error.
+- **Feedback within a cycle.** When a cycle changes a variable that a receptivity or an event
+  condition reads after that grafcet's search for stability ended (continuous actions computed on
+  the stable situation, e.g. step 1 sets `Running` and the next receptivity is `Running · Auto`;
+  or a stored action of a forced grafcet, processed after the grafcet forcing it), the change is a
+  new event: a follow-up cycle of kind _internal_ runs at the same virtual time with the same
+  inputs, like the next PLC scan. The stable situation and its outputs are still recorded (log,
+  chronogram); a follow-up in which nothing evolves is not logged. Edges on such a variable are
+  true in the first iteration of the follow-up cycle. If outputs and receptivities keep switching
+  each other for 1000 cycles, the simulation stops with a transient loop error.
 
 ### Edges and timers
 

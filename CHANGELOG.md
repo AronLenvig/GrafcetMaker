@@ -72,10 +72,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - A grafcet name error while renaming a tab is no longer cut off by the tab strip.
 - Placing a comment with the Comment tool now opens its text editor at once.
 - Simulation: a receptivity that reads an output or internal variable set by a continuous action
-  (e.g. `Running * Auto * !E_Stop` after a step that sets `Running`) now clears as soon as the
-  value changes, in a follow-up cycle marked _internal_. Before, it waited for the next input
-  change even though every value shown was true; timers and edges on such variables also started
-  late. The chronogram now shows the situation each cycle ended in, not the last one of a batch.
+  (e.g. `Running * Auto * !E_Stop` while another step sets `Running`), or by a stored action of a
+  forced grafcet, now clears as soon as the value changes, in a follow-up cycle marked
+  _internal_. Before, it waited for the next input change even though every value shown was true;
+  timers and edges on such variables also started late. The chronogram now shows the situation each cycle ended in, not the last one of a batch.
 - Deleting the last step of a sequence keeps the transition leading to it (as a sink transition,
   ready for a new step with `Enter`) instead of deleting it too.
 

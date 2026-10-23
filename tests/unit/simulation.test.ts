@@ -418,6 +418,31 @@ describe('feedback of continuous actions', () => {
     expect(X(sim)).toEqual(['G1.2']);
   });
 
+  it('a variable set by a stored action of a forced grafcet (processed later) is seen', () => {
+    const sim = run(
+      build(
+        { go: 'in', Running: 'int' },
+        {
+          name: 'G1',
+          initial: [0],
+          steps: [0, 1],
+          transitions: [[[0], 'Running', [1]]],
+          actions: [[1, 'forcing', 'G2{0}']],
+        },
+        {
+          name: 'G2',
+          initial: [0],
+          steps: [0, 1],
+          transitions: [[[0], 'go', [1]]],
+          actions: [[1, 'storedOnActivation', 'Running := 1']],
+        },
+      ),
+    );
+    const logs = sim.setInputs({ go: true });
+    expect(logs.map((l) => l.trigger)).toEqual(['input', 'internal']);
+    expect(X(sim)).toEqual(['G1.1', 'G2.0']);
+  });
+
   it('outputs and receptivities that keep switching each other stop with a transient-loop error', () => {
     const sim = run(
       build(

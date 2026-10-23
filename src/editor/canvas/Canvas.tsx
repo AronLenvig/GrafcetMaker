@@ -9,7 +9,7 @@ import {
   type Rect,
 } from '@/core/layout/geometry';
 import { usePrefs } from '@/app/prefs';
-import { useCompact } from '@/app/ui/media';
+import { useCoarsePointer, useCompact } from '@/app/ui/media';
 import { cachedBool } from '@/core/expr/cache';
 import { buildEnv } from '@/core/expr/check';
 import { signalsOf, signalValue } from '@/core/expr/signals';
@@ -28,11 +28,13 @@ import {
   type StepMark,
   TransitionView,
 } from './elements';
+import { CanvasMenu } from './CanvasMenu';
 import { InlineEditor } from './InlineEditor';
 import { IssueBadges } from './IssueBadges';
 import { useInteraction } from './interactionStore';
 import { Overlay } from './Overlay';
 import { SimOverlay } from './SimOverlay';
+import { SimWhy } from './SimWhy';
 import { pointsToPath } from './svg';
 import { useCanvasInteraction } from './useCanvasInteraction';
 import { canvasSizeOf, setCanvasSize } from './viewport';
@@ -46,15 +48,22 @@ const DEFAULT_VIEWPORT = { x: 0, y: 0, zoom: 1 };
 const CULL_THRESHOLD = 1000;
 
 /**
- * For the conditions of grafcet `g`: the indices (signalsOf order, comma separated) of the
- * signals that are true with these values and active steps.
+ * For the conditions of grafcet `g` while simulating: `on;inputs`, the indices (signalsOf order,
+ * comma separated) of the signals that are true with these values and active steps, and of those
+ * that are BOOL inputs (switched by a click). A key that changes only when they do.
  */
-function litSignals(
+function signalKeys(
   g: Grafcet,
   values: Record<string, Value>,
   active: ReadonlySet<Id>,
 ): (source: string) => string | undefined {
-  const env = buildEnv(getProject(), g.id);
+  const project = getProject();
+  const env = buildEnv(project, g.id);
+  const inputs = new Set(
+    Object.values(project.variables)
+      .filter((v) => v.direction === 'input' && v.type === 'BOOL')
+      .map((v) => v.name.toLowerCase()),
+  );
   const read = (name: string) => values[name];
   const stepActive = (n: number) => {
     const r = env.resolveStep(n);
@@ -64,10 +73,12 @@ function litSignals(
     const r = source.trim() ? cachedBool(source) : null;
     if (!r?.ok) return undefined;
     const on: number[] = [];
+    const switches: number[] = [];
     signalsOf(r.value).forEach((s, i) => {
       if (signalValue(s, read, stepActive)) on.push(i);
+      if (s.type === 'var' && inputs.has(s.name.toLowerCase())) switches.push(i);
     });
-    return on.join(',');
+    return `${on.join(',')};${switches.join(',')}`;
   };
 }
 
@@ -128,6 +139,9 @@ export function Canvas({
   const panning = useInteraction((s) => s.panning);
   const pending = useUi((s) => s.pending);
   const compact = useCompact();
+  // The right-click menu: desktops, while editing (touch screens have the selection toolbar).
+  const coarse = useCoarsePointer();
+  const noMenu = readOnly || coarse;
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState(() => (gid ? canvasSizeOf(gid) : { width: 800, height: 600 }));
   const handlers = useCanvasInteraction(containerRef, gid, readOnly);
@@ -214,9 +228,9 @@ export function Canvas({
     }
     // Actions attached to no step: no link, drawn where they were placed.
     for (const box of geom.freeActions) if (inView(box.id)) actionBoxes.push({ box, first: false });
-    // While simulating: which signals of a condition are true, as a key that changes only when
-    // they do (so unchanged elements keep their memoized drawing).
-    const litOf = sim ? litSignals(g, sim.values, sim.active) : () => undefined;
+    // While simulating: which signals of a condition are true or inputs, as a key that changes
+    // only when they do (so unchanged elements keep their memoized drawing).
+    const signalKey = sim ? signalKeys(g, sim.values, sim.active) : () => undefined;
     return (
       <>
         {comments
@@ -244,7 +258,7 @@ export function Canvas({
         {transitions
           .filter((tr) => inView(tr.id))
           .map((tr) => (
-            <TransitionView key={tr.id} transition={tr} lit={litOf(tr.receptivity)} />
+            <TransitionView key={tr.id} transition={tr} signals={signalKey(tr.receptivity)} />
           ))}
         {steps
           .filter((s) => inView(s.id))
@@ -276,7 +290,7 @@ export function Canvas({
               height={box.height}
               first={first}
               on={on}
-              conditionLit={action.condition ? litOf(action.condition) : undefined}
+              conditionSignals={action.condition ? signalKey(action.condition) : undefined}
               live={
                 value === undefined
                   ? undefined
@@ -308,95 +322,109 @@ export function Canvas({
   const gridStep = viewport.zoom < 0.5 ? 50 : 10;
 
   return (
-    <div
-      ref={containerRef}
-      className="relative h-full w-full overflow-hidden bg-canvas outline-none"
-      tabIndex={0}
-      role="application"
-      aria-label={t('canvas.label', { name: g?.name ?? '' })}
-      aria-roledescription={t('canvas.roleDescription')}
-      onKeyDown={handlers.onKeyDown}
-      onKeyUp={handlers.onKeyUp}
-      onFocus={activate}
-      // Browsers scroll overflow:hidden boxes to reveal focused children; the viewport owns panning.
-      onScroll={(e) => {
-        e.currentTarget.scrollTop = 0;
-        e.currentTarget.scrollLeft = 0;
-      }}
-      data-canvas
-    >
-      <svg
-        className="gm-canvas block h-full w-full"
-        data-tool={tool}
-        data-panning={panning}
-        viewBox={`${viewport.x} ${viewport.y} ${w} ${h}`}
-        onPointerDown={(e) => {
-          activate();
-          handlers.onPointerDown(e);
+    <CanvasMenu g={g} disabled={noMenu} canvasRef={containerRef}>
+      <div
+        ref={containerRef}
+        className="relative h-full w-full overflow-hidden bg-canvas outline-none"
+        tabIndex={0}
+        role="application"
+        aria-label={t('canvas.label', { name: g?.name ?? '' })}
+        aria-roledescription={t('canvas.roleDescription')}
+        onKeyDown={handlers.onKeyDown}
+        onKeyUp={handlers.onKeyUp}
+        onFocus={activate}
+        onContextMenu={handlers.onContextMenu}
+        // Browsers scroll overflow:hidden boxes to reveal focused children; the viewport owns panning.
+        onScroll={(e) => {
+          e.currentTarget.scrollTop = 0;
+          e.currentTarget.scrollLeft = 0;
         }}
-        onPointerMove={handlers.onPointerMove}
-        onPointerUp={handlers.onPointerUp}
-        onPointerCancel={handlers.onPointerCancel}
-        onPointerLeave={handlers.onPointerLeave}
-        onDoubleClick={(e) => {
-          activate();
-          handlers.onDoubleClick(e);
-        }}
-        onContextMenu={(e) => e.preventDefault()}
+        data-canvas
       >
-        {showGrid && (
-          <>
-            <defs>
-              <pattern
-                id="gm-grid"
-                width={gridStep}
-                height={gridStep}
-                patternUnits="userSpaceOnUse"
-              >
-                <circle
-                  className="gm-grid-dot"
-                  cx={0}
-                  cy={0}
-                  r={Math.min(1.2, 1 / viewport.zoom)}
-                />
-              </pattern>
-            </defs>
-            <rect
-              x={viewport.x}
-              y={viewport.y}
-              width={w}
-              height={h}
-              fill="url(#gm-grid)"
-              pointerEvents="none"
+        <svg
+          className="gm-canvas block h-full w-full"
+          data-tool={tool}
+          data-panning={panning}
+          viewBox={`${viewport.x} ${viewport.y} ${w} ${h}`}
+          onPointerDown={(e) => {
+            activate();
+            handlers.onPointerDown(e);
+          }}
+          onPointerMove={handlers.onPointerMove}
+          onPointerUp={handlers.onPointerUp}
+          onPointerCancel={handlers.onPointerCancel}
+          onPointerLeave={handlers.onPointerLeave}
+          onDoubleClick={(e) => {
+            activate();
+            handlers.onDoubleClick(e);
+          }}
+          // Without our menu (simulating, touch screens), no browser menu either.
+          onContextMenu={noMenu ? (e) => e.preventDefault() : undefined}
+        >
+          {showGrid && (
+            <>
+              <defs>
+                <pattern
+                  id="gm-grid"
+                  width={gridStep}
+                  height={gridStep}
+                  patternUnits="userSpaceOnUse"
+                >
+                  <circle
+                    className="gm-grid-dot"
+                    cx={0}
+                    cy={0}
+                    r={Math.min(1.2, 1 / viewport.zoom)}
+                  />
+                </pattern>
+              </defs>
+              <rect
+                x={viewport.x}
+                y={viewport.y}
+                width={w}
+                height={h}
+                fill="url(#gm-grid)"
+                pointerEvents="none"
+              />
+            </>
+          )}
+          <g>{content}</g>
+          {g && geom && !readOnly && <IssueBadges g={g} geom={geom} />}
+          {g && geom && sim && (
+            <SimOverlay
+              g={g}
+              active={sim.active}
+              enabled={enabled}
+              time={cursor ?? snapshot?.time ?? 0}
+              activatedAt={cursor === null ? (snapshot?.activatedAt ?? null) : null}
             />
-          </>
-        )}
-        <g>{content}</g>
-        {g && geom && !readOnly && <IssueBadges g={g} geom={geom} />}
-        {g && geom && sim && (
-          <SimOverlay
+          )}
+          {focused && g && geom && <Overlay g={g} geom={geom} readOnly={readOnly} />}
+        </svg>
+        {focused && g && geom && <InlineEditor g={g} geom={geom} viewport={viewport} />}
+        {g && sim && (
+          <SimWhy
             g={g}
-            active={sim.active}
+            sim={sim}
             enabled={enabled}
             time={cursor ?? snapshot?.time ?? 0}
             activatedAt={cursor === null ? (snapshot?.activatedAt ?? null) : null}
+            viewport={viewport}
           />
         )}
-        {focused && g && geom && <Overlay g={g} geom={geom} readOnly={readOnly} />}
-      </svg>
-      {focused && g && geom && <InlineEditor g={g} geom={geom} viewport={viewport} />}
-      {/* Desktops show zoom and hints as islands around the canvas (see App). */}
-      {gid && compact && <ZoomControls gid={gid} zoom={viewport.zoom} />}
-      {focused && compact && <HintBar />}
-      {focused && g && !readOnly && <SelectionBar g={g} />}
-      {focused && pending && (
-        <div
-          role="status"
-          className="pointer-events-none absolute top-[60px] left-1/2 -translate-x-1/2 rounded-md border border-accent bg-surface px-3 py-1.5 text-text shadow-pop compact:top-2"
-        >
-          {t('canvas.loopHint')}
-        </div>
-      )}
-    </div>
+        {/* Desktops show zoom and hints as islands around the canvas (see App). */}
+        {gid && compact && <ZoomControls gid={gid} zoom={viewport.zoom} />}
+        {focused && compact && <HintBar />}
+        {focused && g && !readOnly && <SelectionBar g={g} />}
+        {focused && pending && (
+          <div
+            role="status"
+            className="pointer-events-none absolute top-[60px] left-1/2 -translate-x-1/2 rounded-md border border-accent bg-surface px-3 py-1.5 text-text shadow-pop compact:top-2"
+          >
+            {t('canvas.loopHint')}
+          </div>
+        )}
+      </div>
+    </CanvasMenu>
   );
 }

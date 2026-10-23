@@ -27,6 +27,8 @@ export interface InteractionState {
    * would be attached to; null when a click would place nothing.
    */
   cursor: { at: Point; stepId: Id | null } | null;
+  /** Where the context menu was opened (snapped, diagram units): "Add step here". */
+  menuAt: Point | null;
 }
 
 export const useInteraction = create<InteractionState>(() => ({
@@ -37,4 +39,5 @@ export const useInteraction = create<InteractionState>(() => ({
   moving: false,
   dropTarget: null,
   cursor: null,
+  menuAt: null,
 }));

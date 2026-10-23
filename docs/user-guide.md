@@ -105,7 +105,11 @@ A new project contains grafcet `G1` with initial step 0.
   double-click). `Enter` adds the same and types the receptivity at once. With a placing tool, a
   ghost under the pointer shows what a click will place (and, with the Action tool over a step,
   where the action will go).
-- **Edit text**: `F2` or double-click (step number, receptivity, action text, comment).
+- **Edit text**: `F2` or double-click (step number, receptivity, action text, comment). A
+  receptivity not written yet shows a grey **?**; the Problems list counts it until it is typed.
+- **Right-click menu** (desktops): the commands for the element under the pointer (selected
+  first), for the selection, or for empty canvas (**Add step here**, paste, auto-layout,
+  renumber, fit); the menu key opens it for the selection.
 - **Place elements freely**: pick a tool (`S` step, `T` transition, `C` comment) and click; hold
   `Shift` to place several. Double-click empty space to add a step.
 - **Link elements**: hover or select a step or transition and drag one of its round handles. Only
@@ -306,7 +310,10 @@ diagram is locked for editing, the simulation controls replace the tools, the **
 panel opens and the clock starts running.
 
 - **Inputs**: switch a BOOL input on/off, or hold its **Hold** button for a momentary press
-  (keyboard: hold `Space` on the button). Type values for INT, REAL and TIME inputs.
+  (keyboard: hold `Space` on the button). Type values for INT, REAL and TIME inputs. On the
+  diagram, click a BOOL input where it is written in a receptivity or condition to switch it.
+- **What a transition waits for**: point at it (or tap it) for the steps that must be active
+  first, or the terms of its receptivity still false, with the time left on step timers.
 - **Clock**: `F5` pauses and runs again; speed ×0.25 to ×10 or **Fast**, which jumps from one timer
   expiry to the next. `F10` (Step) jumps to the next timer expiry. ⟲ restarts from the initial
   situation. The bar shows the virtual time, the cycle number and the next timer.

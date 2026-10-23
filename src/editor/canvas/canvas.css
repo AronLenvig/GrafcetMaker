@@ -306,6 +306,15 @@
   font-weight: 600;
 }
 
+/* Simulation: a BOOL input in a condition, switched by a click. */
+.gm-canvas tspan.gm-signal-input {
+  cursor: pointer;
+}
+
+.gm-canvas tspan.gm-signal-input:hover {
+  text-decoration: underline dotted;
+}
+
 .gm-signal-line {
   fill: none;
   stroke: var(--token);

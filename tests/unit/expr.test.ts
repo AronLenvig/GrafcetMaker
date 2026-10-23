@@ -16,7 +16,7 @@ import {
   runsToPlainText,
   textbookSignalColumns,
 } from '@/core/expr/format';
-import { signalsOf, signalValue } from '@/core/expr/signals';
+import { signalsOf, signalValue, stateValue, waitingTerms } from '@/core/expr/signals';
 import { parseAssignment, parseBool, parseForcing } from '@/core/expr/parser';
 import { createGrafcet, createProject, createStep } from '@/core/model/factory';
 import type { Project } from '@/core/model/types';
@@ -374,6 +374,39 @@ describe('signals shown while simulating', () => {
       ),
     );
     expect(on).toEqual([true, false, false, true]);
+  });
+});
+
+describe('what a receptivity waits for', () => {
+  const waiting = (
+    source: string,
+    values: Record<string, boolean | number>,
+    timersDone = false,
+  ) => {
+    const r = parseBool(source);
+    if (!r.ok) throw new Error('parse');
+    const value = (x: BoolNode) =>
+      stateValue(
+        x,
+        (n) => values[n],
+        () => false,
+        () => timersDone,
+      );
+    const w = waitingTerms(r.value, value);
+    return { any: w.any, terms: w.terms.map((t) => source.slice(t.start, t.end)) };
+  };
+
+  it('lists the false terms of an AND, an edge always among them', () => {
+    expect(waiting('↑start * part * /stop', { part: true })).toEqual({
+      any: false,
+      terms: ['↑start'],
+    });
+    expect(waiting('a * 3s/X2', { a: true }).terms).toEqual(['3s/X2']);
+    expect(waiting('a * 3s/X2', { a: true }, true).terms).toEqual([]);
+  });
+
+  it('lists every term of an OR as alternatives', () => {
+    expect(waiting('a + b * c', { b: true })).toEqual({ any: true, terms: ['a', 'b * c'] });
   });
 });
 

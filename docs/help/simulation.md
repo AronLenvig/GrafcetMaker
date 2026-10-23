@@ -18,7 +18,14 @@ The **Simulation** panel lists the inputs:
   with the keyboard, hold <kbd>Space</kbd> on it).
 - **INT**, **REAL** and **TIME** inputs have a value field.
 
-The grafcet evolves as soon as an input changes.
+You can also **click a BOOL input where it is written** in a receptivity or a condition on the
+diagram (tap it with a finger): it switches on or off. The grafcet evolves as soon as an input
+changes.
+
+**Point at a transition** (or tap it) to see what it is waiting for: the steps that must be
+active first, or the terms of its receptivity that are still false, with the time left on a
+timer such as `10s/X0`. An edge such as `↑start` is always listed: it is only true at the moment
+its input changes.
 
 ## Time
 

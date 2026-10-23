@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ACTION_GAP,
   ACTION_PAD,
@@ -100,12 +101,13 @@ export const StepView = memo(function StepView({
 
 export const TransitionView = memo(function TransitionView({
   transition,
-  lit,
+  signals,
 }: {
   transition: Transition;
-  /** Simulation: the signals of the receptivity that are true (see ExprText). */
-  lit?: string;
+  /** Simulation: the signals of the receptivity that are true or inputs (see ExprText). */
+  signals?: string;
 }) {
+  const { t } = useTranslation();
   const { x, y } = transition.position;
   const hit = transitionHitRect(transition);
   const text = transitionTextAnchor(transition);
@@ -129,7 +131,14 @@ export const TransitionView = memo(function TransitionView({
           ({transition.number})
         </text>
       )}
-      <ExprText source={transition.receptivity} x={text.x} y={text.y} lit={lit} />
+      {transition.receptivity.trim() ? (
+        <ExprText source={transition.receptivity} x={text.x} y={text.y} signals={signals} />
+      ) : (
+        // Not written yet: a quiet placeholder (the Problems list still reports it).
+        <text className="gm-text gm-muted" x={text.x} y={baseline(text.y, FONT_SIZE)}>
+          ?<title>{t('canvas.emptyReceptivity')}</title>
+        </text>
+      )}
     </g>
   );
 });
@@ -143,7 +152,7 @@ export const ActionView = memo(function ActionView({
   first,
   on,
   live,
-  conditionLit,
+  conditionSignals,
 }: {
   action: Action;
   x: number;
@@ -155,8 +164,8 @@ export const ActionView = memo(function ActionView({
   on?: boolean;
   /** Simulation: current value of the variable it writes. */
   live?: string;
-  /** Simulation: the signals of its condition or event that are true (see ExprText). */
-  conditionLit?: string;
+  /** Simulation: the signals of its condition or event that are true or inputs (see ExprText). */
+  conditionSignals?: string;
 }) {
   const textX = x + ACTION_PAD + (action.kind === 'forcing' ? 3 : 0);
   const cy = y + height / 2;
@@ -191,7 +200,7 @@ export const ActionView = memo(function ActionView({
           x={decor.text.x}
           y={decor.text.y}
           anchor={decor.text.anchor}
-          lit={conditionLit}
+          signals={conditionSignals}
         />
       )}
     </g>

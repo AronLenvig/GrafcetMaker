@@ -39,6 +39,11 @@ one as you go. With a placing tool, a ghost under the pointer shows what a click
   selection; drag on empty canvas selects with a frame; <kbd>Ctrl+A</kbd> selects everything.
 - **Drag** moves (it snaps to the grid), the arrow keys nudge (<kbd>Shift</kbd> for larger steps).
 - **Double-click** an element to edit its text; double-click empty canvas to add a step there.
+- **Right-click** an element for what you can do with it (add an action, branches, loop back,
+  edit, make macro-step, cut, copy, delete…), the selection, or empty canvas (add a step there,
+  paste, auto-layout, renumber, fit). The menu key opens it for the selection.
+- A transition whose receptivity is not written yet shows a grey **?** (double-click it or press
+  <kbd>F2</kbd>); the Problems list still counts it until you type one.
 - **Link handles**: a selected or hovered step or transition shows round handles. Drag one: only
   valid targets (a step to a transition, a transition to a step) are highlighted. Drop on empty
   canvas to create the missing element there.

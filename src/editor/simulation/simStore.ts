@@ -334,6 +334,13 @@ export async function setInput(name: string, value: Value): Promise<void> {
   apply(await send({ type: 'input', at, changes: { [name]: value } }));
 }
 
+/** Switches a BOOL input (clicked on the diagram); not while a scenario is being replayed. */
+export function toggleInput(name: string): void {
+  const st = useSim.getState();
+  if (!st.on || st.replay || st.snapshot?.error) return;
+  void setInput(name, st.snapshot?.values[name] !== true);
+}
+
 export async function startRecording(): Promise<void> {
   await resetSimulation();
   useSim.setState({ recording: [] });

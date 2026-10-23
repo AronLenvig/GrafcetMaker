@@ -34,6 +34,7 @@ import { ui, useUi } from '../store/uiStore';
 import { useInteraction, type LinkDrag } from './interactionStore';
 import { openChild } from '../commands/hierarchy';
 import { cancelPending, completeLoop } from '../commands/structure';
+import { toggleInput } from '../simulation/simStore';
 import { getViewport, panBy, screenToDiagram, zoomAt } from './viewport';
 
 type Gesture =
@@ -246,6 +247,12 @@ export function useCanvasInteraction(
       gesture.current = { kind: 'place', start: p, place };
       capture();
     };
+    // Simulating: an input written in a receptivity or condition switches when clicked.
+    const input = readOnly ? target.closest('[data-input]')?.getAttribute('data-input') : null;
+    if (input) {
+      placeOrWait(() => toggleInput(input));
+      return;
+    }
     // A ghost of the selection: add the action (and type its text), or the transition and step it
     // shows with the new step selected (its ghosts are next; Enter would type the receptivity).
     const ghost = target.closest('[data-ghost]')?.getAttribute('data-ghost');
@@ -686,6 +693,25 @@ export function useCanvasInteraction(
     doubleAt(e.clientX, e.clientY, local(e));
   };
 
+  /**
+   * Right-click (before the context menu opens): select what is under the pointer, as a click
+   * would (keeping a selection it is part of), and remember where for "Add step here". The menu
+   * key opens it on the canvas itself: the selection stays.
+   */
+  const onContextMenu = (e: React.MouseEvent) => {
+    if (!gid || readOnly) return;
+    cancelGesture();
+    const target = e.target as Element;
+    if (target !== containerRef.current) {
+      const hit = elementAt(target);
+      if (hit?.kind === 'link' && hit.key) ui.set({ selection: {}, selectedLink: hit.key });
+      else if (hit?.id && hit.kind !== 'link') {
+        if (!useUi.getState().selection[hit.id]) ui.select([hit.id]);
+      } else ui.clearSelection();
+    }
+    useInteraction.setState({ menuAt: snapPoint(toDiagram(local(e))) });
+  };
+
   const onPointerCancel = (e: ReactPointerEvent<SVGSVGElement>) => {
     touches.current.delete(e.pointerId);
     cancelGesture();
@@ -720,6 +746,7 @@ export function useCanvasInteraction(
     onPointerMove,
     onPointerUp,
     onPointerCancel,
+    onContextMenu,
     onDoubleClick,
     onKeyDown,
     onKeyUp,

@@ -145,7 +145,10 @@ function HintBarView() {
   let hints: Hint[];
   if (coarse)
     hints = simulating
-      ? [['@inputs', 'simInputs']]
+      ? [
+          ['@inputs', 'simInputs'],
+          ['@tapInput', 'simToggle'],
+        ]
       : touchHints(tool, link?.fromKind ?? null, pending?.kind === 'loop');
   else if (simulating)
     hints = [
@@ -153,6 +156,8 @@ function HintBarView() {
       ['F10', 'simStep'],
       ['Shift+F5', 'simStop'],
       ['@inputs', 'simInputs'],
+      ['@clickInput', 'simToggle'],
+      ['@hoverTransition', 'simWhy'],
     ];
   else if (link)
     hints = [

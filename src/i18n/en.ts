@@ -177,6 +177,11 @@ export const en = {
     label: 'Grafcet {{name}}',
     roleDescription: 'GRAFCET diagram editor',
     loopHint: 'Click the step to loop back to. Esc cancels.',
+    emptyReceptivity: 'No receptivity yet: double-click or press F2 to type it',
+    menu: {
+      addStepHere: 'Add step here',
+      autoRoute: 'Automatic loop route',
+    },
     ghost: {
       action: 'Add an action (A)',
       sequence: 'Add a transition and a step (Enter)',
@@ -608,6 +613,16 @@ export const en = {
   simulation: {
     badge: 'SIMULATION',
     notRunning: 'Start the simulation (Simulate › Start simulation, or F5) to use this panel.',
+    why: {
+      steps_one: 'Waiting for step {{steps}} to be active',
+      steps_other: 'Waiting for steps {{steps}} to be active',
+      all: 'Waiting for {{terms}}',
+      any: 'Waiting for one of {{terms}}',
+      timeLeft: '{{term}} ({{time}} left)',
+      ready: 'Its receptivity is true',
+      empty: 'No receptivity: it never clears',
+      invalid: 'Its receptivity has an error: it never clears',
+    },
     play: 'Run',
     simulate: 'Simulate',
     simulateLabel: 'Simulate: start the simulation',
@@ -1186,6 +1201,9 @@ export const en = {
       holdDrag: 'Hold, then drag',
       tapStep: 'Tap a step',
       tapEmpty: 'Tap empty canvas',
+      clickInput: 'Click an input in a receptivity',
+      tapInput: 'Tap an input in a receptivity',
+      hoverTransition: 'Point at a transition',
     },
     do: {
       addStep: 'add a step',
@@ -1228,6 +1246,8 @@ export const en = {
       simStep: 'next step',
       simStop: 'stop the simulation',
       simInputs: 'set inputs (momentary, toggle, values)',
+      simToggle: 'switch it on or off',
+      simWhy: 'see what it waits for',
       linkToTransition: 'on a highlighted transition to link',
       linkToStep: 'on a highlighted step to link',
       linkNewTransition: 'create a transition there',

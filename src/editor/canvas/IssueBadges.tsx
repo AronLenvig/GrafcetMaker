@@ -85,7 +85,10 @@ function IssueBadgesView({ g, geom }: { g: Grafcet; geom: GrafcetGeometry }) {
   const byElement = useProblems((s) => s.byElement);
   const badges: { id: Id; severity: Severity; title: string; at: Point; kind: string }[] = [];
   for (const [id, list] of byElement) {
-    const relevant: Issue[] = list.filter((i) => i.grafcetId === g.id && i.elementIds[0] === id);
+    // An empty receptivity is drawn as a quiet "?" instead: still a problem, but a draft, not a fault.
+    const relevant: Issue[] = list.filter(
+      (i) => i.grafcetId === g.id && i.elementIds[0] === id && i.ruleId !== 'emptyReceptivity',
+    );
     if (!relevant.length) continue;
     const a = anchor(g, geom, id);
     if (!a) continue;

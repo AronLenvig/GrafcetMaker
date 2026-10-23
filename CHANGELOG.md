@@ -8,6 +8,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- Right-click menu on the canvas (desktops): the commands for the element under the pointer, the
+  selection, or empty canvas (**Add step here**, paste, auto-layout, renumber, fit).
+- Simulation: click a BOOL input where it is written in a receptivity or condition to switch it;
+  point at a transition (or tap it) to see what it is waiting for (steps to be active, false
+  terms, time left on step timers).
 - While simulating, the signals of receptivities and action conditions that are true (a variable
   on, an active step, a comparison that holds) are green, bold and underlined.
 - **Remove unused variables**: a broom button in the Variables panel (list and table, with a count
@@ -65,6 +70,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- A transition whose receptivity is not written yet shows a grey "?" instead of a red problem
+  badge (it is still listed in Problems).
 - Clicking the ghost transition and step selects the new step, as if it had been clicked, instead
   of opening the receptivity editor: click its ghost again to keep the sequence growing. `Enter`
   still types the receptivity at once.

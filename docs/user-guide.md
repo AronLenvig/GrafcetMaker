@@ -313,6 +313,9 @@ panel opens and the clock starts running.
 - **On the diagram**: active steps are filled and carry a token dot, with the time they have been
   active; enabled transitions have a ▶ marker; transitions that just cleared flash; continuous
   actions being executed show a ✓ and stored actions show the current value of their variable.
+  In receptivities and action conditions, every signal that is true (a variable on, a step `Xn`
+  active, a comparison that holds) is green, bold and underlined, so you see at a glance what is
+  still missing. A NOT bar does not change it: under `/a`, `a` is green when `a` is on.
 - **Evolution log** (folded: click its title to open it): every cycle with its trigger and each
   iteration (transitions cleared, steps activated / deactivated), so transient evolutions are
   visible. Click a cycle to see the diagram as it was then.

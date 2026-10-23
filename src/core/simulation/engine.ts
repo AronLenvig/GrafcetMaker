@@ -10,6 +10,7 @@
  * actions of a grafcet processed later), a follow-up cycle runs at the same time.
  */
 import type { ArithNode, BoolNode } from '../expr/ast';
+import { arithValue, compare, type ReadValue } from '../expr/signals';
 import type { Id } from '../model/types';
 import type { CAction, CExpr, CForcing, Program } from './program';
 
@@ -129,6 +130,7 @@ export class Simulator {
   readonly active: Uint8Array;
   readonly activatedAt: Float64Array;
   readonly values = new Map<string, Value>();
+  private readonly read: ReadValue = (name) => this.values.get(name);
   error: SimError | null = null;
   /** A stored action changed a variable during the current iteration. */
   private assigned = false;
@@ -193,34 +195,7 @@ export class Simulator {
   }
 
   private num(n: ArithNode): number {
-    switch (n.type) {
-      case 'num':
-        return n.value;
-      case 'dur':
-        return n.ms;
-      case 'avar': {
-        const v = this.values.get(n.name.toLowerCase());
-        return typeof v === 'boolean' ? (v ? 1 : 0) : (v ?? 0);
-      }
-      case 'neg':
-        return -this.num(n.operand);
-      case 'arith': {
-        const a = this.num(n.left);
-        const b = this.num(n.right);
-        switch (n.op) {
-          case '+':
-            return a + b;
-          case '-':
-            return a - b;
-          case '*':
-            return a * b;
-          case '/':
-            return b === 0 ? 0 : a / b;
-          case 'mod':
-            return b === 0 ? 0 : a % b;
-        }
-      }
-    }
+    return arithValue(n, this.read);
   }
 
   eval(e: CExpr, n: BoolNode = e.ast): boolean {
@@ -239,25 +214,8 @@ export class Simulator {
         return this.eval(e, n.left) && this.eval(e, n.right);
       case 'or':
         return this.eval(e, n.left) || this.eval(e, n.right);
-      case 'cmp': {
-        const a = this.num(n.left);
-        const b = this.num(n.right);
-        switch (n.op) {
-          case '=':
-            return a === b;
-          case '<>':
-            return a !== b;
-          case '<':
-            return a < b;
-          case '<=':
-            return a <= b;
-          case '>':
-            return a > b;
-          case '>=':
-            return a >= b;
-        }
-        return false;
-      }
+      case 'cmp':
+        return compare(n.op, this.num(n.left), this.num(n.right));
       case 'edge':
       case 'timer': {
         const key = `${e.uid}#${n.id}`;

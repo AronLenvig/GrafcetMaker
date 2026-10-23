@@ -36,6 +36,10 @@ The bar shows the time, the cycle number and when the next timer expires. The de
 
 - **Active steps** are filled and carry a token dot, with the time they have been active below.
 - **Enabled transitions** have a ▶ marker; transitions flash when they clear.
+- **True signals** are green, bold and underlined in receptivities and action conditions: a
+  variable that is on, an active step `Xn`, a comparison that holds. What is not green is what
+  the transition still waits for. Under a NOT bar the colour shows the signal itself: in `/a`,
+  `a` is green when `a` is on.
 - **Continuous actions** being executed show a ✓; **stored actions** show the current value of
   their variable.
 

@@ -8,6 +8,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- While simulating, the signals of receptivities and action conditions that are true (a variable
+  on, an active step, a comparison that holds) are green, bold and underlined.
 - **Remove unused variables**: a broom button in the Variables panel (list and table, with a count
   badge) and a command removes every variable no expression uses and no scenario drives, in one
   undo step.

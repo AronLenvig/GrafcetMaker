@@ -68,51 +68,75 @@ function isPrimary(n: BoolNode): boolean {
   );
 }
 
-function runs(n: BoolNode, bars: number, parentPrec: number, out: Run[], cmp = CMP_SYMBOL): void {
+/** Characters (code points) from `start` to `end` of a drawn text. */
+export interface Columns {
+  start: number;
+  end: number;
+}
+
+const width = (out: Run[]) => out.reduce((w, r) => w + [...r.text].length, 0);
+
+/** `spans` (optional) receives the columns of each signal (variable, step, comparison) in order. */
+function runs(
+  n: BoolNode,
+  bars: number,
+  parentPrec: number,
+  out: Run[],
+  cmp = CMP_SYMBOL,
+  spans?: Columns[],
+): void {
   const push = (text: string) => out.push({ text, bars });
+  /** A signal's text, its parentheses outside its columns. */
+  const signal = (text: string, open = '', close = '') => {
+    const start = spans ? width(out) + open.length : 0;
+    push(open + text + close);
+    spans?.push({ start, end: start + [...text].length });
+  };
   switch (n.type) {
     case 'const':
       push(n.value ? '1' : '0');
       return;
     case 'var':
-      push(n.name);
+      signal(n.name);
       return;
     case 'step':
-      push(`X${n.number}`);
+      signal(`X${n.number}`);
       return;
     case 'not':
       // The bar itself groups its operand: no parentheses needed underneath.
-      runs(n.operand, bars + 1, 0, out, cmp);
+      runs(n.operand, bars + 1, 0, out, cmp, spans);
       return;
     case 'or':
     case 'and': {
       const p = n.type === 'or' ? 1 : 2;
       const paren = p < parentPrec;
       if (paren) push('(');
-      runs(n.left, bars, p, out, cmp);
+      runs(n.left, bars, p, out, cmp, spans);
       push(n.type === 'or' ? ' + ' : '·');
-      runs(n.right, bars, p, out, cmp);
+      runs(n.right, bars, p, out, cmp, spans);
       if (paren) push(')');
       return;
     }
     case 'edge':
       push(n.rising ? '↑' : '↓');
       if (!isPrimary(n.operand)) push('(');
-      runs(n.operand, bars, 3, out, cmp);
+      runs(n.operand, bars, 3, out, cmp, spans);
       if (!isPrimary(n.operand)) push(')');
       return;
     case 'timer':
       push(`${formatDuration(n.t1)}/`);
       if (!isPrimary(n.operand)) push('(');
-      runs(n.operand, bars, 3, out, cmp);
+      runs(n.operand, bars, 3, out, cmp, spans);
       if (!isPrimary(n.operand)) push(')');
       if (n.t2 !== undefined) push(`/${formatDuration(n.t2)}`);
       return;
     case 'cmp': {
       // Parenthesized unless it is the whole expression: comparisons read greedily.
       const paren = parentPrec > 0;
-      push(
-        `${paren ? '(' : ''}${arithText(n.left)} ${cmp[n.op]} ${arithText(n.right)}${paren ? ')' : ''}`,
+      signal(
+        `${arithText(n.left)} ${cmp[n.op]} ${arithText(n.right)}`,
+        paren ? '(' : '',
+        paren ? ')' : '',
       );
       return;
     }
@@ -130,6 +154,13 @@ export function formatTextbook(n: BoolNode, opts: { asciiComparisons?: boolean }
     else merged.push({ ...r });
   }
   return merged;
+}
+
+/** Columns of each signal of `n` (in signalsOf order) in its textbook text. */
+export function textbookSignalColumns(n: BoolNode): Columns[] {
+  const spans: Columns[] = [];
+  runs(n, 0, 0, [], CMP_SYMBOL, spans);
+  return spans;
 }
 
 /** Plain-text form of textbook runs (bars shown as ¬(…)), for tooltips and screen readers. */

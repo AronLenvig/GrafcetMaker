@@ -10,7 +10,13 @@ import {
 } from '@/core/expr/check';
 import { declareUnknownNames, unusedVariables, variableUsage } from '@/core/model/variables';
 import { toggleEdge } from '@/core/expr/edges';
-import { formatTextbook, renameIdentifier, runsToPlainText } from '@/core/expr/format';
+import {
+  formatTextbook,
+  renameIdentifier,
+  runsToPlainText,
+  textbookSignalColumns,
+} from '@/core/expr/format';
+import { signalsOf, signalValue } from '@/core/expr/signals';
 import { parseAssignment, parseBool, parseForcing } from '@/core/expr/parser';
 import { createGrafcet, createProject, createStep } from '@/core/model/factory';
 import type { Project } from '@/core/model/types';
@@ -336,6 +342,38 @@ describe('names written before they are declared', () => {
         proj.variables.v = { id: 'v', name: 'Go', type: 'BOOL', direction: 'internal' };
       }),
     ).toEqual(['stop BOOL input']);
+  });
+});
+
+describe('signals shown while simulating', () => {
+  it('are found in reading order, located in typed and textbook text, and evaluated', () => {
+    const source = '↑start * /(a + X2) * (level >= 80)';
+    const r = parseBool(source);
+    if (!r.ok) throw new Error('parse');
+    const signals = signalsOf(r.value);
+    expect(signals.map((s) => source.slice(s.start, s.end))).toEqual([
+      'start',
+      'a',
+      'X2',
+      '(level >= 80)', // The parser's span includes the parentheses.
+    ]);
+    const shown = [
+      ...formatTextbook(r.value)
+        .map((x) => x.text)
+        .join(''),
+    ];
+    expect(textbookSignalColumns(r.value).map((c) => shown.slice(c.start, c.end).join(''))).toEqual(
+      ['start', 'a', 'X2', 'level ≥ 80'],
+    );
+    const values: Record<string, boolean | number> = { start: true, level: 85 };
+    const on = signals.map((s) =>
+      signalValue(
+        s,
+        (n) => values[n],
+        (n) => n === 3,
+      ),
+    );
+    expect(on).toEqual([true, false, false, true]);
   });
 });
 

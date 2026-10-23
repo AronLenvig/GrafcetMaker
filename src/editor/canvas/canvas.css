@@ -300,6 +300,18 @@
   fill: var(--enabled);
 }
 
+/* Simulation: a signal of a receptivity or condition that is true (also underlined). */
+.gm-canvas tspan.gm-signal-on {
+  fill: var(--token);
+  font-weight: 600;
+}
+
+.gm-signal-line {
+  fill: none;
+  stroke: var(--token);
+  stroke-width: 1.5;
+}
+
 .gm-fired {
   fill: none;
   stroke: var(--fired);

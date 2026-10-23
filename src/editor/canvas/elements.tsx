@@ -100,8 +100,11 @@ export const StepView = memo(function StepView({
 
 export const TransitionView = memo(function TransitionView({
   transition,
+  lit,
 }: {
   transition: Transition;
+  /** Simulation: the signals of the receptivity that are true (see ExprText). */
+  lit?: string;
 }) {
   const { x, y } = transition.position;
   const hit = transitionHitRect(transition);
@@ -126,7 +129,7 @@ export const TransitionView = memo(function TransitionView({
           ({transition.number})
         </text>
       )}
-      <ExprText source={transition.receptivity} x={text.x} y={text.y} />
+      <ExprText source={transition.receptivity} x={text.x} y={text.y} lit={lit} />
     </g>
   );
 });
@@ -140,6 +143,7 @@ export const ActionView = memo(function ActionView({
   first,
   on,
   live,
+  conditionLit,
 }: {
   action: Action;
   x: number;
@@ -151,6 +155,8 @@ export const ActionView = memo(function ActionView({
   on?: boolean;
   /** Simulation: current value of the variable it writes. */
   live?: string;
+  /** Simulation: the signals of its condition or event that are true (see ExprText). */
+  conditionLit?: string;
 }) {
   const textX = x + ACTION_PAD + (action.kind === 'forcing' ? 3 : 0);
   const cy = y + height / 2;
@@ -185,6 +191,7 @@ export const ActionView = memo(function ActionView({
           x={decor.text.x}
           y={decor.text.y}
           anchor={decor.text.anchor}
+          lit={conditionLit}
         />
       )}
     </g>

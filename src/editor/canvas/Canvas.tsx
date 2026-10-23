@@ -10,9 +10,13 @@ import {
 } from '@/core/layout/geometry';
 import { usePrefs } from '@/app/prefs';
 import { useCompact } from '@/app/ui/media';
-import type { Id } from '@/core/model/types';
+import { cachedBool } from '@/core/expr/cache';
+import { buildEnv } from '@/core/expr/check';
+import { signalsOf, signalValue } from '@/core/expr/signals';
+import type { Grafcet, Id } from '@/core/model/types';
+import type { Value } from '@/core/simulation/engine';
 import { stateAt, useSim } from '../simulation/simStore';
-import { useDoc } from '../store/document';
+import { getProject, useDoc } from '../store/document';
 import { useUi } from '../store/uiStore';
 import {
   ActionView,
@@ -40,6 +44,32 @@ import './canvas.css';
 const DEFAULT_VIEWPORT = { x: 0, y: 0, zoom: 1 };
 /** Above this many elements, only what is (nearly) visible is rendered. */
 const CULL_THRESHOLD = 1000;
+
+/**
+ * For the conditions of grafcet `g`: the indices (signalsOf order, comma separated) of the
+ * signals that are true with these values and active steps.
+ */
+function litSignals(
+  g: Grafcet,
+  values: Record<string, Value>,
+  active: ReadonlySet<Id>,
+): (source: string) => string | undefined {
+  const env = buildEnv(getProject(), g.id);
+  const read = (name: string) => values[name];
+  const stepActive = (n: number) => {
+    const r = env.resolveStep(n);
+    return typeof r === 'object' && active.has(r.stepId);
+  };
+  return (source) => {
+    const r = source.trim() ? cachedBool(source) : null;
+    if (!r?.ok) return undefined;
+    const on: number[] = [];
+    signalsOf(r.value).forEach((s, i) => {
+      if (signalValue(s, read, stepActive)) on.push(i);
+    });
+    return on.join(',');
+  };
+}
 
 /** What the simulation shows on the diagram: live state, or the past state under the cursor. */
 function useSimDisplay() {
@@ -184,6 +214,9 @@ export function Canvas({
     }
     // Actions attached to no step: no link, drawn where they were placed.
     for (const box of geom.freeActions) if (inView(box.id)) actionBoxes.push({ box, first: false });
+    // While simulating: which signals of a condition are true, as a key that changes only when
+    // they do (so unchanged elements keep their memoized drawing).
+    const litOf = sim ? litSignals(g, sim.values, sim.active) : () => undefined;
     return (
       <>
         {comments
@@ -211,7 +244,7 @@ export function Canvas({
         {transitions
           .filter((tr) => inView(tr.id))
           .map((tr) => (
-            <TransitionView key={tr.id} transition={tr} />
+            <TransitionView key={tr.id} transition={tr} lit={litOf(tr.receptivity)} />
           ))}
         {steps
           .filter((s) => inView(s.id))
@@ -243,6 +276,7 @@ export function Canvas({
               height={box.height}
               first={first}
               on={on}
+              conditionLit={action.condition ? litOf(action.condition) : undefined}
               live={
                 value === undefined
                   ? undefined

@@ -234,7 +234,12 @@ function Scenarios() {
 }
 
 /** Bottom panel during simulation: inputs, live values, cycle log and scenarios. */
-export function SimulationPanel() {
+/**
+ * Inputs to drive, outputs and internal values, the evolution log and the recorded scenarios.
+ * Side by side in a wide panel; `stacked` (the desktop simulation card, and phones) puts them
+ * one under the other, inputs first.
+ */
+export function SimulationPanel({ stacked = false }: { stacked?: boolean }) {
   const { t } = useTranslation();
   const on = useSim((s) => s.on);
   const values = useSim((s) => s.snapshot?.values);
@@ -251,7 +256,14 @@ export function SimulationPanel() {
   const inputs = byDir('input');
   const shown = [...byDir('output'), ...byDir('internal')];
   return (
-    <div className="grid h-full min-h-0 grid-cols-[minmax(240px,1fr)_minmax(200px,1fr)_minmax(280px,1.6fr)] divide-x divide-border compact:flex compact:h-auto compact:flex-col compact:divide-x-0 compact:divide-y">
+    <div
+      className={cx(
+        'divide-border',
+        stacked
+          ? 'flex flex-col divide-y'
+          : 'grid h-full min-h-0 grid-cols-[minmax(240px,1fr)_minmax(200px,1fr)_minmax(280px,1.6fr)] divide-x compact:flex compact:h-auto compact:flex-col compact:divide-x-0 compact:divide-y',
+      )}
+    >
       <section aria-label={t('simulation.inputs')} className="flex min-h-0 flex-col">
         <h2 className="border-b border-border px-2 py-1 text-xs font-semibold text-muted uppercase">
           {t('simulation.inputs')}

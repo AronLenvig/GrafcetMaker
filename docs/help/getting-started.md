@@ -15,7 +15,8 @@ waits for the next start. It takes about ten minutes.
   tutorial.
 - **Left**: the **Properties** of what you select appear in a card while it is selected.
 - **Bottom**: zoom, undo and redo on the left; one tab per grafcet in the middle; the
-  **Variables**, **Problems**, **Simulation**, **Chronogram** and **Outline** panels on the right.
+  **Variables**, **Problems**, **Chronogram** and **Outline** buttons on the right. Each opens its
+  panel on the right of the window.
 
 A new project already contains the grafcet **G1** with step **0**. Its double square means it is an
 **initial step**: it is active when the system starts.
@@ -63,7 +64,7 @@ errors. See [Troubleshooting](troubleshooting.md) for the meaning of each messag
 
 ## 7. Simulate
 
-1. Press <kbd>F5</kbd>. The diagram is locked and the **Simulation** panel opens. Step 0 carries a
+1. Press <kbd>F5</kbd>. The diagram is locked and the **Simulation** panel appears on the left. Step 0 carries a
    token: it is active.
 2. In the panel, switch **start** on. The transition clears: step 1 becomes active and its action
    **Pump** shows a check mark ✓.

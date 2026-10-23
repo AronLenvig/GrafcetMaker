@@ -25,8 +25,10 @@ Names are not case-sensitive, use letters, digits and `_`, and cannot be reserve
 
 ## The variable table
 
-The **Variables** button at the bottom right opens the table, with every field in columns. Edit any
-cell in place (<kbd>Enter</kbd> or leaving the cell applies, <kbd>Esc</kbd> reverts), sort by
+The **Variables** button at the bottom right opens the variables on the right of the window: a
+compact list (search, filter chips, groups by direction; click a variable to edit it and see where
+it is used). Widen the panel by its left edge and it becomes the table, with every field in
+columns. Edit any cell in place (<kbd>Enter</kbd> or leaving the cell applies, <kbd>Esc</kbd> reverts), sort by
 clicking a column header, filter by text, direction and type. The table stays fast with thousands
 of variables.
 

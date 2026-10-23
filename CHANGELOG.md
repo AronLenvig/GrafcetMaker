@@ -54,6 +54,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- The panels (Variables, Problems, Chronogram, Outline) open in a card on the right, widened by
+  its left edge (wide enough, the variables show as the full table). The simulation panel is no
+  longer among them: it floats on the left while simulating and folds to its title. The
+  simulation inspector is gone; the diagram shows the live state.
 - The canvas fills the window. Everything else floats over it and appears when needed: the main
   menu ☰ with the project name at the top left, the tools at the top centre (new icons, each
   showing its key) with the hints below, problems / Simulate / share at the top right, zoom and

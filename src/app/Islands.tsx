@@ -17,6 +17,7 @@ import {
   useSheet,
   type SheetTab,
 } from './sheet';
+import { useSideWidths, useWindowWidth } from './sideWidths';
 import { ProblemsIndicator, Title } from './TopBar';
 import {
   AlertIcon,
@@ -182,7 +183,9 @@ function ZoomIsland() {
  */
 export function Islands() {
   const simulating = useSim((s) => s.on);
-  const properties = usePropertiesVisible();
+  const { left, right } = useSideWidths();
+  const windowWidth = useWindowWidth();
+  const hintWidth = Math.min(720, windowWidth - 2 * Math.max(left, right) - 24);
   return (
     <>
       <header className="pointer-events-none absolute inset-x-3 top-3 z-30 flex items-start justify-between gap-3">
@@ -196,17 +199,12 @@ export function Islands() {
           <div className="pointer-events-auto max-w-full">
             {simulating ? <SimBar /> : <ToolIsland />}
           </div>
-          {/* Room is left for the properties card on the left (narrow windows drop the hints). */}
-          <div
-            className={cx(
-              'pointer-events-auto',
-              properties
-                ? 'max-w-[min(720px,calc(100vw-640px))] max-[960px]:hidden'
-                : 'max-w-[min(720px,calc(100vw-24px))]',
-            )}
-          >
-            <HintBar />
-          </div>
+          {/* Between the side cards; when they leave too little room the hints step aside. */}
+          {hintWidth >= 280 && (
+            <div className="pointer-events-auto" style={{ maxWidth: hintWidth }}>
+              <HintBar />
+            </div>
+          )}
         </div>
       </header>
       <footer className="pointer-events-none absolute inset-x-3 bottom-3 z-30 flex items-end gap-2">

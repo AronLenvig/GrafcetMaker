@@ -46,6 +46,8 @@ export function VariablesSidePanel() {
     internal: false,
   });
   const [cursor, setCursor] = useState<string | null>(null);
+  /** The variable just created with Add: its name field takes the focus. */
+  const [added, setAdded] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
   const all = useMemo(() => Object.values(variables), [variables]);
@@ -100,6 +102,7 @@ export function VariablesSidePanel() {
   const add = () => {
     const id = addVariable(direction === 'all' ? {} : { direction });
     setText('');
+    setAdded(id);
     open(id);
   };
 
@@ -138,7 +141,7 @@ export function VariablesSidePanel() {
         </button>
         {expanded && (
           <div className="px-3 pt-1 pb-3">
-            <VariableDetails v={v} locked={locked} />
+            <VariableDetails v={v} locked={locked} focusName={added === v.id} />
           </div>
         )}
       </li>

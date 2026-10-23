@@ -4,6 +4,7 @@ import { closeSplit, focusOtherPane, openSplit, swapPanes } from './split';
 import { guideUrl, openHelp, toggleHelp } from '@/app/help/helpStore';
 import { setPrefs, showBottomTab, showSideTab, usePrefs } from '@/app/prefs';
 import { toggleProperties } from '@/app/sheet';
+import { isCompact } from '@/app/ui/media';
 import {
   newProject,
   openProjectDialog,
@@ -587,6 +588,8 @@ export const COMMANDS: Command[] = [
     label: 'view.showSimulation',
     group: 'view',
     run: () => showBottomTab('simulation'),
+    // Desktops show the simulation panel only while simulating (phones have it as a tab).
+    enabled: () => isCompact() || useSim.getState().on,
   },
   {
     id: 'view.showChronogram',

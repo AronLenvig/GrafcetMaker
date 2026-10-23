@@ -364,7 +364,6 @@ export const en = {
   },
   props: {
     label: 'Properties',
-    inspector: 'Inspector',
     step: {
       title: 'Step {{n}}',
       number: 'Number',
@@ -661,13 +660,6 @@ export const en = {
     momentary: 'Hold',
     numeric: '{{name}} ({{type}})',
     enabled: 'Enabled: waiting for its receptivity',
-    notEnabled: 'Not enabled',
-    inspector: 'Simulation',
-    inspectorHint: 'Select a step or transition to see its live state.',
-    activeSteps: 'Active steps',
-    stepActive: 'Active',
-    stepInactive: 'Inactive',
-    activeFor: 'Active for {{time}} (since {{since}}).',
   },
   chronogram: {
     label: 'Chronogram of variables and steps',
@@ -843,6 +835,8 @@ export const en = {
     simulation: 'Simulation',
     chronogram: 'Chronogram',
     resizeSheet: 'Resize panels',
+    expandSimulation: 'Show the simulation panel',
+    collapseSimulation: 'Fold the simulation panel',
   },
   variables: {
     detailsOf: 'Variable {{name}}',
@@ -1014,7 +1008,7 @@ export const en = {
       },
       bottom: {
         title: 'Panels and simulation',
-        text: 'Variables, Problems, Simulation, Chronogram and Outline open here when you need them. Press F5 (or Simulate) to run your grafcet: its inputs appear in the Simulation panel.',
+        text: 'Variables, Problems, Chronogram and Outline open on the right when you need them. Press F5 (or Simulate) to run your grafcet: the simulation panel appears on the left with its inputs.',
       },
     },
   },

@@ -6,7 +6,8 @@ it reaches a PLC.
 ## Start and stop
 
 Press <kbd>F5</kbd> (or **Simulate › Start simulation**). The diagram is locked, the simulation
-controls replace the tools at the top and the **Simulation** panel opens. <kbd>Shift+F5</kbd> stops and returns to
+controls replace the tools at the top and the **Simulation** panel appears on the left (fold it
+with its chevron to see more of the diagram). <kbd>Shift+F5</kbd> stops and returns to
 editing.
 
 ## Change inputs
@@ -37,7 +38,6 @@ The bar shows the time, the cycle number and when the next timer expires. The de
 - **Enabled transitions** have a ▶ marker; transitions flash when they clear.
 - **Continuous actions** being executed show a ✓; **stored actions** show the current value of
   their variable.
-- Select a step or transition to see its live state in the properties card (Inspector).
 
 ## Evolution log
 

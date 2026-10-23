@@ -9,8 +9,9 @@ import { installShortcuts } from '@/editor/commands/shortcuts';
 import { BottomToolbar } from '@/editor/tools/Toolbar';
 import { openAppDialog } from '@/editor/commands/registry';
 import { startValidation } from '@/editor/validation/problems';
-import { PanelSheet } from '@/panels/PanelSheet';
+import { PanelCard, PanelSheet } from '@/panels/PanelSheet';
 import { PropertiesCard } from '@/panels/PropertiesCard';
+import { SimulationCard } from '@/panels/SimulationCard';
 import { useSim } from '@/editor/simulation/simStore';
 import { useUi } from '@/editor/store/uiStore';
 import { SimBar } from './SimBar';
@@ -27,7 +28,8 @@ import { startAutosave } from './persistence/autosave';
 import { onStorageError } from './persistence/db';
 import { openSharedLink, startup, useSession } from './persistence/session';
 import { usePrefs } from './prefs';
-import { closeSheet, showSheet, usePropertiesVisible, useSheet } from './sheet';
+import { closeSheet, showSheet, useSheet } from './sheet';
+import { usePanelSpace, useSideWidths } from './sideWidths';
 import { toast, useToasts } from './toasts';
 import { TopBar } from './TopBar';
 import { useCompact } from './ui/media';
@@ -103,6 +105,7 @@ function CompactLayout() {
   const simulating = useSim((s) => s.on);
   const helpOpen = useHelp((s) => s.open);
   const active = useUi((s) => s.activeGrafcetId);
+  useSimulationPanel();
   useEffect(() => setViewInsets({ top: 0, right: 0, bottom: 0, left: 0 }), []);
   return (
     <>
@@ -137,19 +140,18 @@ function DesktopLayout() {
   const { t } = useTranslation();
   const helpOpen = useHelp((s) => s.open);
   const split = useUi((s) => s.split !== null);
-  const properties = usePropertiesVisible();
-  const panel = useSheet((s) => s.open && s.tab !== 'properties');
-  const panelHeight = usePrefs((s) => s.bottomHeight);
+  const panelSpace = usePanelSpace();
   const hints = usePrefs((s) => s.showHints);
+  const { left, right } = useSideWidths();
   // Fit and reveal keep the diagram clear of the islands that are showing.
   useEffect(() => {
     setViewInsets({
       top: split ? 0 : hints ? 104 : 64,
-      bottom: 64 + (panel ? panelHeight + 8 : 0),
-      left: properties && !split ? 300 : 0,
-      right: helpOpen ? Math.min(440, window.innerWidth * 0.4) + 12 : 0,
+      bottom: 64,
+      left: split ? 0 : left,
+      right: split ? 0 : right,
     });
-  }, [split, hints, panel, panelHeight, properties, helpOpen]);
+  }, [split, hints, left, right]);
   return (
     <div className="relative h-full overflow-hidden bg-canvas">
       {/* Split panes have headers: they start below the top islands. */}
@@ -162,9 +164,14 @@ function DesktopLayout() {
       </main>
       <Islands />
       <PropertiesCard />
-      <PanelSheet floating />
+      <SimulationCard />
+      <PanelCard />
       {helpOpen && (
-        <div className="gm-island absolute top-[60px] right-3 bottom-[60px] z-30 w-[min(440px,40vw)] min-w-72 overflow-hidden">
+        // Next to the panel card when both are open.
+        <div
+          className="gm-island absolute top-[60px] bottom-[60px] z-30 w-[min(440px,40vw)] min-w-72 overflow-hidden"
+          style={{ right: 12 + panelSpace }}
+        >
           <Suspense fallback={null}>
             <HelpPanel />
           </Suspense>
@@ -174,7 +181,7 @@ function DesktopLayout() {
   );
 }
 
-/** The inputs are what a simulation needs first: their panel opens, and closes again after. */
+/** Phones: the inputs are what a simulation needs first, so their tab opens (and closes after). */
 function useSimulationPanel() {
   const simulating = useSim((s) => s.on);
   useEffect(() => {
@@ -186,7 +193,6 @@ function useSimulationPanel() {
 export function App() {
   const compact = useCompact();
   useAppLifecycle();
-  useSimulationPanel();
   return (
     <Tooltip.Provider>
       {compact ? <CompactLayout /> : <DesktopLayout />}

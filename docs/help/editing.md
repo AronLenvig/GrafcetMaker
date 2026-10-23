@@ -126,5 +126,6 @@ The diagram has the whole window; the rest floats over it and shows when needed.
 and its **properties** appear in a card on the left: the kind of a step or action is chosen with
 picture buttons showing its symbol. The card's × hides it for this selection; with nothing
 selected, the properties button next to the project name shows the grafcet and the project. The
-**Variables**, **Problems**, **Simulation**, **Chronogram** and **Outline** panels open from the
-buttons at the bottom right, in a card you can resize by its top edge.
+**Variables**, **Problems**, **Chronogram** and **Outline** panels open from the buttons at the
+bottom right, in a card on the right you can widen by its left edge. While simulating, the
+simulation panel (inputs, values, log, scenarios) floats on the left.

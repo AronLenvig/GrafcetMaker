@@ -1,11 +1,11 @@
 import { create } from 'zustand';
-import { openProperties, showSheet } from './sheet';
+import { openProperties, showSheet, useSheet } from './sheet';
 import { isCompact } from './ui/media';
 
 /** Per-device UI preferences persisted in localStorage (best effort: storage may be unavailable). */
 export interface Prefs {
-  /** Height of the floating panel (Variables, Problems, Simulation…). */
-  bottomHeight: number;
+  /** Width of the floating panel card on the right (Variables, Problems…). */
+  panelWidth: number;
   /** Textbook display of expressions (overbar NOT, · and +) instead of the typed ASCII. */
   textbookNotation: boolean;
   showGrid: boolean;
@@ -29,7 +29,7 @@ export interface Prefs {
 const KEY = 'grafcetmaker.prefs';
 
 export const DEFAULT_PREFS: Prefs = {
-  bottomHeight: 260,
+  panelWidth: 420,
   textbookNotation: true,
   showGrid: true,
   snapToGrid: true,
@@ -79,7 +79,9 @@ export function setPrefs(patch: Partial<Prefs>): void {
 
 /** Opens a panel (Variables, Problems, Simulation, Chronogram, Outline). */
 export function showBottomTab(id: string): void {
-  showSheet(id);
+  // Desktops: the simulation has its own card, unfolded here.
+  if (id === 'simulation' && !isCompact()) useSheet.setState({ simCollapsed: false });
+  else showSheet(id);
 }
 
 /** Opens the properties (the floating card; on phones, the panel sheet) or another panel. */

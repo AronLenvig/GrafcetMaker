@@ -3,9 +3,10 @@ import { useUi } from '@/editor/store/uiStore';
 
 /**
  * The panels, shown only when needed. Phones: one sheet over the lower part of the canvas with
- * every panel as a tab. Desktops: a floating card for Variables, Problems, Simulation, Chronogram
- * and Outline, and a separate floating properties card. Not persisted: every visit starts with the
- * whole diagram.
+ * every panel as a tab. Desktops: a floating card on the right for Variables, Problems,
+ * Chronogram and Outline, the properties card on the left while something is selected, and the
+ * simulation card on the left while simulating. Not persisted: every visit starts with the whole
+ * diagram.
  */
 export type SheetTab =
   'properties' | 'variables' | 'problems' | 'simulation' | 'chronogram' | 'outline';
@@ -19,11 +20,10 @@ export const SHEET_TABS: readonly SheetTab[] = [
   'outline',
 ];
 
-/** Desktops: the floating panel's tabs (properties have their own card). */
+/** Desktops: the right card's tabs (properties and simulation have their own cards). */
 export const PANEL_TABS = [
   'variables',
   'problems',
-  'simulation',
   'chronogram',
   'outline',
 ] as const satisfies readonly SheetTab[];
@@ -35,6 +35,8 @@ interface PanelState {
   pinned: boolean;
   /** Properties card closed for this selection (it shows again for the next one). */
   hiddenFor: string | null;
+  /** Desktops: the simulation card folded to its title. */
+  simCollapsed: boolean;
 }
 
 export const useSheet = create<PanelState>(() => ({
@@ -42,6 +44,7 @@ export const useSheet = create<PanelState>(() => ({
   tab: 'properties',
   pinned: false,
   hiddenFor: null,
+  simCollapsed: false,
 }));
 
 export function showSheet(tab: string): void {

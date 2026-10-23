@@ -32,6 +32,7 @@ export function CommitField({
   placeholder,
   hint,
   inputMode,
+  autoFocus,
 }: {
   label: string;
   value: string;
@@ -43,12 +44,22 @@ export function CommitField({
   placeholder?: string;
   hint?: ReactNode;
   inputMode?: 'numeric' | 'text';
+  /** Focus and select the text when the field appears (a name to type right after creating). */
+  autoFocus?: boolean;
 }) {
   const id = useId();
   const [draft, setDraft] = useState(value);
   const [error, setError] = useState<string | null>(null);
   const [focused, setFocused] = useState(false);
   const area = useRef<HTMLTextAreaElement>(null);
+  const input = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!autoFocus) return;
+    const el = input.current ?? area.current;
+    el?.focus();
+    el?.select();
+  }, [autoFocus]);
 
   useEffect(() => {
     if (!focused) setDraft(value);
@@ -122,6 +133,7 @@ export function CommitField({
         />
       ) : (
         <input
+          ref={input}
           {...common}
           inputMode={inputMode}
           className={cx('gm-input', mono && 'gm-input-mono')}

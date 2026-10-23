@@ -58,7 +58,16 @@ function WhereUsed({ v }: { v: Variable }) {
 }
 
 /** Full editor of one variable, with its uses. Renaming updates every expression. */
-export function VariableDetails({ v, locked }: { v: Variable; locked: boolean }) {
+export function VariableDetails({
+  v,
+  locked,
+  focusName = false,
+}: {
+  v: Variable;
+  locked: boolean;
+  /** Just created: the name is ready to be typed. */
+  focusName?: boolean;
+}) {
   const { t } = useTranslation();
   return (
     <fieldset disabled={locked} className="flex min-w-0 flex-col gap-3">
@@ -66,6 +75,7 @@ export function VariableDetails({ v, locked }: { v: Variable; locked: boolean })
         label={t('variables.columns.name')}
         value={v.name}
         mono
+        autoFocus={focusName}
         onCommit={(name) => {
           const err = renameVariable(v.id, name.trim());
           return err ? t(`variables.nameErrors.${err}`) : null;

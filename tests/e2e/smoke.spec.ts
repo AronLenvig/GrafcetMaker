@@ -80,7 +80,7 @@ test('create a sequence, save it, reopen it', async ({ page }, testInfo) => {
   // The panels float over the canvas and open on demand.
   await page.getByRole('button', { name: 'Variables', exact: true }).click();
   for (const name of ['start', 'stop']) {
-    await page.getByRole('button', { name: 'Add variable' }).click();
+    await page.getByRole('button', { name: 'Add variable' }).first().click();
     await page.keyboard.type(name);
     await page.keyboard.press('Enter');
   }

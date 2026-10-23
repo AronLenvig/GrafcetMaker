@@ -34,15 +34,17 @@ when it is needed:
   show them again from **View › Hints** or Settings.
 - **Top right**: the problem counters, ▶ **Simulate** (`F5`) and **Copy share link**.
 - **Properties card** (left): appears while something is selected, with its number, label, kind
-  (picture buttons), receptivity and actions; the live inspector while simulating. Its `×` hides
-  it for this selection. With nothing selected, the properties button (or **View › Properties
-  panel**) shows the grafcet and the project.
+  (picture buttons), receptivity and actions. Its `×` hides it for this selection. With nothing
+  selected, the properties button (or **View › Properties panel**) shows the grafcet and the
+  project.
+- **Simulation card** (left, only while simulating): the inputs to drive, outputs and internal
+  values, the evolution log and the scenarios. Its chevron folds it to its title.
 - **Bottom left**: zoom out, the zoom (click it for 100 %), zoom in and fit; undo and redo.
 - **Bottom centre**: one tab per partial grafcet, and `+` to add one.
-- **Bottom right**: the panels **Variables**, **Problems**, **Simulation**, **Chronogram** and
-  **Outline**. Each opens in a card above the bottom islands; click its button again or `×` to
-  close it, drag its top edge to resize it. Simulation opens by itself when a simulation starts.
-  Then **Help** (`F1`) and **Send feedback**.
+- **Bottom right**: the panels **Variables**, **Problems**, **Chronogram** and **Outline**. Each
+  opens in a card on the right of the window; click its button again or `×` to close it, drag
+  its left edge to make it wider or narrower (the width is remembered). Then **Help** (`F1`) and
+  **Send feedback**.
 - **Outline** panel: every grafcet, step, action and transition as a tree, an accessible
   alternative to the diagram. Arrow keys move and fold, `Enter` shows the element on the diagram,
   `F2` edits it there; active steps are marked while simulating.
@@ -66,7 +68,7 @@ screen:
   reset, run / pause, next step, the clock and **Stop**; speed and recording are in its ⋯ menu.
 - **Bottom toolbar**: select, place step, transition, comment and action, undo, redo, and the
   **panels** button.
-- **Panels sheet**: Properties (Inspector while simulating), Variables, Problems, Simulation,
+- **Panels sheet**: Properties (not while simulating), Variables, Problems, Simulation,
   Chronogram and Outline share one sheet over the lower part of the diagram. Drag its handle to
   resize it; it opens on Simulation when a simulation starts. Split view is not available.
 - **Fit** (top right of the canvas) shows the whole grafcet; pinch to zoom.
@@ -205,8 +207,9 @@ You can always commit an expression with a problem; it is shown with a dashed re
 ### Variables
 
 Variables have a name, a type (BOOL, INT, REAL, TIME), a direction (input, output, internal), an
-initial value, a PLC address and a comment. The **Variables** panel (bottom right) shows them in a
-table: edit any cell in place (`Enter` or leaving the cell commits, `Escape` reverts), sort by any
+initial value, a PLC address and a comment. The **Variables** panel (bottom right) shows them as a
+compact list (search, filter chips, groups by direction; click a variable to edit it) and, once you
+widen the panel by its left edge, as a table: edit any cell in place (`Enter` or leaving the cell commits, `Escape` reverts), sort by any
 column header, filter by text, direction and type. Click the **Uses** count to open the variable
 in the properties card: all its fields and **where it is used** (every receptivity and action,
 with read or write; click one to jump to it on the diagram). Long tables render only the visible
@@ -293,7 +296,6 @@ panel opens.
   in it to move the cursor back in time (the diagram follows); **Back to live** returns.
 - **Scenarios**: **Record** restarts the simulation and records your input changes with their
   times; stop to save the scenario in the project. **Replay** restarts and plays it back exactly.
-- Select a step or transition to see its live state in the properties card (Inspector).
 - `Shift+F5` stops the simulation.
 
 If the evolution never becomes stable (e.g. a loop of transitions that are all true), the

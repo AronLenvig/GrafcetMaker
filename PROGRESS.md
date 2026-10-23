@@ -251,9 +251,11 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Floating layout (owner request): no docked bars on desktops and tablets. `src/app/Islands.tsx`
   composes the islands (`.gm-island`); `PropertiesCard` shows the properties while something is
   selected (`src/app/sheet.ts`: `hiddenFor` per selection, `pinned` with nothing selected,
-  `focusedVariable` shows a variable's details); `PanelSheet floating` is the one panel card
-  (session state, height in prefs); the main menu is a ☰ dropdown (`MainMenuButton`). Fit and
-  reveal avoid the islands through `setViewInsets`. Phones keep their own layout.
+  `focusedVariable` shows a variable's details); `PanelCard` is the one panel card, on the right
+  (Variables as list, or as the table from 560 px; width in prefs); `SimulationCard` replaces the
+  properties card on the left while simulating (the inspector was removed: the diagram shows the
+  live state); the main menu is a ☰ dropdown (`MainMenuButton`). Fit, reveal and the hints keep
+  clear of the cards (`setViewInsets`, `useSideWidths`). Phones keep their own layout (sheet).
 
 - grafcet.io: several steps into one transition without an `andNode` are alternatives (one
   transition per step), since only the AND bar draws a synchronization; a loop into a

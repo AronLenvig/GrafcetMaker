@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { ZoomControls } from '@/editor/canvas/ZoomControls';
 import { HintBar } from '@/editor/canvas/HintBar';
 import { GrafcetTabs } from '@/editor/canvas/GrafcetTabs';
-import { runCommand } from '@/editor/commands/registry';
+import { formatKeys, runCommand } from '@/editor/commands/registry';
 import { useSim } from '@/editor/simulation/simStore';
 import { useUi } from '@/editor/store/uiStore';
 import { ToolIsland, UndoRedoIsland } from '@/editor/tools/Toolbar';
@@ -22,12 +22,12 @@ import { ProblemsIndicator, Title } from './TopBar';
 import {
   AlertIcon,
   ChronogramIcon,
+  ExportIcon,
   FeedbackIcon,
   GaugeIcon,
   HelpIcon,
   LinkIcon,
   OutlineIcon,
-  PlayIcon,
   PropertiesIcon,
   TableIcon,
 } from './ui/icons';
@@ -58,28 +58,25 @@ function ProjectIsland() {
   );
 }
 
-/** Top right: the problems, Simulate and the share link. */
-function RunIsland() {
+/** Top right: the problems, Export and the share link. */
+function ShareIsland() {
   const { t } = useTranslation();
-  const simulating = useSim((s) => s.on);
   return (
     <div className="flex items-center gap-2">
       <div className="gm-island p-1">
         <ProblemsIndicator />
       </div>
-      {!simulating && (
-        <Tip label={t('commands.simulate.start')} keys="F5" side="bottom">
-          <button
-            type="button"
-            aria-label={t('simulation.simulateLabel')}
-            onClick={() => runCommand('sim.toggle')}
-            className="gm-island flex h-11 items-center gap-2 px-3 font-medium hover:bg-surface-2"
-          >
-            <PlayIcon size={14} className="text-success" />
-            <span className="hidden lg:inline">{t('simulation.simulate')}</span>
-          </button>
-        </Tip>
-      )}
+      <Tip label={t('commands.file.export')} keys={formatKeys('Mod+E')} side="bottom">
+        <button
+          type="button"
+          aria-label={t('commands.file.export')}
+          onClick={() => runCommand('file.export')}
+          className="gm-island flex h-11 items-center gap-1.5 px-3 text-[13px] font-medium hover:bg-surface-2"
+        >
+          <ExportIcon size={16} />
+          <span className="hidden lg:inline">{t('export.title')}</span>
+        </button>
+      </Tip>
       <div className="hidden md:block">
         <Tip label={t('commands.file.copyLink')} side="bottom">
           <button
@@ -174,8 +171,8 @@ function ZoomIsland() {
 
 /**
  * Desktops and tablets: everything but the diagram floats over it as small islands. Top: menu and
- * project, the tools (the simulation controls while simulating) with the hints below them, and
- * problems / Simulate / share. Bottom: zoom and undo, the grafcet tabs, the panels and help.
+ * project, the tools and Simulate (the simulation controls while simulating) with the hints below
+ * them, and problems / Export / share. Bottom: zoom and undo, the grafcet tabs, the panels and help.
  */
 export function Islands() {
   const simulating = useSim((s) => s.on);
@@ -189,7 +186,7 @@ export function Islands() {
           <ProjectIsland />
         </div>
         <div className="pointer-events-auto shrink-0">
-          <RunIsland />
+          <ShareIsland />
         </div>
         <div className="pointer-events-none absolute top-0 left-1/2 flex max-w-full -translate-x-1/2 flex-col items-center gap-2">
           <div className="pointer-events-auto max-w-full">

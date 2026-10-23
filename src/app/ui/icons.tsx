@@ -172,6 +172,13 @@ export const UploadIcon = (p: IconProps) => (
   </Icon>
 );
 
+/** Export: an arrow down into a tray (a file to save), the reverse of Open. */
+export const ExportIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 4v11M7 10l5 5 5-5M4 20h16" />
+  </Icon>
+);
+
 export const PanelBottomIcon = (p: IconProps) => (
   <Icon {...p}>
     <rect x="3" y="4" width="18" height="16" rx="2" />

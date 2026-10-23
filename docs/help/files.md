@@ -54,7 +54,7 @@ its grafcets and variables, and can change it without affecting yours.
 
 ## Export
 
-**File › Export…** (<kbd>Ctrl+E</kbd>) opens one dialog for every format, with a live preview. Its
+**File › Export…** (<kbd>Ctrl+E</kbd>, or the **Export** button at the top right) opens one dialog for every format, with a live preview. Its
 settings are remembered per project. **File › Export as** opens it on a given format directly.
 
 | Format                | Use it for                                                                                                        |

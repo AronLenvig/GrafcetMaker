@@ -60,6 +60,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- **Simulate** moved to the right end of the tool bar; its place at the top right is now a small
+  **Export** button that opens the Export dialog.
 - Names typed in a receptivity, an action or a condition that are not variables yet are created
   when the text is applied (one undo step, with a message listing them), typed and directed from
   their use. While typing, a note shows what will be created instead of an "Unknown variable"

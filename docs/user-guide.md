@@ -30,11 +30,11 @@ when it is needed:
   Light / Dark theme), the project name (a dot `●` means unsaved changes; double-click it to
   rename the project) and the **properties** button.
 - **Top centre**: the tools: select (`V`), pan (`H`), step (`S`), transition (`T`), comment (`C`)
-  and action (`Shift+A`); the letter in each button is its key. While simulating, the simulation
-  controls take their place. Under them, the **hints** list the keys and gestures available for
+  and action (`Shift+A`); the letter in each button is its key. ▶ **Simulate** (`F5`) ends the
+  bar. While simulating, the simulation controls take its place. Under them, the **hints** list the keys and gestures available for
   the current selection, tool or drag, with a **Learn more** link; hide them with their `×` and
   show them again from **View › Hints** or Settings.
-- **Top right**: the problem counters, ▶ **Simulate** (`F5`) and **Copy share link**.
+- **Top right**: the problem counters, **Export** (`Ctrl+E`) and **Copy share link**.
 - **Properties card** (left): appears while something is selected, with its number, label, kind
   (picture buttons), receptivity and actions. Its `×` hides it for this selection. With nothing
   selected, the properties button (or **View › Properties panel**) shows the grafcet and the
@@ -296,7 +296,7 @@ exact definitions are in `docs/semantics.md`.
 
 ## Simulation
 
-Press `F5`, the **Simulate** button at the top right, or **Simulate › Start simulation**. The
+Press `F5`, the **Simulate** button at the end of the tool bar, or **Simulate › Start simulation**. The
 diagram is locked for editing, the simulation controls replace the tools, the **Simulation**
 panel opens and the clock starts running.
 
@@ -323,7 +323,7 @@ simulator stops after 1000 iterations and reports a transient loop. The exact ru
 
 ## Exporting and sharing
 
-**File › Export…** (`Ctrl+E`) opens one dialog for every format, with a live preview. Settings are
+**File › Export…** (`Ctrl+E`, or the **Export** button at the top right) opens one dialog for every format, with a live preview. Settings are
 remembered per project on this device.
 
 - **PDF document**: vector, A4 or A3, portrait or landscape, fitted to the page or printed at a

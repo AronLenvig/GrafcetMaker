@@ -90,6 +90,8 @@ export const en = {
         actionRenamed: 'The action “{{from}}” is not a valid variable name: it is now {{to}}.',
         pulseAction:
           'The pulse action {{name}} is now a continuous action with the condition {{condition}}, so it is true for one cycle.',
+        openTransition:
+          'The transition “{{receptivity}}” is not linked to a step above or below it, so it now starts or ends the sequence there. Link it to its step if that is not what you meant.',
       },
     },
   },

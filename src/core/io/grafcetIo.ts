@@ -3,12 +3,14 @@
  * (steps, transitions, actions, branch bars, loop connectors, frames, text) and edges between their
  * handles (`top` = in, `bottom` = out, `right` → actions; `handle-n` / `source-n` on branch bars).
  *
- * Links: the edges are joined into "nets" (wires through loop connectors, branch bars and loop
- * markers with the same reference label); each transition then leads to every step input on its
- * output net and is enabled by every step output on its input net. Several steps into one
- * transition without an AND bar (`andNode`) is read as alternatives: one transition per step.
+ * Links: the edges are joined into "nets" (wires through loop connectors, branch bars, and loop
+ * markers in one frame with the same reference label that are wired on one side only); each
+ * transition then leads to every step input on its output net and is enabled by every step output
+ * on its input net. Several steps into one transition without an AND bar (`andNode`, `andSplit`)
+ * is read as alternatives: one transition per step.
  * Grafcets: the charts inside a frame (`boxNode`, named by its lower label) form one partial
- * grafcet; every other separate chart becomes its own, named after the text heading above it.
+ * grafcet, as do the actions of a frame without steps; every other separate chart becomes its own,
+ * named after the text heading above it.
  * The result is laid out with the editor's auto-layout and its variables are created from what
  * the expressions use. The file is untrusted: validated with Zod, size-capped, and the project is
  * checked against the project schema before it is returned.
@@ -40,7 +42,8 @@ export type ImportNoteCode =
   | 'macroStep'
   | 'enclosingStep'
   | 'actionRenamed'
-  | 'pulseAction';
+  | 'pulseAction'
+  | 'openTransition';
 
 /** Something the import changed or left out, shown to the user afterwards. */
 export interface ImportNote {
@@ -96,8 +99,16 @@ const STEP_KINDS: Record<string, StepKind> = {
 const TRANSITIONS = new Set(['transition', 'startTransition', 'pitTransition']);
 const ACTIONS = new Set(['action', 'forcedCommand']);
 const LOOP_MARKERS = new Set(['loopNode', 'startLoop', 'endLoop']);
-const CONNECTORS = new Set([...LOOP_MARKERS, 'andNode', 'orNode']);
+// `andSplit`: what newer grafcet.io versions write for the double bar (not in the format page)
+const AND_BARS = new Set(['andNode', 'andSplit']);
+const CONNECTORS = new Set([...LOOP_MARKERS, ...AND_BARS, 'orNode']);
 const FORCING_RE = /^[A-Za-z_]\w*\s*\{[^{}]*\}$/;
+
+/** `G1{} AND G2{8}` (or joined by `,` `;` `*` `&&`) → one forcing order each; other text as is. */
+function forcingOrders(line: string): string[] {
+  const parts = line.trim().split(/(?<=\})\s*(?:,|;|\*|&&|\bAND\b)\s*/i);
+  return parts.length > 1 && parts.every((p) => FORCING_RE.test(p)) ? parts : [line];
+}
 
 const field = (n: RawNode, key: string, max: number = LIMITS.expression): string => {
   const v = n.data?.[key];
@@ -118,6 +129,7 @@ export function convertExpression(text: string): string {
     .replace(/≠|!=/g, '<>')
     .replace(/==/g, '=')
     .replace(/%/g, ' MOD ')
+    .replace(/\b(\d+[.,]\d+)(ms|s|min|h)\b/gi, (_, n: string, unit: string) => duration(n + unit))
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -201,9 +213,9 @@ export function toIdentifier(text: string): string {
   return /^\d/.test(s) ? `G${s}` : s;
 }
 
-/** `5s`, `5 s`, `1.5s`, `T#5s`, `5` (seconds) → a GrafcetMaker duration. */
+/** `5s`, `5 s`, `1.5s`, `1,5s`, `T#5s`, `5` (seconds) → a GrafcetMaker duration. */
 function duration(text: string): string {
-  const s = text.replace(/^t#/i, '').replace(/\s+/g, '').toLowerCase();
+  const s = text.replace(/^t#/i, '').replace(/\s+/g, '').replace(',', '.').toLowerCase();
   const m = /^(\d+(?:\.\d+)?)(ms|s|min|m|h)?$/.exec(s);
   if (!m) return s;
   const ms = Number(m[1]) * { ms: 1, s: 1000, min: 60_000, m: 60_000, h: 3_600_000 }[m[2] ?? 's']!;
@@ -306,6 +318,16 @@ export function importGrafcetIo(
   const isAction = (id: string) => ACTIONS.has(nodes.get(id)?.type ?? '');
   const isConnector = (id: string) => CONNECTORS.has(nodes.get(id)?.type ?? '');
   const all = (pred: (id: string) => boolean) => doc.nodes.filter((n) => pred(n.id));
+  const boxes = doc.nodes.filter((n) => n.type === 'boxNode');
+  const inside = (b: RawNode, p: Point) =>
+    p.x >= b.position.x &&
+    p.y >= b.position.y &&
+    p.x <= b.position.x + num(b, 'width') &&
+    p.y <= b.position.y + num(b, 'height');
+  const boxOf = (p: Point): RawNode | undefined =>
+    boxes
+      .filter((b) => inside(b, p))
+      .sort((a, b) => num(a, 'width') * num(a, 'height') - num(b, 'width') * num(b, 'height'))[0];
 
   // ---- Nets: wires joined through connectors -------------------------------------------------
   const nets = new UnionFind();
@@ -317,10 +339,6 @@ export function importGrafcetIo(
     if (side === 'bottom' || side.startsWith('source')) return `${id}:out`;
     return null;
   };
-  for (const n of doc.nodes) {
-    const label = field(n, 'label', 64).trim();
-    if (LOOP_MARKERS.has(n.type) && label) nets.union(`c:${n.id}`, `loop:${label}`);
-  }
   const actionLinks: [string, string][] = [];
   let invalid = 0;
   for (const e of doc.edges) {
@@ -333,6 +351,23 @@ export function importGrafcetIo(
     const b = port(e.target, e.targetHandle, 'target');
     if (a && b) nets.union(a, b);
     else invalid++;
+  }
+  // Two loop markers with the same reference label stand for one long line: the marker it leaves
+  // by and the one it arrives at. A marker wired on both sides is a whole loop by itself, so
+  // separate loops that keep the default label `*` (or loops in different frames) stay apart.
+  const wired = new Map<string, { out: boolean; in: boolean }>();
+  for (const key of nets.keys()) {
+    const w = wired.get(nets.find(key)) ?? { out: false, in: false };
+    if (key.endsWith(':out')) w.out = true;
+    else if (key.endsWith(':in')) w.in = true;
+    wired.set(nets.find(key), w);
+  }
+  for (const n of doc.nodes) {
+    const label = field(n, 'label', 64).trim();
+    if (!LOOP_MARKERS.has(n.type) || !label) continue;
+    const w = wired.get(nets.find(`c:${n.id}`));
+    if (w?.out && w.in) continue;
+    nets.union(`c:${n.id}`, `loop:${boxOf(n.position)?.id ?? ''}:${label}`);
   }
   interface Net {
     stepOut: string[];
@@ -347,7 +382,7 @@ export function importGrafcetIo(
     const net = byRoot.get(root) ?? { stepOut: [], stepIn: [], tOut: [], tIn: [], and: false };
     byRoot.set(root, net);
     const m = /^(.*):(in|out)$/.exec(key);
-    if (key.startsWith('c:')) net.and ||= nodes.get(key.slice(2))?.type === 'andNode';
+    if (key.startsWith('c:')) net.and ||= AND_BARS.has(nodes.get(key.slice(2))?.type ?? '');
     else if (m && !key.startsWith('loop:')) {
       const [, id, side] = m as unknown as [string, string, 'in' | 'out'];
       const list = isStep(id)
@@ -395,16 +430,6 @@ export function importGrafcetIo(
   const charts = new UnionFind();
   for (const n of doc.nodes) if (isStep(n.id) || isTransition(n.id)) charts.find(n.id);
   for (const [t, steps] of [...tFrom, ...tTo]) for (const s of steps) charts.union(t, s);
-  const boxes = doc.nodes.filter((n) => n.type === 'boxNode');
-  const inside = (b: RawNode, p: Point) =>
-    p.x >= b.position.x &&
-    p.y >= b.position.y &&
-    p.x <= b.position.x + num(b, 'width') &&
-    p.y <= b.position.y + num(b, 'height');
-  const boxOf = (p: Point): RawNode | undefined =>
-    boxes
-      .filter((b) => inside(b, p))
-      .sort((a, b) => num(a, 'width') * num(a, 'height') - num(b, 'width') * num(b, 'height'))[0];
 
   const groups = new Map<string, Group>();
   const chartMembers = new Map<string, RawNode[]>();
@@ -450,6 +475,13 @@ export function importGrafcetIo(
     if (!host) continue;
     host.nodes.push(...g.nodes);
     groups.delete(g.key);
+  }
+  // A frame without steps (e.g. manual commands as actions with a condition) is a grafcet too.
+  for (const b of boxes) {
+    const key = `box:${b.id}`;
+    if (groups.has(key)) continue;
+    const free = all(isAction).filter((a) => !actionStep.has(a.id) && boxOf(a.position) === b);
+    if (free.length) groups.set(key, { key, name: '', nodes: free, box: b });
   }
   const ordered = [...groups.values()].sort((a, b) => {
     const ba = bounds(a.nodes);
@@ -560,6 +592,8 @@ export function importGrafcetIo(
       const to = (tTo.get(t.id) ?? []).filter((s) => stepIds.has(s));
       const r = receptivity(field(t, 'label'));
       const ids = (list: string[]) => list.map((s) => stepIds.get(s)!);
+      if (t.type === 'transition' && (!from.length || !to.length))
+        note('openTransition', { receptivity: r });
       if (split.has(t.id) && from.length > 1) {
         note('splitTransition', {
           receptivity: r,
@@ -604,6 +638,7 @@ export function importGrafcetIo(
     const time = duration(field(a, 'time', 32));
     const lines = field(a, 'label')
       .split(/\r?\n/)
+      .flatMap(forcingOrders)
       .map((l) => l.trim())
       .filter(Boolean);
     let offset = 0;

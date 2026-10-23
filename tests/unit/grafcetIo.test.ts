@@ -236,9 +236,73 @@ describe('grafcet.io import', () => {
     expect(serializeProject(parseProjectFile(text))).toBe(text);
   });
 
+  it('keeps separate loops with the same label apart, reads andSplit bars and step-less frames', () => {
+    // Three frames as drawn by newer grafcet.io versions: an andSplit bar (one step wired to it
+    // backwards), two loops that both keep the default label `*`, forcing orders joined by AND,
+    // conditional actions in a frame without steps, and a transition with nothing below it.
+    const n: typeof nodes = [];
+    const e: typeof edges = [];
+    const add = (id: string, type: string, x: number, y: number, data: Data = {}) =>
+      n.push({ id, type, position: { x, y }, data });
+    const wire = (source: string, sourceHandle: string, target: string, targetHandle: string) =>
+      e.push({ source, sourceHandle, target, targetHandle });
+    const down = (a: string, b: string) => wire(a, 'bottom', b, 'top');
+    add('fa', 'boxNode', -100, 0, { bottomLabel: 'G1', width: 600, height: 800 });
+    add('a0', 'initialStep', 0, 20, { label: '0' });
+    add('at0', 'transition', 0, 80, { label: 'go' });
+    add('abar', 'andSplit', 0, 120, { width: 300 });
+    add('a10', 'step', 0, 160, { label: '10' });
+    add('a20', 'step', 300, 160, { label: '20' });
+    add('at1', 'transition', 0, 220, { label: 'Not a' });
+    add('at2', 'transition', 300, 220, { label: '0,5s/X20' });
+    add('aloop', 'loopNode', -60, 120, { label: '*' });
+    down('a0', 'at0');
+    wire('at0', 'bottom', 'abar', 'handle-0');
+    wire('abar', 'source-0', 'a10', 'top');
+    wire('a20', 'top', 'abar', 'source-30');
+    down('a10', 'at1');
+    down('a20', 'at2');
+    wire('at1', 'bottom', 'aloop', 'bottom');
+    wire('at2', 'bottom', 'aloop', 'bottom');
+    wire('aloop', 'top', 'a0', 'top');
+    add('fb', 'boxNode', -700, 0, { bottomLabel: 'G4', width: 500, height: 800 });
+    add('b900', 'initialStep', -600, 20, { label: '900' });
+    add('bt0', 'transition', -600, 80, { label: '!estop' });
+    add('b3', 'step', -600, 160, { label: '3' });
+    add('bf', 'forcedCommand', -500, 140, { label: 'G1 { } AND G2{}' });
+    add('bt1', 'transition', -600, 220, { label: 'drift' });
+    add('bt2', 'transition', -500, 220, { label: 'lost' });
+    add('bloop', 'loopNode', -660, 120, { label: '*' });
+    down('b900', 'bt0');
+    down('bt0', 'b3');
+    wire('b3', 'right', 'bf', 'left');
+    down('b3', 'bt1');
+    down('b3', 'bt2');
+    wire('bt1', 'bottom', 'bloop', 'bottom');
+    wire('bloop', 'top', 'b900', 'top');
+    add('fc', 'boxNode', -1100, 0, { bottomLabel: 'G2', width: 350, height: 400 });
+    add('cm', 'action', -1080, 40, { label: 'M1', actionType: 'conditional', condition: 'hand' });
+    const result = importGrafcetIo(
+      JSON.stringify({ createdWith: 'grafcet.io', nodes: n, edges: e }),
+      'Mill',
+    );
+    const p = result.project;
+    expect(p.grafcetOrder.map((id) => p.grafcets[id]!.name)).toEqual(['G2', 'G4', 'G1']);
+    expect(links(byName(p, 'G1'))).toEqual([
+      '0 -> 10+20: go',
+      '10 -> 0: Not a',
+      '20 -> 0: 500ms/X20',
+    ]);
+    expect(links(byName(p, 'G4'))).toEqual(['3 -> 900: drift', '3 -> : lost', '900 -> 3: !estop']);
+    expect(actions(byName(p, 'G4'))).toEqual(['3 forcing G1 { }', '3 forcing G2{}']);
+    expect(actions(byName(p, 'G2'))).toEqual(['- continuous M1 if hand']);
+    expect(result.notes).toEqual([{ code: 'openTransition', params: { receptivity: 'lost' } }]);
+  });
+
   it('rewrites the grafcet.io expression syntax', () => {
     expect(convertExpression('BoxFed % 3 = 0  *  a ≥ 2')).toBe('BoxFed MOD 3 = 0 * a >= 2');
     expect(convertExpression('1̲')).toBe('1');
+    expect(convertExpression('0,5s/X32 * 1.5min/X2')).toBe('500ms/X32 * 90s/X2');
     expect(separateComparisons('n MOD 2 = 0 * !n = 0')).toBe('(n MOD 2 = 0) * (!n = 0)');
     expect(separateComparisons('a = 1 + b = 2')).toBe('(a = 1) + (b = 2)');
     expect(separateComparisons('a * b + c')).toBe('a * b + c');

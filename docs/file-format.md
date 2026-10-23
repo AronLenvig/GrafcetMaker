@@ -50,26 +50,33 @@ new, unsaved project; saving writes a `.grafcet.json` and never touches the orig
 and the result is checked against the project schema. Interpretation choices:
 
 - **Links.** Edges are wires between handles (`top` = input, `bottom` = output; `handle-n` /
-  `source-n` on branch bars). Wires joined through `loopNode`, `startLoop`, `endLoop`, `andNode` and
-  `orNode` form one link, and loop markers with the same reference label are one link. A transition
-  activates every step input on its output link and is enabled by every step output on its input
-  link. A loop drawn into the **bottom of a transition** joins that transition's output.
+  `source-n` on branch bars). Wires joined through `loopNode`, `startLoop`, `endLoop`, `andNode`
+  (`andSplit` in newer grafcet.io versions) and `orNode` form one link. Loop markers with the same
+  reference label in the same frame are one link when they are wired on one side only (the marker
+  a long loop leaves by and the one it arrives at); a marker wired on both sides is a whole loop by
+  itself, so separate loops that keep the default label `*` stay apart. A transition activates
+  every step input on its output link and is enabled by every step output on its input link. A
+  loop drawn into the **bottom of a transition** joins that transition's output. A transition
+  linked to no step above or below becomes a source or sink transition, and the import says so.
 - **Alternatives drawn into one transition.** Several steps into one transition without an AND bar
   (`andNode`) become one transition per step (either step can clear it); with the bar it is an AND
   convergence. Links from step to step or transition to transition are left out.
 - **Grafcets.** The charts inside a frame (`boxNode`) form one partial grafcet named after its
-  lower label (`G1`); every other separate chart is a partial grafcet named after the text just
-  above it (made a valid identifier), else `G1`, `G2`…. A fragment without an initial step joins
-  the nearest chart. Step numbers come from the labels; a duplicate takes the next free number.
+  lower label (`G1`); a frame with actions but no steps (for example manual commands with a
+  condition) is a partial grafcet of those actions without steps. Every other separate chart is a
+  partial grafcet named after the text just above it (made a valid identifier), else `G1`, `G2`….
+  A fragment without an initial step joins the nearest chart. Step numbers come from the labels; a
+  duplicate takes the next free number.
 - **Actions.** `continuous` (and no type) → continuous; `conditional` → continuous with condition,
   or with `:=` a stored action on event; `set` / `reset` → on activation `X := 1` / `X := 0`;
   `pulse` → on activation (`:=`) or a continuous action with condition `↑Xn` (or its condition);
   `delayed` / `limited` → continuous with condition `t/Xn` / `/(t/Xn)`; `forcedCommand` or a label
-  like `G1{}` → forcing order. A forcing order with a condition becomes a grafcet
+  like `G1{}` → forcing order; several orders in one label (`G1{} AND G2{}`, also joined by `,`
+  `;` `*`) become one forcing order each. A forcing order with a condition becomes a grafcet
   `Forcing_<target>` whose step holds the order while the condition is true. Actions linked to a
   step (directly or along a chain of actions) belong to it; the others are actions without a step.
 - **Expressions.** `%` → `MOD`, `≥ ≤ ≠ != ==` → `>= <= <> <> =`, an underlined `1` or `*` alone →
-  `1`. Since `*` means AND in grafcet.io, comparisons joined by `*` (or two joined by `+`) get
+  `1`, durations with a decimal comma or point → whole units (`0,5s/X3` → `500ms/X3`). Since `*` means AND in grafcet.io, comparisons joined by `*` (or two joined by `+`) get
   parentheses: `n > 0 * a` → `(n > 0) * a`.
 - **Variables** are created from what the expressions use, as the Create variable quick fix
   would (type and direction guessed from use). Macro-steps and enclosing steps keep their kind but

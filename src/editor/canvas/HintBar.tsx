@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { openHelp } from '@/app/help/helpStore';
 import { setPrefs, usePrefs } from '@/app/prefs';
@@ -119,7 +120,7 @@ function selectionHints(g: Grafcet, ids: string[]): Hint[] {
  * Contextual hints (under the toolbar; on phones, in the canvas corner): what can be done with the
  * current selection, tool or gesture, with its keys. Hidden from View › Hints or Settings.
  */
-export function HintBar() {
+function HintBarView() {
   const { t } = useTranslation();
   const show = usePrefs((s) => s.showHints);
   const simulating = useSim((s) => s.on);
@@ -233,3 +234,6 @@ export function HintBar() {
     </div>
   );
 }
+
+/** Memoized: the canvas re-renders on every pan and zoom frame. */
+export const HintBar = memo(HintBarView);

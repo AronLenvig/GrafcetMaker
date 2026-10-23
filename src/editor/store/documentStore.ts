@@ -59,7 +59,6 @@ export interface DocumentStore {
   update: (recipe: Recipe) => void;
   commit: () => void;
   cancel: () => void;
-  inTransaction: () => boolean;
   /** Replaces the document and clears history. */
   load: (project: Project, opts?: { dirty?: boolean }) => void;
   markSaved: () => void;
@@ -186,7 +185,6 @@ export function createDocumentStore(initial: Project): DocumentStore {
     update,
     commit,
     cancel,
-    inTransaction: () => tx !== null,
     load,
     markSaved,
   };

@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 
 export type ThemeMode = 'system' | 'light' | 'dark';
+
+/** The theme choices, in the order they are offered. */
+export const THEME_MODES: readonly ThemeMode[] = ['system', 'light', 'dark'];
 export type ResolvedTheme = 'light' | 'dark';
 
 /** Must match the key read by the inline bootstrap script in index.html. */

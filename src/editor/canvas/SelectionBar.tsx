@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { showSideTab } from '@/app/prefs';
 import {
@@ -56,7 +57,7 @@ const ENTRIES: Entry[] = [
  * Touch screens: what the keyboard shortcuts do for the selection (Enter, A, P, O, L, F2, Del),
  * as a toolbar at the bottom of the canvas. Hidden while editing text or dragging.
  */
-export function SelectionBar({ g }: { g: Grafcet }) {
+function SelectionBarView({ g }: { g: Grafcet }) {
   const { t } = useTranslation();
   const coarse = useCoarsePointer();
   const selection = useUi((s) => s.selection);
@@ -108,3 +109,6 @@ export function SelectionBar({ g }: { g: Grafcet }) {
     </div>
   );
 }
+
+/** Memoized: the canvas re-renders on every pan and zoom frame. */
+export const SelectionBar = memo(SelectionBarView);

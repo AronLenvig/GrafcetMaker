@@ -18,7 +18,7 @@ const TYPE_TONE: Record<string, string> = {
   TIME: 'bg-warning-soft text-warning',
 };
 
-export function TypeBadge({ type }: { type: string }) {
+function TypeBadge({ type }: { type: string }) {
   return (
     <span
       className={cx('rounded px-1.5 py-px font-mono text-[10px] font-semibold', TYPE_TONE[type])}

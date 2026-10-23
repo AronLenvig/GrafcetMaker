@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { formatKeys, getCommand, runCommand } from '@/editor/commands/registry';
 import { useDoc } from '@/editor/store/document';
 import { tDynamic } from '@/i18n/dynamic';
-import { useTheme, type ThemeMode } from '@/theme/theme';
+import { THEME_MODES, useTheme, type ThemeMode } from '@/theme/theme';
 import { ThemeSwitcher } from '@/theme/ThemeSwitcher';
 import { listRecent, type RecentEntry } from './persistence/db';
 import { openRecent } from './persistence/session';
@@ -32,7 +32,7 @@ type MenuNode =
   | { command: string; keys?: string; label?: string; desktopOnly?: boolean }
   | { separator: true }
   | { sub: string; items: MenuNode[]; desktopOnly?: boolean }
-  | { pref: BoolPref; invert?: boolean; label: string; desktopOnly?: boolean }
+  | { pref: BoolPref; label: string; desktopOnly?: boolean }
   | { special: 'recent' | 'undoRedo' };
 
 interface MenuSection {
@@ -266,9 +266,21 @@ function BarUndoRedo() {
   );
 }
 
+type PrefNode = Extract<MenuNode, { pref: BoolPref }>;
+
+/** A preference as a check item (subscribed to that preference only). */
+function BarPref({ node }: { node: PrefNode }) {
+  const { t } = useTranslation();
+  const on = usePrefs((s) => s[node.pref]);
+  return (
+    <MenuCheckItem checked={on} onCheckedChange={(v) => setPrefs({ [node.pref]: v })}>
+      {tDynamic(t, node.label)}
+    </MenuCheckItem>
+  );
+}
+
 function BarNode({ node }: { node: MenuNode }) {
   const { t } = useTranslation();
-  const prefs = usePrefs();
   if ('separator' in node) return <MenuSeparator />;
   if ('special' in node) return node.special === 'recent' ? <BarRecent /> : <BarUndoRedo />;
   if ('sub' in node) {
@@ -280,21 +292,9 @@ function BarNode({ node }: { node: MenuNode }) {
       </SubMenu>
     );
   }
-  if ('pref' in node) {
-    const on = node.invert ? !prefs[node.pref] : prefs[node.pref];
-    return (
-      <MenuCheckItem
-        checked={on}
-        onCheckedChange={(v) => setPrefs({ [node.pref]: node.invert ? !v : v })}
-      >
-        {tDynamic(t, node.label)}
-      </MenuCheckItem>
-    );
-  }
+  if ('pref' in node) return <BarPref node={node} />;
   return <BarCommand node={node} />;
 }
-
-const THEMES: ThemeMode[] = ['system', 'light', 'dark'];
 
 /**
  * Desktops and tablets: the main menu behind one button (File, Edit, View, Simulate and Help as
@@ -335,7 +335,7 @@ export function MainMenuButton() {
             {t('theme.label')}
           </DropdownMenu.Label>
           <DropdownMenu.RadioGroup value={mode} onValueChange={(v) => setMode(v as ThemeMode)}>
-            {THEMES.map((m) => (
+            {THEME_MODES.map((m) => (
               <DropdownMenu.RadioItem key={m} value={m} className={menuItemClass}>
                 <span className="w-4 text-center" aria-hidden="true">
                   {mode === m ? '•' : ''}
@@ -398,69 +398,89 @@ function Group({
   );
 }
 
-function DrawerNodes({
-  items,
-  depth,
-  run,
-}: {
-  items: MenuNode[];
-  depth: number;
-  run: (action: () => unknown) => void;
-}) {
+type Run = (action: () => unknown) => void;
+
+function DrawerUndoRedo({ depth, run }: { depth: number; run: Run }) {
+  const [undo, redo] = useUndoRedoLabels();
+  return (
+    <div>
+      {(
+        [
+          ['edit.undo', undo],
+          ['edit.redo', redo],
+        ] as const
+      ).map(([id, text]) => (
+        <button
+          key={id}
+          type="button"
+          className={row}
+          style={{ paddingLeft: 16 + depth * 16 }}
+          disabled={!isEnabled(id)}
+          onClick={() => run(() => runCommand(id))}
+        >
+          {text}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** Open recent (the list is read once, when its group is shown). */
+function DrawerRecent({ depth, run }: { depth: number; run: Run }) {
+  const { t } = useTranslation();
+  const recent = useRecent();
+  if (!recent.length) return null;
+  return (
+    <Group label={t('commands.file.openRecent')} depth={depth}>
+      {recent.map((r) => (
+        <button
+          key={r.id}
+          type="button"
+          className={cx(row, 'flex-col items-start gap-0')}
+          style={{ paddingLeft: 16 + (depth + 1) * 16 }}
+          onClick={() => run(() => openRecent(r))}
+        >
+          <span className="w-full truncate">{r.name}</span>
+          {r.fileName && <span className="w-full truncate text-xs text-muted">{r.fileName}</span>}
+        </button>
+      ))}
+    </Group>
+  );
+}
+
+function DrawerPref({ node, depth }: { node: PrefNode; depth: number }) {
+  const { t } = useTranslation();
+  const on = usePrefs((s) => s[node.pref]);
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      className={row}
+      style={{ paddingLeft: 16 + depth * 16 }}
+      onClick={() => setPrefs({ [node.pref]: !on })}
+    >
+      <span className="flex-1">{tDynamic(t, node.label)}</span>
+      <span aria-hidden="true" className="w-4 text-center text-accent">
+        {on ? '✓' : ''}
+      </span>
+    </button>
+  );
+}
+
+function DrawerNodes({ items, depth, run }: { items: MenuNode[]; depth: number; run: Run }) {
   const { t } = useTranslation();
   const label = useCommandLabel();
-  const prefs = usePrefs();
-  const [undo, redo] = useUndoRedoLabels();
-  const recent = useRecent();
   const pad = { paddingLeft: 16 + depth * 16 };
   return (
     <>
       {items.map((n, i) => {
         if ('separator' in n) return <div key={i} className="mx-4 my-1 h-px bg-border" />;
-        if ('special' in n && n.special === 'undoRedo') {
-          return (
-            <div key={i}>
-              {(
-                [
-                  ['edit.undo', undo],
-                  ['edit.redo', redo],
-                ] as const
-              ).map(([id, text]) => (
-                <button
-                  key={id}
-                  type="button"
-                  className={row}
-                  style={pad}
-                  disabled={!isEnabled(id)}
-                  onClick={() => run(() => runCommand(id))}
-                >
-                  {text}
-                </button>
-              ))}
-            </div>
+        if ('special' in n)
+          return n.special === 'undoRedo' ? (
+            <DrawerUndoRedo key={i} depth={depth} run={run} />
+          ) : (
+            <DrawerRecent key={i} depth={depth} run={run} />
           );
-        }
-        if ('special' in n) {
-          if (!recent.length) return null;
-          return (
-            <Group key={i} label={t('commands.file.openRecent')} depth={depth}>
-              {recent.map((r) => (
-                <button
-                  key={r.id}
-                  type="button"
-                  className={cx(row, 'flex-col items-start gap-0')}
-                  style={{ paddingLeft: 16 + (depth + 1) * 16 }}
-                  onClick={() => run(() => openRecent(r))}
-                >
-                  <span className="w-full truncate">{r.name}</span>
-                  {r.fileName && (
-                    <span className="w-full truncate text-xs text-muted">{r.fileName}</span>
-                  )}
-                </button>
-              ))}
-            </Group>
-          );
-        }
         if ('sub' in n) {
           return (
             <Group key={i} label={tDynamic(t, n.sub)} depth={depth}>
@@ -468,24 +488,7 @@ function DrawerNodes({
             </Group>
           );
         }
-        if ('pref' in n) {
-          const on = n.invert ? !prefs[n.pref] : prefs[n.pref];
-          return (
-            <button
-              key={i}
-              type="button"
-              aria-pressed={on}
-              className={row}
-              style={pad}
-              onClick={() => setPrefs({ [n.pref]: n.invert ? on : !on })}
-            >
-              <span className="flex-1">{tDynamic(t, n.label)}</span>
-              <span aria-hidden="true" className="w-4 text-center text-accent">
-                {on ? '✓' : ''}
-              </span>
-            </button>
-          );
-        }
+        if ('pref' in n) return <DrawerPref key={i} node={n} depth={depth} />;
         return (
           <button
             key={i}

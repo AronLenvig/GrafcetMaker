@@ -1,5 +1,5 @@
 import { cachedForcing } from '../expr/cache';
-import { buildEnv } from '../expr/check';
+import { envFactory } from '../expr/check';
 import { tokenize } from '../expr/lexer';
 import { STEP_REF_RE } from '../expr/parser';
 import { indexGrafcet } from './graph';
@@ -61,8 +61,9 @@ export function planRenumber(p: Project, gid: Id, start?: number): RenumberPlan 
 
   const expected: { grafcetId: Id; number: number; stepId: Id }[] = [];
   const rewrites: Rewrite[] = [];
+  const envOf = envFactory(p);
   for (const h of Object.values(p.grafcets)) {
-    const env = buildEnv(p, h.id);
+    const env = envOf(h.id);
     for (const e of grafcetExpressions(h)) {
       let out = e.source;
       if (e.kind === 'forcing') {
@@ -107,8 +108,9 @@ export function planRenumber(p: Project, gid: Id, start?: number): RenumberPlan 
   };
   const after = { ...p, grafcets: { ...p.grafcets, [gid]: renumbered } };
   const conflicts = new Set<number>();
+  const envAfter = envFactory(after);
   for (const x of expected) {
-    const r = buildEnv(after, x.grafcetId).resolveStep(x.number);
+    const r = envAfter(x.grafcetId).resolveStep(x.number);
     if (typeof r !== 'object' || r.stepId !== x.stepId) conflicts.add(x.number);
   }
   if (conflicts.size) return { ok: false, conflicts: [...conflicts].sort((a, b) => a - b) };

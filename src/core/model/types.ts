@@ -5,7 +5,6 @@ import type {
   commentSchema,
   grafcetKindSchema,
   grafcetSchema,
-  projectMetaSchema,
   projectSchema,
   scenarioEventSchema,
   scenarioSchema,
@@ -34,7 +33,6 @@ export type Action = z.infer<typeof actionSchema>;
 export type Comment = z.infer<typeof commentSchema>;
 export type GrafcetKind = z.infer<typeof grafcetKindSchema>;
 export type Grafcet = z.infer<typeof grafcetSchema>;
-export type ProjectMeta = z.infer<typeof projectMetaSchema>;
 export type Project = z.infer<typeof projectSchema>;
 export type ScenarioEvent = z.infer<typeof scenarioEventSchema>;
 export type Scenario = z.infer<typeof scenarioSchema>;

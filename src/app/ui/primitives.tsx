@@ -171,21 +171,6 @@ export function SubMenu({
   );
 }
 
-export function Menu({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <DropdownMenu.Root modal={false}>
-      <DropdownMenu.Trigger className="rounded px-2 py-1 text-text hover:bg-surface-2 data-[state=open]:bg-surface-2">
-        {label}
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Portal>
-        <DropdownMenu.Content className={menuContentClass} align="start" sideOffset={4}>
-          {children}
-        </DropdownMenu.Content>
-      </DropdownMenu.Portal>
-    </DropdownMenu.Root>
-  );
-}
-
 /** Drop-down menu opened from an icon button (panel toolbars). */
 export function IconMenu({
   label,
@@ -310,9 +295,6 @@ export function Modal({
 }
 
 // ---- Form fields ----
-
-/** Standard text input look (see .gm-input in theme/index.css). */
-export const inputClass = 'gm-input';
 
 /** Label above a control, with an optional hint or error below. */
 export function Field({

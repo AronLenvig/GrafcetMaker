@@ -3,7 +3,6 @@ import type { Project } from '../model/types';
 import { MigrationError, migrate, type RawDocument } from './migrations';
 
 export const FILE_EXTENSION = '.grafcet.json';
-export const FILE_MIME = 'application/json';
 
 export type ProjectFileErrorCode =
   'tooLarge' | 'notJson' | 'notProject' | 'newerVersion' | 'invalid' | 'brokenLink';

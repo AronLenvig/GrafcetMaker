@@ -37,6 +37,30 @@ import {
 } from './ui/primitives';
 
 /**
+ * The virtual clock (and, wide, the cycle and next timer). Its own component: it changes on every
+ * frame while the simulation runs, the rest of the controls do not.
+ */
+function SimClock({ compact, error }: { compact: boolean; error: boolean }) {
+  const { t } = useTranslation();
+  const time = useSim((s) => s.snapshot?.time ?? 0);
+  const cycle = useSim((s) => s.snapshot?.cycle ?? 0);
+  const next = useSim((s) => s.snapshot?.nextDeadline ?? null);
+  const cursor = useSim((s) => s.cursor);
+  if (compact) return <>{formatSimTime(cursor ?? time)}</>;
+  return (
+    <>
+      {t('simulation.clock', { time: formatSimTime(cursor ?? time), cycle })}
+      {next !== null && !error && (
+        <span className="text-muted">
+          {' '}
+          · {t('simulation.nextTimer', { time: formatSimTime(next) })}
+        </span>
+      )}
+    </>
+  );
+}
+
+/**
  * The simulation controls (transport, speed, virtual clock, recording, Stop): a floating island in
  * place of the tools on desktops, the top bar on phones. Visibly different from editing.
  */
@@ -44,13 +68,9 @@ export function SimBar() {
   const { t } = useTranslation();
   const playing = useSim((s) => s.playing);
   const speed = useSim((s) => s.speed);
-  const time = useSim((s) => s.snapshot?.time ?? 0);
-  const cycle = useSim((s) => s.snapshot?.cycle ?? 0);
-  const next = useSim((s) => s.snapshot?.nextDeadline ?? null);
   const error = useSim((s) => s.snapshot?.error ?? null);
   const recording = useSim((s) => s.recording);
   const replay = useSim((s) => s.replay);
-  const cursor = useSim((s) => s.cursor);
   const name = useDoc((s) => s.project.name);
   const scenarioCount = useDoc((s) => Object.keys(s.project.scenarios ?? {}).length);
   const compact = useCompact();
@@ -104,7 +124,7 @@ export function SimBar() {
             <StepForwardIcon size={18} />
           </IconButton>
           <span className="min-w-0 flex-1 truncate px-1 font-mono text-xs tabular-nums">
-            {formatSimTime(cursor ?? time)}
+            <SimClock compact error={!!error} />
             {recording && <span className="ml-1 text-danger">● {recording.length}</span>}
           </span>
           {error && (
@@ -198,13 +218,7 @@ export function SimBar() {
         </select>
       </label>
       <span className="ml-1 font-mono text-xs whitespace-nowrap tabular-nums" aria-live="off">
-        {t('simulation.clock', { time: formatSimTime(cursor ?? time), cycle })}
-        {next !== null && !error && (
-          <span className="text-muted">
-            {' '}
-            · {t('simulation.nextTimer', { time: formatSimTime(next) })}
-          </span>
-        )}
+        <SimClock compact={false} error={!!error} />
       </span>
       {error && (
         <span role="alert" className="rounded bg-danger-soft px-2 py-0.5 text-xs text-danger">

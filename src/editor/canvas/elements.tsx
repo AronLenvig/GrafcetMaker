@@ -21,7 +21,6 @@ import type { Action, Comment, Step, Transition } from '@/core/model/types';
 import { ExprText } from './ExprText';
 import { baseline } from './svg';
 
-/** `active` (simulation): filled box plus a token dot, so activity never relies on color alone. */
 /**
  * `mark`: E / S for the entry and exit steps of a macro-step expansion; * for the steps an
  * enclosing step activates (drawn instead of the initial double square, as IEC 60848 does).
@@ -34,6 +33,7 @@ export const StepView = memo(function StepView({
   mark,
 }: {
   step: Step;
+  /** Simulation: filled box plus a token dot, so activity never relies on color alone. */
   active?: boolean;
   mark?: StepMark;
 }) {

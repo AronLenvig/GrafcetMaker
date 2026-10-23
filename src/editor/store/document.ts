@@ -1,5 +1,6 @@
 import { useStore } from 'zustand';
 import { createProject } from '@/core/model/factory';
+import { elementKind } from '@/core/model/graph';
 import type { Grafcet, Project } from '@/core/model/types';
 import { createDocumentStore, type DocumentState } from './documentStore';
 import { useUi } from './uiStore';
@@ -33,22 +34,12 @@ function reconcile(project: Project): void {
   if (!active || !project.grafcets[active]) active = project.grafcetOrder[0] ?? null;
   const g = active ? project.grafcets[active] : undefined;
   let selection = s.selection;
-  const stale = Object.keys(selection).filter(
-    (id) => !g || !(g.steps[id] || g.transitions[id] || g.actions[id] || g.comments[id]),
-  );
+  const stale = Object.keys(selection).filter((id) => !g || !elementKind(g, id));
   if (stale.length) {
     selection = { ...selection };
     for (const id of stale) delete selection[id];
   }
-  const editingStale =
-    s.editing &&
-    (!g ||
-      !(
-        g.steps[s.editing.id] ||
-        g.transitions[s.editing.id] ||
-        g.actions[s.editing.id] ||
-        g.comments[s.editing.id]
-      ));
+  const editingStale = s.editing && (!g || !elementKind(g, s.editing.id));
   if (active !== s.activeGrafcetId || selection !== s.selection || editingStale) {
     useUi.setState({
       activeGrafcetId: active,

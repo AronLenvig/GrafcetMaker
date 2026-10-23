@@ -3,7 +3,7 @@ import { useEffect, useId, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { openAppDialog } from '@/editor/commands/registry';
 import { SPEEDS } from '@/editor/simulation/simStore';
-import { useTheme, type ThemeMode } from '@/theme/theme';
+import { THEME_MODES, useTheme } from '@/theme/theme';
 import { showDialog } from '../dialogs/dialogStore';
 import { db, safely } from '../persistence/db';
 import { downloadCopy } from '../persistence/session';
@@ -76,7 +76,7 @@ function Appearance() {
           aria-label={t('theme.label')}
           className="flex rounded-md border border-border bg-surface-2 p-0.5"
         >
-          {(['system', 'light', 'dark'] as ThemeMode[]).map((m) => (
+          {THEME_MODES.map((m) => (
             <button
               key={m}
               type="button"

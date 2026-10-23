@@ -47,9 +47,15 @@ function useSimDisplay() {
   const snapshot = useSim((s) => s.snapshot);
   const cursor = useSim((s) => s.cursor);
   const cycles = useSim((s) => s.cycles.length);
-  const activeKey = snapshot ? snapshot.active.join(',') : '';
-  const valuesKey = snapshot ? JSON.stringify(snapshot.values) : '';
-  const executingKey = snapshot ? snapshot.executing.join(',') : '';
+  // Keys of what is drawn, so a snapshot that only moves the clock changes nothing.
+  const { activeKey, valuesKey, executingKey } = useMemo(
+    () => ({
+      activeKey: snapshot ? snapshot.active.join(',') : '',
+      valuesKey: snapshot ? JSON.stringify(snapshot.values) : '',
+      executingKey: snapshot ? snapshot.executing.join(',') : '',
+    }),
+    [snapshot],
+  );
   return useMemo(() => {
     if (!on || !snapshot) return null;
     if (cursor !== null) {
@@ -119,12 +125,16 @@ export function Canvas({
   const w = size.width / viewport.zoom;
   const h = size.height / viewport.zoom;
 
-  const total = g
-    ? Object.keys(g.steps).length +
-      Object.keys(g.transitions).length +
-      Object.keys(g.comments).length +
-      Object.keys(g.actions).length
-    : 0;
+  const total = useMemo(
+    () =>
+      g
+        ? Object.keys(g.steps).length +
+          Object.keys(g.transitions).length +
+          Object.keys(g.comments).length +
+          Object.keys(g.actions).length
+        : 0,
+    [g],
+  );
   // Culling rect, quantized so panning re-renders only every half screen.
   const cull: Rect | null =
     total > CULL_THRESHOLD
@@ -332,7 +342,6 @@ export function Canvas({
         {g && geom && sim && (
           <SimOverlay
             g={g}
-            geom={geom}
             active={sim.active}
             enabled={enabled}
             time={cursor ?? snapshot?.time ?? 0}

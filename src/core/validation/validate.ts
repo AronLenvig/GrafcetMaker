@@ -5,9 +5,10 @@
  */
 import type { BoolNode } from '../expr/ast';
 import { cachedBool, cachedForcing } from '../expr/cache';
-import { analyze, buildEnv, type Diagnostic, type ExprEnv } from '../expr/check';
+import { analyze, envFactory, type Diagnostic, type ExprEnv } from '../expr/check';
 import { emptyForcingsNeverUndone } from '../model/forcing';
-import { indexGrafcet } from '../model/graph';
+import { indexGrafcet, type GrafcetIndex } from '../model/graph';
+import { expectedChildKind } from '../model/hierarchy';
 import type { Grafcet, Id, Project, Step } from '../model/types';
 import { grafcetExpressions } from '../model/variables';
 import { exclusive, hasEdgeOrTimer, satisfiable, type IntegerLookup } from './logic';
@@ -144,12 +145,12 @@ function topmost(steps: Step[]): Step | undefined {
 
 function structureRules(
   g: Grafcet,
+  index: GrafcetIndex,
   forced: { numbers: Set<number>; init: boolean } | undefined,
   out: Issue[],
 ): void {
   const steps = Object.values(g.steps);
   if (!steps.length) return;
-  const index = indexGrafcet(g);
   const initial = steps.filter((s) => s.kind === 'initial');
 
   if (g.kind !== 'macroExpansion' && !initial.length && !forced) {
@@ -250,8 +251,12 @@ function parsed(source: string): BoolNode | null {
   return r.ok ? r.value : null;
 }
 
-function exclusivityRule(g: Grafcet, isInteger: IntegerLookup, out: Issue[]): void {
-  const index = indexGrafcet(g);
+function exclusivityRule(
+  g: Grafcet,
+  index: GrafcetIndex,
+  isInteger: IntegerLookup,
+  out: Issue[],
+): void {
   for (const s of Object.values(g.steps)) {
     const outs = index.outgoing.get(s.id) ?? [];
     for (let i = 0; i < outs.length; i++) {
@@ -361,7 +366,11 @@ const MAX_SITUATIONS = 2000;
  * Pairs are collected among `only` (all steps by default). Returns null when the state space
  * exceeds MAX_SITUATIONS.
  */
-export function coActiveSteps(g: Grafcet, only?: ReadonlySet<Id>): Set<string> | null {
+export function coActiveSteps(
+  g: Grafcet,
+  only?: ReadonlySet<Id>,
+  index: GrafcetIndex = indexGrafcet(g),
+): Set<string> | null {
   const steps = Object.keys(g.steps);
   const bit = new Map(steps.map((id, i) => [id, i]));
   const initial = steps.filter((id) => g.steps[id]!.kind === 'initial');
@@ -375,7 +384,6 @@ export function coActiveSteps(g: Grafcet, only?: ReadonlySet<Id>): Set<string> |
   const seen = new Set<string>();
   const queue: Set<Id>[] = [new Set(initial)];
   seen.add(encode(queue[0]!));
-  const index = indexGrafcet(g);
   const sources = Object.values(g.transitions).filter((t) => !t.from.length);
   let head = 0;
   while (head < queue.length) {
@@ -403,7 +411,7 @@ export function coActiveSteps(g: Grafcet, only?: ReadonlySet<Id>): Set<string> |
   return pairs;
 }
 
-function parallelOutputRule(g: Grafcet, out: Issue[]): void {
+function parallelOutputRule(g: Grafcet, index: GrafcetIndex, out: Issue[]): void {
   const byOutput = new Map<string, { stepId: Id; actionId: Id; name: string }[]>();
   const always = new Map<string, Id[]>();
   for (const a of Object.values(g.actions)) {
@@ -440,7 +448,11 @@ function parallelOutputRule(g: Grafcet, out: Issue[]): void {
     (list) => new Set(list.map((x) => x.stepId)).size > 1,
   );
   if (!shared.length) return;
-  const pairs = coActiveSteps(g, new Set(shared.flatMap((list) => list.map((x) => x.stepId))));
+  const pairs = coActiveSteps(
+    g,
+    new Set(shared.flatMap((list) => list.map((x) => x.stepId))),
+    index,
+  );
   if (!pairs) return;
   for (const list of shared) {
     for (let i = 0; i < list.length; i++) {
@@ -478,7 +490,7 @@ function hierarchyRules(p: Project, out: Issue[]): void {
     for (const s of Object.values(g.steps)) {
       if (s.kind !== 'macro' && s.kind !== 'enclosing') continue;
       const child = s.refGrafcetId ? p.grafcets[s.refGrafcetId] : undefined;
-      const want = s.kind === 'macro' ? 'macroExpansion' : 'enclosed';
+      const want = expectedChildKind(s.kind);
       if (!child || child.kind !== want) {
         out.push({
           ruleId: 'subgrafcetMissing',
@@ -561,13 +573,13 @@ function hierarchyRules(p: Project, out: Issue[]): void {
         const names = stack.slice(from).map((x) => p.grafcets[x.gid]!.name);
         if (!cycle.some((id) => reported.has(id))) {
           cycle.forEach((id) => reported.add(id));
-          const owner = Object.values(p.grafcets).find((g) => g.actions[e.actionId])!;
           out.push({
             ruleId: 'forcingCycle',
             severity: 'error',
             messageKey: 'problems.messages.forcingCycle',
             params: { grafcets: [...names, p.grafcets[e.target]!.name].join(' → ') },
-            grafcetId: owner.id,
+            // The forcing action belongs to the grafcet being visited.
+            grafcetId: gid,
             elementIds: [e.actionId],
           });
         }
@@ -619,19 +631,21 @@ export function validateProject(p: Project): Issue[] {
   const out: Issue[] = [];
   const forced = forcingTargets(p);
   const used = new Set<string>();
+  const envOf = envFactory(p);
   for (const gid of p.grafcetOrder) {
     const g = p.grafcets[gid];
     if (!g) continue;
-    const env = buildEnv(p, gid);
+    const env = envOf(gid);
+    const index = indexGrafcet(g);
     expressionRules(g, env, used, out);
-    structureRules(g, forced.get(gid), out);
+    structureRules(g, index, forced.get(gid), out);
     const isInteger: IntegerLookup = (name) => {
       const t = env.variables.get(name)?.type;
       return t === 'INT' || t === 'TIME';
     };
-    exclusivityRule(g, isInteger, out);
+    exclusivityRule(g, index, isInteger, out);
     transientLoopRule(g, isInteger, out);
-    parallelOutputRule(g, out);
+    parallelOutputRule(g, index, out);
   }
   hierarchyRules(p, out);
   unusedVariableRule(p, used, out);

@@ -103,6 +103,18 @@ function tool(id: Tool, key: string): Command {
 
 const NUDGE = 10;
 
+/** Arrow keys move the selection by `dx`, `dy` grid steps of NUDGE (hidden from the palette). */
+function nudge(id: string, key: string, dx: number, dy: number): Command {
+  return {
+    id: `edit.${id}`,
+    label: 'edit.nudge',
+    group: 'edit',
+    keys: [key],
+    hidden: true,
+    run: () => nudgeSelection(dx * NUDGE, dy * NUDGE),
+  };
+}
+
 export const COMMANDS: Command[] = [
   { id: 'file.new', label: 'file.new', group: 'file', run: newProject },
   {
@@ -280,70 +292,14 @@ export const COMMANDS: Command[] = [
     run: toggleInitialStep,
     enabled: hasSelection,
   },
-  {
-    id: 'edit.nudgeLeft',
-    label: 'edit.nudge',
-    group: 'edit',
-    keys: ['ArrowLeft'],
-    hidden: true,
-    run: () => nudgeSelection(-NUDGE, 0),
-  },
-  {
-    id: 'edit.nudgeRight',
-    label: 'edit.nudge',
-    group: 'edit',
-    keys: ['ArrowRight'],
-    hidden: true,
-    run: () => nudgeSelection(NUDGE, 0),
-  },
-  {
-    id: 'edit.nudgeUp',
-    label: 'edit.nudge',
-    group: 'edit',
-    keys: ['ArrowUp'],
-    hidden: true,
-    run: () => nudgeSelection(0, -NUDGE),
-  },
-  {
-    id: 'edit.nudgeDown',
-    label: 'edit.nudge',
-    group: 'edit',
-    keys: ['ArrowDown'],
-    hidden: true,
-    run: () => nudgeSelection(0, NUDGE),
-  },
-  {
-    id: 'edit.nudgeLeftFar',
-    label: 'edit.nudge',
-    group: 'edit',
-    keys: ['Shift+ArrowLeft'],
-    hidden: true,
-    run: () => nudgeSelection(-5 * NUDGE, 0),
-  },
-  {
-    id: 'edit.nudgeRightFar',
-    label: 'edit.nudge',
-    group: 'edit',
-    keys: ['Shift+ArrowRight'],
-    hidden: true,
-    run: () => nudgeSelection(5 * NUDGE, 0),
-  },
-  {
-    id: 'edit.nudgeUpFar',
-    label: 'edit.nudge',
-    group: 'edit',
-    keys: ['Shift+ArrowUp'],
-    hidden: true,
-    run: () => nudgeSelection(0, -5 * NUDGE),
-  },
-  {
-    id: 'edit.nudgeDownFar',
-    label: 'edit.nudge',
-    group: 'edit',
-    keys: ['Shift+ArrowDown'],
-    hidden: true,
-    run: () => nudgeSelection(0, 5 * NUDGE),
-  },
+  nudge('nudgeLeft', 'ArrowLeft', -1, 0),
+  nudge('nudgeRight', 'ArrowRight', 1, 0),
+  nudge('nudgeUp', 'ArrowUp', 0, -1),
+  nudge('nudgeDown', 'ArrowDown', 0, 1),
+  nudge('nudgeLeftFar', 'Shift+ArrowLeft', -5, 0),
+  nudge('nudgeRightFar', 'Shift+ArrowRight', 5, 0),
+  nudge('nudgeUpFar', 'Shift+ArrowUp', 0, -5),
+  nudge('nudgeDownFar', 'Shift+ArrowDown', 0, 5),
   {
     id: 'edit.escape',
     label: 'edit.escape',

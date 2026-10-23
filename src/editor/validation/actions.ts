@@ -1,14 +1,13 @@
 import type { TFunction } from 'i18next';
 import { showBottomTab } from '@/app/prefs';
+import { elementKind } from '@/core/model/graph';
 import type { Project } from '@/core/model/types';
 import type { Issue, QuickFix } from '@/core/validation/types';
 import { tDynamic } from '@/i18n/dynamic';
-import { revealElements } from '../canvas/viewport';
-import { setActiveGrafcet } from '../commands/edit';
+import { revealInGrafcet, setActiveGrafcet } from '../commands/edit';
 import { renumberActive } from '../commands/structure';
 import { createVariable, deleteVariable } from '../commands/variables';
 import { doc, getProject } from '../store/document';
-import { ui } from '../store/uiStore';
 
 export function issueMessage(t: TFunction, issue: Issue): string {
   return tDynamic(t, issue.messageKey, issue.params);
@@ -45,15 +44,10 @@ export function revealIssue(issue: Issue): void {
   }
   const g = getProject().grafcets[issue.grafcetId];
   if (!g) return;
-  const ids = issue.elementIds.filter(
-    (id) => g.steps[id] || g.transitions[id] || g.actions[id] || g.comments[id],
+  revealInGrafcet(
+    g.id,
+    issue.elementIds.filter((id) => elementKind(g, id)),
   );
-  setActiveGrafcet(g.id);
-  ui.select(ids.slice(0, 1));
-  requestAnimationFrame(() => {
-    revealElements(g.id, ids);
-    ui.flash(ids);
-  });
 }
 
 export function applyQuickFix(fix: QuickFix): void {

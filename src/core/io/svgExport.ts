@@ -25,6 +25,7 @@ import {
   grafcetBounds,
   layoutActions,
   type ActionBox,
+  type GrafcetGeometry,
   stepLabelAnchor,
   transitionTextAnchor,
   type Rect,
@@ -162,7 +163,6 @@ class Writer {
     flush(chars.length);
   }
 
-  /** A receptivity or condition, in textbook or typed form, left-aligned at x, centered on y. */
   /** An expression starting at x or, with anchor "end", ending at x (monospace: exact width). */
   expr(source: string, at: number, y: number, anchor: 'start' | 'end' = 'start'): void {
     const parsed = this.opts.textbook && source.trim() ? cachedBool(source) : null;
@@ -188,8 +188,12 @@ class Writer {
   }
 }
 
-function render(w: Writer, g: Grafcet, only: ReadonlySet<Id> | undefined): void {
-  const geom = computeGeometry(g);
+function render(
+  w: Writer,
+  g: Grafcet,
+  geom: GrafcetGeometry,
+  only: ReadonlySet<Id> | undefined,
+): void {
   const keep = (id: Id) => !only || only.has(id);
   const pal = w.pal;
 
@@ -311,7 +315,8 @@ function render(w: Writer, g: Grafcet, only: ReadonlySet<Id> | undefined): void 
 export function grafcetToSvg(g: Grafcet, opts: SvgOptions = {}): SvgResult {
   const pal = opts.palette ?? PRINT_PALETTE;
   const margin = opts.margin ?? 20;
-  const bounds = grafcetBounds(g, computeGeometry(g), opts.only) ?? {
+  const geom = computeGeometry(g);
+  const bounds = grafcetBounds(g, geom, opts.only) ?? {
     x: 0,
     y: 0,
     width: 100,
@@ -324,7 +329,7 @@ export function grafcetToSvg(g: Grafcet, opts: SvgOptions = {}): SvgResult {
     height: bounds.height + 2 * margin,
   };
   const w = new Writer(pal, opts);
-  render(w, g, opts.only);
+  render(w, g, geom, opts.only);
   const font = opts.fontFamily ?? EXPORT_FONT_FAMILY;
   const head = [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${n(box.width)}" height="${n(box.height)}" viewBox="${n(box.x)} ${n(box.y)} ${n(box.width)} ${n(box.height)}" font-family="${escapeXml(font)}">`,

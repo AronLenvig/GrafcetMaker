@@ -28,7 +28,6 @@ export const en = {
     edit: 'Edit',
     view: 'View',
     simulate: 'Simulate',
-    simulateLabel: 'Simulate: start the simulation',
     help: 'Help',
   },
   file: {
@@ -201,7 +200,6 @@ export const en = {
       view: 'View',
       tools: 'Tool',
       simulate: 'Simulate',
-      simulateLabel: 'Simulate: start the simulation',
       help: 'Help',
       navigate: 'Go to',
     },
@@ -370,7 +368,6 @@ export const en = {
       duplicate: 'Another step of this grafcet has the same number.',
       label: 'Label',
       labelPlaceholder: 'Optional description',
-      initial: 'Initial step (active at start)',
       kind: 'Kind',
       kindsShort: {
         normal: 'Step',

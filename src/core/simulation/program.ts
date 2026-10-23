@@ -5,7 +5,7 @@
  */
 import type { ArithNode, BoolNode } from '../expr/ast';
 import { cachedAssignment, cachedBool, cachedForcing, cachedOutput } from '../expr/cache';
-import { buildEnv, variableIndex } from '../expr/check';
+import { envFactory, variableIndex } from '../expr/check';
 import { entryExit } from '../model/hierarchy';
 import type { ActionKind, Id, Project, Variable } from '../model/types';
 
@@ -77,7 +77,7 @@ export interface CAction {
   target?: string;
   /** Value of a stored action: boolean expression (BOOL target) or arithmetic. */
   boolValue?: CExpr;
-  arithValue?: { ast: ArithNode; steps: Map<number, number> };
+  arithValue?: ArithNode;
   condition?: CExpr;
   forcing?: CForcing;
 }
@@ -200,9 +200,10 @@ export function compile(project: Project): Program {
   const entryOf = (i: number): number => (macros.has(i) ? entryOf(macros.get(i)!.entry) : i);
   const exitOf = (i: number): number => (macros.has(i) ? exitOf(macros.get(i)!.exit) : i);
 
+  const envOf = envFactory(project, variables);
   for (const cg of grafcets) {
     const g = project.grafcets[cg.id]!;
-    const env = buildEnv(project, g.id, variables);
+    const env = envOf(g.id);
     const resolved = new Map<number, number>();
     const resolver = (n: number): number | undefined => {
       if (resolved.has(n)) return resolved.get(n);
@@ -302,7 +303,7 @@ export function compile(project: Project): Program {
             problems.push({ kind: 'expression', elementId: a.id });
             continue;
           }
-          ca.arithValue = { ast: r.value.arith, steps: bindSteps(r.value.arith) };
+          ca.arithValue = r.value.arith;
         }
       }
       actions.push(ca);

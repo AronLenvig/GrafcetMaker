@@ -5,6 +5,7 @@ import { IconButton } from '@/app/ui/primitives';
 import { useSim } from '@/editor/simulation/simStore';
 import { useDoc } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
+import { FloatingCard, PROPERTIES_CARD_WIDTH } from './panelParts';
 import { PropertiesPanel } from './PropertiesPanel';
 import { VariableDetails } from './variables/VariableDetails';
 
@@ -21,16 +22,11 @@ export function PropertiesCard() {
   const variableId = useUi((s) => s.focusedVariable);
   const variable = useDoc((s) => (variableId ? s.project.variables[variableId] : undefined));
   if (!visible || simulating) return null;
-  const title = variable ? t('variables.detailsOf', { name: variable.name }) : t('props.label');
   return (
-    <section
-      aria-label={title}
-      className="gm-island absolute top-[60px] left-3 z-20 flex max-h-[calc(100%-132px)] w-[288px] flex-col overflow-hidden"
-    >
-      <div className="flex h-9 shrink-0 items-center gap-2 border-b border-border pr-1 pl-4">
-        <h2 className="min-w-0 flex-1 truncate text-[11px] font-semibold tracking-wider text-muted uppercase">
-          {title}
-        </h2>
+    <FloatingCard
+      title={variable ? t('variables.detailsOf', { name: variable.name }) : t('props.label')}
+      width={PROPERTIES_CARD_WIDTH}
+      action={
         <IconButton
           label={t('common.close')}
           title={t('common.close')}
@@ -39,16 +35,15 @@ export function PropertiesCard() {
         >
           <CloseIcon size={14} />
         </IconButton>
-      </div>
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        {variable ? (
-          <div className="p-4">
-            <VariableDetails v={variable} locked={false} />
-          </div>
-        ) : (
-          <PropertiesPanel />
-        )}
-      </div>
-    </section>
+      }
+    >
+      {variable ? (
+        <div className="p-4">
+          <VariableDetails v={variable} locked={false} />
+        </div>
+      ) : (
+        <PropertiesPanel />
+      )}
+    </FloatingCard>
   );
 }

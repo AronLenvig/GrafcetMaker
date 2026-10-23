@@ -6,7 +6,7 @@ import { doc } from '../store/document';
 
 interface ProblemsState {
   issues: Issue[];
-  /** Issues per element id (first element of each issue). */
+  /** Issues per element id (every element an issue designates). */
   byElement: Map<Id, Issue[]>;
   counts: { error: number; warning: number; info: number };
   /** Duration of the last validation run, in ms. */
@@ -27,7 +27,11 @@ function publish(issues: Issue[], ms: number): void {
   const counts = { error: 0, warning: 0, info: 0 };
   for (const i of issues) {
     counts[i.severity]++;
-    for (const id of i.elementIds) byElement.set(id, [...(byElement.get(id) ?? []), i]);
+    for (const id of i.elementIds) {
+      const list = byElement.get(id);
+      if (list) list.push(i);
+      else byElement.set(id, [i]);
+    }
   }
   useProblems.setState({ issues, byElement, counts, ms });
 }

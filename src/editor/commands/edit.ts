@@ -6,7 +6,7 @@ import {
   serializeClipboard,
 } from '@/core/model/clipboard';
 import { createGrafcet, createStep } from '@/core/model/factory';
-import { indexGrafcet } from '@/core/model/graph';
+import { indexGrafcet, type GrafcetIndex } from '@/core/model/graph';
 import { nextBaseNumber } from '@/core/model/hierarchy';
 import * as ops from '@/core/model/ops';
 import { IDENT_RE } from '@/core/model/constants';
@@ -103,19 +103,27 @@ export function addActionToSelection(kind: ActionKind = 'continuous'): void {
  * one at the end), or the next receptivity of the sequence (or a new transition and step at its
  * end). Null when there is nothing to continue with.
  */
-export function nextAfter(g: Grafcet, id: Id): 'action' | 'step' | null {
+export function nextAfter(
+  g: Grafcet,
+  id: Id,
+  index: GrafcetIndex = indexGrafcet(g),
+): 'action' | 'step' | null {
   if (g.actions[id]?.stepId) return 'action';
-  return nextTransition(g, id) === undefined ? null : 'step';
+  return nextTransition(g, id, index) === undefined ? null : 'step';
 }
 
 /**
  * After a transition leading to one step (or none): the step's only outgoing transition, null to
  * append a new one, undefined when there is no single next (parallel or alternative branches).
  */
-function nextTransition(g: Grafcet, id: Id): Id | null | undefined {
+function nextTransition(
+  g: Grafcet,
+  id: Id,
+  index: GrafcetIndex = indexGrafcet(g),
+): Id | null | undefined {
   const t = g.transitions[id];
   if (!t || t.to.length > 1) return undefined;
-  const outs = t.to[0] ? (indexGrafcet(g).outgoing.get(t.to[0]) ?? []) : [];
+  const outs = t.to[0] ? (index.outgoing.get(t.to[0]) ?? []) : [];
   return outs.length > 1 ? undefined : (outs[0]?.id ?? null);
 }
 

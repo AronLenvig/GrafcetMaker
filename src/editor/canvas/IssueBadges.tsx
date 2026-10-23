@@ -80,7 +80,7 @@ const Badge = memo(function Badge({
 });
 
 /** On-element problem badges for the active grafcet (worst severity per element). */
-export function IssueBadges({ g, geom }: { g: Grafcet; geom: GrafcetGeometry }) {
+function IssueBadgesView({ g, geom }: { g: Grafcet; geom: GrafcetGeometry }) {
   const { t } = useTranslation();
   const byElement = useProblems((s) => s.byElement);
   const badges: { id: Id; severity: Severity; title: string; at: Point; kind: string }[] = [];
@@ -116,3 +116,6 @@ export function IssueBadges({ g, geom }: { g: Grafcet; geom: GrafcetGeometry }) 
     </g>
   );
 }
+
+/** Memoized: the canvas re-renders on every pan and zoom frame. */
+export const IssueBadges = memo(IssueBadgesView);

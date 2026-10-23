@@ -192,7 +192,7 @@ export class Simulator {
     return typeof v === 'number' ? v !== 0 : !!v;
   }
 
-  private num(e: CExpr | { steps: Map<number, number> }, n: ArithNode): number {
+  private num(n: ArithNode): number {
     switch (n.type) {
       case 'num':
         return n.value;
@@ -203,10 +203,10 @@ export class Simulator {
         return typeof v === 'boolean' ? (v ? 1 : 0) : (v ?? 0);
       }
       case 'neg':
-        return -this.num(e, n.operand);
+        return -this.num(n.operand);
       case 'arith': {
-        const a = this.num(e, n.left);
-        const b = this.num(e, n.right);
+        const a = this.num(n.left);
+        const b = this.num(n.right);
         switch (n.op) {
           case '+':
             return a + b;
@@ -240,8 +240,8 @@ export class Simulator {
       case 'or':
         return this.eval(e, n.left) || this.eval(e, n.right);
       case 'cmp': {
-        const a = this.num(e, n.left);
-        const b = this.num(e, n.right);
+        const a = this.num(n.left);
+        const b = this.num(n.right);
         switch (n.op) {
           case '=':
             return a === b;
@@ -320,7 +320,7 @@ export class Simulator {
     if (a.boolValue) value = this.eval(a.boolValue);
     else if (a.arithValue) {
       const v = this.program.variables.get(a.target);
-      const raw = this.num(a.arithValue, a.arithValue.ast);
+      const raw = this.num(a.arithValue);
       value = v?.type === 'INT' || v?.type === 'TIME' ? Math.trunc(raw) : raw;
     } else return;
     if (this.values.get(a.target) !== value) this.assigned = true;

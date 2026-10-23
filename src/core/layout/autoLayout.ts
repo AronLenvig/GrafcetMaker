@@ -114,8 +114,18 @@ export function autoLayout(g: Grafcet, only?: ReadonlySet<Id>): Map<Id, Point> {
     }
   }
 
-  // Horizontal extents of each node, including labels, actions and receptivity text.
+  // Horizontal extents of each node, including labels, actions and receptivity text. Measured
+  // once: a branch's items are re-added to every enclosing block.
+  const extents = new Map<Id, { left: number; right: number }>();
   const extent = (id: Id): { left: number; right: number } => {
+    let e = extents.get(id);
+    if (!e) {
+      e = measure(id);
+      extents.set(id, e);
+    }
+    return e;
+  };
+  const measure = (id: Id): { left: number; right: number } => {
     const s = g.steps[id];
     if (s) {
       const boxes = layoutActions(s, index.actions.get(id) ?? []);

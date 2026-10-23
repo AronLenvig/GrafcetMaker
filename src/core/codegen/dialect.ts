@@ -15,7 +15,7 @@
  *   INT and TIME, 1/0 for TRUE/FALSE, initial values assigned on the first scan (S:FS), `.st`.
  */
 import type { VariableType } from '../model/types';
-import { timeLiteral } from './common';
+import { cdata, timeLiteral } from './common';
 
 export type StDialect = 'iec' | 'siemens' | 'twincat' | 'rockwell';
 
@@ -285,8 +285,6 @@ function guidOf(seed: string): string {
   const r = ((parseInt(hex[16]!, 16) & 0x3) | 0x8).toString(16) + hex.slice(17, 20);
   return `{${hex.slice(0, 8)}-${hex.slice(8, 12)}-${v}-${r}-${hex.slice(20, 32)}}`;
 }
-
-const cdata = (s: string) => `<![CDATA[${s.replaceAll(']]>', ']]]]><![CDATA[>')}]]>`;
 
 /** Drops the blank line the generators put before the first section. */
 const bodyText = (body: string[]) => body.join('\n').replace(/^\n+/, '');

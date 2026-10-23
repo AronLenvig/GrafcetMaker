@@ -67,6 +67,17 @@ export function buildEnv(
   grafcetId: Id | null,
   variables = variableIndex(project),
 ): ExprEnv {
+  return envFactory(project, variables)(grafcetId);
+}
+
+/**
+ * Environments for the expressions of several grafcets of one project: the project-wide indexes
+ * (steps by number, grafcets by name, variables) are built once and shared by every grafcet.
+ */
+export function envFactory(
+  project: ProjectNames,
+  variables = variableIndex(project),
+): (grafcetId: Id | null) => ExprEnv {
   const byNumber = new Map<number, { grafcetId: Id; stepId: Id }[]>();
   for (const g of Object.values(project.grafcets)) {
     for (const s of Object.values(g.steps)) {
@@ -78,7 +89,7 @@ export function buildEnv(
   }
   const grafcetByName = new Map<string, Grafcet>();
   for (const g of Object.values(project.grafcets)) grafcetByName.set(g.name.toLowerCase(), g);
-  return {
+  return (grafcetId) => ({
     variables,
     grafcetId,
     grafcetByName,
@@ -89,7 +100,7 @@ export function buildEnv(
       if (all.length === 1) return all[0]!;
       return all.length === 0 ? 'missing' : 'ambiguous';
     },
-  };
+  });
 }
 
 /** Edit distance counting an adjacent transposition as one edit (optimal string alignment). */

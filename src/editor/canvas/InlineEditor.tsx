@@ -289,7 +289,9 @@ function EditorField({
 
   // Shift+Enter: apply, then edit the next action or receptivity (created at the end).
   const next =
-    target.field === 'text' || target.field === 'receptivity' ? nextAfter(g, target.id) : null;
+    target.field === 'text' || target.field === 'receptivity'
+      ? nextAfter(g, target.id, geom.index)
+      : null;
   const finishNext = (v: string) => {
     if (done.current) return;
     applyEdit(target, v);

@@ -6,7 +6,7 @@ import { runCommand } from '@/editor/commands/registry';
 import { useSim } from '@/editor/simulation/simStore';
 import { useUi } from '@/editor/store/uiStore';
 import { ToolIsland, UndoRedoIsland } from '@/editor/tools/Toolbar';
-import { useProblems } from '@/editor/validation/problems';
+import { ProblemsBadge, usePanelLabel } from '@/panels/panelParts';
 import { MainMenuButton } from './menus';
 import { SimBar } from './SimBar';
 import {
@@ -110,7 +110,7 @@ function PanelsIsland() {
   const { t } = useTranslation();
   const open = useSheet((s) => s.open);
   const tab = useSheet((s) => s.tab);
-  const problems = useProblems((s) => s.counts.error + s.counts.warning);
+  const panelLabel = usePanelLabel();
   return (
     <div className="flex items-center gap-2">
       <nav
@@ -120,7 +120,7 @@ function PanelsIsland() {
       >
         {PANEL_TABS.map((x) => {
           const Icon = PANEL_ICONS[x];
-          const label = x === 'outline' ? t('outline.tab') : t(`panels.${x}`);
+          const label = panelLabel(x);
           const on = open && tab === x;
           return (
             <Tip key={x} label={label} side="top">
@@ -136,11 +136,7 @@ function PanelsIsland() {
               >
                 <Icon size={18} />
                 <span className="hidden text-[13px] xl:inline">{label}</span>
-                {x === 'problems' && problems > 0 && (
-                  <span className="rounded-full bg-surface-3 px-1.5 text-xs text-text tabular-nums">
-                    {problems}
-                  </span>
-                )}
+                {x === 'problems' && <ProblemsBadge className="text-text" />}
               </button>
             </Tip>
           );

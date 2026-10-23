@@ -6,8 +6,8 @@ import { closeSheet, PANEL_TABS, SHEET_TABS, useSheet, type SheetTab } from '@/a
 import { CloseIcon } from '@/app/ui/icons';
 import { cx, IconButton } from '@/app/ui/primitives';
 import { useSim } from '@/editor/simulation/simStore';
-import { useProblems } from '@/editor/validation/problems';
 import { OutlinePanel } from './OutlinePanel';
+import { ProblemsBadge, usePanelLabel } from './panelParts';
 import { ProblemsPanel } from './ProblemsPanel';
 import { PropertiesPanel } from './PropertiesPanel';
 import { SimulationPanel } from './SimulationPanel';
@@ -52,45 +52,65 @@ function useRoom(ref: React.RefObject<HTMLElement | null>, open: boolean) {
   return room;
 }
 
-/** The tab strip with its count badge and close button, shared by the sheet and the card. */
-function PanelTabs({ tabs, dense }: { tabs: readonly SheetTab[]; dense: boolean }) {
+/**
+ * The panels as tabs (with the problem count and a close button) and the open one below them,
+ * shared by the sheet and the card. `contentOf` chooses what each tab shows.
+ */
+function PanelTabsView({
+  tabs,
+  dense,
+  contentOf,
+}: {
+  tabs: readonly SheetTab[];
+  dense: boolean;
+  contentOf: (tab: SheetTab) => ComponentType;
+}) {
   const { t } = useTranslation();
-  const problems = useProblems((s) => s.counts.error + s.counts.warning);
-  const label = (x: SheetTab) =>
-    x === 'properties' ? t('props.label') : x === 'outline' ? t('outline.tab') : t(`panels.${x}`);
+  const tab = useSheet((s) => s.tab);
+  const label = usePanelLabel();
   return (
-    <div className="flex shrink-0 items-center border-b border-border">
-      <Tabs.List
-        aria-label={t('panels.label')}
-        className="gm-no-scrollbar flex min-w-0 flex-1 items-stretch overflow-x-auto"
-      >
-        {tabs.map((x) => (
-          <Tabs.Trigger
-            key={x}
-            value={x}
-            className={cx(
-              'flex shrink-0 items-center gap-1.5 border-b-2 border-transparent px-3 whitespace-nowrap text-muted hover:text-text data-[state=active]:border-accent data-[state=active]:text-text',
-              dense ? 'h-9' : 'h-10',
-            )}
-          >
-            {label(x)}
-            {x === 'problems' && problems > 0 && (
-              <span className="rounded-full bg-surface-3 px-1.5 text-xs tabular-nums">
-                {problems}
-              </span>
-            )}
-          </Tabs.Trigger>
-        ))}
-      </Tabs.List>
-      <IconButton
-        label={t('common.close')}
-        title={t('common.close')}
-        className={cx('shrink-0', dense ? 'h-9 w-9' : 'h-10 w-10')}
-        onClick={closeSheet}
-      >
-        <CloseIcon size={16} />
-      </IconButton>
-    </div>
+    <Tabs.Root
+      value={tab}
+      onValueChange={(v) => useSheet.setState({ tab: v as SheetTab })}
+      className="flex min-h-0 flex-1 flex-col"
+    >
+      <div className="flex shrink-0 items-center border-b border-border">
+        <Tabs.List
+          aria-label={t('panels.label')}
+          className="gm-no-scrollbar flex min-w-0 flex-1 items-stretch overflow-x-auto"
+        >
+          {tabs.map((x) => (
+            <Tabs.Trigger
+              key={x}
+              value={x}
+              className={cx(
+                'flex shrink-0 items-center gap-1.5 border-b-2 border-transparent px-3 whitespace-nowrap text-muted hover:text-text data-[state=active]:border-accent data-[state=active]:text-text',
+                dense ? 'h-9' : 'h-10',
+              )}
+            >
+              {label(x)}
+              {x === 'problems' && <ProblemsBadge />}
+            </Tabs.Trigger>
+          ))}
+        </Tabs.List>
+        <IconButton
+          label={t('common.close')}
+          title={t('common.close')}
+          className={cx('shrink-0', dense ? 'h-9 w-9' : 'h-10 w-10')}
+          onClick={closeSheet}
+        >
+          <CloseIcon size={16} />
+        </IconButton>
+      </div>
+      {tabs.map((x) => {
+        const Content = contentOf(x);
+        return (
+          <Tabs.Content key={x} value={x} className="min-h-0 flex-1 overflow-auto outline-none">
+            <Content />
+          </Tabs.Content>
+        );
+      })}
+    </Tabs.Root>
   );
 }
 
@@ -185,21 +205,7 @@ export function PanelSheet() {
       >
         <span className="h-1 w-10 rounded-full bg-border-strong" />
       </Grip>
-      <Tabs.Root
-        value={tab}
-        onValueChange={(v) => useSheet.setState({ tab: v as SheetTab })}
-        className="flex min-h-0 flex-1 flex-col"
-      >
-        <PanelTabs tabs={tabs} dense={false} />
-        {tabs.map((x) => {
-          const Content = CONTENT[x];
-          return (
-            <Tabs.Content key={x} value={x} className="min-h-0 flex-1 overflow-auto outline-none">
-              <Content />
-            </Tabs.Content>
-          );
-        })}
-      </Tabs.Root>
+      <PanelTabsView tabs={tabs} dense={false} contentOf={(x) => CONTENT[x]} />
     </section>
   );
 }
@@ -237,21 +243,11 @@ export function PanelCard() {
         onResize={resize}
         className="absolute inset-y-0 left-0 z-10 w-1.5 hover:bg-accent/40 focus-visible:bg-accent/40"
       />
-      <Tabs.Root
-        value={tab}
-        onValueChange={(v) => useSheet.setState({ tab: v as SheetTab })}
-        className="flex min-h-0 flex-1 flex-col"
-      >
-        <PanelTabs tabs={tabs} dense />
-        {tabs.map((x) => {
-          const Content = x === 'variables' && w >= TABLE_WIDTH ? VariablesPanel : CONTENT[x];
-          return (
-            <Tabs.Content key={x} value={x} className="min-h-0 flex-1 overflow-auto outline-none">
-              <Content />
-            </Tabs.Content>
-          );
-        })}
-      </Tabs.Root>
+      <PanelTabsView
+        tabs={tabs}
+        dense
+        contentOf={(x) => (x === 'variables' && w >= TABLE_WIDTH ? VariablesPanel : CONTENT[x])}
+      />
     </section>
   );
 }

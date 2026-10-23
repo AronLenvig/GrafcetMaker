@@ -106,7 +106,9 @@ export function ProblemsPanel() {
     const map = new Map<string, Issue[]>();
     for (const i of visible) {
       const key = i.grafcetId ?? '';
-      map.set(key, [...(map.get(key) ?? []), i]);
+      const list = map.get(key);
+      if (list) list.push(i);
+      else map.set(key, [i]);
     }
     const keys = [...order.filter((id) => map.has(id)), ...(map.has('') ? [''] : [])];
     return keys.map((k) => ({

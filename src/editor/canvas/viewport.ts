@@ -62,10 +62,6 @@ export function screenToDiagram(v: Viewport, p: Point): Point {
   return { x: v.x + p.x / v.zoom, y: v.y + p.y / v.zoom };
 }
 
-export function diagramToScreen(v: Viewport, p: Point): Point {
-  return { x: (p.x - v.x) * v.zoom, y: (p.y - v.y) * v.zoom };
-}
-
 /** Zooms keeping the diagram point under `screen` fixed. */
 export function zoomAt(gid: Id, factor: number, screen: Point): void {
   const v = getViewport(gid);

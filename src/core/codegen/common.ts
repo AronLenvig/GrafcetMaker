@@ -64,7 +64,7 @@ export function emptyForcingWarnings(project: Project): CodegenWarning[] {
 function holdable(a: CAction): boolean {
   if (a.kind !== 'storedOnActivation' && a.kind !== 'storedOnDeactivation') return false;
   if (a.step === null || a.condition || !a.target) return false;
-  const v = a.boolValue?.ast ?? a.arithValue?.ast;
+  const v = a.boolValue?.ast ?? a.arithValue;
   if (!v) return false;
   return (
     v.type === 'const' ||
@@ -94,6 +94,42 @@ export function heldActions(p: Program, opts: CodegenOptions): Set<CAction> {
   }
   return held;
 }
+
+/** Collects the warnings of one generation, each reported once (it can be met several times). */
+export function warningCollector(): {
+  warnings: CodegenWarning[];
+  warn: (w: CodegenWarning) => void;
+} {
+  const warnings: CodegenWarning[] = [];
+  const seen = new Set<string>();
+  return {
+    warnings,
+    warn: (w) => {
+      const key = `${w.code}|${w.elementId ?? ''}|${JSON.stringify(w.params)}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        warnings.push(w);
+      }
+    },
+  };
+}
+
+/** Variables named like an ST keyword: the target would reject the declaration. */
+export function warnKeywords(
+  variables: Iterable<{ name: string }>,
+  warn: (w: CodegenWarning) => void,
+): void {
+  for (const v of variables)
+    if (ST_KEYWORDS.has(v.name.toUpperCase())) warn({ code: 'keyword', params: { name: v.name } });
+}
+
+/** The real steps a macro-step stands for (nested macro-steps expanded). */
+export function macroSteps(p: Program, i: number): number[] {
+  return p.macros.get(i)!.members.flatMap((m) => (p.macros.has(m) ? macroSteps(p, m) : [m]));
+}
+
+/** Text in an XML CDATA section (a `]]>` inside is split across two sections). */
+export const cdata = (s: string): string => `<![CDATA[${s.replaceAll(']]>', ']]]]><![CDATA[>')}]]>`;
 
 export interface CodegenResult {
   code: string;

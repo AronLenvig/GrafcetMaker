@@ -1,4 +1,4 @@
-import { actionTextKind, analyze, buildEnv, type ExprEnv, type ProjectNames } from '../expr/check';
+import { actionTextKind, analyze, buildEnv, envFactory, type ProjectNames } from '../expr/check';
 import { renameIdentifier } from '../expr/format';
 import { RESERVED_WORDS, tokenize } from '../expr/lexer';
 import { STEP_REF_RE } from '../expr/parser';
@@ -46,8 +46,9 @@ export function* grafcetExpressions(g: Grafcet): Generator<{
 /** How many expressions reference each variable (by lower-cased name). */
 export function variableUsage(p: ProjectNames): Map<string, number> {
   const usage = new Map<string, number>();
+  const envOf = envFactory(p);
   for (const g of Object.values(p.grafcets)) {
-    const env: ExprEnv = buildEnv(p, g.id);
+    const env = envOf(g.id);
     for (const e of grafcetExpressions(g)) {
       for (const name of analyze(e.kind, e.source, env).references)
         usage.set(name, (usage.get(name) ?? 0) + 1);
@@ -144,10 +145,11 @@ export interface VariableReference {
 export function variableReferences(p: Project, name: string): VariableReference[] {
   const lower = name.toLowerCase();
   const out: VariableReference[] = [];
+  const envOf = envFactory(p);
   for (const gid of p.grafcetOrder) {
     const g = p.grafcets[gid];
     if (!g) continue;
-    const env = buildEnv(p, g.id);
+    const env = envOf(g.id);
     for (const e of grafcetExpressions(g)) {
       const a = analyze(e.kind, e.source, env);
       if (!a.references.has(lower)) continue;

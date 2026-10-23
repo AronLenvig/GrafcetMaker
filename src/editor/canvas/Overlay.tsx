@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { memo, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ACTION_GAP,
@@ -19,6 +19,7 @@ import {
 import { useCoarsePointer } from '@/app/ui/media';
 import { nextStepNumber, preferredStepNumber } from '@/core/model/ops';
 import type { Grafcet, Id, Point } from '@/core/model/types';
+import { useShallow } from 'zustand/react/shallow';
 import { useUi } from '../store/uiStore';
 import { useInteraction } from './interactionStore';
 import { pointsToPath } from './svg';
@@ -255,7 +256,7 @@ function ToolGhost({ g, geom }: { g: Grafcet; geom: GrafcetGeometry }) {
 }
 
 /** Selection, link handles, link-drag preview, marquee and flash: everything that is not the diagram. */
-export function Overlay({
+function OverlayView({
   g,
   geom,
   readOnly,
@@ -270,7 +271,15 @@ export function Overlay({
   const pending = useUi((s) => s.pending);
   const editing = useUi((s) => s.editing);
   const tool = useUi((s) => s.tool);
-  const { marquee, link, hover, moving, dropTarget } = useInteraction();
+  const { marquee, link, hover, moving, dropTarget } = useInteraction(
+    useShallow((s) => ({
+      marquee: s.marquee,
+      link: s.link,
+      hover: s.hover,
+      moving: s.moving,
+      dropTarget: s.dropTarget,
+    })),
+  );
 
   const ids = Object.keys(selection);
   const handleIds = new Set<Id>();
@@ -352,3 +361,6 @@ export function Overlay({
     </g>
   );
 }
+
+/** Memoized: the canvas re-renders on every pan and zoom frame. */
+export const Overlay = memo(OverlayView);

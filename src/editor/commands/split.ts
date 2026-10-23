@@ -47,11 +47,6 @@ export function closeSplit(): void {
   if (active) requestAnimationFrame(() => fitToContent(active));
 }
 
-export function toggleSplit(): void {
-  if (useUi.getState().split) closeSplit();
-  else openSplit('columns');
-}
-
 /** Makes a pane's grafcet the active one. */
 export function focusPane(pane: 0 | 1): void {
   const split = useUi.getState().split;

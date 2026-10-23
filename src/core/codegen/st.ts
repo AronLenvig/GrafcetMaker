@@ -16,13 +16,14 @@ import {
   emptyForcingWarnings,
   heldActions,
   NameTable,
-  ST_KEYWORDS,
+  macroSteps,
+  warningCollector,
+  warnKeywords,
   stArith,
   stBool,
   timeLiteral,
   type CodegenOptions,
   type CodegenResult,
-  type CodegenWarning,
   type ExprTarget,
 } from './common';
 import { CALL_CYCLICALLY, dialectHooks, renderModule, type Decl } from './dialect';
@@ -42,22 +43,13 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
   const hooks = dialectHooks(opts.dialect ?? 'iec');
   const heldSet = heldActions(p, opts);
   const held = (a: CAction) => heldSet.has(a);
-  const warnings: CodegenWarning[] = [];
-  const seen = new Set<string>();
-  const warn = (w: CodegenWarning) => {
-    const key = `${w.code}|${w.elementId ?? ''}|${JSON.stringify(w.params)}`;
-    if (!seen.has(key)) {
-      seen.add(key);
-      warnings.push(w);
-    }
-  };
+  const { warnings, warn } = warningCollector();
   for (const prob of p.problems)
     warn({ code: 'expression', elementId: prob.elementId, params: {} });
   for (const w of emptyForcingWarnings(project)) warn(w);
 
   const userVars = [...p.variables.values()];
-  for (const v of userVars)
-    if (ST_KEYWORDS.has(v.name.toUpperCase())) warn({ code: 'keyword', params: { name: v.name } });
+  warnKeywords(userVars, warn);
   const names = new NameTable(userVars.map((v) => v.name));
   const fbName = names.take(`FB_${project.name}`);
   const initName = names.take('Init');
@@ -254,8 +246,7 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
   };
 
   // Macro-steps are active while any step of their expansion is.
-  const realMembers = (i: number): number[] =>
-    p.macros.get(i)!.members.flatMap((m) => (isMacro(m) ? realMembers(m) : [m]));
+  const realMembers = (i: number) => macroSteps(p, i);
   const macroLines = [...p.macros.keys()].map(
     (i) =>
       `${X[i]} := ${
@@ -297,7 +288,7 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
     const v = p.variables.get(a.target);
     const name = varName(a.target);
     if (a.boolValue) return `${name} := ${stBool(a.boolValue.ast, a.boolValue.steps, target)};`;
-    if (a.arithValue) return `${name} := ${stArith(a.arithValue.ast, arithTarget, 0, v?.type)};`;
+    if (a.arithValue) return `${name} := ${stArith(a.arithValue, arithTarget, 0, v?.type)};`;
     return null;
   };
   const storedLines = (): string[] => {

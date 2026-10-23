@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { useSim } from '@/editor/simulation/simStore';
+import { PROPERTIES_CARD_WIDTH, SIMULATION_CARD_WIDTH } from '@/panels/panelParts';
 import { useHelp } from './help/helpStore';
 import { usePrefs } from './prefs';
 import { PANEL_TABS, usePropertiesVisible, useSheet, type SheetTab } from './sheet';
@@ -22,7 +23,14 @@ export function useSideWidths(): { left: number; right: number } {
   const simCollapsed = useSheet((s) => s.simCollapsed);
   const help = useHelp((s) => s.open);
   const panel = usePanelSpace();
-  const left = simulating ? (simCollapsed ? 0 : 344) : properties ? 312 : 0;
+  // Card width plus its margin and a gap.
+  const left = simulating
+    ? simCollapsed
+      ? 0
+      : SIMULATION_CARD_WIDTH + 24
+    : properties
+      ? PROPERTIES_CARD_WIDTH + 24
+      : 0;
   const right = (panel ? panel + 12 : 0) + (help ? Math.min(440, window.innerWidth * 0.4) + 20 : 0);
   return { left, right };
 }

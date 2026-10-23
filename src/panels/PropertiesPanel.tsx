@@ -162,7 +162,10 @@ function ActionEditor({ action, index, count }: { action: Action; index: number;
 
 function StepProps({ g, step }: { g: Grafcet; step: Step }) {
   const { t } = useTranslation();
-  const project = useDoc((s) => s.project);
+  // Only the name of its sub-grafcet: the whole project changes on every edit.
+  const childName = useDoc((s) =>
+    step.refGrafcetId ? s.project.grafcets[step.refGrafcetId]?.name : undefined,
+  );
   const validateNumber = useNumberValidator();
   const actions = useMemo(() => indexGrafcet(g).actions.get(step.id) ?? [], [g, step.id]);
   const update = (recipe: (s: Step) => void) =>
@@ -209,9 +212,9 @@ function StepProps({ g, step }: { g: Grafcet; step: Step }) {
           enclosed={g.kind === 'enclosed'}
           onChange={(k) => setStepKind(step.id, k)}
         />
-        {step.refGrafcetId && project.grafcets[step.refGrafcetId] && (
+        {childName !== undefined && (
           <Button size="sm" onClick={() => openChild(step.id)}>
-            {t('props.step.openChild', { name: project.grafcets[step.refGrafcetId]!.name })}
+            {t('props.step.openChild', { name: childName })}
           </Button>
         )}
       </Section>

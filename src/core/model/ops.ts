@@ -166,8 +166,6 @@ export function appendAfterTransition(
   return { stepId: ns.id, transitionId: t2.id };
 }
 
-export type LinkEnd = { kind: 'step' | 'transition'; id: Id };
-
 /** Links step → transition or transition → step. Any other pair is unrepresentable: returns false. */
 export function connect(g: Grafcet, fromId: Id, toId: Id): boolean {
   const toT = g.transitions[toId];
@@ -181,12 +179,6 @@ export function connect(g: Grafcet, fromId: Id, toId: Id): boolean {
     return true;
   }
   return false;
-}
-
-export function canConnect(g: Grafcet, fromId: Id, toId: Id): boolean {
-  return (
-    (!!g.steps[fromId] && !!g.transitions[toId]) || (!!g.transitions[fromId] && !!g.steps[toId])
-  );
 }
 
 /** Removes the link between a transition and a step ('in' = upstream side of the transition). */

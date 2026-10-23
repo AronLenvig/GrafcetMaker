@@ -1,4 +1,4 @@
-import type { Action, Grafcet, Id, Transition } from './types';
+import type { Action, ElementKind, Grafcet, Id, Transition } from './types';
 
 /** Adjacency derived from transition from/to lists (divergences/convergences are never stored). */
 export interface GrafcetIndex {
@@ -35,20 +35,10 @@ export function indexGrafcet(g: Grafcet): GrafcetIndex {
 }
 
 /** Kind of element an id refers to within a grafcet, or null. */
-export function elementKind(
-  g: Grafcet,
-  id: Id,
-): 'step' | 'transition' | 'action' | 'comment' | null {
+export function elementKind(g: Grafcet, id: Id): ElementKind | null {
   if (g.steps[id]) return 'step';
   if (g.transitions[id]) return 'transition';
   if (g.actions[id]) return 'action';
   if (g.comments[id]) return 'comment';
   return null;
-}
-
-/** Forward successors of a step (via its outgoing transitions). */
-export function successorSteps(g: Grafcet, index: GrafcetIndex, stepId: Id): Id[] {
-  const out: Id[] = [];
-  for (const t of index.outgoing.get(stepId) ?? []) out.push(...t.to);
-  return out.filter((id) => g.steps[id]);
 }

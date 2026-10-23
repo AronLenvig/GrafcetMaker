@@ -1,11 +1,7 @@
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePrefs } from '@/app/prefs';
-import {
-  LABEL_FONT_SIZE,
-  STEP_HALF,
-  TRANSITION_WIDTH,
-  type GrafcetGeometry,
-} from '@/core/layout/geometry';
+import { LABEL_FONT_SIZE, STEP_HALF, TRANSITION_WIDTH } from '@/core/layout/geometry';
 import type { Grafcet, Id } from '@/core/model/types';
 import { useSim } from '../simulation/simStore';
 import { baseline } from './svg';
@@ -21,7 +17,7 @@ export function formatSimTime(ms: number): string {
  * Simulation markers drawn over the diagram: enabled transitions (a ▶ marker), transitions just
  * cleared (flash, skipped with reduced motion), and the time each active step has been active.
  */
-export function SimOverlay({
+function SimOverlayView({
   g,
   active,
   enabled,
@@ -29,7 +25,6 @@ export function SimOverlay({
   activatedAt,
 }: {
   g: Grafcet;
-  geom: GrafcetGeometry;
   active: ReadonlySet<Id>;
   enabled: ReadonlySet<Id>;
   time: number;
@@ -87,3 +82,6 @@ export function SimOverlay({
     </g>
   );
 }
+
+/** Memoized: the canvas re-renders on every pan and zoom frame. */
+export const SimOverlay = memo(SimOverlayView);

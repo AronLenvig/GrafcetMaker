@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Project, Variable } from '@/core/model/types';
 import type { Value } from '@/core/simulation/engine';
@@ -204,7 +204,7 @@ function CycleLogList() {
   );
 }
 
-function Scenarios() {
+const Scenarios = memo(function Scenarios() {
   const { t } = useTranslation();
   const scenarios = useDoc((s) => s.project.scenarios);
   const list = Object.values(scenarios ?? {});
@@ -231,9 +231,8 @@ function Scenarios() {
       ))}
     </ul>
   );
-}
+});
 
-/** Bottom panel during simulation: inputs, live values, cycle log and scenarios. */
 /**
  * Inputs to drive, outputs and internal values, the evolution log and the recorded scenarios.
  * Side by side in a wide panel; `stacked` (the desktop simulation card, and phones) puts them
@@ -246,15 +245,17 @@ export function SimulationPanel({ stacked = false }: { stacked?: boolean }) {
   const error = useSim((s) => s.snapshot?.error);
   const replaying = useSim((s) => !!s.replay);
   const variables = useDoc((s) => s.project.variables);
+  // Sorted once per change of the variables, not on every simulated frame.
+  const { inputs, shown } = useMemo(() => {
+    const byDir = (d: Variable['direction']) =>
+      Object.values(variables)
+        .filter((v) => v.direction === d)
+        .sort((a, b) => a.name.localeCompare(b.name));
+    return { inputs: byDir('input'), shown: [...byDir('output'), ...byDir('internal')] };
+  }, [variables]);
   if (!on) {
     return <p className="p-4 text-muted">{t('simulation.notRunning')}</p>;
   }
-  const byDir = (d: Variable['direction']) =>
-    Object.values(variables)
-      .filter((v) => v.direction === d)
-      .sort((a, b) => a.name.localeCompare(b.name));
-  const inputs = byDir('input');
-  const shown = [...byDir('output'), ...byDir('internal')];
   return (
     <div
       className={cx(

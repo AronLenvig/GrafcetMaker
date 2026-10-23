@@ -214,6 +214,14 @@ Autonomous build log. Read this first in every session and resume from **Current
   screens; link handles offset outside the element with a 24 px+ target; wider hit areas;
   touch hints; dialogs (start, export, settings, modal, inline editor) stack on phones. e2e: one
   phone test (double-tap, selection toolbar, sheet, simulation).
+- Code health pass (review by area, verified before applying): validation memoizes atom keys,
+  builds one index and one expression environment factory (`envFactory`) per run; auto-layout
+  measures each node once; expression widths are memoized; SVG export computes geometry once;
+  shared codegen helpers (`warningCollector`, `warnKeywords`, `macroSteps`, `cdata`). Editor:
+  simulation cycles keep their array when nothing arrives, cached media queries, memoized canvas
+  layers, a narrow interaction subscription, the clock in its own component, `elementKind` /
+  `revealInGrafcet` reused, nudge command factory. UI: `FloatingCard`, `PanelTabsView`,
+  `usePanelLabel`, `ProblemsBadge`, `THEME_MODES`, per-preference menu items. Dead code removed.
 - Floating layout: canvas-first desktop/tablet UI with islands (menu + project + properties
   toggle; tools with key letters and new 1.5-stroke icons; problems / Simulate / share; zoom +
   undo; grafcet tabs; panel buttons + help + feedback), floating properties card and panel card,

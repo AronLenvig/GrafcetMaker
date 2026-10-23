@@ -16,9 +16,10 @@
  * checked against the project schema before it is returned.
  */
 import { z } from 'zod';
-import { actionTextKind, analyze, buildEnv, variableIndex } from '../expr/check';
+import { analyze, envFactory } from '../expr/check';
 import { autoLayout } from '../layout/autoLayout';
 import { computeGeometry, grafcetBounds, snap } from '../layout/geometry';
+import { grafcetExpressions } from '../model/variables';
 import { createGrafcet, createProject, newId } from '../model/factory';
 import {
   addAction,
@@ -769,16 +770,10 @@ export function importGrafcetIo(
   // ---- Variables: what the expressions use, as the "Create variable" quick fix would ----------
   const found = new Map<string, Variable>();
   const rank = { input: 0, internal: 1, output: 2 } as const;
-  const variables = variableIndex(project);
+  const envOf = envFactory(project);
   for (const g of Object.values(project.grafcets)) {
-    const env = buildEnv(project, g.id, variables);
-    const sources: [Parameters<typeof analyze>[0], string][] = [];
-    for (const t of Object.values(g.transitions)) sources.push(['condition', t.receptivity]);
-    for (const a of Object.values(g.actions)) {
-      sources.push([actionTextKind(a.kind), a.text]);
-      if (a.condition) sources.push(['condition', a.condition]);
-    }
-    for (const [kind, source] of sources) {
+    const env = envOf(g.id);
+    for (const { kind, source } of grafcetExpressions(g)) {
       if (!source.trim()) continue;
       for (const d of analyze(kind, source, env).diagnostics) {
         if (!d.create || !IDENT_RE.test(d.create.name)) continue;

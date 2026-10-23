@@ -127,7 +127,7 @@ function apply(res: SimResponse | null, opts: { restart?: boolean } = {}): void 
       baseline = { time: first.time, active: first.active, values: { ...res.snapshot.values } };
       incoming = incoming.slice(1);
     }
-    cycles = [...cycles, ...incoming];
+    if (incoming.length) cycles = [...cycles, ...incoming];
     if (cycles.length > MAX_CYCLES && baseline) {
       const drop = cycles.slice(0, cycles.length - MAX_CYCLES / 2);
       baseline = advanceBaseline(baseline, drop);

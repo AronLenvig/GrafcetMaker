@@ -12,13 +12,15 @@ import { compile, type CAction, type Program } from '../simulation/program';
 import {
   initialLiteral,
   NameTable,
-  ST_KEYWORDS,
+  cdata,
+  macroSteps,
+  warningCollector,
+  warnKeywords,
   stArith,
   stBool,
   timeLiteral,
   type CodegenOptions,
   type CodegenResult,
-  type CodegenWarning,
   type ExprTarget,
 } from './common';
 
@@ -29,7 +31,6 @@ export interface PlcOpenOptions extends CodegenOptions {
 
 const esc = (s: string) =>
   s.replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' })[c]!);
-const cdata = (s: string) => `<![CDATA[${s.replace(/]]>/g, ']]]]><![CDATA[>')}]]>`;
 const st = (code: string) => `<ST><xhtml:p>${cdata(code)}</xhtml:p></ST>`;
 const typeXml = (t: string) =>
   ['BOOL', 'INT', 'REAL', 'TIME'].includes(t) ? `<${t}/>` : `<derived name="${esc(t)}"/>`;
@@ -67,20 +68,11 @@ function pouGrafcets(p: Program, root: number): number[] {
 
 export function generatePlcOpen(project: Project, opts: PlcOpenOptions): CodegenResult {
   const p = compile(project);
-  const warnings: CodegenWarning[] = [];
-  const seen = new Set<string>();
-  const warn = (w: CodegenWarning) => {
-    const key = `${w.code}|${w.elementId ?? ''}|${JSON.stringify(w.params)}`;
-    if (!seen.has(key)) {
-      seen.add(key);
-      warnings.push(w);
-    }
-  };
+  const { warnings, warn } = warningCollector();
   for (const prob of p.problems)
     warn({ code: 'expression', elementId: prob.elementId, params: {} });
   const userVars = [...p.variables.values()];
-  for (const v of userVars)
-    if (ST_KEYWORDS.has(v.name.toUpperCase())) warn({ code: 'keyword', params: { name: v.name } });
+  warnKeywords(userVars, warn);
 
   const names = new NameTable([...userVars.map((v) => v.name), ...p.grafcets.map((g) => g.name)]);
   const isMacro = (i: number) => p.macros.has(i);
@@ -129,8 +121,7 @@ export function generatePlcOpen(project: Project, opts: PlcOpenOptions): Codegen
     }
     return m;
   };
-  const realMembers = (i: number): number[] =>
-    p.macros.get(i)!.members.flatMap((m) => (isMacro(m) ? realMembers(m) : [m]));
+  const realMembers = (i: number) => macroSteps(p, i);
   const activity = (i: number, pou: number | undefined, inPou: (j: number) => string) =>
     isMacro(i)
       ? `(${realMembers(i)
@@ -407,7 +398,7 @@ export function generatePlcOpen(project: Project, opts: PlcOpenOptions): Codegen
         if (a.boolValue)
           return `${varName(a.target)} := ${stBool(a.boolValue.ast, a.boolValue.steps, target)};`;
         if (a.arithValue)
-          return `${varName(a.target)} := ${stArith(a.arithValue.ast, target, 0, v?.type)};`;
+          return `${varName(a.target)} := ${stArith(a.arithValue, target, 0, v?.type)};`;
         return '';
       };
       switch (a.kind) {
@@ -495,7 +486,7 @@ export function generatePlcOpen(project: Project, opts: PlcOpenOptions): Codegen
       if (a.boolValue)
         return `${name(a.target)} := ${stBool(a.boolValue.ast, a.boolValue.steps, helperTarget)};`;
       if (a.arithValue)
-        return `${name(a.target)} := ${stArith(a.arithValue.ast, helperTarget, 0, v?.type)};`;
+        return `${name(a.target)} := ${stArith(a.arithValue, helperTarget, 0, v?.type)};`;
       return null;
     };
     const stepDriven = new Set(

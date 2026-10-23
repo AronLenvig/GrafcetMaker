@@ -1,4 +1,4 @@
-import { cachedBool } from '../expr/cache';
+import { cachedBool, memoBySource } from '../expr/cache';
 import { formatTextbook } from '../expr/format';
 import { indexGrafcet, type GrafcetIndex } from '../model/graph';
 import type { Action, Comment, Grafcet, Id, Point, Step, Transition } from '../model/types';
@@ -55,15 +55,20 @@ export function textWidth(text: string, fontSize = FONT_SIZE): number {
   return n * fontSize * CHAR_WIDTH_EM;
 }
 
-/** Width of an expression as drawn: the longer of the typed text and its textbook form. */
-export function expressionWidth(source: string, fontSize = FONT_SIZE): number {
+/** Characters of an expression as drawn: the longer of the typed text and its textbook form. */
+const drawnLength = memoBySource((source: string): number => {
   const r = source.trim() ? cachedBool(source) : null;
   const display = r?.ok
     ? formatTextbook(r.value)
         .map((x) => x.text)
         .join('')
     : '';
-  return textWidth([...display].length > [...source].length ? display : source, fontSize);
+  return Math.max([...display].length, [...source].length);
+});
+
+/** Width of an expression as drawn: the longer of the typed text and its textbook form. */
+export function expressionWidth(source: string, fontSize = FONT_SIZE): number {
+  return drawnLength(source) * fontSize * CHAR_WIDTH_EM;
 }
 
 export function stepRect(s: Step): Rect {
@@ -182,14 +187,6 @@ export function layoutActions(s: Step, actions: readonly Action[]): ActionBox[] 
 export function freeActionBox(a: Action): ActionBox {
   const p = a.position ?? { x: 0, y: 0 };
   return { id: a.id, x: p.x, y: p.y, width: actionWidth(a), height: ACTION_HEIGHT };
-}
-
-/** Every action box of a grafcet: attached ones right of their step, then unattached ones. */
-export function actionBoxes(g: Grafcet, geom: GrafcetGeometry): ActionBox[] {
-  const out: ActionBox[] = [];
-  for (const s of Object.values(g.steps))
-    out.push(...layoutActions(s, geom.index.actions.get(s.id) ?? []));
-  return out.concat(geom.freeActions);
 }
 
 /** The box of one action, attached or not. */

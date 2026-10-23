@@ -12,6 +12,7 @@ import {
   snap,
   stepRect,
   type Rect,
+  portPosition,
 } from '@/core/layout/geometry';
 import * as ops from '@/core/model/ops';
 import type { Id, Point } from '@/core/model/types';
@@ -32,7 +33,6 @@ import { useInteraction, type LinkDrag } from './interactionStore';
 import { openChild } from '../commands/hierarchy';
 import { cancelPending, completeLoop } from '../commands/structure';
 import { getViewport, panBy, screenToDiagram, zoomAt } from './viewport';
-import { portPosition } from '@/core/layout/geometry';
 
 type Gesture =
   | { kind: 'idle' }
@@ -423,7 +423,7 @@ export function useCanvasInteraction(
         if (useInteraction.getState().dropTarget !== target)
           useInteraction.setState({ dropTarget: target });
         const raw = { x: d.x - g0.startD.x, y: d.y - g0.startD.y };
-        const delta = usePrefs.getState().snapToGrid ? { x: snap(raw.x), y: snap(raw.y) } : raw;
+        const delta = snapPoint(raw);
         if (delta.x === g0.applied.x && delta.y === g0.applied.y) return;
         const dx = delta.x - g0.applied.x;
         const dy = delta.y - g0.applied.y;

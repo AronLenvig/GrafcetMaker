@@ -336,18 +336,6 @@ export function parseBool(source: string): ParseResult<BoolNode> {
   });
 }
 
-/** Parses an arithmetic expression on its own (used by tests and the variable table). */
-export function parseArith(source: string): ParseResult<ArithNode> {
-  const tokens = lex(source);
-  if (!Array.isArray(tokens)) return { ok: false, error: tokens };
-  const p = new Parser(tokens);
-  return run(() => {
-    const e = p.parseArith();
-    p.expectEnd();
-    return e;
-  });
-}
-
 /** Parses a stored action body: `target := value`. */
 export function parseAssignment(source: string): ParseResult<Assignment> {
   const tokens = lex(source);

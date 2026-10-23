@@ -3,7 +3,8 @@ import { parseAssignment, parseBool, parseForcing, parseOutputName } from './par
 
 const MAX_ENTRIES = 4000;
 
-function memo<T>(parse: (s: string) => T): (s: string) => T {
+/** Memoizes a function of a source text (bounded: the oldest entries go first). */
+export function memoBySource<T>(parse: (s: string) => T): (s: string) => T {
   const cache = new Map<string, T>();
   return (source: string) => {
     let hit = cache.get(source);
@@ -17,9 +18,10 @@ function memo<T>(parse: (s: string) => T): (s: string) => T {
 }
 
 /** Parsers memoized by source text: ASTs are immutable and shared by renderer, validation and simulation. */
-export const cachedBool: (s: string) => ParseResult<BoolNode> = memo(parseBool);
-export const cachedAssignment: (s: string) => ParseResult<Assignment> = memo(parseAssignment);
+export const cachedBool: (s: string) => ParseResult<BoolNode> = memoBySource(parseBool);
+export const cachedAssignment: (s: string) => ParseResult<Assignment> =
+  memoBySource(parseAssignment);
 export const cachedOutput: (
   s: string,
-) => ParseResult<{ name: string; start: number; end: number }> = memo(parseOutputName);
-export const cachedForcing: (s: string) => ParseResult<ForcingOrder> = memo(parseForcing);
+) => ParseResult<{ name: string; start: number; end: number }> = memoBySource(parseOutputName);
+export const cachedForcing: (s: string) => ParseResult<ForcingOrder> = memoBySource(parseForcing);

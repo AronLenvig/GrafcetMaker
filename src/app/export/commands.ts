@@ -31,8 +31,6 @@ export const VARIABLES_FILE: FileKind = {
 };
 const MAX_BYTES = 5 * 1024 * 1024;
 
-export const isVariablesFile = (name: string) => /\.(csv|xlsx)$/i.test(name);
-
 /** Imports variables from a CSV or Excel file after showing what will change. One undo step. */
 export async function importVariablesFile(file: File): Promise<void> {
   if (file.size > MAX_BYTES) {

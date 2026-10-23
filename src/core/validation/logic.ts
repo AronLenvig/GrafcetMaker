@@ -35,8 +35,22 @@ function arithKey(n: ArithNode): string {
   }
 }
 
-/** Canonical text of a sub-expression, used to identify identical atoms. */
+const keys = new WeakMap<BoolNode, string>();
+
+/**
+ * Canonical text of a sub-expression, used to identify identical atoms. Memoized per node: the
+ * satisfiability check asks for the same keys once per truth assignment, and ASTs are immutable.
+ */
 export function exprKey(n: BoolNode): string {
+  let key = keys.get(n);
+  if (key === undefined) {
+    key = keyOf(n);
+    keys.set(n, key);
+  }
+  return key;
+}
+
+function keyOf(n: BoolNode): string {
   switch (n.type) {
     case 'const':
       return n.value ? '1' : '0';

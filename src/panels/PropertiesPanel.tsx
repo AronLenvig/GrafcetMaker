@@ -10,7 +10,6 @@ import {
   deleteSelection,
   editActive,
   renameGrafcet,
-  setActionStep,
   validateGrafcetName,
 } from '@/editor/commands/edit';
 import { doc, getProject, useActiveGrafcet, useDoc } from '@/editor/store/document';
@@ -24,7 +23,7 @@ import { useProblems } from '@/editor/validation/problems';
 import { tDynamic } from '@/i18n/dynamic';
 import { ActionKindIcon, ActionKindPicker } from './ActionKindPicker';
 import { StepKindPicker } from './StepKindPicker';
-import { CommitField, ExpressionField, Section, SelectField } from './fields';
+import { CommitField, ExpressionField, Section } from './fields';
 import { QuickFixButton, SeverityIcon } from './ProblemsPanel';
 
 function useNumberValidator() {
@@ -35,31 +34,6 @@ function useNumberValidator() {
 function stepName(g: Grafcet, id: Id): string {
   const s = g.steps[id];
   return s ? String(s.number) : '?';
-}
-
-/** The step an action belongs to; "not attached" keeps it on the diagram as a draft. */
-function ActionStepField({ action }: { action: Action }) {
-  const { t } = useTranslation();
-  const steps = useActiveGrafcet()?.steps ?? {};
-  const options = [
-    { value: '', label: t('props.action.unattached') },
-    ...Object.values(steps)
-      .sort((a, b) => a.number - b.number)
-      .map((s) => ({ value: s.id, label: t('props.step.title', { n: s.number }) })),
-  ];
-  return (
-    <SelectField
-      label={t('props.action.step')}
-      value={action.stepId ?? ''}
-      options={options}
-      onChange={(v) => setActionStep(action.id, v || null)}
-      hint={
-        action.stepId === null ? (
-          <span className="text-xs text-warning">{t('props.action.unattachedHint')}</span>
-        ) : undefined
-      }
-    />
-  );
 }
 
 /** The glossary term of an action's kind. */
@@ -116,7 +90,10 @@ function ActionTools({ action, index, count }: { action: Action; index: number; 
   );
 }
 
-/** Step, kind, condition or event, and text of an action. */
+/**
+ * Output (or assignment, forcing order) first, then the kind and the condition or event that is
+ * part of it. The step is chosen by dragging the action on the diagram.
+ */
 function ActionFields({ action }: { action: Action }) {
   const { t } = useTranslation();
   const update = (recipe: (a: Action) => void) =>
@@ -127,7 +104,13 @@ function ActionFields({ action }: { action: Action }) {
   const kind = uiKindOf(action);
   return (
     <>
-      <ActionStepField action={action} />
+      <ExpressionField
+        kind={actionTextKind(action.kind)}
+        label={t(`props.action.textLabel.${action.kind}`)}
+        value={action.text}
+        placeholder={t(`props.action.textPlaceholder.${action.kind}`)}
+        onCommit={(v) => update((a) => void (a.text = v.trim()))}
+      />
       <ActionKindPicker value={kind} onChange={(k) => update((a) => setUiKind(a, k))} />
       {/* Part of the kind: the condition of a conditional action, the event of an event action. */}
       {(kind === 'conditional' || kind === 'storedOnEvent') && (
@@ -155,13 +138,9 @@ function ActionFields({ action }: { action: Action }) {
             }
           />
         )}
-      <ExpressionField
-        kind={actionTextKind(action.kind)}
-        label={t(`props.action.textLabel.${action.kind}`)}
-        value={action.text}
-        placeholder={t(`props.action.textPlaceholder.${action.kind}`)}
-        onCommit={(v) => update((a) => void (a.text = v.trim()))}
-      />
+      {action.stepId === null && (
+        <p className="text-xs text-warning">{t('props.action.unattachedHint')}</p>
+      )}
     </>
   );
 }
@@ -173,7 +152,10 @@ function ActionEditor({ action, index, count }: { action: Action; index: number;
     <div className="flex flex-col gap-2 rounded-md border border-border p-2">
       <div className="flex items-center gap-1">
         <span className="flex flex-1 items-center gap-1.5 text-xs font-medium text-muted">
-          {t('props.action.title', { n: index + 1 })}
+          {/* Numbered among its step's actions; one without a step goes by its kind. */}
+          {index >= 0
+            ? t('props.action.title', { n: index + 1 })
+            : tDynamic(t, `props.action.kinds.${uiKindOf(action)}.label`)}
           <TermHelp term={actionTerm(action)} />
         </span>
         <ActionTools action={action} index={index} count={count} />
@@ -518,6 +500,7 @@ export function PropertiesPanel() {
           }
         >
           <ActionEditor
+            key={id}
             action={action}
             index={list.findIndex((a) => a.id === id)}
             count={list.length}

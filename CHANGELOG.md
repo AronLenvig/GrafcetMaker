@@ -54,6 +54,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- Drag any action on the diagram: onto another step (a mark shows its place among that step's
+  actions, so dragging along the row reorders them) or onto empty canvas to leave it without a
+  step. The **Step** field of the action properties is gone, and the output (or assignment,
+  forcing order) is now the first field.
 - Starting the simulation (`F5`, **Simulate**) runs the clock at once; `F5` pauses. The evolution
   log of the simulation panel is folded until you open it. A selected step lists its actions as
   compact rows (symbol, text, condition), each unfolding into its fields.

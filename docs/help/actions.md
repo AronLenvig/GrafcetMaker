@@ -67,14 +67,15 @@ it is **always active**.
   counts pulses. On activation, it runs once when the simulation starts. On deactivation it never
   runs, since the action is never deactivated.
 
-To attach an action to a step, drag it onto the step (the step lights up), or choose its **Step**
-in the Properties panel. Choosing **No step (always active)** there detaches it again.
+Drag any action to move it: onto a step to attach it there (the step lights up and a mark shows
+its place among the step's actions), or onto empty canvas to leave it without a step.
 
 ## Several actions
 
-A step can have any number of actions; they are drawn side by side. Select a step to see all its
-actions in the Properties panel, where **Move action left / right** changes their order. Delete an
-action with <kbd>Del</kbd>.
+A step can have any number of actions; they are drawn side by side. Drag one along the row to
+change their order, or use **Move action left / right** in the Properties panel, where a selected
+step lists its actions as compact rows (click one to unfold it). Delete an action with
+<kbd>Del</kbd>.
 
 > **Watch out:** when two steps that can be active together both drive the same output with
 > continuous actions, the result is hard to read. GrafcetMaker warns you about it.

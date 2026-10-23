@@ -170,6 +170,7 @@ export const ExpressionInput = forwardRef<
   const [caret, setCaret] = useState(value.length);
   const [active, setActive] = useState(0);
   const [popupClosed, setPopupClosed] = useState(false);
+  const [focused, setFocused] = useState(false);
   // Caret to restore after a programmatic edit; applied before the browser handles the next key.
   const pendingCaret = useRef<number | null>(null);
   useLayoutEffect(() => {
@@ -211,7 +212,8 @@ export const ExpressionInput = forwardRef<
         : [];
     return [...vars, ...stepRefs].slice(0, 8);
   }, [ident, env, steps, kind, t]);
-  const open = !popupClosed && suggestions.length > 0;
+  // Suggestions only while typing in the field.
+  const open = focused && !popupClosed && suggestions.length > 0;
 
   const replaceRange = (start: number, end: number, text: string, caretAt = text.length) => {
     const next = value.slice(0, start) + text + value.slice(end);
@@ -239,7 +241,6 @@ export const ExpressionInput = forwardRef<
     else replaceRange(from, to, before! + after, before!.length);
   };
 
-  const [focused, setFocused] = useState(false);
   const symbols = kind === 'condition' && focused;
 
   const accept = (s: Suggestion | undefined) => {

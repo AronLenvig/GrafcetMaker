@@ -311,8 +311,9 @@ function OverlayView({
   } else if (pending?.kind === 'loop') {
     targets = Object.keys(g.steps);
   }
-  if (dropTarget) targets = [dropTarget];
-  const hotTarget = link ? link.target : pending ? hover : dropTarget;
+  if (dropTarget) targets = [dropTarget.stepId];
+  const hotTarget = link ? link.target : pending ? hover : (dropTarget?.stepId ?? null);
+  const dropStep = dropTarget ? g.steps[dropTarget.stepId] : undefined;
 
   return (
     <g className="gm-overlay">
@@ -332,6 +333,13 @@ function OverlayView({
           </g>
         );
       })}
+      {dropTarget && dropStep && (
+        // Where the dragged action goes among the step's actions.
+        <path
+          className="gm-drop-mark"
+          d={`M${dropTarget.x} ${dropStep.position.y - ACTION_HEIGHT / 2 - 6}v${ACTION_HEIGHT + 12}`}
+        />
+      )}
       {link && <path className="gm-link-preview" d={pointsToPath([link.origin, link.current])} />}
       {ghostsOf && <SelectionGhosts g={g} geom={geom} id={ghostsOf} />}
       {!readOnly && <ToolGhost g={g} geom={geom} />}

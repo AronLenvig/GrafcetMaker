@@ -197,6 +197,13 @@
   stroke-width: 3;
 }
 
+.gm-drop-mark {
+  fill: none;
+  stroke: var(--link-target);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
 .gm-flash {
   fill: none;
   stroke: var(--selection);

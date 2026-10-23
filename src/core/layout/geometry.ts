@@ -189,6 +189,43 @@ export function freeActionBox(a: Action): ActionBox {
   return { id: a.id, x: p.x, y: p.y, width: actionWidth(a), height: ACTION_HEIGHT };
 }
 
+/** Where a dragged action would be attached: a step, its place among the step's actions, its x. */
+export interface ActionDrop {
+  stepId: Id;
+  index: number;
+  x: number;
+}
+
+/**
+ * Where the action being dragged (unattached meanwhile, at its `position`) would be attached
+ * with the pointer at `p`: the step whose row (the step, its actions and room for this one) is
+ * under the pointer, at the place among its actions nearest the left edge of the dragged box.
+ * Null over anything else: the action is dropped without a step.
+ */
+export function actionDropAt(g: Grafcet, actionId: Id, p: Point): ActionDrop | null {
+  const a = g.actions[actionId];
+  if (!a) return null;
+  const left = a.position?.x ?? p.x;
+  for (const s of Object.values(g.steps)) {
+    if (Math.abs(p.y - s.position.y) > ACTION_HEIGHT / 2 || p.x < s.position.x - STEP_HALF)
+      continue;
+    const actions = Object.values(g.actions)
+      .filter((x) => x.stepId === s.id && x.id !== actionId)
+      .sort((x, y) => x.order - y.order);
+    const edges = [
+      s.position.x + STEP_HALF + ACTION_GAP,
+      ...layoutActions(s, actions).map((b) => b.x + b.width),
+    ];
+    if (p.x > edges[edges.length - 1]! + actionWidth(a)) continue;
+    let index = 0;
+    edges.forEach((x, k) => {
+      if (Math.abs(x - left) < Math.abs(edges[index]! - left)) index = k;
+    });
+    return { stepId: s.id, index, x: edges[index]! };
+  }
+  return null;
+}
+
 /** The box of one action, attached or not. */
 export function actionBoxOf(g: Grafcet, geom: GrafcetGeometry, id: Id): ActionBox | null {
   const a = g.actions[id];

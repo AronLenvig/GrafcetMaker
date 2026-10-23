@@ -1,7 +1,13 @@
 /** Actions not attached to any step: model operations, file format, checks and simulation. */
 import { describe, expect, it } from 'vitest';
 import { parseProjectFile, ProjectFileError, serializeProject } from '@/core/io/projectFile';
-import { actionDecor, computeGeometry, grafcetBounds } from '@/core/layout/geometry';
+import {
+  actionBoxOf,
+  actionDecor,
+  actionDropAt,
+  computeGeometry,
+  grafcetBounds,
+} from '@/core/layout/geometry';
 import {
   copyElements,
   parseClipboard,
@@ -47,6 +53,33 @@ describe('unattached actions', () => {
 
     detachAction(g, free.id, { x: 100, y: 200 });
     expect(g.actions[free.id]).toMatchObject({ stepId: null, position: { x: 100, y: 200 } });
+  });
+
+  it('dragged: dropped at the place nearest their left edge, or without a step', () => {
+    const { g, step } = setup();
+    const s = g.steps[step]!;
+    const a = addAction(g, step, 'continuous', 'A');
+    const b = addAction(g, step, 'continuous', 'B');
+    const order = () =>
+      Object.values(g.actions)
+        .filter((x) => x.stepId === step)
+        .sort((x, y) => x.order - y.order)
+        .map((x) => x.text);
+    // B dragged (unattached meanwhile) back over the step, its left edge at A's: before A.
+    const boxA = actionBoxOf(g, computeGeometry(g), a.id)!;
+    detachAction(g, b.id, { x: boxA.x + 4, y: boxA.y });
+    const drop = actionDropAt(g, b.id, { x: boxA.x + 30, y: s.position.y + 5 });
+    expect(drop).toEqual({ stepId: step, index: 0, x: boxA.x });
+    attachAction(g, b.id, drop!.stepId, drop!.index);
+    expect(order()).toEqual(['B', 'A']);
+    expect(g.actions[b.id]!.position).toBeUndefined();
+    // Far from any step's row: no step.
+    detachAction(g, a.id, { x: 600, y: 600 });
+    expect(actionDropAt(g, a.id, { x: 620, y: 620 })).toBeNull();
+    // Within the step's row, after its last action: at the end.
+    const boxB = actionBoxOf(g, computeGeometry(g), b.id)!;
+    detachAction(g, a.id, { x: boxB.x + boxB.width + 10, y: boxB.y });
+    expect(actionDropAt(g, a.id, { x: boxB.x + boxB.width + 20, y: s.position.y })?.index).toBe(1);
   });
 
   it('move on their own and count in the drawing bounds', () => {

@@ -1,4 +1,4 @@
-import { ACTION_HEIGHT, actionBoxOf, computeGeometry, GRID } from '@/core/layout/geometry';
+import { ACTION_HEIGHT, GRID } from '@/core/layout/geometry';
 import {
   copyElements,
   parseClipboard,
@@ -173,17 +173,6 @@ export function addActionAt(at: Point, stepId: Id | null): Id | null {
     ui.edit({ id: created, field: 'text' });
   }
   return created;
-}
-
-/** Attaches an action to a step, or detaches it (null): it then stays just below where it was. */
-export function setActionStep(actionId: Id, stepId: Id | null): void {
-  const g = getActiveGrafcet();
-  if (!g) return;
-  const box = actionBoxOf(g, computeGeometry(g), actionId);
-  editActive(stepId ? 'history.attachAction' : 'history.detachAction', (gd) => {
-    if (stepId) ops.attachAction(gd, actionId, stepId);
-    else if (box) ops.detachAction(gd, actionId, { x: box.x, y: box.y + ACTION_HEIGHT + 2 * GRID });
-  });
 }
 
 /** `F2`: edit the main text of the selected element. */

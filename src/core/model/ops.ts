@@ -87,11 +87,23 @@ export function addFreeAction(
   return a;
 }
 
-/** Attaches an action to a step, after the step's other actions. */
-export function attachAction(g: Grafcet, actionId: Id, stepId: Id): void {
+/**
+ * Attaches an action to a step, after the step's other actions, or at `index` among them (the
+ * step's actions are then renumbered from 0).
+ */
+export function attachAction(g: Grafcet, actionId: Id, stepId: Id, index?: number): void {
   const a = g.actions[actionId];
-  if (!a || !g.steps[stepId] || a.stepId === stepId) return;
-  a.order = nextOrder(g, stepId);
+  if (!a || !g.steps[stepId]) return;
+  if (index === undefined) {
+    if (a.stepId === stepId) return;
+    a.order = nextOrder(g, stepId);
+  } else {
+    const list = Object.values(g.actions)
+      .filter((x) => x.stepId === stepId && x.id !== actionId)
+      .sort((x, y) => x.order - y.order);
+    list.splice(Math.max(0, Math.min(index, list.length)), 0, a);
+    list.forEach((x, k) => (x.order = k));
+  }
   a.stepId = stepId;
   delete a.position;
 }

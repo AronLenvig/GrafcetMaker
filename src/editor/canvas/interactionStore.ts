@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Rect } from '@/core/layout/geometry';
+import type { ActionDrop, Rect } from '@/core/layout/geometry';
 import type { Id, Point } from '@/core/model/types';
 
 export interface LinkDrag {
@@ -20,8 +20,8 @@ export interface InteractionState {
   panning: boolean;
   /** True while elements are being dragged (handles are hidden). */
   moving: boolean;
-  /** Step an unattached action being dragged would be attached to. */
-  dropTarget: Id | null;
+  /** Where the action being dragged would be attached (null: dropped without a step). */
+  dropTarget: ActionDrop | null;
   /**
    * Where a placing tool would place its element (snapped, diagram units), and the step an action
    * would be attached to; null when a click would place nothing.

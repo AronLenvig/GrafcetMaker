@@ -163,13 +163,16 @@ tool of the toolbar, `Shift+A`) lets you click a step to add an action to it, or
 canvas to place an **action without a step**, drawn without a link. It is **always active**: a
 continuous action sets its output whenever its assignment condition is true (always, without
 one), a stored action runs on its event (on activation: once at start), a forcing order is always
-in force. Drag it onto a step to attach it (the step is highlighted), or choose its **Step** in the
-properties panel; choosing **No step (always active)** there detaches an action again.
+in force.
+
+Drag any action to move it: onto a step to attach it there (the step is highlighted and a mark
+shows its place among the step's actions, so dragging along the row reorders them), or onto empty
+canvas to leave it without a step. `Esc` cancels the drag.
 
 A selected step lists its actions in the properties panel as compact rows (symbol, text,
-condition); click a row to unfold its fields. Choose the kind of each action with the **Kind**
-buttons; each shows the symbol the diagram uses. A conditional action and an action on event get their condition (or
-event) input right under the buttons:
+condition); click a row to unfold its fields: the output (or assignment, forcing order) first,
+then the **Kind** buttons, each showing the symbol the diagram uses. A conditional action and an
+action on event get their condition (or event) input right under the buttons:
 
 - **Continuous action**: the output is true while the step is active. Text: the output name,
   e.g. `M1`.

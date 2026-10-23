@@ -6,14 +6,16 @@ import {
   type RefObject,
 } from 'react';
 import {
+  actionDropAt,
   elementBounds,
   computeGeometry,
+  layoutActions,
   rectsIntersect,
   snap,
-  stepRect,
   type Rect,
   portPosition,
 } from '@/core/layout/geometry';
+import { indexGrafcet } from '@/core/model/graph';
 import * as ops from '@/core/model/ops';
 import type { Id, Point } from '@/core/model/types';
 import { usePrefs } from '@/app/prefs';
@@ -43,7 +45,17 @@ type Gesture =
   /** A finger with a placing tool: places on release, pans if it moves. */
   | { kind: 'place'; start: Point; place: () => void }
   | { kind: 'press'; id: Id; start: Point; startD: Point; reselect: boolean; slop: number }
-  | { kind: 'move'; startD: Point; applied: Point; ids: Id[] }
+  /**
+   * Dragging the selection. An action is dragged alone (`action`: it and where it was, its step
+   * and place): unattached while dragged, attached to the step it is dropped on.
+   */
+  | {
+      kind: 'move';
+      startD: Point;
+      applied: Point;
+      ids: Id[];
+      action?: { id: Id; stepId: Id | null; index: number };
+    }
   | { kind: 'marquee'; startD: Point; additive: boolean }
   | { kind: 'link'; drag: LinkDrag }
   /**
@@ -313,8 +325,7 @@ export function useCanvasInteraction(
       const wasSelected = !!useUi.getState().selection[hit.id];
       if (additive) ui.select([hit.id], 'toggle');
       else if (!wasSelected) ui.select([hit.id]);
-      // Attached actions follow their step; unattached ones are dragged like comments.
-      if (!readOnly && (hit.kind !== 'action' || g.actions[hit.id]?.stepId === null)) {
+      if (!readOnly) {
         gesture.current = {
           kind: 'press',
           id: hit.id,
@@ -418,6 +429,35 @@ export function useCanvasInteraction(
       case 'press': {
         if (Math.hypot(p.x - g0.start.x, p.y - g0.start.y) < g0.slop) return;
         const g = getProject().grafcets[gid];
+        const pressed = g?.actions[g0.id];
+        if (pressed) {
+          // Off its step while dragged, drawn where it was.
+          const step = pressed.stepId === null ? undefined : g!.steps[pressed.stepId];
+          const siblings = step ? (indexGrafcet(g!).actions.get(step.id) ?? []) : [];
+          const box = step && layoutActions(step, siblings).find((b) => b.id === pressed.id);
+          ui.select([pressed.id]);
+          doc.begin('history.moveAction');
+          if (box)
+            doc.update((proj) => {
+              const gd = proj.grafcets[gid];
+              if (gd) ops.detachAction(gd, pressed.id, { x: box.x, y: box.y });
+            });
+          gesture.current = {
+            kind: 'move',
+            startD: g0.startD,
+            applied: { x: 0, y: 0 },
+            ids: [pressed.id],
+            action: {
+              id: pressed.id,
+              stepId: pressed.stepId,
+              index: Math.max(0, siblings.indexOf(pressed)),
+            },
+          };
+          useInteraction.setState({ moving: true, hover: null });
+          onPointerMove(e);
+          return;
+        }
+        // Attached actions follow their step.
         const ids = ui
           .selectedIds()
           .filter(
@@ -440,27 +480,24 @@ export function useCanvasInteraction(
       }
       case 'move': {
         const d = toDiagram(p);
-        // A single unattached action dropped on a step gets attached to it.
-        const g = getProject().grafcets[gid];
-        const only = g0.ids.length === 1 ? g?.actions[g0.ids[0]!] : undefined;
-        const target =
-          g && only?.stepId === null
-            ? (Object.values(g.steps).find((s) =>
-                rectsIntersect(stepRect(s), { ...d, width: 0, height: 0 }),
-              )?.id ?? null)
-            : null;
-        if (useInteraction.getState().dropTarget !== target)
-          useInteraction.setState({ dropTarget: target });
-        const raw = { x: d.x - g0.startD.x, y: d.y - g0.startD.y };
-        const delta = snapPoint(raw);
-        if (delta.x === g0.applied.x && delta.y === g0.applied.y) return;
-        const dx = delta.x - g0.applied.x;
-        const dy = delta.y - g0.applied.y;
-        doc.update((proj) => {
-          const g = proj.grafcets[gid];
-          if (g) ops.moveElements(g, g0.ids, dx, dy);
-        });
-        g0.applied = delta;
+        const delta = snapPoint({ x: d.x - g0.startD.x, y: d.y - g0.startD.y });
+        if (delta.x !== g0.applied.x || delta.y !== g0.applied.y) {
+          const dx = delta.x - g0.applied.x;
+          const dy = delta.y - g0.applied.y;
+          doc.update((proj) => {
+            const g = proj.grafcets[gid];
+            if (g) ops.moveElements(g, g0.ids, dx, dy);
+          });
+          g0.applied = delta;
+        }
+        // A dragged action shows the step and the place it would be attached to.
+        if (g0.action) {
+          const g = getProject().grafcets[gid];
+          const target = g ? actionDropAt(g, g0.action.id, d) : null;
+          const cur = useInteraction.getState().dropTarget;
+          if (cur?.stepId !== target?.stepId || cur?.index !== target?.index)
+            useInteraction.setState({ dropTarget: target });
+        }
         return;
       }
       case 'marquee':
@@ -558,13 +595,18 @@ export function useCanvasInteraction(
         break;
       case 'move': {
         const target = useInteraction.getState().dropTarget;
-        const actionId = g0.ids[0];
-        if (target && actionId && g0.ids.length === 1)
-          doc.update((proj) => {
-            const g = proj.grafcets[gid!];
-            if (g) ops.attachAction(g, actionId, target);
-          });
-        doc.commit();
+        const a = g0.action;
+        if (a && target?.stepId === a.stepId && target?.index === a.index) {
+          // Dropped back where it was.
+          doc.cancel();
+        } else {
+          if (a && target)
+            doc.update((proj) => {
+              const g = proj.grafcets[gid!];
+              if (g) ops.attachAction(g, a.id, target.stepId, target.index);
+            });
+          doc.commit();
+        }
         useInteraction.setState({ moving: false, dropTarget: null });
         break;
       }

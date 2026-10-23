@@ -47,13 +47,13 @@ const TRANSITION: Hint[] = [
 ];
 const ACTION: Hint[] = [
   ['F2', 'editAction'],
+  ['@drag', 'moveAction'],
   ['A', 'nextAction'],
   ['@properties', 'actionKind'],
   ['Delete', 'delete'],
 ];
 const FREE_ACTION: Hint[] = [
   ['@dragOntoStep', 'attach'],
-  ['@properties', 'chooseStep'],
   ['F2', 'editAction'],
   ['Delete', 'delete'],
 ];

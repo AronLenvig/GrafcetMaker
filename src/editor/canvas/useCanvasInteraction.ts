@@ -246,10 +246,13 @@ export function useCanvasInteraction(
       gesture.current = { kind: 'place', start: p, place };
       capture();
     };
-    // A ghost of the selection: add the action or the transition and step it shows.
+    // A ghost of the selection: add the action (and type its text), or the transition and step it
+    // shows with the new step selected (its ghosts are next; Enter would type the receptivity).
     const ghost = target.closest('[data-ghost]')?.getAttribute('data-ghost');
     if (!readOnly && ghost) {
-      placeOrWait(() => (ghost === 'action' ? addActionToSelection() : appendSequence()));
+      placeOrWait(() =>
+        ghost === 'action' ? addActionToSelection() : appendSequence({ editReceptivity: false }),
+      );
       return;
     }
     if (!readOnly && tool === 'action') {

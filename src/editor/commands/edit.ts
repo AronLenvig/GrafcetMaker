@@ -55,8 +55,14 @@ function sequenceEnd(g: Grafcet): Id | null {
   return best?.id ?? null;
 }
 
-/** `Enter`: append transition + step after the selected step/transition and edit the receptivity. */
-export function appendSequence(): void {
+/**
+ * `Enter`: append transition + step after the selected step/transition, select the new step and
+ * edit the receptivity. `editReceptivity: false` (a click on the ghost) only selects the new step,
+ * as if it had been clicked, so its own ghosts are one click away.
+ */
+export function appendSequence({
+  editReceptivity = true,
+}: { editReceptivity?: boolean } = {}): void {
   const g = getActiveGrafcet();
   if (!g) return;
   const sel = ui.selectedIds();
@@ -72,7 +78,7 @@ export function appendSequence(): void {
   const r = result as { stepId: Id; transitionId?: Id };
   ui.select([r.stepId]);
   reveal([r.stepId, ...(r.transitionId ? [r.transitionId] : [])]);
-  const editTarget = g.steps[id] ? r.transitionId : undefined;
+  const editTarget = editReceptivity && g.steps[id] ? r.transitionId : undefined;
   if (editTarget) ui.edit({ id: editTarget, field: 'receptivity' });
 }
 

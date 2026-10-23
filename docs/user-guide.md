@@ -99,7 +99,10 @@ A new project contains grafcet `G1` with initial step 0.
   end). Type a whole sequence or a row of actions without touching the mouse.
 - **Ghosts**: a selected step shows a dashed **ghost** action after its last action and, at the
   end of a sequence, a ghost transition and step with the number the step will get; a transition
-  leading nowhere shows a ghost step. Click a ghost to add what it shows. With a placing tool, a
+  leading nowhere shows a ghost step. Click a ghost to add what it shows: a ghost action opens
+  its text, a ghost transition and step selects the new step (as if you had clicked it), so
+  clicking its ghost again keeps the sequence growing; type the receptivities later (`F2` or
+  double-click). `Enter` adds the same and types the receptivity at once. With a placing tool, a
   ghost under the pointer shows what a click will place (and, with the Action tool over a step,
   where the action will go).
 - **Edit text**: `F2` or double-click (step number, receptivity, action text, comment).

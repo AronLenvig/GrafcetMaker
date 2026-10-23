@@ -5,7 +5,8 @@
  * A cycle runs when an input changes or a timer expires. Grafcets are processed by forcing level:
  * each level searches for stability (rules 2–5 repeated with the same inputs), then its active
  * forcing orders are applied to lower levels, which are frozen for the rest of the cycle.
- * Continuous actions are computed from the stable situation only.
+ * Continuous actions are computed from the stable situation only; when they change a variable that
+ * a receptivity reads, a follow-up cycle runs at the same time (the change is a new event).
  */
 import type { ArithNode, BoolNode } from '../expr/ast';
 import type { Id } from '../model/types';
@@ -38,12 +39,15 @@ export interface IterationLog {
 export interface CycleLog {
   cycle: number;
   time: number;
-  trigger: 'start' | 'input' | 'timer';
+  /** internal: a continuous action changed a variable that a receptivity reads. */
+  trigger: 'start' | 'input' | 'timer' | 'internal';
   inputs: { name: string; value: Value }[];
   iterations: IterationLog[];
   forced: { grafcet: Id; active: Id[] }[];
   /** Output and internal variable changes caused by the cycle. */
   changes: { name: string; value: Value }[];
+  /** The situation the cycle ended in. */
+  active: Id[];
   error?: SimError;
 }
 
@@ -90,6 +94,31 @@ function collectStateful(expr: CExpr, n: BoolNode, out: Stateful[]): void {
   }
 }
 
+/** Lower-cased names of the variables an expression reads. */
+function collectReads(n: BoolNode | ArithNode, out: Set<string>): void {
+  switch (n.type) {
+    case 'var':
+    case 'avar':
+      out.add(n.name.toLowerCase());
+      return;
+    case 'not':
+    case 'neg':
+    case 'edge':
+    case 'timer':
+      collectReads(n.operand, out);
+      return;
+    case 'and':
+    case 'or':
+    case 'cmp':
+    case 'arith':
+      collectReads(n.left, out);
+      collectReads(n.right, out);
+      return;
+    default:
+      return;
+  }
+}
+
 const isStepTimer = (n: Extract<BoolNode, { type: 'edge' | 'timer' }>) =>
   n.type === 'timer' && n.t2 === undefined && n.operand.type === 'step';
 
@@ -111,6 +140,8 @@ export class Simulator {
   private readonly stepTimers: Stateful[] = [];
   private readonly genericTimers = new Map<string, Stateful>();
   private readonly levels: number[];
+  /** Variables driven by continuous actions that a receptivity or an event condition reads. */
+  private readonly feedback = new Set<string>();
   /** Enclosed step → its enclosing step. */
   private readonly enclosedBy = new Map<number, number>();
   /** Per-evaluation-round memo of stateful nodes, and their state to commit. */
@@ -133,6 +164,12 @@ export class Simulator {
       }
     }
     this.levels = [...new Set(program.grafcets.map((g) => g.level))].sort((a, b) => a - b);
+    const reads = new Set<string>();
+    for (const t of program.transitions) if (t.receptivity) collectReads(t.receptivity.ast, reads);
+    for (const a of program.actions) {
+      if (a.kind === 'storedOnEvent' && a.condition) collectReads(a.condition.ast, reads);
+    }
+    for (const name of reads) if (program.continuousTargets.has(name)) this.feedback.add(name);
     for (const [enclosing, e] of program.enclosures)
       for (const m of e.members) this.enclosedBy.set(m, enclosing);
     this.resetValues();
@@ -480,6 +517,7 @@ export class Simulator {
       iterations: [],
       forced: [],
       changes: [],
+      active: [],
     };
     const frozen = new Set<number>();
     for (const level of this.levels) {
@@ -517,14 +555,48 @@ export class Simulator {
     for (const [name, v] of this.values) {
       if (before.get(name) !== v && !inputNames.has(name)) log.changes.push({ name, value: v });
     }
+    log.active = this.activeIds();
     return log;
+  }
+
+  /**
+   * Runs a cycle, then one follow-up cycle (same time, same inputs) for as long as continuous
+   * actions change a variable that a receptivity or an event condition reads.
+   */
+  private evolve(
+    trigger: CycleLog['trigger'],
+    inputs: { name: string; value: Value }[],
+  ): CycleLog[] {
+    const logs = [this.runCycle(trigger, inputs)];
+    while (!this.error && logs.at(-1)!.changes.some((c) => this.feedback.has(c.name))) {
+      const prev = logs.at(-1)!.active;
+      const log = this.runCycle('internal', []);
+      const same = log.active.length === prev.length && log.active.every((s, i) => s === prev[i]);
+      if (!log.error && !log.iterations.length && !log.changes.length && same) {
+        // Nothing evolved: edges and timers observed the change; the cycle is not logged.
+        this.cycle--;
+        break;
+      }
+      logs.push(log);
+      if (logs.length > MAX_ITERATIONS && !this.error) {
+        // Continuous actions and receptivities keep switching each other: never stable.
+        this.error = {
+          kind: 'transientLoop',
+          cycle: this.cycle,
+          time: this.time,
+          transitions: log.iterations.flatMap((i) => i.cleared),
+        };
+        log.error = this.error;
+      }
+    }
+    return logs;
   }
 
   // ------------------------------------------------------------------------------------------
   // Public API
 
   /** Rule 1: initial steps active at start; then a first search for stability at t = 0. */
-  start(): CycleLog {
+  start(): CycleLog[] {
     this.time = 0;
     this.cycle = 0;
     this.error = null;
@@ -544,7 +616,7 @@ export class Simulator {
       if (a.condition && !this.eval(a.condition)) continue;
       this.assign(a);
     }
-    return this.runCycle('start', []);
+    return this.evolve('start', []);
   }
 
   /** Earliest future time at which a timer changes value, or null. */
@@ -576,15 +648,15 @@ export class Simulator {
       const d = this.nextDeadline();
       if (d === null || d > time) break;
       this.time = d;
-      logs.push(this.runCycle('timer', []));
+      logs.push(...this.evolve('timer', []));
     }
     if (!this.error) this.time = Math.max(this.time, time);
     return logs;
   }
 
   /** Changes inputs at the current time and runs the resulting cycle. */
-  setInputs(changes: Record<string, Value>): CycleLog | null {
-    if (this.error) return null;
+  setInputs(changes: Record<string, Value>): CycleLog[] {
+    if (this.error) return [];
     const applied: { name: string; value: Value }[] = [];
     for (const [raw, value] of Object.entries(changes)) {
       const name = raw.toLowerCase();
@@ -595,17 +667,19 @@ export class Simulator {
       this.values.set(name, typed);
       applied.push({ name, value: typed });
     }
-    return this.runCycle('input', applied);
+    return this.evolve('input', applied);
+  }
+
+  private activeIds(): Id[] {
+    return this.program.steps.filter((s) => this.activeOf(s.idx)).map((s) => s.id);
   }
 
   snapshot(): SimSnapshot {
     const p = this.program;
-    const active: Id[] = [];
+    const active = this.activeIds();
     const activatedAt: Record<Id, number> = {};
     for (const s of p.steps) {
-      if (!this.activeOf(s.idx)) continue;
-      active.push(s.id);
-      activatedAt[s.id] = this.activationOf(s.idx);
+      if (this.activeOf(s.idx)) activatedAt[s.id] = this.activationOf(s.idx);
     }
     const enabled = p.transitions
       .filter((t) => t.from.every((s) => this.active[s] === 1))

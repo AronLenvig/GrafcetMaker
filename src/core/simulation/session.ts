@@ -2,7 +2,7 @@
  * Message protocol between the simulation UI and the simulator (running in a worker, or inline
  * as a fallback). `handle` is pure apart from the simulator it owns.
  */
-import type { Id, Project } from '../model/types';
+import type { Project } from '../model/types';
 import { Simulator, type CycleLog, type SimSnapshot, type Value } from './engine';
 import { compile, type CompileProblem } from './program';
 
@@ -17,7 +17,7 @@ export type SimRequest =
   | { type: 'next' };
 
 /** A cycle and the stable situation it ended in (for the chronogram and the log). */
-export type CycleRecord = CycleLog & { active: Id[] };
+export type CycleRecord = CycleLog;
 
 export interface SimResponse {
   snapshot: SimSnapshot;
@@ -31,15 +31,6 @@ export class SimSession {
   private sim: Simulator | null = null;
   private problems: CompileProblem[] = [];
 
-  private record(log: CycleLog | null): CycleRecord[] {
-    if (!log || !this.sim) return [];
-    return [{ ...log, active: this.sim.snapshot().active }];
-  }
-
-  private records(logs: CycleLog[]): CycleRecord[] {
-    return logs.flatMap((l) => this.record(l));
-  }
-
   handle(req: SimRequest): SimResponse | null {
     let cycles: CycleRecord[] = [];
     let idle = false;
@@ -48,28 +39,28 @@ export class SimSession {
         const program = compile(req.project);
         this.problems = program.problems;
         this.sim = new Simulator(program);
-        cycles = this.record(this.sim.start());
+        cycles = this.sim.start();
         break;
       }
       case 'reset':
         if (!this.sim) return null;
-        cycles = this.record(this.sim.start());
+        cycles = this.sim.start();
         break;
       case 'input': {
         if (!this.sim) return null;
-        cycles = this.records(this.sim.advanceTo(req.at));
-        cycles.push(...this.record(this.sim.setInputs(req.changes)));
+        cycles = this.sim.advanceTo(req.at);
+        cycles.push(...this.sim.setInputs(req.changes));
         break;
       }
       case 'advance':
         if (!this.sim) return null;
-        cycles = this.records(this.sim.advanceTo(req.to));
+        cycles = this.sim.advanceTo(req.to);
         break;
       case 'next': {
         if (!this.sim) return null;
         const d = this.sim.nextDeadline();
         if (d === null) idle = true;
-        else cycles = this.records(this.sim.advanceTo(d));
+        else cycles = this.sim.advanceTo(d);
         break;
       }
     }

@@ -85,7 +85,9 @@ A new project contains grafcet `G1` with initial step 0.
   valid targets (step → transition, transition → step) are highlighted. Drop on empty space to
   create the missing element at that spot.
 - **Delete**: `Del`. Deleting a step heals the sequence: the transition after it goes too and the
-  step before is reconnected; the gap closes when the rest of the diagram is a straight sequence.
+  transition before it is reconnected to the next step; the gap closes when the rest of the
+  diagram is a straight sequence. The transition leading to a step is never deleted with it: after
+  the last step it stays as a sink transition (press `Enter` on it to add a new step).
   `Shift+Del` deletes without healing. Click a link to select it, then `Del` removes just that
   link.
 - **Move**: drag (snaps to the 10-unit grid) or use the arrow keys (`Shift` moves 5× further).

@@ -227,8 +227,10 @@ function forwardReachable(g: Grafcet, starts: Id[]): Set<Id> {
  * Heals the sequence around a step about to be deleted so no transition is left dangling:
  * - middle of a sequence (…T1 → S → T2 → …): S and T2 go, T1 takes over T2's successors, and if
  *   everything below is downstream the gap is closed;
- * - first step of a sequence: its outgoing transition goes too;
- * - last step of a sequence: the transition leading to it goes too.
+ * - first step of a sequence: its outgoing transition goes too (it would become a source
+ *   transition, always enabled);
+ * - the transition leading to the step is never deleted: after the last step of a sequence it
+ *   stays as a sink transition, ready for a new step (`Enter`).
  */
 function healStep(g: Grafcet, s: Step, del: Set<Id>): void {
   const sy = s.position.y;
@@ -267,9 +269,6 @@ function healStep(g: Grafcet, s: Step, del: Set<Id>): void {
   if (ins.length === 0 && outs.length === 1 && tout && tout.from.length === 1) {
     delete g.transitions[tout.id];
     del.delete(tout.id);
-  } else if (outs.length === 0 && ins.length === 1 && tin && tin.to.length === 1) {
-    delete g.transitions[tin.id];
-    del.delete(tin.id);
   }
   removeStep(g, s.id);
 }

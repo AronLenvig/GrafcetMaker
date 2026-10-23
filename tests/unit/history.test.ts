@@ -142,14 +142,29 @@ describe('delete with heal', () => {
     expect(indexGrafcet(g).incoming.get(stepByNumber(g, 0).id)).toHaveLength(1);
   });
 
-  it('deleting the last step removes the transition leading to it', () => {
+  it('deleting the last step keeps the transition leading to it (as a sink transition)', () => {
     const p = createProject('T');
     const g = G(p);
     const s0 = Object.values(g.steps)[0]!;
     const r = appendAfterStep(g, s0.id)!;
+    g.transitions[r.transitionId]!.receptivity = 'a';
     deleteElements(g, [r.stepId]);
-    expect(Object.keys(g.transitions)).toHaveLength(0);
     expect(Object.keys(g.steps)).toEqual([s0.id]);
+    expect(g.transitions[r.transitionId]).toMatchObject({
+      from: [s0.id],
+      to: [],
+      receptivity: 'a',
+    });
+  });
+
+  it('deleting the first step removes its outgoing transition (no accidental source)', () => {
+    const p = createProject('T');
+    const g = G(p);
+    const s0 = Object.values(g.steps)[0]!;
+    const r = appendAfterStep(g, s0.id)!;
+    deleteElements(g, [s0.id]);
+    expect(Object.keys(g.steps)).toEqual([r.stepId]);
+    expect(Object.keys(g.transitions)).toHaveLength(0);
   });
 
   it('deletes several consecutive steps in one go', () => {

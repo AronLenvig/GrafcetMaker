@@ -639,6 +639,7 @@ export const en = {
       start: 'start',
       input: 'input',
       timer: 'timer',
+      internal: 'internal',
     },
     iteration: '{{n}}. cleared {{cleared}}: +{{on}} −{{off}}',
     forcedLine: 'forced {{grafcet}} to {{steps}}',

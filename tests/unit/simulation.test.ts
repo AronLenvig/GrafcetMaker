@@ -117,7 +117,8 @@ function X(sim: Simulator): string[] {
 }
 
 const v = (sim: Simulator, name: string) => sim.values.get(name.toLowerCase());
-const set = (sim: Simulator, inputs: Record<string, boolean | number>) => sim.setInputs(inputs);
+/** Sets inputs; returns the input cycle's log (follow-up internal cycles are in `sim` state). */
+const set = (sim: Simulator, inputs: Record<string, boolean | number>) => sim.setInputs(inputs)[0];
 
 describe('rule 1 — initial situation', () => {
   it('activates initial steps and emits their continuous actions', () => {
@@ -350,10 +351,10 @@ describe('search for stability (transient evolution)', () => {
         ),
       ),
     );
-    const log = sim.start();
-    expect(log.error?.kind).toBe('transientLoop');
-    expect(log.iterations).toHaveLength(1000);
-    expect(sim.setInputs({})).toBeNull();
+    const [log] = sim.start();
+    expect(log!.error?.kind).toBe('transientLoop');
+    expect(log!.iterations).toHaveLength(1000);
+    expect(sim.setInputs({})).toEqual([]);
   });
 
   it('a level-triggered counter in an event action is reported as a transient loop', () => {
@@ -371,6 +372,85 @@ describe('search for stability (transient evolution)', () => {
     );
     set(sim, { b: true });
     expect(sim.error?.kind).toBe('transientLoop');
+  });
+});
+
+describe('feedback of continuous actions', () => {
+  const spec = (receptivity: string): GSpec => ({
+    name: 'G1',
+    initial: [0],
+    steps: [0, 1, 2],
+    transitions: [
+      [[0], 'start', [1]],
+      [[1], receptivity, [2]],
+    ],
+    actions: [[1, 'continuous', 'Running']],
+  });
+  const vars = { start: 'in', Auto: 'in', E_Stop: 'in', Running: 'out' } as const;
+
+  it('a receptivity reading an output set by the stable situation clears in a follow-up cycle', () => {
+    const sim = run(build(vars, spec('Running * Auto * !E_Stop')));
+    set(sim, { Auto: true });
+    const logs = sim.setInputs({ start: true });
+    expect(X(sim)).toEqual(['G1.2']);
+    expect(v(sim, 'Running')).toBe(false);
+    // The stable situation {1} and its output are recorded before the internal cycle.
+    expect(logs.map((l) => l.trigger)).toEqual(['input', 'internal']);
+    expect(logs[0]!.active).toEqual(['G1_1']);
+    expect(logs[0]!.changes).toEqual([{ name: 'running', value: true }]);
+    expect(logs[1]!.active).toEqual(['G1_2']);
+  });
+
+  it('an edge on such an output is seen in the follow-up cycle', () => {
+    const sim = run(build(vars, spec('↑Running')));
+    set(sim, { start: true });
+    expect(X(sim)).toEqual(['G1.2']);
+  });
+
+  it('a timer on such an output starts when the output is emitted', () => {
+    const sim = run(build(vars, spec('2s/Running')));
+    sim.advanceTo(1000);
+    set(sim, { start: true });
+    expect(X(sim)).toEqual(['G1.1']);
+    sim.advanceTo(2999);
+    expect(X(sim)).toEqual(['G1.1']);
+    sim.advanceTo(3000);
+    expect(X(sim)).toEqual(['G1.2']);
+  });
+
+  it('outputs and receptivities that keep switching each other stop with a transient-loop error', () => {
+    const sim = run(
+      build(
+        { M: 'out' },
+        {
+          name: 'G1',
+          initial: [0],
+          steps: [0, 1],
+          transitions: [
+            [[0], 'M', [1]],
+            [[1], '/M', [0]],
+          ],
+          actions: [[1, 'continuous', 'M']],
+        },
+      ),
+    );
+    expect(sim.error).toBeNull();
+    const sim2 = run(
+      build(
+        { M: 'out' },
+        {
+          name: 'G1',
+          initial: [0],
+          steps: [0, 1],
+          transitions: [
+            [[0], 'M', [1]],
+            [[1], 'M', [0]],
+          ],
+          actions: [[0, 'continuous', 'M']],
+        },
+      ),
+    );
+    expect(sim2.error?.kind).toBe('transientLoop');
   });
 });
 
@@ -810,11 +890,11 @@ describe('determinism', () => {
       const out: unknown[] = [];
       for (let k = 0; k < 5; k++) {
         out.push(
-          sim.setInputs({ a: true }),
-          sim.setInputs({ a: false }),
+          ...sim.setInputs({ a: true }),
+          ...sim.setInputs({ a: false }),
           ...sim.advanceTo(sim.time + 2500),
         );
-        out.push(sim.setInputs({ b: true }), sim.setInputs({ b: false }));
+        out.push(...sim.setInputs({ b: true }), ...sim.setInputs({ b: false }));
       }
       out.push(sim.snapshot());
       return JSON.stringify(out);

@@ -64,6 +64,12 @@ export function applyQuickFix(fix: QuickFix): void {
         if (tr) tr.receptivity = fix.value;
       });
       return;
+    case 'setActionText':
+      doc.execute('history.quickFix', (p) => {
+        const a = p.grafcets[fix.grafcetId]?.actions[fix.actionId];
+        if (a) a.text = fix.value;
+      });
+      return;
     case 'makeInitial':
       doc.execute('history.quickFix', (p) => {
         const s = p.grafcets[fix.grafcetId]?.steps[fix.stepId];

@@ -391,6 +391,30 @@ describe('Structured Text', () => {
   });
 });
 
+describe('forcing to the empty situation', () => {
+  it('generates G{} as the empty situation and warns when nothing restarts the grafcet', () => {
+    const p = build(
+      [['stop', 'BOOL', 'input']],
+      {
+        name: 'Safety',
+        initial: [0],
+        steps: [0, 1],
+        transitions: [
+          [[0], 'stop', [1]],
+          [[1], '/stop', [0]],
+        ],
+        actions: [[1, 'forcing', 'Cycle{}']],
+      },
+      { name: 'Cycle', initial: [10], steps: [10, 11], transitions: [[[10], '1', [11]]] },
+    );
+    const warning = { code: 'forcingEmpty', params: { order: 'Cycle{}', grafcet: 'Cycle' } };
+    const r = generateStCase(p, OPTS);
+    expect(r.code).toContain('step_Cycle := -1;');
+    expect(r.warnings).toContainEqual(expect.objectContaining(warning));
+    expect(generateSt(p, OPTS).warnings).toContainEqual(expect.objectContaining(warning));
+  });
+});
+
 describe('Structured Text, CASE style', () => {
   const stCase = (p: Project) => generateStCase(p, OPTS);
 

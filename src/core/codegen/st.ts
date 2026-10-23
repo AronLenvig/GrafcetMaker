@@ -13,6 +13,7 @@ import { compile, type CAction } from '../simulation/program';
 import type { Project, Variable } from '../model/types';
 import {
   comment,
+  emptyForcingWarnings,
   heldActions,
   NameTable,
   ST_KEYWORDS,
@@ -52,6 +53,7 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
   };
   for (const prob of p.problems)
     warn({ code: 'expression', elementId: prob.elementId, params: {} });
+  for (const w of emptyForcingWarnings(project)) warn(w);
 
   const userVars = [...p.variables.values()];
   for (const v of userVars)

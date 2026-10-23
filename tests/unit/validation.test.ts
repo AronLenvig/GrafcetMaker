@@ -206,6 +206,38 @@ describe('hierarchy rules', () => {
     p.grafcetOrder = p.grafcetOrder.filter((id) => id !== macroId);
     expect(rules(p)).toContain('subgrafcetMissing');
   });
+
+  it('warns about G{} when nothing activates the grafcet again, with a fix to G{INIT}', () => {
+    const p = createProject('F');
+    const g1 = first(p);
+    const s0 = Object.values(g1.steps)[0]!.id;
+    const g2 = createGrafcetFor(p, 'G2');
+    g1.actions.f = { id: 'f', stepId: s0, order: 0, kind: 'forcing', text: 'G2{}' };
+    const issue = validateProject(p).find((i) => i.ruleId === 'forcingEmpty')!;
+    expect(issue.severity).toBe('warning');
+    expect(issue.elementIds).toEqual(['f']);
+    expect(issue.quickFix).toEqual({
+      kind: 'setActionText',
+      grafcetId: g1.id,
+      actionId: 'f',
+      value: 'G2{INIT}',
+    });
+    // Emergency stop: G2{} while stopped, G2{INIT} on reset.
+    const s1 = appendAfterStep(g1, s0)!.stepId;
+    g1.actions.r = { id: 'r', stepId: s1, order: 0, kind: 'forcing', text: 'G2{INIT}' };
+    expect(rules(p)).not.toContain('forcingEmpty');
+    delete g1.actions.r;
+    // A source transition can activate a step of G2 again.
+    const s = Object.keys(g2.steps)[0]!;
+    g2.transitions.src = {
+      id: 'src',
+      from: [],
+      to: [s],
+      receptivity: '1',
+      position: { x: 0, y: 0 },
+    };
+    expect(rules(p)).not.toContain('forcingEmpty');
+  });
 });
 
 function createGrafcetFor(p: Project, name: string): Grafcet {

@@ -596,11 +596,14 @@ export const en = {
         'Stored actions on macro-step {{step}} are ignored by the simulation: put them in its expansion {{grafcet}}.',
       forcingCycle:
         'Forcing orders form a cycle ({{grafcets}}): a grafcet cannot force one that forces it.',
+      forcingEmpty:
+        '{{order}} forces {{grafcet}} to the empty situation (no step active), and nothing activates its steps again (no other order such as {{grafcet}}{INIT}, no source transition). To activate its initial steps, use {{grafcet}}{INIT}.',
       simTransientLoop:
         'Simulation stopped: the evolution did not become stable after 1000 iterations at {{time}} (transient loop).',
     },
     fixes: {
       setReceptivity: 'Use {{value}}',
+      setActionText: 'Use {{value}}',
       prioritize: 'Give priority to “{{a}}”',
       makeInitial: 'Make step {{step}} initial',
       createVariable: 'Create {{type}} {{name}}',
@@ -738,6 +741,8 @@ export const en = {
       undeclared: '{{name}} is not declared; it was declared as an internal variable.',
       keyword: '{{name}} is a reserved word in Structured Text: rename the variable.',
       unknownStep: 'X{{number}} does not refer to a step and was replaced by FALSE.',
+      forcingEmpty:
+        '{{order}} makes no step of {{grafcet}} active (empty situation), and nothing activates them again. Use {{grafcet}}{INIT} to activate its initial steps; see Problems.',
       macroStoredAction: 'Stored actions on a macro-step are ignored: put them in its expansion.',
       sourceTransition: 'Source transitions cannot be drawn in SFC and were left out.',
       sinkTransition: 'Sink transitions cannot be drawn in SFC and were left out.',

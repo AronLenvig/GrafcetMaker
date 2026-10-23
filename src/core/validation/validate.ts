@@ -6,6 +6,7 @@
 import type { BoolNode } from '../expr/ast';
 import { cachedBool, cachedForcing } from '../expr/cache';
 import { analyze, buildEnv, type Diagnostic, type ExprEnv } from '../expr/check';
+import { emptyForcingsNeverUndone } from '../model/forcing';
 import { indexGrafcet } from '../model/graph';
 import type { Grafcet, Id, Project, Step } from '../model/types';
 import { grafcetExpressions } from '../model/variables';
@@ -576,6 +577,27 @@ function hierarchyRules(p: Project, out: Issue[]): void {
     stack.pop();
   };
   for (const gid of p.grafcetOrder) if (!state.has(gid)) visit(gid, null);
+
+  // G{} is the empty situation (IEC 60848); with nothing to restart G, G{INIT} was probably meant.
+  for (const e of emptyForcingsNeverUndone(p)) {
+    const owner = p.grafcets[e.grafcetId]!;
+    const target = p.grafcets[e.target]!.name;
+    out.push({
+      ruleId: 'forcingEmpty',
+      severity: 'warning',
+      messageKey: 'problems.messages.forcingEmpty',
+      params: { order: owner.actions[e.actionId]!.text.trim(), grafcet: target },
+      grafcetId: owner.id,
+      elementIds: [e.actionId],
+      field: 'text',
+      quickFix: {
+        kind: 'setActionText',
+        grafcetId: owner.id,
+        actionId: e.actionId,
+        value: `${target}{INIT}`,
+      },
+    });
+  }
 }
 
 function unusedVariableRule(p: Project, used: Set<string>, out: Issue[]): void {

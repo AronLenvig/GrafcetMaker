@@ -3,7 +3,8 @@
  * translation of GRAFCET expressions to Structured Text.
  */
 import type { ArithNode, BoolNode } from '../expr/ast';
-import type { Id, Variable, VariableType } from '../model/types';
+import { emptyForcingsNeverUndone } from '../model/forcing';
+import type { Id, Project, Variable, VariableType } from '../model/types';
 import type { CAction, Program } from '../simulation/program';
 import type { StDialect } from './dialect';
 
@@ -22,7 +23,8 @@ export interface CodegenWarning {
     | 'conditionalAction'
     | 'stepSignal'
     | 'parallelSequence'
-    | 'forcingSteps';
+    | 'forcingSteps'
+    | 'forcingEmpty';
   elementId?: Id;
   params: Record<string, string>;
 }
@@ -41,6 +43,21 @@ export interface CodegenOptions {
    * on deactivation too (see heldActions). Other stored actions always run once.
    */
   storedActions?: 'whileActive' | 'once';
+}
+
+/**
+ * Warns about forcing orders `G{}` after which nothing activates a step of G again (see
+ * emptyForcingsNeverUndone): the code empties G as the order says, `G{INIT}` was probably meant.
+ */
+export function emptyForcingWarnings(project: Project): CodegenWarning[] {
+  return emptyForcingsNeverUndone(project).map((e) => ({
+    code: 'forcingEmpty',
+    elementId: e.actionId,
+    params: {
+      order: project.grafcets[e.grafcetId]!.actions[e.actionId]!.text.trim(),
+      grafcet: project.grafcets[e.target]!.name,
+    },
+  }));
 }
 
 /** A stored action that may be held: on (de)activation of a step, no condition, a constant value. */

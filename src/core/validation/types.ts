@@ -27,11 +27,13 @@ export type RuleId =
   | 'subgrafcetUnused'
   | 'macroActions'
   | 'forcingCycle'
+  | 'forcingEmpty'
   /** Runtime problem reported by the simulator (transient loop). */
   | 'simulation';
 
 export type QuickFix =
   | { kind: 'setReceptivity'; grafcetId: Id; transitionId: Id; value: string }
+  | { kind: 'setActionText'; grafcetId: Id; actionId: Id; value: string }
   | { kind: 'makeInitial'; grafcetId: Id; stepId: Id }
   | { kind: 'createVariable'; name: string; type: VariableType; direction: VariableDirection }
   | { kind: 'renumber'; grafcetId: Id }

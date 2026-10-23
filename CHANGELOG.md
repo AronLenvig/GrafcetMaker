@@ -92,6 +92,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   forced grafcet, now clears as soon as the value changes, in a follow-up cycle marked
   _internal_. Before, it waited for the next input change even though every value shown was true;
   timers and edges on such variables also started late. The chronogram now shows the situation each cycle ended in, not the last one of a batch.
+- A forcing order `G1{}` that nothing undoes is now reported: `G1{}` is the empty situation (IEC
+  60848: no step of G1 active), so without another order such as `G1{INIT}` or a source
+  transition G1 never runs again. Problems shows a warning with the fix **Use G1{INIT}** (the
+  initial steps), and the Structured Text export lists it.
 - Deleting the last step of a sequence keeps the transition leading to it (as a sink transition,
   ready for a new step with `Enter`) instead of deleting it too.
 

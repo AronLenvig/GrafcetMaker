@@ -54,6 +54,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- Starting the simulation (`F5`, **Simulate**) runs the clock at once; `F5` pauses. The evolution
+  log of the simulation panel is folded until you open it. A selected step lists its actions as
+  compact rows (symbol, text, condition), each unfolding into its fields.
 - Loop (upward) links: their bottom line drops below the steps and wires of their own sequence
   instead of crossing them (a loop from a right-hand branch passes below the chart), lanes ignore
   separate sequences drawn beside the chart, and loops to the same step share one arrow. Drag a

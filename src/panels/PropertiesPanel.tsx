@@ -1,10 +1,10 @@
-import { useMemo } from 'react';
-import { TermHelp } from '@/app/ui/TermHelp';
+import { useMemo, useState } from 'react';
+import { TermHelp, type Term } from '@/app/ui/TermHelp';
 import { useTranslation } from 'react-i18next';
 import { indexGrafcet } from '@/core/model/graph';
 import type { Action, Grafcet, Id, Step, Transition } from '@/core/model/types';
 import { ChevronDownIcon, ChevronUpIcon, PlusIcon, TrashIcon } from '@/app/ui/icons';
-import { Button, IconButton } from '@/app/ui/primitives';
+import { Button, cx, IconButton } from '@/app/ui/primitives';
 import {
   addActionToSelection,
   deleteSelection,
@@ -21,7 +21,8 @@ import { parentOf } from '@/core/model/hierarchy';
 import { goToParent, openChild, setStepKind } from '@/editor/commands/hierarchy';
 import { issueMessage } from '@/editor/validation/actions';
 import { useProblems } from '@/editor/validation/problems';
-import { ActionKindPicker } from './ActionKindPicker';
+import { tDynamic } from '@/i18n/dynamic';
+import { ActionKindIcon, ActionKindPicker } from './ActionKindPicker';
 import { StepKindPicker } from './StepKindPicker';
 import { CommitField, ExpressionField, Section, SelectField } from './fields';
 import { QuickFixButton, SeverityIcon } from './ProblemsPanel';
@@ -61,13 +62,18 @@ function ActionStepField({ action }: { action: Action }) {
   );
 }
 
-function ActionEditor({ action, index, count }: { action: Action; index: number; count: number }) {
+/** The glossary term of an action's kind. */
+function actionTerm(action: Action): Term {
+  return action.kind === 'forcing'
+    ? 'forcingOrder'
+    : action.kind === 'continuous'
+      ? 'action'
+      : 'storedAction';
+}
+
+/** Move left/right (actions of a step) and delete. */
+function ActionTools({ action, index, count }: { action: Action; index: number; count: number }) {
   const { t } = useTranslation();
-  const update = (recipe: (a: Action) => void) =>
-    editActive('history.edit', (g) => {
-      const a = g.actions[action.id];
-      if (a) recipe(a);
-    });
   const move = (delta: -1 | 1) =>
     editActive('history.reorderActions', (g) => {
       const list = action.stepId ? (indexGrafcet(g).actions.get(action.stepId) ?? []) : [];
@@ -77,50 +83,50 @@ function ActionEditor({ action, index, count }: { action: Action; index: number;
       [list[i], list[j]] = [list[j]!, list[i]!];
       list.forEach((a, k) => (a.order = k));
     });
+  return (
+    <>
+      {action.stepId !== null && (
+        <>
+          <IconButton
+            label={t('props.action.moveUp')}
+            onClick={() => move(-1)}
+            disabled={index === 0}
+            className="h-6 w-6"
+          >
+            <ChevronUpIcon size={14} />
+          </IconButton>
+          <IconButton
+            label={t('props.action.moveDown')}
+            onClick={() => move(1)}
+            disabled={index === count - 1}
+            className="h-6 w-6"
+          >
+            <ChevronDownIcon size={14} />
+          </IconButton>
+        </>
+      )}
+      <IconButton
+        label={t('props.action.delete')}
+        onClick={() => editActive('history.delete', (g) => void delete g.actions[action.id])}
+        className="h-6 w-6"
+      >
+        <TrashIcon size={14} />
+      </IconButton>
+    </>
+  );
+}
+
+/** Step, kind, condition or event, and text of an action. */
+function ActionFields({ action }: { action: Action }) {
+  const { t } = useTranslation();
+  const update = (recipe: (a: Action) => void) =>
+    editActive('history.edit', (g) => {
+      const a = g.actions[action.id];
+      if (a) recipe(a);
+    });
   const kind = uiKindOf(action);
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-border p-2">
-      <div className="flex items-center gap-1">
-        <span className="flex flex-1 items-center gap-1.5 text-xs font-medium text-muted">
-          {t('props.action.title', { n: index + 1 })}
-          <TermHelp
-            term={
-              action.kind === 'forcing'
-                ? 'forcingOrder'
-                : action.kind === 'continuous'
-                  ? 'action'
-                  : 'storedAction'
-            }
-          />
-        </span>
-        {action.stepId !== null && (
-          <>
-            <IconButton
-              label={t('props.action.moveUp')}
-              onClick={() => move(-1)}
-              disabled={index === 0}
-              className="h-6 w-6"
-            >
-              <ChevronUpIcon size={14} />
-            </IconButton>
-            <IconButton
-              label={t('props.action.moveDown')}
-              onClick={() => move(1)}
-              disabled={index === count - 1}
-              className="h-6 w-6"
-            >
-              <ChevronDownIcon size={14} />
-            </IconButton>
-          </>
-        )}
-        <IconButton
-          label={t('props.action.delete')}
-          onClick={() => editActive('history.delete', (g) => void delete g.actions[action.id])}
-          className="h-6 w-6"
-        >
-          <TrashIcon size={14} />
-        </IconButton>
-      </div>
+    <>
       <ActionStepField action={action} />
       <ActionKindPicker value={kind} onChange={(k) => update((a) => setUiKind(a, k))} />
       {/* Part of the kind: the condition of a conditional action, the event of an event action. */}
@@ -156,7 +162,80 @@ function ActionEditor({ action, index, count }: { action: Action; index: number;
         placeholder={t(`props.action.textPlaceholder.${action.kind}`)}
         onCommit={(v) => update((a) => void (a.text = v.trim()))}
       />
+    </>
+  );
+}
+
+/** The selected action: its number and tools, then its fields. */
+function ActionEditor({ action, index, count }: { action: Action; index: number; count: number }) {
+  const { t } = useTranslation();
+  return (
+    <div className="flex flex-col gap-2 rounded-md border border-border p-2">
+      <div className="flex items-center gap-1">
+        <span className="flex flex-1 items-center gap-1.5 text-xs font-medium text-muted">
+          {t('props.action.title', { n: index + 1 })}
+          <TermHelp term={actionTerm(action)} />
+        </span>
+        <ActionTools action={action} index={index} count={count} />
+      </div>
+      <ActionFields action={action} />
     </div>
+  );
+}
+
+/** An action of the selected step as one row (symbol, text, condition) that unfolds into its fields. */
+function ActionRow({
+  action,
+  index,
+  count,
+  open,
+  onToggle,
+}: {
+  action: Action;
+  index: number;
+  count: number;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  const { t } = useTranslation();
+  const kind = uiKindOf(action);
+  return (
+    <li className="rounded-md border border-border">
+      <div className="flex items-center gap-1 pr-1">
+        <button
+          type="button"
+          aria-expanded={open}
+          onClick={onToggle}
+          className="flex min-h-8 min-w-0 flex-1 items-center gap-1.5 rounded-md pl-1.5 text-left hover:bg-surface-2"
+        >
+          <ChevronDownIcon
+            size={14}
+            className={cx('shrink-0 text-muted transition-transform', !open && '-rotate-90')}
+          />
+          <ActionKindIcon kind={kind} />
+          <span className="sr-only">{tDynamic(t, `props.action.kinds.${kind}.label`)}:</span>
+          <span className={cx('min-w-0 truncate font-mono text-xs', !action.text && 'text-muted')}>
+            {action.text || t('props.action.noText')}
+          </span>
+          {action.condition && (
+            <span className="min-w-0 shrink-[2] truncate font-mono text-xs text-muted">
+              {action.condition}
+            </span>
+          )}
+        </button>
+        {open && (
+          <>
+            <TermHelp term={actionTerm(action)} />
+            <ActionTools action={action} index={index} count={count} />
+          </>
+        )}
+      </div>
+      {open && (
+        <div className="flex flex-col gap-2 border-t border-border p-2">
+          <ActionFields action={action} />
+        </div>
+      )}
+    </li>
   );
 }
 
@@ -168,6 +247,14 @@ function StepProps({ g, step }: { g: Grafcet; step: Step }) {
   );
   const validateNumber = useNumberValidator();
   const actions = useMemo(() => indexGrafcet(g).actions.get(step.id) ?? [], [g, step.id]);
+  // Actions unfolded for editing (all folded when the step is selected).
+  const [open, setOpen] = useState<ReadonlySet<Id>>(() => new Set());
+  const toggle = (id: Id) =>
+    setOpen((prev) => {
+      const next = new Set(prev);
+      if (!next.delete(id)) next.add(id);
+      return next;
+    });
   const update = (recipe: (s: Step) => void) =>
     editActive('history.edit', (gd) => {
       const s = gd.steps[step.id];
@@ -226,10 +313,22 @@ function StepProps({ g, step }: { g: Grafcet; step: Step }) {
           </Button>
         }
       >
-        {actions.length === 0 && <p className="text-muted">{t('props.step.noActions')}</p>}
-        {actions.map((a, i) => (
-          <ActionEditor key={a.id} action={a} index={i} count={actions.length} />
-        ))}
+        {actions.length === 0 ? (
+          <p className="text-muted">{t('props.step.noActions')}</p>
+        ) : (
+          <ul className="flex flex-col gap-1.5">
+            {actions.map((a, i) => (
+              <ActionRow
+                key={a.id}
+                action={a}
+                index={i}
+                count={actions.length}
+                open={open.has(a.id)}
+                onToggle={() => toggle(a.id)}
+              />
+            ))}
+          </ul>
+        )}
       </Section>
     </>
   );
@@ -406,7 +505,7 @@ export function PropertiesPanel() {
     const tr = g.transitions[id];
     const action = g.actions[id];
     const comment = g.comments[id];
-    if (step) body = <StepProps g={g} step={step} />;
+    if (step) body = <StepProps key={step.id} g={g} step={step} />;
     else if (tr) body = <TransitionProps g={g} transition={tr} />;
     else if (action) {
       const list = action.stepId ? (indexGrafcet(g).actions.get(action.stepId) ?? []) : [];

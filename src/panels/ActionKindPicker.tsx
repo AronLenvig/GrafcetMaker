@@ -42,6 +42,24 @@ const PICTURES: Record<ActionUiKind, ReactNode> = {
   ),
 };
 
+/** The symbol of an action kind, small (compact action rows). */
+export function ActionKindIcon({ kind }: { kind: ActionUiKind }) {
+  return (
+    <svg
+      width="24"
+      height="18"
+      viewBox="0 0 40 30"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+      className="shrink-0"
+    >
+      {PICTURES[kind]}
+    </svg>
+  );
+}
+
 /** The kind of an action as picture buttons showing the symbol the diagram uses. */
 export function ActionKindPicker({
   value,

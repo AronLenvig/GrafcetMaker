@@ -221,6 +221,10 @@ Autonomous build log. Read this first in every session and resume from **Current
   shared lane. `routing.dropY` (optional, no schema bump: older versions ignore it), dragged on
   the bottom line, moved/pasted with the transition; double-click resets routing. Tests in
   `tests/unit/routing.test.ts`.
+- Owner decisions: starting the simulation runs the clock (`startSimulation` calls `play`); the
+  evolution log is folded by default (`useSheet.simLogOpen`, session only); a step's actions are
+  compact rows (`ActionRow`: symbol, text, condition) unfolding into `ActionFields`, all folded
+  when a step is selected (`StepProps` keyed by step). A selected action keeps the full editor.
 - Code health pass (review by area, verified before applying): validation memoizes atom keys,
   builds one index and one expression environment factory (`envFactory`) per run; auto-layout
   measures each node once; expression widths are memoized; SVG export computes geometry once;

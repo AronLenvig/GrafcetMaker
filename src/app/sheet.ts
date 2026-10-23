@@ -37,6 +37,8 @@ interface PanelState {
   hiddenFor: string | null;
   /** Desktops: the simulation card folded to its title. */
   simCollapsed: boolean;
+  /** The simulation's evolution log unfolded (folded until asked for). */
+  simLogOpen: boolean;
 }
 
 export const useSheet = create<PanelState>(() => ({
@@ -45,6 +47,7 @@ export const useSheet = create<PanelState>(() => ({
   pinned: false,
   hiddenFor: null,
   simCollapsed: false,
+  simLogOpen: false,
 }));
 
 export function showSheet(tab: string): void {

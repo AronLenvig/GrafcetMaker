@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import type { Project, Variable } from '@/core/model/types';
 import type { Value } from '@/core/simulation/engine';
 import type { CycleRecord } from '@/core/simulation/session';
-import { TrashIcon } from '@/app/ui/icons';
+import { useSheet } from '@/app/sheet';
+import { ChevronDownIcon, TrashIcon } from '@/app/ui/icons';
 import { Button, cx, IconButton, Switch } from '@/app/ui/primitives';
 import { formatSimTime } from '@/editor/canvas/SimOverlay';
 import { useDoc } from '@/editor/store/document';
@@ -244,6 +245,7 @@ export function SimulationPanel({ stacked = false }: { stacked?: boolean }) {
   const values = useSim((s) => s.snapshot?.values);
   const error = useSim((s) => s.snapshot?.error);
   const replaying = useSim((s) => !!s.replay);
+  const logOpen = useSheet((s) => s.simLogOpen);
   const variables = useDoc((s) => s.project.variables);
   // Sorted once per change of the variables, not on every simulated frame.
   const { inputs, shown } = useMemo(() => {
@@ -305,12 +307,25 @@ export function SimulationPanel({ stacked = false }: { stacked?: boolean }) {
         </ul>
       </section>
       <section aria-label={t('simulation.log')} className="flex min-h-0 flex-col">
-        <h2 className="border-b border-border px-2 py-1 text-xs font-semibold text-muted uppercase">
-          {t('simulation.log')}
+        <h2 className={cx('border-border', logOpen && 'border-b')}>
+          <button
+            type="button"
+            aria-expanded={logOpen}
+            onClick={() => useSheet.setState({ simLogOpen: !logOpen })}
+            className="flex w-full items-center gap-1 px-2 py-1 text-left text-xs font-semibold text-muted uppercase hover:bg-surface-2"
+          >
+            <ChevronDownIcon
+              size={14}
+              className={cx('shrink-0 transition-transform', !logOpen && '-rotate-90')}
+            />
+            {t('simulation.log')}
+          </button>
         </h2>
-        <div className="min-h-0 flex-1 overflow-auto">
-          <CycleLogList />
-        </div>
+        {logOpen && (
+          <div className="min-h-0 flex-1 overflow-auto">
+            <CycleLogList />
+          </div>
+        )}
         <h2 className="border-y border-border px-2 py-1 text-xs font-semibold text-muted uppercase">
           {t('simulation.scenarios')}
         </h2>

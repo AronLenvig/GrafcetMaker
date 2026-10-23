@@ -408,6 +408,7 @@ export const en = {
       moveUp: 'Move action left',
       moveDown: 'Move action right',
       delete: 'Delete action',
+      noText: 'no text',
       kind: 'Kind',
       event: 'Event',
       condition: 'Condition',

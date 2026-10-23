@@ -295,6 +295,8 @@ export async function startSimulation(): Promise<void> {
   });
   showBottomTab('simulation');
   apply(await send({ type: 'load', project: getProject() }), { restart: true });
+  // Starts running: timers advance right away (F5 pauses).
+  if (useSim.getState().snapshot) play();
 }
 
 export function stopSimulation(): void {

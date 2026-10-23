@@ -166,8 +166,9 @@ one), a stored action runs on its event (on activation: once at start), a forcin
 in force. Drag it onto a step to attach it (the step is highlighted), or choose its **Step** in the
 properties panel; choosing **No step (always active)** there detaches an action again.
 
-Choose the kind of each action with the **Kind** buttons of the properties panel; each shows the
-symbol the diagram uses. A conditional action and an action on event get their condition (or
+A selected step lists its actions in the properties panel as compact rows (symbol, text,
+condition); click a row to unfold its fields. Choose the kind of each action with the **Kind**
+buttons; each shows the symbol the diagram uses. A conditional action and an action on event get their condition (or
 event) input right under the buttons:
 
 - **Continuous action**: the output is true while the step is active. Text: the output name,
@@ -283,20 +284,20 @@ exact definitions are in `docs/semantics.md`.
 ## Simulation
 
 Press `F5`, the **Simulate** button at the top right, or **Simulate › Start simulation**. The
-diagram is locked for editing, the simulation controls replace the tools and the **Simulation**
-panel opens.
+diagram is locked for editing, the simulation controls replace the tools, the **Simulation**
+panel opens and the clock starts running.
 
 - **Inputs**: switch a BOOL input on/off, or hold its **Hold** button for a momentary press
   (keyboard: hold `Space` on the button). Type values for INT, REAL and TIME inputs.
-- **Clock**: `F5` runs and pauses; speed ×0.25 to ×10 or **Fast**, which jumps from one timer
+- **Clock**: `F5` pauses and runs again; speed ×0.25 to ×10 or **Fast**, which jumps from one timer
   expiry to the next. `F10` (Step) jumps to the next timer expiry. ⟲ restarts from the initial
   situation. The bar shows the virtual time, the cycle number and the next timer.
 - **On the diagram**: active steps are filled and carry a token dot, with the time they have been
   active; enabled transitions have a ▶ marker; transitions that just cleared flash; continuous
   actions being executed show a ✓ and stored actions show the current value of their variable.
-- **Evolution log**: every cycle with its trigger and each iteration (transitions cleared, steps
-  activated / deactivated), so transient evolutions are visible. Click a cycle to see the diagram
-  as it was then.
+- **Evolution log** (folded: click its title to open it): every cycle with its trigger and each
+  iteration (transitions cleared, steps activated / deactivated), so transient evolutions are
+  visible. Click a cycle to see the diagram as it was then.
 - **Chronogram** tab: waveforms of all variables and of the steps of the open grafcet. Click or drag
   in it to move the cursor back in time (the diagram follows); **Back to live** returns.
 - **Scenarios**: **Record** restarts the simulation and records your input changes with their

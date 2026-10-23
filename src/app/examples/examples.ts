@@ -165,7 +165,7 @@ export const EXAMPLES = {
             [[2], '3s/X2', [0]],
           ],
           comments: [
-            'Simulate (F5), run the clock (F5 again)\nand press "request" while the cars have\ngreen: the light changes after 10 s\ninstead of 30 s.',
+            'Simulate (F5) and press "request" while\nthe cars have green: the light changes\nafter 10 s instead of 30 s.',
             'The press is remembered by a stored action\non the event ↑request (flag) and forgotten\nwhen step 0 is activated (arrow ↑).',
           ],
         },

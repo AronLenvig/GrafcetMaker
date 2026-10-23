@@ -6,8 +6,8 @@ it reaches a PLC.
 ## Start and stop
 
 Press <kbd>F5</kbd> (or **Simulate › Start simulation**). The diagram is locked, the simulation
-controls replace the tools at the top and the **Simulation** panel appears on the left (fold it
-with its chevron to see more of the diagram). <kbd>Shift+F5</kbd> stops and returns to
+controls replace the tools at the top, the **Simulation** panel appears on the left (fold it
+with its chevron to see more of the diagram) and the clock starts running. <kbd>Shift+F5</kbd> stops and returns to
 editing.
 
 ## Change inputs
@@ -24,7 +24,7 @@ The grafcet evolves as soon as an input changes.
 
 Time in the simulator is virtual and deterministic.
 
-- <kbd>F5</kbd> runs and pauses the clock. Timers (`5s/X2`) only advance while it runs.
+- <kbd>F5</kbd> pauses the clock and runs it again. Timers (`5s/X2`) only advance while it runs.
 - The speed goes from ×0.25 to ×10. **Fast** jumps straight from one timer expiry to the next.
 - <kbd>F10</kbd> jumps to the next timer expiry and runs that cycle.
 - **⟲** restarts from the initial situation.
@@ -41,10 +41,10 @@ The bar shows the time, the cycle number and when the next timer expires. The de
 
 ## Evolution log
 
-The Simulation panel lists every cycle with what triggered it and each iteration of the search for
-stability: transitions cleared, steps activated and deactivated. Transient evolutions (steps
-crossed without stopping) are visible there. Click a cycle to see the diagram as it was at that
-moment.
+The Simulation panel's log (folded: click **Evolution log** to open it) lists every cycle with
+what triggered it and each iteration of the search for stability: transitions cleared, steps
+activated and deactivated. Transient evolutions (steps crossed without stopping) are visible
+there. Click a cycle to see the diagram as it was at that moment.
 
 ## Watching several grafcets
 

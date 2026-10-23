@@ -50,6 +50,7 @@ import {
   selectAll,
   toggleInitialStep,
 } from './edit';
+import { removeUnusedVariables } from './variables';
 
 export type CommandGroup = 'file' | 'edit' | 'insert' | 'view' | 'tools' | 'simulate' | 'help';
 
@@ -260,6 +261,13 @@ export const COMMANDS: Command[] = [
     enabled: hasSelection,
   },
   { id: 'edit.paste', label: 'edit.paste', group: 'edit', run: pasteFromSystem },
+  {
+    id: 'edit.removeUnusedVariables',
+    label: 'edit.removeUnusedVariables',
+    group: 'edit',
+    run: removeUnusedVariables,
+    enabled: () => useUi.getState().mode === 'edit',
+  },
   {
     id: 'edit.delete',
     label: 'edit.delete',

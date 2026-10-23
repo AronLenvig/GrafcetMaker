@@ -235,7 +235,9 @@ otherwise). While you type, a note under the field shows what will be created, w
 the name is close to an existing one (a likely typo). Change the type or direction in the
 Variables panel when the guess is wrong.
 
-The `⋯` menu imports and exports the table (Excel or CSV).
+The broom button next to `⋯` removes every unused variable (no expression uses it and no scenario
+drives it) in one undo step; its badge counts them. The `⋯` menu imports and exports the table
+(Excel or CSV).
 Renaming a variable updates every receptivity, action and condition that uses it, in one undo
 step. Names are not case-sensitive. Copying elements to another project brings the variables they
 use along.

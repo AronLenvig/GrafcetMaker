@@ -10,6 +10,7 @@ import {
   referencedVariables,
   renameVariableEverywhere,
   uniqueVariableName,
+  unusedVariables,
   validateVariableName,
   variableUsage,
   type VariableNameError,
@@ -66,6 +67,23 @@ export function editExpression(
     .map((v) => `${v.name} (${v.type} ${t(`variables.directions.${v.direction}`).toLowerCase()})`)
     .join(', ');
   toast(t('variables.autoCreated', { count: created.length, list }), 'success');
+}
+
+/** Removes the variables nothing uses, in one undo step, and says which. */
+export function removeUnusedVariables(): void {
+  const p = getProject();
+  const unused = unusedVariables(p, variableUsage(p));
+  const t = i18next.t;
+  if (!unused.length) {
+    toast(t('variables.noneUnused'));
+    return;
+  }
+  doc.execute('history.removeUnusedVariables', (d) => {
+    for (const v of unused) delete d.variables[v.id];
+  });
+  const names = unused.map((v) => v.name);
+  const list = names.length > 8 ? `${names.slice(0, 8).join(', ')}, …` : names.join(', ');
+  toast(t('variables.removedUnused', { count: names.length, list }), 'success');
 }
 
 export function renameVariable(id: Id, name: string): VariableNameError | null {

@@ -89,6 +89,23 @@ export function variableUsage(p: ProjectNames): Map<string, number> {
   return usage;
 }
 
+/**
+ * Variables nothing uses: no receptivity, action or condition reads or writes them (`usage`, from
+ * variableUsage) and no scenario drives them.
+ */
+export function unusedVariables(
+  p: Pick<Project, 'variables' | 'scenarios'>,
+  usage: Map<string, number>,
+): Variable[] {
+  const driven = new Set(
+    Object.values(p.scenarios ?? {}).flatMap((s) => s.events.map((e) => e.name.toLowerCase())),
+  );
+  return Object.values(p.variables).filter((v) => {
+    const name = v.name.toLowerCase();
+    return !usage.get(name) && !driven.has(name);
+  });
+}
+
 /** Variables referenced by the expressions of some elements (steps bring their actions). */
 export function referencedVariables(p: ProjectNames, g: Grafcet, ids: Id[]): Variable[] {
   const set = new Set(ids);

@@ -172,6 +172,13 @@ export const UploadIcon = (p: IconProps) => (
   </Icon>
 );
 
+/** Clean up: a broom. */
+export const BroomIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 2v9M7 11h10l1 3H6zM6 14l-1.5 7h15L18 14M10 17.5l-.5 3.5M14 17.5l.5 3.5" />
+  </Icon>
+);
+
 /** Export: an arrow down into a tray (a file to save), the reverse of Open. */
 export const ExportIcon = (p: IconProps) => (
   <Icon {...p}>

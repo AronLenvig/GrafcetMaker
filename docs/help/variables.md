@@ -36,6 +36,10 @@ The **Uses** column counts the expressions that use each variable; an unused var
 orange. Click the number to open the variable in the properties card: edit all its fields and see
 **where it is used**; click a use to jump to that receptivity or action on the diagram.
 
+The broom button next to **⋯** removes every unused variable at once (its badge says how many):
+those no receptivity, action or condition uses and no scenario drives. It is one step to undo
+(<kbd>Ctrl+Z</kbd>). It is also in the command palette: **Remove unused variables**.
+
 On a phone the Variables panel is a compact list instead: search, filter chips (**Inputs**,
 **Outputs**, **Internal**), groups by direction, and a tap opens a variable with its uses.
 

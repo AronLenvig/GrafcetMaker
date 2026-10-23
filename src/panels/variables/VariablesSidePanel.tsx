@@ -9,6 +9,7 @@ import { getProject, useDoc } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
 import { VariableDetails } from './VariableDetails';
 import { countByDirection, DIRECTIONS, queryVariables, type DirectionFilter } from './model';
+import { CleanUpButton } from './CleanUpButton';
 import { VariablesFileMenu } from './VariablesFileMenu';
 
 const TYPE_TONE: Record<string, string> = {
@@ -173,6 +174,7 @@ export function VariablesSidePanel() {
           >
             <PlusIcon size={16} />
           </IconButton>
+          <CleanUpButton usage={usage} />
           <VariablesFileMenu />
         </div>
         <div

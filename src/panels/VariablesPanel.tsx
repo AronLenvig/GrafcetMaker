@@ -24,6 +24,7 @@ import {
   type TypeFilter,
   type VariableQuery,
 } from './variables/model';
+import { CleanUpButton } from './variables/CleanUpButton';
 import { VariablesFileMenu } from './variables/VariablesFileMenu';
 
 /** Fixed row height: lets long tables render only the rows in view. */
@@ -415,6 +416,7 @@ export function VariablesPanel() {
             ? t('variables.shown', { shown: list.length, count: all.length })
             : t('variables.count', { count: all.length })}
         </span>
+        <CleanUpButton usage={usage} />
         <VariablesFileMenu />
       </div>
       <div

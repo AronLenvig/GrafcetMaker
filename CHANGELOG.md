@@ -8,6 +8,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- **Remove unused variables**: a broom button in the Variables panel (list and table, with a count
+  badge) and a command removes every variable no expression uses and no scenario drives, in one
+  undo step.
 - Two larger examples on the start screen. **Bottling line**: a macro-step for filling, three
   stations in parallel, a camera inspection that counts or rejects bottles (with a transient
   step), a batch end and an action without a step, plus a scenario. **Operating modes**: an

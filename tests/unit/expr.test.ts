@@ -8,7 +8,7 @@ import {
   buildEnv,
   type ExpressionKind,
 } from '@/core/expr/check';
-import { declareUnknownNames } from '@/core/model/variables';
+import { declareUnknownNames, unusedVariables, variableUsage } from '@/core/model/variables';
 import { toggleEdge } from '@/core/expr/edges';
 import { formatTextbook, renameIdentifier, runsToPlainText } from '@/core/expr/format';
 import { parseAssignment, parseBool, parseForcing } from '@/core/expr/parser';
@@ -336,6 +336,29 @@ describe('names written before they are declared', () => {
         proj.variables.v = { id: 'v', name: 'Go', type: 'BOOL', direction: 'internal' };
       }),
     ).toEqual(['stop BOOL input']);
+  });
+});
+
+describe('unused variables', () => {
+  it('are those no expression reads or writes and no scenario drives', () => {
+    const proj = createProject('T');
+    const g = proj.grafcets[proj.grafcetOrder[0]!]!;
+    const s = createStep(1, { x: 0, y: 0 });
+    g.steps[s.id] = s;
+    g.actions.a = {
+      id: 'a',
+      stepId: s.id,
+      order: 0,
+      kind: 'storedOnActivation',
+      text: 'C := C + 1',
+    };
+    for (const name of ['C', 'Lamp', 'push', 'spare'])
+      proj.variables[name] = { id: name, name, type: 'BOOL', direction: 'input' };
+    proj.scenarios = { sc: { id: 'sc', name: 'S', events: [{ t: 0, name: 'PUSH', value: true }] } };
+    expect(unusedVariables(proj, variableUsage(proj)).map((v) => v.name)).toEqual([
+      'Lamp',
+      'spare',
+    ]);
   });
 });
 

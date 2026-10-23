@@ -141,6 +141,7 @@ export const en = {
     renameVariable: 'Rename variable',
     editVariable: 'Edit variable',
     deleteVariable: 'Delete variable',
+    removeUnusedVariables: 'Remove unused variables',
     local: {
       title: 'Local history',
       description:
@@ -242,6 +243,7 @@ export const en = {
       toggleInitial: 'Toggle initial step',
       nudge: 'Move selection',
       escape: 'Cancel / clear selection',
+      removeUnusedVariables: 'Remove unused variables',
     },
     insert: {
       append: 'Append transition and step',
@@ -849,6 +851,11 @@ export const en = {
     created: 'Variable {{name}} created',
     autoCreated_one: 'New variable: {{list}}',
     autoCreated_other: 'New variables: {{list}}',
+    removeUnused_one: 'Remove 1 unused variable',
+    removeUnused_other: 'Remove {{count}} unused variables',
+    noneUnused: 'No unused variables',
+    removedUnused_one: 'Removed unused variable {{list}}',
+    removedUnused_other: 'Removed {{count}} unused variables: {{list}}',
     all: 'All',
     allTypes: 'All types',
     clearFilters: 'Clear filters',

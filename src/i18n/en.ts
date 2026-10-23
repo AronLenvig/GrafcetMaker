@@ -847,6 +847,8 @@ export const en = {
     deleteUsed_other:
       'It is still used in {{count}} expressions, which will then report an unknown variable.',
     created: 'Variable {{name}} created',
+    autoCreated_one: 'New variable: {{list}}',
+    autoCreated_other: 'New variables: {{list}}',
     all: 'All',
     allTypes: 'All types',
     clearFilters: 'Clear filters',
@@ -1313,8 +1315,8 @@ export const en = {
     },
     fixes: {
       use: 'Use {{name}}',
-      create: 'Create {{type}} {{direction}} “{{name}}”',
       useOne: 'Use 1',
     },
+    newVariable: 'New variable {{name}}: {{type}} {{direction}}',
   },
 } as const;

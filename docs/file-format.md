@@ -78,8 +78,9 @@ and the result is checked against the project schema. Interpretation choices:
 - **Expressions.** `%` → `MOD`, `≥ ≤ ≠ != ==` → `>= <= <> <> =`, an underlined `1` or `*` alone →
   `1`, durations with a decimal comma or point → whole units (`0,5s/X3` → `500ms/X3`). Since `*` means AND in grafcet.io, comparisons joined by `*` (or two joined by `+`) get
   parentheses: `n > 0 * a` → `(n > 0) * a`.
-- **Variables** are created from what the expressions use, as the Create variable quick fix
-  would (type and direction guessed from use). Macro-steps and enclosing steps keep their kind but
+- **Variables** are created from what the expressions use, as typing them in the editor would
+  (type and direction guessed from use: read only → input, set by a continuous action → output,
+  assigned → internal). Macro-steps and enclosing steps keep their kind but
   no expansion or enclosed grafcet (the file does not link them). Text becomes comments. Each chart
   is auto-laid out, separate sequences of one grafcet one below the other; actions without a step
   and comments form a column on the right. What was changed or left out is listed after opening.

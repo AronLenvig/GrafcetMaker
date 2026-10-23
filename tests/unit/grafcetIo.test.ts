@@ -221,7 +221,7 @@ describe('grafcet.io import', () => {
       'done:BOOL:input',
       'estop:BOOL:input',
       'go:BOOL:input',
-      'n:INT:internal',
+      'n:INT:input',
       'reverse:BOOL:input',
       'start:BOOL:input',
       'stop:BOOL:input',

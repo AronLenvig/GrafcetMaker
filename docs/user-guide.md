@@ -227,6 +227,14 @@ with read or write; click one to jump to it on the diagram). Long tables render 
 rows, so thousands of variables stay fast. On a phone the panel is a compact list instead: search,
 filter chips, direction groups, and a tap opens a variable.
 
+Names you type in a receptivity, an action or a condition that are not variables yet are created
+when you apply the text, in the same undo step, and a message lists them. Their type and direction
+come from their use: read in a condition → input (BOOL, or INT when compared), set by a continuous
+action → BOOL output, assigned by a stored action → internal (INT when computed with a number, BOOL
+otherwise). While you type, a note under the field shows what will be created, with **Use …** when
+the name is close to an existing one (a likely typo). Change the type or direction in the
+Variables panel when the guess is wrong.
+
 The `⋯` menu imports and exports the table (Excel or CSV).
 Renaming a variable updates every receptivity, action and condition that uses it, in one undo
 step. Names are not case-sensitive. Copying elements to another project brings the variables they

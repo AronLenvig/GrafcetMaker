@@ -143,7 +143,14 @@ class Checker {
   readonly diagnostics: Diagnostic[] = [];
   readonly references = new Set<string>();
 
-  constructor(private readonly env: ExprEnv) {}
+  /**
+   * `readDirection`: what an undeclared name read in arithmetic is guessed to be: an input in a
+   * condition (`level > 80` reads a sensor), internal in an assignment's value.
+   */
+  constructor(
+    private readonly env: ExprEnv,
+    private readonly readDirection: Variable['direction'] = 'internal',
+  ) {}
 
   unknown(
     name: string,
@@ -249,7 +256,7 @@ class Checker {
         }
         const v = this.lookup(n.name);
         if (!v) {
-          this.unknown(n.name, n.start, n.end, 'INT', 'internal');
+          this.unknown(n.name, n.start, n.end, 'INT', this.readDirection);
           return null;
         }
         if (v.type === 'BOOL' && !allowBool) {
@@ -317,7 +324,7 @@ class Checker {
 export function analyzeCondition(source: string, env: ExprEnv): Analysis {
   const r = cachedBool(source);
   if (!r.ok) return { diagnostics: [fromParseError(r.error)], references: new Set() };
-  const c = new Checker(env);
+  const c = new Checker(env, 'input');
   c.bool(r.value);
   return { diagnostics: c.diagnostics, references: c.references };
 }

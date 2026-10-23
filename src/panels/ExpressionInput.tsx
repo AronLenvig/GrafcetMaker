@@ -20,9 +20,9 @@ import { toggleEdge, type Edge } from '@/core/expr/edges';
 import { variableUsage } from '@/core/model/variables';
 import type { Id, Variable } from '@/core/model/types';
 import { openHelp } from '@/app/help/helpStore';
+import { InfoIcon } from '@/app/ui/icons';
 import { cx } from '@/app/ui/primitives';
 import { tDynamic } from '@/i18n/dynamic';
-import { createVariable } from '@/editor/commands/variables';
 import { useDoc } from '@/editor/store/document';
 
 export function useExprEnv(grafcetId: Id | null): ExprEnv {
@@ -301,7 +301,12 @@ export const ExpressionInput = forwardRef<
     else replaceRange(0, value.length, emptyGhost);
   };
 
-  const first = diagnostics[0];
+  // Names that are not variables yet are declared when the text is applied: a note, not an error.
+  const isNew = (d: Diagnostic) => d.code === 'unknownIdentifier' && !!d.create;
+  const first = diagnostics.find((d) => !isNew(d));
+  const newNames = [
+    ...new Map(diagnostics.filter(isNew).map((d) => [d.create!.name.toLowerCase(), d])).values(),
+  ];
 
   return (
     <div className={cx(!floating && 'relative', className)} style={style}>
@@ -311,7 +316,7 @@ export const ExpressionInput = forwardRef<
         placeholder={placeholder}
         aria-label={label}
         aria-invalid={!!first}
-        aria-describedby={first ? errId : undefined}
+        aria-describedby={first || newNames.length ? errId : undefined}
         role="combobox"
         aria-autocomplete="list"
         aria-expanded={open}
@@ -478,8 +483,17 @@ export const ExpressionInput = forwardRef<
         <DiagnosticBox
           id={errId}
           d={first}
-          more={diagnostics.length - 1}
+          more={diagnostics.length - newNames.length - 1}
           source={value}
+          floating={!!floating}
+          dropUp={!!dropUp}
+          onReplace={replaceRange}
+        />
+      )}
+      {!first && newNames.length > 0 && !open && (
+        <NewNamesNote
+          id={errId}
+          list={newNames}
           floating={!!floating}
           dropUp={!!dropUp}
           onReplace={replaceRange}
@@ -488,6 +502,56 @@ export const ExpressionInput = forwardRef<
     </div>
   );
 });
+
+/** Names the text uses that are not variables yet, with the type and direction they will get. */
+function NewNamesNote({
+  id,
+  list,
+  floating,
+  dropUp,
+  onReplace,
+}: {
+  id: string;
+  list: Diagnostic[];
+  floating: boolean;
+  dropUp: boolean;
+  onReplace: (start: number, end: number, text: string) => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <div
+      id={id}
+      role="status"
+      onMouseDown={(e) => e.preventDefault()}
+      className={cx(
+        'z-20 mt-1 flex flex-col gap-1 rounded-md border border-border bg-surface p-2 text-xs text-text',
+        floating ? 'absolute left-0 w-max max-w-[440px] shadow-pop' : '',
+        floating && (dropUp ? 'bottom-full mb-1' : 'top-full'),
+      )}
+    >
+      {list.map((d) => (
+        <p key={d.create!.name} className="flex flex-wrap items-center gap-1.5">
+          <InfoIcon size={12} className="shrink-0 text-muted" />
+          {t('expr.newVariable', {
+            name: d.create!.name,
+            type: d.create!.type,
+            direction: t(`variables.directions.${d.create!.direction}`).toLowerCase(),
+          })}
+          {/* Close to an existing name: perhaps a typo. */}
+          {d.params.suggestion && (
+            <button
+              type="button"
+              className="rounded border border-border px-2 py-0.5 hover:bg-surface-2"
+              onClick={() => onReplace(d.start, d.end, d.params.suggestion!)}
+            >
+              {t('expr.fixes.use', { name: d.params.suggestion })}
+            </button>
+          )}
+        </p>
+      ))}
+    </div>
+  );
+}
 
 function DiagnosticBox({
   id,
@@ -508,10 +572,6 @@ function DiagnosticBox({
 }) {
   const { t } = useTranslation();
   const params: Record<string, string> = { ...d.params };
-  if (d.create) {
-    params.type = d.create.type;
-    params.direction = t(`variables.directions.${d.create.direction}`).toLowerCase();
-  }
   const end = Math.max(d.end, d.start + 1);
   return (
     <div
@@ -536,24 +596,6 @@ function DiagnosticBox({
       )}
       {d.hint && <p className="text-muted">{tDynamic(t, `expr.hints.${d.hint}`, params)}</p>}
       <div className="flex flex-wrap gap-1">
-        {d.code === 'unknownIdentifier' && d.params.suggestion && (
-          <button
-            type="button"
-            className="rounded border border-border px-2 py-0.5 hover:bg-surface-2"
-            onClick={() => onReplace(d.start, d.end, d.params.suggestion!)}
-          >
-            {t('expr.fixes.use', { name: d.params.suggestion })}
-          </button>
-        )}
-        {d.create && (
-          <button
-            type="button"
-            className="rounded border border-border px-2 py-0.5 hover:bg-surface-2"
-            onClick={() => createVariable(d.create!.name, d.create!.type, d.create!.direction)}
-          >
-            {tDynamic(t, 'expr.fixes.create', params)}
-          </button>
-        )}
         {d.code === 'empty' && d.hint === 'useOne' && (
           <button
             type="button"

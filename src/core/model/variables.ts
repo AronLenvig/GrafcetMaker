@@ -1,8 +1,16 @@
-import { actionTextKind, analyze, buildEnv, envFactory, type ProjectNames } from '../expr/check';
+import {
+  actionTextKind,
+  analyze,
+  buildEnv,
+  envFactory,
+  type ExpressionKind,
+  type ProjectNames,
+} from '../expr/check';
 import { renameIdentifier } from '../expr/format';
 import { RESERVED_WORDS, tokenize } from '../expr/lexer';
 import { STEP_REF_RE } from '../expr/parser';
 import { IDENT_RE } from './constants';
+import { newId } from './factory';
 import type { Grafcet, Id, Project, Variable, VariableType } from './types';
 
 export type VariableNameError = 'empty' | 'invalid' | 'reserved' | 'stepLike' | 'duplicate';
@@ -20,6 +28,30 @@ export function validateVariableName(
   if (Object.values(p.variables).some((v) => v.id !== exceptId && v.name.toLowerCase() === lower))
     return 'duplicate';
   return null;
+}
+
+/**
+ * Declares the names an expression uses that are not variables yet, as their use suggests: read
+ * in a condition → input, set by a continuous action → output, assigned → internal (BOOL unless
+ * compared or computed). Nothing is declared while the text does not parse. Returns them.
+ */
+export function declareUnknownNames(
+  p: Project,
+  grafcetId: Id,
+  kind: ExpressionKind,
+  source: string,
+): Variable[] {
+  if (!source.trim()) return [];
+  const created: Variable[] = [];
+  for (const d of analyze(kind, source, buildEnv(p, grafcetId)).diagnostics) {
+    // Also skips a name met twice (`C := C + 1`): it is declared by then.
+    if (!d.create || validateVariableName(p, d.create.name)) continue;
+    const { name, type, direction } = d.create;
+    const v: Variable = { id: newId(), name, type, direction };
+    p.variables[v.id] = v;
+    created.push(v);
+  }
+  return created;
 }
 
 export function uniqueVariableName(p: Project, base = 'var'): string {

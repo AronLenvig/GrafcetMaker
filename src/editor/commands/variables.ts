@@ -2,9 +2,11 @@ import i18next from 'i18next';
 import { showDialog } from '@/app/dialogs/dialogStore';
 import { showSideTab } from '@/app/prefs';
 import { toast } from '@/app/toasts';
+import type { ExpressionKind } from '@/core/expr/check';
 import { newId } from '@/core/model/factory';
-import type { Id, Variable, VariableDirection, VariableType } from '@/core/model/types';
+import type { Grafcet, Id, Variable, VariableDirection, VariableType } from '@/core/model/types';
 import {
+  declareUnknownNames,
   referencedVariables,
   renameVariableEverywhere,
   uniqueVariableName,
@@ -14,7 +16,7 @@ import {
 } from '@/core/model/variables';
 import { doc, getProject } from '../store/document';
 import { useUi } from '../store/uiStore';
-import { clipboardHooks } from './edit';
+import { clipboardHooks, editActive } from './edit';
 
 // Copy/paste brings along the variables the copied expressions use.
 clipboardHooks.referencedVariables = referencedVariables;
@@ -42,6 +44,28 @@ export function createVariable(
   const id = addVariable({ name, type, direction });
   toast(i18next.t('variables.created', { name }), 'success');
   return id;
+}
+
+/**
+ * An edit that writes an expression: `recipe` changes the grafcet and returns what it wrote. The
+ * names the text uses that are not variables yet are declared in the same undo step, and a
+ * message says which (so a typo is noticed).
+ */
+export function editExpression(
+  label: string,
+  recipe: (g: Grafcet) => { kind: ExpressionKind; source: string } | null,
+): void {
+  let created: Variable[] = [];
+  editActive(label, (g, p) => {
+    const written = recipe(g);
+    if (written) created = declareUnknownNames(p, g.id, written.kind, written.source);
+  });
+  if (!created.length) return;
+  const t = i18next.t;
+  const list = created
+    .map((v) => `${v.name} (${v.type} ${t(`variables.directions.${v.direction}`).toLowerCase()})`)
+    .join(', ');
+  toast(t('variables.autoCreated', { count: created.length, list }), 'success');
 }
 
 export function renameVariable(id: Id, name: string): VariableNameError | null {

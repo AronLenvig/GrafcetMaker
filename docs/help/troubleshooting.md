@@ -16,8 +16,9 @@ ambiguous. Use **Renumber steps** or change a number with <kbd>F2</kbd>.
 **Empty receptivity.** Every transition needs a condition. Use `1` for a transition that is always
 true (the fix does it for you).
 
-**Unknown variable.** The name is not declared. Use the fix to create it, or pick the suggested name
-if it is a typo.
+**Unknown variable.** The name is not declared (a file written elsewhere, or a variable deleted).
+Names you type in a receptivity or an action are created for you; for the others use the fix to
+create it, or pick the suggested name if it is a typo.
 
 **Expression problems** (unexpected character, missing parenthesis…). The problem box under the
 field marks the position and gives a hint. A frequent one: `/` means NOT before a condition, so

@@ -28,14 +28,13 @@ A new project already contains the grafcet **G1** with step **0**. Its double sq
    transition so you can type its **receptivity**, the condition for moving on.
 3. Type `start` and press <kbd>Enter</kbd>.
 
-`start` is not declared yet, so the editor shows **Unknown variable “start”** with a button
-**Create BOOL input “start”**. Click it: the variable is added to the variable list. (You can also do
-it later from the Problems list.)
+`start` is not declared yet: while you type, the editor notes **New variable start: BOOL input**,
+and pressing <kbd>Enter</kbd> adds it to the variable list (a message says so).
 
 ## 3. Add an action
 
-Step 1 is still selected. Press <kbd>A</kbd>, type `Pump` and press <kbd>Enter</kbd>. Again, click
-**Create BOOL output “Pump”**. The pump now runs as long as step 1 is active.
+Step 1 is still selected. Press <kbd>A</kbd>, type `Pump` and press <kbd>Enter</kbd>: `Pump` is
+created as a BOOL output. The pump now runs as long as step 1 is active.
 
 ## 4. Continue the sequence
 

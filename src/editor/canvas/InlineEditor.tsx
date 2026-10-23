@@ -14,7 +14,8 @@ import {
 import { actionTextKind, type ExpressionKind } from '@/core/expr/check';
 import type { Grafcet } from '@/core/model/types';
 import { ExpressionInput, type ExpressionInputHandle } from '@/panels/ExpressionInput';
-import { continueAfter, editActive, nextAfter } from '../commands/edit';
+import { continueAfter, nextAfter } from '../commands/edit';
+import { editExpression } from '../commands/variables';
 import { ui, useUi, type EditTarget, type Viewport } from '../store/uiStore';
 import { useCoarsePointer, useCompact } from '@/app/ui/media';
 import { canvasSizeOf } from './viewport';
@@ -46,7 +47,8 @@ export function applyEdit(t: EditTarget, raw: string): 'editor.invalidNumber' | 
   const value = t.field === 'text' ? raw.replace(/\s+$/, '') : raw.trim();
   if (t.field === 'number' && value !== '' && !/^\d{1,6}$/.test(value))
     return 'editor.invalidNumber';
-  editActive('history.edit', (g) => {
+  // Receptivities, action texts and conditions declare the new names they use.
+  editExpression('history.edit', (g) => {
     const s = g.steps[t.id];
     if (s) {
       if (t.field === 'number' && value !== '') s.number = Number(value);
@@ -54,28 +56,36 @@ export function applyEdit(t: EditTarget, raw: string): 'editor.invalidNumber' | 
         if (value) s.label = value;
         else delete s.label;
       }
-      return;
+      return null;
     }
     const tr = g.transitions[t.id];
     if (tr) {
-      if (t.field === 'receptivity') tr.receptivity = value;
+      if (t.field === 'receptivity') {
+        tr.receptivity = value;
+        return { kind: 'condition', source: value };
+      }
       if (t.field === 'number') {
         if (value === '') delete tr.number;
         else tr.number = Number(value);
       }
-      return;
+      return null;
     }
     const a = g.actions[t.id];
     if (a) {
-      if (t.field === 'text') a.text = value;
+      if (t.field === 'text') {
+        a.text = value;
+        return { kind: actionTextKind(a.kind), source: value };
+      }
       if (t.field === 'condition') {
         if (value) a.condition = value;
         else delete a.condition;
+        return { kind: 'condition', source: value };
       }
-      return;
+      return null;
     }
     const c = g.comments[t.id];
     if (c && t.field === 'text') c.text = raw.replace(/\s+$/, '');
+    return null;
   });
   return null;
 }

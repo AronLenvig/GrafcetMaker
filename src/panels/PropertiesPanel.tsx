@@ -18,6 +18,7 @@ import { actionTextKind } from '@/core/expr/check';
 import { setUiKind, uiKindOf } from '@/core/model/actionKind';
 import { parentOf } from '@/core/model/hierarchy';
 import { goToParent, openChild, setStepKind } from '@/editor/commands/hierarchy';
+import { editExpression } from '@/editor/commands/variables';
 import { issueMessage } from '@/editor/validation/actions';
 import { useProblems } from '@/editor/validation/problems';
 import { tDynamic } from '@/i18n/dynamic';
@@ -101,6 +102,17 @@ function ActionFields({ action }: { action: Action }) {
       const a = g.actions[action.id];
       if (a) recipe(a);
     });
+  /** Writes the text or the condition; names it uses that are not variables yet are declared. */
+  const write = (field: 'text' | 'condition', v: string) =>
+    editExpression('history.edit', (g) => {
+      const a = g.actions[action.id];
+      if (!a) return null;
+      const value = v.trim();
+      if (field === 'text') a.text = value;
+      else if (value) a.condition = value;
+      else delete a.condition;
+      return { kind: field === 'text' ? actionTextKind(a.kind) : 'condition', source: value };
+    });
   const kind = uiKindOf(action);
   return (
     <>
@@ -109,7 +121,7 @@ function ActionFields({ action }: { action: Action }) {
         label={t(`props.action.textLabel.${action.kind}`)}
         value={action.text}
         placeholder={t(`props.action.textPlaceholder.${action.kind}`)}
-        onCommit={(v) => update((a) => void (a.text = v.trim()))}
+        onCommit={(v) => write('text', v)}
       />
       <ActionKindPicker value={kind} onChange={(k) => update((a) => setUiKind(a, k))} />
       {/* Part of the kind: the condition of a conditional action, the event of an event action. */}
@@ -120,7 +132,7 @@ function ActionFields({ action }: { action: Action }) {
           term={kind === 'storedOnEvent' ? 'event' : 'assignmentCondition'}
           value={action.condition ?? ''}
           placeholder={kind === 'storedOnEvent' ? '↑b' : t('props.action.conditionPlaceholder')}
-          onCommit={(v) => update((a) => void (a.condition = v.trim()))}
+          onCommit={(v) => write('condition', v)}
         />
       )}
       {/* Files may hold a condition on a stored action: shown so it can be changed or cleared. */}
@@ -130,12 +142,7 @@ function ActionFields({ action }: { action: Action }) {
             kind="condition"
             label={t('props.action.onlyIf')}
             value={action.condition}
-            onCommit={(v) =>
-              update((a) => {
-                if (v.trim()) a.condition = v.trim();
-                else delete a.condition;
-              })
-            }
+            onCommit={(v) => write('condition', v)}
           />
         )}
       {action.stepId === null && (
@@ -335,7 +342,14 @@ function TransitionProps({ g, transition }: { g: Grafcet; transition: Transition
         term="receptivity"
         value={transition.receptivity}
         placeholder="a * /b"
-        onCommit={(v) => update((tr) => void (tr.receptivity = v.trim()))}
+        onCommit={(v) =>
+          editExpression('history.edit', (gd) => {
+            const tr = gd.transitions[transition.id];
+            if (!tr) return null;
+            tr.receptivity = v.trim();
+            return { kind: 'condition', source: tr.receptivity };
+          })
+        }
         hint={<span className="text-xs text-muted">{t('props.transition.receptivityHint')}</span>}
       />
       <CommitField

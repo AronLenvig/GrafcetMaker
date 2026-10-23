@@ -60,6 +60,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- Names typed in a receptivity, an action or a condition that are not variables yet are created
+  when the text is applied (one undo step, with a message listing them), typed and directed from
+  their use. While typing, a note shows what will be created instead of an "Unknown variable"
+  error. A number read in a condition is now guessed to be an input (it was internal).
 - Drag any action on the diagram: onto another step (a mark shows its place among that step's
   actions, so dragging along the row reorders them) or onto empty canvas to leave it without a
   step. The **Step** field of the action properties is gone, and the output (or assignment,

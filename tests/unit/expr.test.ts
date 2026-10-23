@@ -6,7 +6,9 @@ import {
   analyzeForcing,
   analyzeOutput,
   buildEnv,
+  type ExpressionKind,
 } from '@/core/expr/check';
+import { declareUnknownNames } from '@/core/model/variables';
 import { toggleEdge } from '@/core/expr/edges';
 import { formatTextbook, renameIdentifier, runsToPlainText } from '@/core/expr/format';
 import { parseAssignment, parseBool, parseForcing } from '@/core/expr/parser';
@@ -293,6 +295,47 @@ describe('formatting and refactoring', () => {
   it('renames identifiers only', () => {
     expect(renameIdentifier('start * /Start2 + START', 'start', 'Go')).toBe('Go * /Start2 + Go');
     expect(renameIdentifier('C := c + 1', 'C', 'Count')).toBe('Count := Count + 1');
+  });
+});
+
+describe('names written before they are declared', () => {
+  const declared = (kind: ExpressionKind, source: string, setup?: (p: Project) => void) => {
+    const proj = createProject('T');
+    setup?.(proj);
+    const gid = proj.grafcetOrder[0]!;
+    const before = Object.keys(proj.variables).length;
+    const out = declareUnknownNames(proj, gid, kind, source).map(
+      (v) => `${v.name} ${v.type} ${v.direction}`,
+    );
+    expect(Object.keys(proj.variables).length).toBe(before + out.length);
+    return out;
+  };
+
+  it('are declared as their use suggests', () => {
+    expect(declared('condition', '↑start * (level > 80) + X0')).toEqual([
+      'start BOOL input',
+      'level INT input',
+    ]);
+    expect(declared('output', 'Motor')).toEqual(['Motor BOOL output']);
+    // Computed with a number: INT, declared once.
+    expect(declared('assignment', 'Total := Total + rate * 2')).toEqual([
+      'Total INT internal',
+      'rate INT internal',
+    ]);
+    expect(declared('assignment', 'Req := a * /b')).toEqual([
+      'Req BOOL internal',
+      'a BOOL input',
+      'b BOOL input',
+    ]);
+  });
+
+  it('are left alone while the text does not parse, and declared names are kept', () => {
+    expect(declared('condition', 'a * (b')).toEqual([]);
+    expect(
+      declared('condition', 'go * stop', (proj) => {
+        proj.variables.v = { id: 'v', name: 'Go', type: 'BOOL', direction: 'internal' };
+      }),
+    ).toEqual(['stop BOOL input']);
   });
 });
 

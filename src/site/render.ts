@@ -1,6 +1,7 @@
 /**
- * The public website around the app, rendered at build time (vite.config.ts): one static GRAFCET
- * guide per language at <lang>/index.html, the help pages at help/ and <lang>/help/, the home page text that
+ * The public website around the app, rendered at build time (vite.config.ts): the editor's page
+ * in each language at <lang>/index.html (index.html with the language's texts), the GRAFCET guide
+ * at <lang>/guide/, the help pages at <lang>/help/, the home page text that
  * index.html carries for readers without JavaScript, and sitemap.xml, robots.txt and llms.txt.
  * Pages are plain HTML and CSS (no JavaScript but the theme bootstrap), bundled with the app so
  * they work offline and on-premise. Text comes from Markdown and is escaped; no HTML is injected.
@@ -8,7 +9,8 @@
 import { EXAMPLES, type ExampleId } from '@/app/examples/examples';
 import { FIGURES } from '@/app/help/figures';
 import { inlineText, parseMarkdown, type Block, type Inline } from '@/app/help/markdown';
-import { helpPages, PAGES, type HelpPage } from '@/app/help/pages';
+import { helpPages, type HelpPage } from '@/app/help/pages';
+import { flagSvg } from '@/app/ui/flags';
 import { encodeShareHash } from '@/core/io/shareLink';
 import {
   EXPORT_FONT_FAMILY,
@@ -25,8 +27,8 @@ export interface SiteInput {
   siteUrl: string;
   /** Markdown of the guide by language (docs/guide/<lang>.md). */
   guides: Partial<Record<string, string>>;
-  /** Markdown of the home page text (docs/home.md). */
-  home: string;
+  /** Markdown of the home page text by language (docs/home/<lang>.md). */
+  homes: Partial<Record<string, string>>;
   /** Body of the inline theme bootstrap of index.html, so pages open in the app's theme. */
   themeScript: string;
   /** Published path of the stylesheet, from the site root. */
@@ -52,24 +54,37 @@ const PALETTE: ExportPalette = {
 
 const LOGO = `<svg viewBox="0 0 64 64" width="28" height="28" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="4"><rect x="16" y="6" width="32" height="32"/><rect x="22" y="12" width="20" height="20"/><path d="M32 38v24"/></g><rect x="20" y="48" width="24" height="5" fill="currentColor"/></svg>`;
 
-const pageUrl = (siteUrl: string, lang: Lang) => `${siteUrl}${lang}/`;
-
-/** Published path of a help page, from the site root: help/ in English, <lang>/help/ otherwise. */
-const helpPath = (lang: Lang, id: string) =>
-  `${lang === 'en' ? '' : `${lang}/`}help/${id === 'index' ? '' : `${id}/`}`;
+// Published paths, from the site root. The root itself is the editor in the visitor's language.
+/** The editor in a language. */
+const appPath = (lang: Lang) => `${lang}/`;
+const guidePath = (lang: Lang) => `${lang}/guide/`;
+const helpPath = (lang: Lang, id: string) => `${lang}/help/${id === 'index' ? '' : `${id}/`}`;
 
 /** From a page at `path` back to the site root. */
 const upFrom = (path: string) => '../'.repeat(path.split('/').filter(Boolean).length);
 
 const helpCenter = (lang: Lang) => helpPages(lang).byId.get('index')?.title ?? 'Help center';
 
+/** The language versions of a page for search engines; the English one is the x-default. */
+const hreflang = (siteUrl: string, path: (l: Lang) => string) => [
+  ...LANGS.map((l) => `<link rel="alternate" hreflang="${l}" href="${esc(siteUrl + path(l))}" />`),
+  `<link rel="alternate" hreflang="x-default" href="${esc(siteUrl + path(DEFAULT_LANG))}" />`,
+];
+
+/** The same page in the other languages, as flags named on hover. */
+const languageLinks = (lang: Lang, up: string, path: (l: Lang) => string) =>
+  LANGS.map(
+    (l) =>
+      `<a href="${up}${path(l)}" hreflang="${l}" lang="${l}" title="${esc(SITE_TEXT[l].language)}" aria-label="${esc(SITE_TEXT[l].language)}"${l === lang ? ' aria-current="page"' : ''}>${flagSvg(l, 'flag')}</a>`,
+  ).join('');
+
 /**
- * Links of the Markdown sources: `app:` and `app:#help/…` lead into the editor, `page.md#anchor`
- * to a help page in the same language, and the rest stays as written. `up` leads from the page to
- * the site root.
+ * Links of the Markdown sources: `app:` and `app:#help/…` lead into the editor and
+ * `page.md#anchor` to a help page, both in the same language; the rest stays as written. `up`
+ * leads from the page to the site root.
  */
 function href(target: string, up: string, lang: Lang): string {
-  if (target.startsWith('app:')) return up + target.slice(4);
+  if (target.startsWith('app:')) return up + appPath(lang) + target.slice(4);
   const help = /^(?:\.\/)?([\w-]+)\.md(#[\w-]+)?$/.exec(target);
   return help ? up + helpPath(lang, help[1]!) + (help[2] ?? '') : target;
 }
@@ -137,7 +152,7 @@ async function figure(id: string, caption: string, ctx: Context): Promise<string
   if (!(example in EXAMPLES)) throw new Error(`${ctx.file}: unknown figure "${id}"`);
   const project = EXAMPLES[example as ExampleId]();
   const g = project.grafcets[project.grafcetOrder[0]!]!;
-  const link = ctx.up + (await encodeShareHash(project));
+  const link = ctx.up + appPath(ctx.lang) + (await encodeShareHash(project));
   return `<figure class="fig"><div class="fig-art">${svgOf({ ...g, comments: {} }, caption)}</div><figcaption>${prose(caption, ctx.lang)} <a class="button" href="${esc(link)}">${esc(SITE_TEXT[ctx.lang].openExample)}</a></figcaption></figure>`;
 }
 
@@ -228,9 +243,9 @@ function frame(f: Frame, input: SiteInput): string {
   <body>
     <a class="skip" href="#main">${esc(text.skip)}</a>
     <header class="top">
-      <a class="brand" href="${f.up}">${LOGO}<span>GrafcetMaker</span></a>
+      <a class="brand" href="${f.up}${appPath(f.lang)}">${LOGO}<span>GrafcetMaker</span></a>
       ${f.nav}
-      <a class="button primary" href="${f.up}">${esc(text.openEditor)}</a>
+      <a class="button primary" href="${f.up}${appPath(f.lang)}">${esc(text.openEditor)}</a>
     </header>
     <main id="main">
       ${f.main}
@@ -252,7 +267,7 @@ async function guidePage(lang: Lang, src: string, input: SiteInput): Promise<str
   const parsed = parseMarkdown(src);
   const h1 = parsed.find((b) => b.t === 'h' && b.level === 1);
   if (!h1 || h1.t !== 'h') throw new Error(`docs/guide/${lang}.md: missing # title`);
-  const up = '../';
+  const up = upFrom(guidePath(lang));
   const ctx: Context = { lang, up, file: `docs/guide/${lang}.md`, figures: guideFigures(lang) };
   const body = await blocks(
     parsed.filter((b) => b !== h1),
@@ -262,20 +277,12 @@ async function guidePage(lang: Lang, src: string, input: SiteInput): Promise<str
     .map((b) => `<li><a href="#${esc(b.id)}">${inline(b.c, ctx)}</a></li>`)
     .join('');
 
-  const url = pageUrl(input.siteUrl, lang);
+  const url = input.siteUrl + guidePath(lang);
   const updated = new Intl.DateTimeFormat(lang, { dateStyle: 'long', timeZone: 'UTC' }).format(
     new Date(`${text.updated}T00:00:00Z`),
   );
-  const alternates = [
-    ...LANGS.map(
-      (l) => `<link rel="alternate" hreflang="${l}" href="${esc(pageUrl(input.siteUrl, l))}" />`,
-    ),
-    `<link rel="alternate" hreflang="x-default" href="${esc(pageUrl(input.siteUrl, DEFAULT_LANG))}" />`,
-  ];
-  const languages = LANGS.map(
-    (l) =>
-      `<a href="${up}${l}/" hreflang="${l}" lang="${l}" title="${esc(SITE_TEXT[l].language)}"${l === lang ? ' aria-current="page"' : ''}>${l.toUpperCase()}</a>`,
-  ).join('');
+  const alternates = hreflang(input.siteUrl, guidePath);
+  const languages = languageLinks(lang, up, guidePath);
   const structured = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -295,7 +302,12 @@ async function guidePage(lang: Lang, src: string, input: SiteInput): Promise<str
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'GrafcetMaker', item: input.siteUrl },
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'GrafcetMaker',
+            item: input.siteUrl + appPath(lang),
+          },
           { '@type': 'ListItem', position: 2, name: text.guide, item: url },
         ],
       },
@@ -325,7 +337,7 @@ async function guidePage(lang: Lang, src: string, input: SiteInput): Promise<str
           ${body.join('\n          ')}
         </div>
       </article>`,
-      links: `<a href="${up}">${esc(text.openEditor)}</a> · <a href="${up}${helpPath(lang, 'index')}">${esc(helpCenter(lang))}</a> · ${languages}`,
+      links: `<a href="${up}${appPath(lang)}">${esc(text.openEditor)}</a> · <a href="${up}${helpPath(lang, 'index')}">${esc(helpCenter(lang))}</a> · ${languages}`,
     },
     input,
   );
@@ -356,19 +368,10 @@ async function helpPage(lang: Lang, page: HelpPage, input: SiteInput): Promise<s
   const url = input.siteUrl + path;
   const title = `${index ? center : page.title} | GrafcetMaker`;
   const description = summary(page.blocks);
-  const alternates = [
-    ...LANGS.map(
-      (l) =>
-        `<link rel="alternate" hreflang="${l}" href="${esc(input.siteUrl + helpPath(l, page.id))}" />`,
-    ),
-    `<link rel="alternate" hreflang="x-default" href="${esc(input.siteUrl + helpPath(DEFAULT_LANG, page.id))}" />`,
-  ];
-  const languages = LANGS.map(
-    (l) =>
-      `<a href="${up}${helpPath(l, page.id)}" hreflang="${l}" lang="${l}" title="${esc(SITE_TEXT[l].language)}"${l === lang ? ' aria-current="page"' : ''}>${l.toUpperCase()}</a>`,
-  ).join('');
+  const alternates = hreflang(input.siteUrl, (l) => helpPath(l, page.id));
+  const languages = languageLinks(lang, up, (l) => helpPath(l, page.id));
   const crumbs = [
-    { name: 'GrafcetMaker', item: input.siteUrl },
+    { name: 'GrafcetMaker', item: input.siteUrl + appPath(lang) },
     { name: center, item: input.siteUrl + helpPath(lang, 'index') },
     ...(index ? [] : [{ name: page.title, item: url }]),
   ];
@@ -416,7 +419,7 @@ async function helpPage(lang: Lang, page: HelpPage, input: SiteInput): Promise<s
           ${body.join('\n          ')}
         </div>
       </article>`,
-      links: `<a href="${up}">${esc(text.openEditor)}</a> · <a href="${up}${lang}/">${esc(text.guide)}</a> · <a href="${up}${helpPath(lang, 'index')}">${esc(center)}</a> · ${languages}`,
+      links: `<a href="${up}${appPath(lang)}">${esc(text.openEditor)}</a> · <a href="${up}${guidePath(lang)}">${esc(text.guide)}</a> · <a href="${up}${helpPath(lang, 'index')}">${esc(center)}</a> · ${languages}`,
     },
     input,
   );
@@ -430,38 +433,81 @@ interface DocLink {
   description: string;
 }
 
-/** Every page of the site, for the home page text and llms.txt. */
-function docLinks(): DocLink[] {
+/** The guide in every language and the help in one, for the home page text and llms.txt. */
+function docLinks(lang: Lang): DocLink[] {
   return [
     ...LANGS.map((l) => ({
       lang: l,
       title: SITE_TEXT[l].title,
-      path: `${l}/`,
+      path: guidePath(l),
       description: SITE_TEXT[l].description,
     })),
-    ...PAGES.map((p) => ({
-      lang: 'en' as const,
+    ...helpPages(lang).pages.map((p) => ({
+      lang,
       title: p.title,
-      path: helpPath('en', p.id),
+      path: helpPath(lang, p.id),
       description: summary(p.blocks),
     })),
   ];
 }
 
 /**
- * The home page text (docs/home.md and a list of every page) that index.html carries in its root
- * for readers without JavaScript: search engines and AI crawlers read it, the editor replaces it.
+ * The home page text (docs/home/<lang>.md and a list of the pages) that the editor's page carries
+ * in its root for readers without JavaScript: search engines and AI crawlers read it, the editor
+ * replaces it. Links are from the site root: the editor's pages pin it with <base>.
  */
-export async function renderHome(home: string): Promise<string> {
-  const ctx: Context = { lang: 'en', up: './', file: 'docs/home.md', figures: {} };
+export async function renderHome(home: string, lang: Lang): Promise<string> {
+  const ctx: Context = { lang, up: './', file: `docs/home/${lang}.md`, figures: {} };
   const body = await blocks(parseMarkdown(home), ctx);
-  const docs = docLinks()
+  const docs = docLinks(lang)
     .map((d) => {
-      const lang = d.lang === 'en' ? '' : ` lang="${d.lang}"`;
-      return `<li${lang}><a href="${esc(ctx.up + d.path)}"${d.lang === 'en' ? '' : ` hreflang="${d.lang}"`}>${prose(d.title, d.lang)}</a>: ${prose(d.description, d.lang)}</li>`;
+      const other = d.lang === lang ? '' : ` lang="${d.lang}"`;
+      return `<li${other}><a href="${esc(ctx.up + d.path)}"${other && ` hreflang="${d.lang}"`}>${prose(d.title, d.lang)}</a>: ${prose(d.description, d.lang)}</li>`;
     })
     .join('');
-  return `<main class="static-home">${body.join('')}<h2 id="documentation">Documentation</h2><ul>${docs}</ul></main>`;
+  return `<main class="static-home">${body.join('')}<h2 id="documentation">${esc(SITE_TEXT[lang].documentation)}</h2><ul>${docs}</ul></main>`;
+}
+
+/**
+ * The editor's page in each language (<lang>/index.html), made from the built index.html: one
+ * folder down (<base>), with the language's texts for search results, link previews and readers
+ * without JavaScript. The English texts must be index.html's own, word for word.
+ */
+export async function appPages(
+  html: string,
+  input: Pick<SiteInput, 'siteUrl' | 'homes'>,
+): Promise<SiteFile[]> {
+  const swap = (page: string, from: string, to: string) => {
+    if (!page.includes(from))
+      throw new Error(`index.html: "${from}" not found; keep it in step with src/site/locales.ts`);
+    return page.replaceAll(from, to);
+  };
+  const en = SITE_TEXT.en;
+  const files: SiteFile[] = [];
+  for (const lang of LANGS) {
+    const text = SITE_TEXT[lang];
+    const home = input.homes[lang];
+    if (home === undefined) throw new Error(`docs/home/${lang}.md is missing`);
+    const url = input.siteUrl + appPath(lang);
+    let page = swap(html, '<html lang="en">', `<html lang="${lang}">`);
+    page = swap(page, '<base href="./" />', '<base href="../" />');
+    page = swap(
+      page,
+      `<link rel="canonical" href="${input.siteUrl}" />`,
+      `<link rel="canonical" href="${url}" />`,
+    );
+    page = swap(
+      page,
+      `<meta property="og:url" content="${input.siteUrl}" />`,
+      `<meta property="og:url" content="${url}" />`,
+    );
+    for (const key of ['appTitle', 'appDescription', 'ogTitle', 'ogDescription'] as const)
+      page = swap(page, esc(en[key]), esc(text[key]));
+    const body = await renderHome(home, lang);
+    page = page.replace(/<main class="static-home">[\s\S]*?<\/main>/, () => body);
+    files.push({ fileName: `${appPath(lang)}index.html`, source: page });
+  }
+  return files;
 }
 
 /**
@@ -470,48 +516,44 @@ export async function renderHome(home: string): Promise<string> {
  */
 function llmsTxt(input: SiteInput): string {
   const abs = (target: string) => new URL(href(target, './', 'en'), input.siteUrl).href;
-  const md = input.home
+  const md = (input.homes.en ?? '')
     .replace(/\r\n?/g, '\n')
     .replace(/\]\(([^)\s]+)\)/g, (_, target: string) => `](${abs(target)})`);
   const [title = '# GrafcetMaker', intro = '', ...rest] = md.trim().split(/\n{2,}/);
-  const docs = docLinks()
+  const docs = docLinks('en')
     .map((d) => `- [${d.title}](${abs(d.path)}): ${d.description}`)
     .join('\n');
   return `${[title, `> ${intro.replace(/\n/g, ' ')}`, ...rest, '## Documentation', docs].join('\n\n')}\n`;
 }
 
-function sitemap(siteUrl: string): string {
-  const alternates = [...LANGS, 'x-default' as const]
-    .map((l) => {
-      const u = pageUrl(siteUrl, l === 'x-default' ? DEFAULT_LANG : l);
-      return `    <xhtml:link rel="alternate" hreflang="${l}" href="${esc(u)}"/>`;
-    })
-    .join('\n');
-  const guides = LANGS.map(
-    (l) => `  <url>
-    <loc>${esc(pageUrl(siteUrl, l))}</loc>
-    <lastmod>${SITE_TEXT[l].updated}</lastmod>
-${alternates}
-  </url>`,
+/** One page of the sitemap with its language versions; `xDefault` is for other languages. */
+function sitemapUrl(loc: string, versions: string[], xDefault: string, lastmod?: string): string {
+  const links = [...LANGS.map((l, i) => [l, versions[i]!]), ['x-default', xDefault]].map(
+    ([l, u]) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${esc(u!)}"/>`,
   );
-  const help = LANGS.flatMap((lang) =>
-    helpPages(lang).pages.map((p) => {
-      const links = [...LANGS, 'x-default' as const].map((l) => {
-        const u = siteUrl + helpPath(l === 'x-default' ? DEFAULT_LANG : l, p.id);
-        return `    <xhtml:link rel="alternate" hreflang="${l}" href="${esc(u)}"/>`;
-      });
-      return `  <url>
-    <loc>${esc(siteUrl + helpPath(lang, p.id))}</loc>
-${links.join('\n')}
+  return `  <url>
+    <loc>${esc(loc)}</loc>
+${lastmod ? `    <lastmod>${lastmod}</lastmod>\n` : ''}${links.join('\n')}
   </url>`;
-    }),
-  );
+}
+
+function sitemap(siteUrl: string): string {
+  /** A page in every language; the root of the site is the editor's x-default. */
+  const page = (path: (l: Lang) => string, xDefault: string, lastmod?: (l: Lang) => string) => {
+    const versions = LANGS.map((l) => siteUrl + path(l));
+    return LANGS.map((l, i) => sitemapUrl(versions[i]!, versions, xDefault, lastmod?.(l)));
+  };
+  const editors = LANGS.map((l) => siteUrl + appPath(l));
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  <url>
-    <loc>${esc(siteUrl)}</loc>
-  </url>
-${[...guides, ...help].join('\n')}
+${[
+  sitemapUrl(siteUrl, editors, siteUrl),
+  ...page(appPath, siteUrl),
+  ...page(guidePath, siteUrl + guidePath(DEFAULT_LANG), (l) => SITE_TEXT[l].updated),
+  ...helpPages(DEFAULT_LANG).pages.flatMap((p) =>
+    page((l) => helpPath(l, p.id), siteUrl + helpPath(DEFAULT_LANG, p.id)),
+  ),
+].join('\n')}
 </urlset>
 `;
 }
@@ -528,7 +570,10 @@ export async function buildSite(input: SiteInput): Promise<SiteFile[]> {
   for (const lang of LANGS) {
     const src = input.guides[lang];
     if (src === undefined) throw new Error(`docs/guide/${lang}.md is missing`);
-    files.push({ fileName: `${lang}/index.html`, source: await guidePage(lang, src, input) });
+    files.push({
+      fileName: `${guidePath(lang)}index.html`,
+      source: await guidePage(lang, src, input),
+    });
   }
   for (const lang of LANGS)
     for (const page of helpPages(lang).pages)

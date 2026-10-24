@@ -26,6 +26,13 @@ export interface SiteText {
   openExample: string;
   /** Name of the guide in the breadcrumb of search results. */
   guide: string;
+  /** The editor's page (<lang>/): what search results and link previews show. English is index.html's own text. */
+  appTitle: string;
+  appDescription: string;
+  ogTitle: string;
+  ogDescription: string;
+  /** Heading of the list of every page, in the editor page's text for readers without JavaScript. */
+  documentation: string;
   footer: string;
 }
 
@@ -44,6 +51,13 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     openEditor: 'Open the editor',
     openExample: 'Open this example in the editor',
     guide: 'GRAFCET guide',
+    appTitle: 'Free online GRAFCET editor and simulator (IEC 60848) | GrafcetMaker',
+    appDescription:
+      'Draw, check and simulate GRAFCET charts (IEC 60848) in your browser. Free and open source, works offline. Export to PDF, SVG, Structured Text and PLCopen XML.',
+    ogTitle: 'GrafcetMaker: free online GRAFCET editor and simulator',
+    ogDescription:
+      'Draw, check and simulate GRAFCET charts (IEC 60848) in your browser. Free and open source, works offline, no account.',
+    documentation: 'Documentation',
     footer:
       'GrafcetMaker is a free, open-source (MIT) GRAFCET editor and simulator. It runs in your browser, works offline and needs no account.',
   },
@@ -61,6 +75,13 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     openEditor: 'Ouvrir l’éditeur',
     openExample: 'Ouvrir cet exemple dans l’éditeur',
     guide: 'Cours GRAFCET',
+    appTitle: 'Éditeur et simulateur de GRAFCET gratuit en ligne (IEC 60848) | GrafcetMaker',
+    appDescription:
+      'Dessinez, vérifiez et simulez des grafcets (IEC 60848) dans votre navigateur. Gratuit et open source, hors ligne. Export PDF, SVG, Structured Text et PLCopen XML.',
+    ogTitle: 'GrafcetMaker : éditeur et simulateur de GRAFCET gratuit en ligne',
+    ogDescription:
+      'Dessinez, vérifiez et simulez des grafcets (IEC 60848) dans votre navigateur. Gratuit et open source, hors ligne, sans compte.',
+    documentation: 'Documentation',
     footer:
       'GrafcetMaker est un éditeur et simulateur de GRAFCET gratuit et open source (MIT). Il fonctionne dans le navigateur, hors ligne et sans compte.',
   },
@@ -78,6 +99,13 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     openEditor: 'Editor öffnen',
     openExample: 'Dieses Beispiel im Editor öffnen',
     guide: 'GRAFCET-Leitfaden',
+    appTitle: 'Kostenloser GRAFCET-Editor und -Simulator online (IEC 60848) | GrafcetMaker',
+    appDescription:
+      'GRAFCET-Pläne (IEC 60848) im Browser zeichnen, prüfen und simulieren. Kostenlos, Open Source, offline. Export als PDF, SVG, Structured Text und PLCopen XML.',
+    ogTitle: 'GrafcetMaker: kostenloser GRAFCET-Editor und -Simulator online',
+    ogDescription:
+      'GRAFCET-Pläne (IEC 60848) im Browser zeichnen, prüfen und simulieren. Kostenlos, Open Source, offline und ohne Konto.',
+    documentation: 'Dokumentation',
     footer:
       'GrafcetMaker ist ein kostenloser Open-Source-Editor und -Simulator für GRAFCET (MIT-Lizenz). Er läuft im Browser, auch offline und ohne Konto.',
   },
@@ -95,6 +123,13 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     openEditor: 'Abrir el editor',
     openExample: 'Abrir este ejemplo en el editor',
     guide: 'Guía de GRAFCET',
+    appTitle: 'Editor y simulador de GRAFCET gratis en línea (IEC 60848) | GrafcetMaker',
+    appDescription:
+      'Dibuja, comprueba y simula grafcets (IEC 60848) en el navegador. Gratis y de código abierto, sin conexión. Exporta a PDF, SVG, Structured Text y PLCopen XML.',
+    ogTitle: 'GrafcetMaker: editor y simulador de GRAFCET gratis en línea',
+    ogDescription:
+      'Dibuja, comprueba y simula grafcets (IEC 60848) en el navegador. Gratis y de código abierto, sin conexión y sin cuenta.',
+    documentation: 'Documentación',
     footer:
       'GrafcetMaker es un editor y simulador de GRAFCET gratuito y de código abierto (MIT). Funciona en el navegador, sin conexión y sin cuenta.',
   },

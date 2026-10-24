@@ -5,7 +5,7 @@ into PLC code. It is made for automation engineers, teachers and students: free 
 (MIT licence), with no account, and it works offline.
 
 GrafcetMaker is a web app: it runs in any modern browser with JavaScript turned on. New to
-GRAFCET? Read the [GRAFCET guide](en/), also in [French](fr/), [German](de/) and [Spanish](es/).
+GRAFCET? Read the [GRAFCET guide](en/guide/), also in [French](fr/guide/), [German](de/guide/) and [Spanish](es/guide/).
 
 ## What you can do with it
 
@@ -74,7 +74,7 @@ Six example projects open from the start screen of the editor:
 - **Bottling line**: a macro-step, three stations in parallel, inspection and counters.
 - **Operating modes**: an enclosing step, a pause that freezes the cycle and an emergency stop.
 
-The [GRAFCET guide](en/#examples) draws the first two and opens them in the editor.
+The [GRAFCET guide](en/guide/#examples) draws the first two and opens them in the editor.
 
 ## Frequently asked questions
 

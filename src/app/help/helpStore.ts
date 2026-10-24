@@ -15,7 +15,8 @@ export const useHelp = create<HelpState>(() => ({ open: false, page: HELP_HOME, 
 function writeHash(s: HelpState): void {
   const hash = s.open ? `#help/${s.page}${s.anchor ? `/${s.anchor}` : ''}` : '';
   if (location.hash === hash || (!hash && !location.hash)) return;
-  history.replaceState(null, '', hash || `${location.pathname}${location.search}`);
+  // The full path: a bare `#…` would resolve against the <base> (the app's root) and drop `de/`.
+  history.replaceState(null, '', `${location.pathname}${location.search}${hash}`);
 }
 
 export function openHelp(page: string = HELP_HOME, anchor: string | null = null): void {
@@ -35,7 +36,7 @@ export function toggleHelp(): void {
 
 /** The website's GRAFCET guide (src/site), bundled with the app, in the language of the app. */
 export function guideUrl(): string {
-  return `./${useLanguage.getState().language}/`;
+  return `./${useLanguage.getState().language}/guide/`;
 }
 
 /** Opens the page named in the URL (a shared #help/... link). */

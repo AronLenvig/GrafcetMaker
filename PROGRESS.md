@@ -320,8 +320,17 @@ Autonomous build log. Read this first in every session and resume from **Current
   model, terminology from the four guides; e2e pinned to `en-US`.
 - The canvas first: toolbar islands and the hints rest at 80 % opacity until hovered, focused or
   holding an open menu (`gm-card` marks the cards that stay solid; no fade on touch screens or
-  with `prefers-contrast: more`). Simulate is a play icon whose label slides out on hover or
-  keyboard focus (grid `0fr → 1fr`, no layout jump of the icon).
+  with `prefers-contrast: more`). Simulate is a compact play icon (the owner found a sliding
+  label annoying); every tool button shows its key in the corner (`⇧A`, `F5`).
+- Addresses per language. The build emits the editor at `<lang>/index.html`: `appPages()` swaps
+  index.html's English title, description, Open Graph texts, canonical and home text for the
+  language's (`SITE_TEXT`, `docs/home/<lang>.md`; the build fails if index.html drifts from
+  them). `<base href>` pins the app's root (`./` at the root, `../` one folder down), so assets,
+  `api/…`, the service worker and `history.replaceState` resolve from the root; the help hash
+  keeps the full path. The address's language wins and is remembered; `setLanguage` writes
+  `<lang>/` into the address. Guide at `<lang>/guide/`, help at `<lang>/help/` (Cloudflare
+  `_redirects` for the former `help/`); hreflang on every page with the root as x-default.
+  Flags (`src/app/ui/flags.ts`, SVG data shared by the app and the site) with hover hints.
 
 ## Decisions
 

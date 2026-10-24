@@ -85,15 +85,9 @@ export function ToolIsland() {
           type="button"
           aria-label={t('simulation.simulateLabel')}
           onClick={() => runCommand('sim.toggle')}
-          className="group relative flex h-9 min-w-9 items-center justify-center rounded-lg px-[11px] text-[13px] font-medium hover:bg-surface-2"
+          className="relative flex h-9 w-9 items-center justify-center rounded-lg hover:bg-surface-2"
         >
           <PlayIcon size={14} className="text-success" />
-          {/* A play icon at rest; the label slides out while pointed at or focused. */}
-          <span className="grid grid-cols-[0fr] transition-[grid-template-columns] duration-200 ease-out group-hover:grid-cols-[1fr] group-focus-visible:grid-cols-[1fr]">
-            <span className="overflow-hidden whitespace-nowrap">
-              <span className="pl-1.5">{t('simulation.simulate')}</span>
-            </span>
-          </span>
           <CornerKey id="sim.toggle" />
         </button>
       </Tip>

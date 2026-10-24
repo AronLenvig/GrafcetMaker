@@ -54,25 +54,39 @@ function contentSecurityPolicy(): Plugin {
   };
 }
 
+type SiteFile = { fileName: string; source: string };
+
 /** What src/site/render.ts exports (the config is type-checked apart from src). */
 interface SiteModule {
-  renderHome(home: string): Promise<string>;
+  renderHome(home: string, lang: string): Promise<string>;
+  appPages(
+    html: string,
+    input: { siteUrl: string; homes: Record<string, string> },
+  ): Promise<SiteFile[]>;
   buildSite(input: {
     siteUrl: string;
     guides: Record<string, string>;
-    home: string;
+    homes: Record<string, string>;
     themeScript: string;
     css: string;
-  }): Promise<{ fileName: string; source: string }[]>;
+  }): Promise<SiteFile[]>;
 }
+
+/** Markdown files of a docs folder by name: docs/guide/<lang>.md, docs/home/<lang>.md. */
+const markdownIn = (dir: string) =>
+  Object.fromEntries(
+    readdirSync(new URL(`./docs/${dir}`, import.meta.url))
+      .filter((f) => f.endsWith('.md'))
+      .map((f) => [f.slice(0, -3), read(`./docs/${dir}/${f}`)]),
+  );
 
 /**
  * The public website around the app: SITE_URL in index.html, and at build time the home page text
- * for readers without JavaScript (docs/home.md, in the root element of index.html), the static
- * GRAFCET guide in each language (docs/guide/<lang>.md), the help pages (docs/help), sitemap.xml,
- * robots.txt and llms.txt, all rendered by src/site.
+ * for readers without JavaScript (docs/home/<lang>.md, in the root element of index.html), the
+ * editor's page in each language, the static GRAFCET guide (docs/guide/<lang>.md), the help pages
+ * (docs/help), sitemap.xml, robots.txt and llms.txt, all rendered by src/site.
  */
-function website(): Plugin {
+function website(): Plugin[] {
   let site: Promise<SiteModule> | undefined;
   // src/site imports the app's modules, so it is loaded through Vite, once per build.
   const loadSite = () =>
@@ -82,7 +96,7 @@ function website(): Plugin {
       logLevel: 'error',
       resolve: { alias },
     }).then((r) => r.module));
-  return {
+  const sitePlugin: Plugin = {
     name: 'grafcetmaker-website',
     transformIndexHtml: {
       order: 'pre',
@@ -90,7 +104,7 @@ function website(): Plugin {
         const page = html.replaceAll('__SITE_URL__', SITE_URL);
         // While developing, the root stays empty: the editor replaces the text anyway.
         if (ctx.server) return page;
-        const home = await (await loadSite()).renderHome(read('./docs/home.md'));
+        const home = await (await loadSite()).renderHome(read('./docs/home/en.md'), 'en');
         return page.replace('<!--static-home-->', () => home);
       },
     },
@@ -100,17 +114,12 @@ function website(): Plugin {
         name: 'site.css',
         source: `${read('./src/theme/tokens.css')}\n${read('./src/site/site.css')}`,
       });
-      const guides = Object.fromEntries(
-        readdirSync(new URL('./docs/guide', import.meta.url))
-          .filter((f) => f.endsWith('.md'))
-          .map((f) => [f.slice(0, -3), read(`./docs/guide/${f}`)]),
-      );
       const files = await (
         await loadSite()
       ).buildSite({
         siteUrl: SITE_URL,
-        guides,
-        home: read('./docs/home.md'),
+        guides: markdownIn('guide'),
+        homes: markdownIn('home'),
         themeScript: /<script>([\s\S]*?)<\/script>/.exec(read('./index.html'))?.[1] ?? '',
         css: this.getFileName(css),
       });
@@ -122,6 +131,21 @@ function website(): Plugin {
         });
     },
   };
+  // After Vite has written index.html (scripts, styles, CSP): the editor's page in each language.
+  const appPagesPlugin: Plugin = {
+    name: 'grafcetmaker-app-pages',
+    apply: 'build',
+    enforce: 'post',
+    async generateBundle(_, bundle) {
+      const index = bundle['index.html'];
+      if (index?.type !== 'asset') throw new Error('index.html is not in the bundle');
+      const files = await (
+        await loadSite()
+      ).appPages(String(index.source), { siteUrl: SITE_URL, homes: markdownIn('home') });
+      for (const { fileName, source } of files) this.emitFile({ type: 'asset', fileName, source });
+    },
+  };
+  return [sitePlugin, appPagesPlugin];
 }
 
 const pkg = JSON.parse(read('./package.json')) as { version: string };
@@ -178,11 +202,12 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,woff2,webmanifest}'],
         // The link-preview image is for other sites, never shown in the app; the app has its own
         // help, so the help pages of the website are not kept offline.
-        globIgnores: ['og-image.png', 'help/**', '*/help/**'],
+        globIgnores: ['og-image.png', '*/help/**'],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         navigateFallback: 'index.html',
-        // The guide pages are precached as themselves; never answer them or the help with the app.
-        navigateFallbackDenylist: [/\/(?:en|fr|de|es)\/(?:index\.html)?$/, /\/help\//],
+        // The editor's language pages and the guide are precached as themselves; never answer the
+        // guide or the help with the app.
+        navigateFallbackDenylist: [/\/guide\//, /\/help\//],
         cleanupOutdatedCaches: true,
       },
     }),

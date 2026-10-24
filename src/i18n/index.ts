@@ -27,8 +27,31 @@ const LOAD: Record<Exclude<Language, 'en'>, () => Promise<Messages>> = {
 
 const isLanguage = (v: unknown): v is Language => typeof v === 'string' && v in LANGUAGES;
 
-/** The saved choice, else the first browser language the app speaks, else English. */
+/** The language of an address: the app is published at <root>/ and at <root>/<lang>/. */
+export function languageOfPath(pathname: string): Language | undefined {
+  const lang = /\/([a-z]{2})\/(?:index\.html)?$/.exec(pathname)?.[1];
+  return isLanguage(lang) ? lang : undefined;
+}
+
+function save(language: Language): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, language);
+  } catch {
+    // Not persisted; the choice still applies until the page is reloaded.
+  }
+}
+
+/**
+ * The language of the address (…/de/, remembered as a choice), else the saved choice, else the
+ * first browser language the app speaks, else English.
+ */
 function startLanguage(): Language {
+  const fromAddress =
+    typeof location === 'undefined' ? undefined : languageOfPath(location.pathname);
+  if (fromAddress) {
+    save(fromAddress);
+    return fromAddress;
+  }
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (isLanguage(saved)) return saved;
@@ -37,6 +60,17 @@ function startLanguage(): Language {
   }
   const tags = typeof navigator === 'undefined' ? [] : navigator.languages;
   return tags.map((tag) => tag.slice(0, 2).toLowerCase()).find(isLanguage) ?? 'en';
+}
+
+/**
+ * Shows the language in the address (…/fr/, keeping a #hash), from the app's root: index.html
+ * pins it with <base>, so it stays the root after the address changes.
+ */
+function showInAddress(language: Language): void {
+  const url = new URL(`${language}/`, document.baseURI);
+  url.search = location.search;
+  url.hash = location.hash;
+  if (url.href !== location.href) history.replaceState(history.state, '', url);
 }
 
 void i18next.use(initReactI18next).init({
@@ -70,12 +104,9 @@ async function apply(language: Language): Promise<void> {
 export const i18nReady: Promise<void> = apply(startLanguage()).catch(() => undefined);
 
 export async function setLanguage(language: Language): Promise<void> {
-  try {
-    localStorage.setItem(STORAGE_KEY, language);
-  } catch {
-    // Not persisted; the choice still applies until the page is reloaded.
-  }
+  save(language);
   await apply(language);
+  showInAddress(language);
 }
 
 export default i18next;

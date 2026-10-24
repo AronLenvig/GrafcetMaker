@@ -75,8 +75,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   (`M5U1_Grab := step_G1 >= 2 AND step_G1 <= 4;`). The previous style stays available as
   **Code style › One BOOL per step**.
 
-- GRAFCET guide on the website in English, French, German and Spanish (`en/`, `fr/`, `de/`,
-  `es/`): the elements, the five evolution rules, receptivities, actions, branches, hierarchy and
+- GRAFCET guide on the website in English, French, German and Spanish (`en/guide/`,
+  `fr/guide/`, `de/guide/`, `es/guide/`): the elements, the five evolution rules, receptivities, actions, branches, hierarchy and
   GRAFCET versus SFC, with diagrams and examples that open in the editor. **Help › GRAFCET guide**
   and the start screen link to it; it works offline like the app.
 - Search engines and link previews: a descriptive page title on a first visit, description,
@@ -94,7 +94,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 ### Changed
 
 - The canvas comes first: the toolbars rest slightly faded until you point at them, and
-  **Simulate** is a play button whose label appears when you point at it.
+  **Simulate** is a compact play button.
+- Each language has its own address: `/en/`, `/fr/`, `/de/` and `/es/` open the editor in that
+  language, and changing the language changes the address. The GRAFCET guide moved to
+  `/<language>/guide/` and the help pages to `/<language>/help/`.
+- The language button and the website's language links show flags, named on hover.
 - A transition whose receptivity is not written yet shows a grey "?" instead of a red problem
   badge (it is still listed in Problems).
 - Clicking the ghost transition and step selects the new step, as if it had been clicked, instead

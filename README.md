@@ -205,21 +205,25 @@ endpoint answers `{ "ok": false }` and the app falls back to email or copy.
 
 Besides the app, the build writes the public website's pages for search engines and visitors:
 
-- `en/`, `fr/`, `de/`, `es/`: the GRAFCET guide, static HTML rendered at build time from
+- `en/`, `fr/`, `de/`, `es/`: the editor in that language: `index.html` with the language's
+  title, description and home page text ([`docs/home/<lang>.md`](docs/home/en.md)) for readers
+  without JavaScript, such as AI crawlers (the editor replaces it). The root `index.html` (English
+  text) follows the visitor's saved or browser language;
+- `<lang>/guide/`: the GRAFCET guide, static HTML rendered at build time from
   [`docs/guide/<lang>.md`](docs/guide/en.md) by [`src/site/`](src/site/render.ts), with diagrams
-  drawn by the editor's own exporter and examples that open in the app;
-- `help/`: the in-app help pages ([`docs/help/`](docs/help/index.md)) as static HTML;
-- `sitemap.xml`, `robots.txt` and `llms.txt`;
-- in `index.html`: a descriptive title, canonical link, Open Graph preview (`og-image.png`),
-  structured data, and the home page text ([`docs/home.md`](docs/home.md)) for readers without
-  JavaScript, such as AI crawlers (the editor replaces it).
+  drawn by the editor's own exporter and examples that open in the editor;
+- `<lang>/help/`: the in-app help pages ([`docs/help/`](docs/help/index.md)) as static HTML
+  (`_redirects` sends the former `help/` addresses to `en/help/` on Cloudflare);
+- `sitemap.xml` (every page with its language versions), `robots.txt` and `llms.txt`;
+- in every editor page: a canonical link, hreflang alternates, Open Graph preview
+  (`og-image.png`) and structured data.
 
 Absolute URLs use `SITE_URL` (default `https://grafcet.org/`). A public mirror builds with its own
 address, `SITE_URL=https://grafcet.example.com/ npm run build`; on-premise installs need nothing.
 
 After deploying the public site, add it to [Google Search Console](https://search.google.com/search-console)
 and [Bing Webmaster Tools](https://www.bing.com/webmasters), submit `sitemap.xml` and request
-indexing of the home page and the four guide pages.
+indexing of the editor and guide pages.
 
 ### Docker
 

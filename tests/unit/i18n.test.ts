@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseMarkdown, type Block, type Inline } from '@/app/help/markdown';
-import i18next from '@/i18n';
+import i18next, { languageOfPath } from '@/i18n';
 import { en } from '@/i18n/en';
 
 /**
@@ -66,6 +66,14 @@ it('lowercases a word inside a sentence where the language asks for it', () => {
   expect(i18next.t('expr.newVariable', { name: 'start', type: 'BOOL', direction: 'Input' })).toBe(
     'New variable start: BOOL input',
   );
+});
+
+it('reads the language of the address: the editor at <root>/<lang>/', () => {
+  expect(languageOfPath('/de/')).toBe('de');
+  expect(languageOfPath('/tools/grafcet/fr/index.html')).toBe('fr');
+  expect(languageOfPath('/')).toBeUndefined();
+  expect(languageOfPath('/de/guide/')).toBeUndefined();
+  expect(languageOfPath('/xx/')).toBeUndefined();
 });
 
 describe.each(LANGS)('%s', (lang) => {

@@ -1,0 +1,2 @@
+# Cloudflare: the English help moved from help/ to en/help/.
+/help/* /en/help/:splat 301

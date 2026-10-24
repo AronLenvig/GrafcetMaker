@@ -2,6 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- The app's root, for the language pages (<lang>/index.html) and after the address changes. -->
+    <base href="./" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
@@ -14,6 +16,11 @@
     />
     <!-- The site URL placeholders are filled in from SITE_URL (vite.config.ts). -->
     <link rel="canonical" href="__SITE_URL__" />
+    <link rel="alternate" hreflang="x-default" href="__SITE_URL__" />
+    <link rel="alternate" hreflang="en" href="__SITE_URL__en/" />
+    <link rel="alternate" hreflang="fr" href="__SITE_URL__fr/" />
+    <link rel="alternate" hreflang="de" href="__SITE_URL__de/" />
+    <link rel="alternate" hreflang="es" href="__SITE_URL__es/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="GrafcetMaker" />
     <meta property="og:title" content="GrafcetMaker: free online GRAFCET editor and simulator" />

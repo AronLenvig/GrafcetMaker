@@ -1026,7 +1026,7 @@ export const fr: Messages = {
     continue: 'Continuer « {{name}} »',
     continueShort: 'Continuer',
     startDrawing: 'Commencer à dessiner',
-    tour: 'Visite guidée (5 écrans)',
+    tour: 'Visite guidée (10 écrans)',
     tourAgain: 'Refaire la visite guidée',
     gettingStarted: 'Tutoriel : premiers pas',
     guide: 'Cours sur le GRAFCET',
@@ -1059,24 +1059,44 @@ export const fr: Messages = {
     done: 'Terminé',
     steps: {
       canvas: {
-        title: 'Dessinez ici',
-        text: "Le diagramme occupe toute la fenêtre. Cliquez sur une étape et appuyez sur Enter : une transition et l'étape suivante apparaissent, prêtes pour la réceptivité. A ajoute une action, P et O ajoutent des branches, L crée une reprise de séquence. Les indications sous la barre d'outils listent toujours ce que vous pouvez faire.",
+        title: 'Votre grafcet',
+        text: "Le diagramme occupe toute la fenêtre. Double-cliquez sur une zone vide pour ajouter une étape ; sélectionnez une étape et appuyez sur Enter pour une transition et l'étape suivante, puis tapez la réceptivité. Space+glisser déplace la vue, Ctrl+molette zoome, et un clic droit propose les commandes de l'élément sous le pointeur.",
       },
       tools: {
         title: 'Outils',
-        text: "Sélectionner, déplacer la vue, placer des étapes, des transitions, des commentaires et des actions ; la lettre de chaque bouton est sa touche. Le zoom, Annuler et Rétablir sont en bas à gauche, l'aide et les avis en bas à droite.",
+        text: 'Sélectionner (V), déplacer la vue (H), ou placer des étapes (S), des transitions (T), des commentaires (C) et des actions (Shift+A) : la touche figure dans le coin de chaque bouton. Une étape sélectionnée, A ajoute une action, P une branche parallèle, O une branche alternative et L une reprise vers une étape précédente.',
       },
-      side: {
-        title: 'Propriétés',
-        text: "Sélectionnez un élément et ses propriétés apparaissent dans une carte à gauche : numéros, réceptivités, types d'étapes et d'actions. Sans sélection, ce bouton affiche le grafcet et le projet.",
+      simulate: {
+        title: 'Simulation',
+        text: "Ce bouton (F5) exécute votre grafcet selon les règles de l'IEC 60848. Les commandes de simulation remplacent les outils, et un panneau à gauche liste les entrées à basculer et les sorties à observer. Shift+F5 revient à l'édition.",
       },
-      problems: {
-        title: 'Problèmes',
-        text: 'GrafcetMaker vérifie votre grafcet pendant que vous dessinez. Cliquez sur les compteurs pour voir chaque problème, y accéder et le corriger, souvent en un clic.',
+      hints: {
+        title: 'Indications',
+        text: "Cette barre montre toujours ce que vous pouvez faire avec la sélection, l'outil ou le glisser en cours. En savoir plus ouvre la page d'aide correspondante ; × masque la barre, et Affichage › Indications la réaffiche.",
       },
-      bottom: {
-        title: 'Panneaux et simulation',
-        text: "Variables, Problèmes, Chronogramme et Plan s'ouvrent à droite quand vous en avez besoin. Appuyez sur F5 (ou Simuler) pour exécuter votre grafcet : le panneau de simulation apparaît à gauche avec ses entrées.",
+      project: {
+        title: 'Menu et projet',
+        text: "☰ réunit toutes les commandes (Fichier, Édition, Affichage, Simulation, Aide), le thème et la langue. Double-cliquez sur le nom pour renommer le projet ; un point signale des modifications non enregistrées. Votre travail est conservé dans le navigateur au fil de l'eau, et Ctrl+S l'enregistre dans un fichier. Le dernier bouton affiche les propriétés de la sélection.",
+      },
+      share: {
+        title: 'Problèmes, export et partage',
+        text: 'Les compteurs signalent erreurs et avertissements pendant que vous dessinez : cliquez dessus pour lister chaque problème, y aller et le corriger, souvent en un clic. Exporter (Ctrl+E) produit du PDF, SVG, PNG, Structured Text ou PLCopen XML. Le dernier bouton partage le projet ou ouvre une session en direct à plusieurs.',
+      },
+      view: {
+        title: 'Zoom et annulation',
+        text: 'Dézoomez et zoomez, cliquez sur le pourcentage pour revenir à 100 %, ou ajustez tout le grafcet à la fenêtre. Annuler et rétablir (Ctrl+Z, Ctrl+Y) reviennent sur toute modification ; un glisser compte pour une seule.',
+      },
+      tabs: {
+        title: 'Grafcets',
+        text: 'Un projet peut contenir plusieurs grafcets partiels qui évoluent ensemble, un onglet chacun ; + en ajoute un. Les expansions de macro-étapes ont leur propre onglet.',
+      },
+      panels: {
+        title: 'Panneaux',
+        text: "Variables, Problèmes, Chronogramme et Plan s'ouvrent dans un panneau à droite ; tirez son bord gauche pour l'élargir. Le chronogramme enregistre chaque variable pendant la simulation.",
+      },
+      help: {
+        title: 'Aide et plus',
+        text: "Ici se trouvent le centre d'aide (F1), l'envoi d'un avis anonyme et la langue. Ctrl+K trouve n'importe quelle commande par son nom, et ? liste tous les raccourcis clavier. Bon dessin !",
       },
     },
   },

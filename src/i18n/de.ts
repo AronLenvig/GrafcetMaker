@@ -1031,7 +1031,7 @@ export const de: Messages = {
     continue: '„{{name}}“ fortsetzen',
     continueShort: 'Fortsetzen',
     startDrawing: 'Zeichnen beginnen',
-    tour: 'Rundgang starten (5 Schritte)',
+    tour: 'Rundgang starten (10 Schritte)',
     tourAgain: 'Rundgang erneut starten',
     gettingStarted: 'Einführung: Erste Schritte',
     guide: 'GRAFCET-Leitfaden',
@@ -1063,24 +1063,44 @@ export const de: Messages = {
     done: 'Fertig',
     steps: {
       canvas: {
-        title: 'Hier zeichnen',
-        text: 'Das Diagramm nutzt das ganze Fenster. Klicken Sie auf einen Schritt und drücken Sie Enter: Eine Transition und der nächste Schritt erscheinen, bereit für die Transitionsbedingung. A fügt eine Aktion hinzu, P und O fügen Verzweigungen hinzu, L führt zurück. Die Hinweise unter der Werkzeugleiste zeigen immer, was Sie tun können.',
+        title: 'Ihr Plan',
+        text: 'Der Plan nutzt das ganze Fenster. Doppelklicken Sie auf eine leere Stelle, um einen Schritt hinzuzufügen; wählen Sie einen Schritt und drücken Sie Enter für eine Transition und den nächsten Schritt, dann tippen Sie die Transitionsbedingung. Space+Ziehen verschiebt die Ansicht, Ctrl+Mausrad zoomt, und ein Rechtsklick bietet die Befehle für das Element unter dem Zeiger.',
       },
       tools: {
         title: 'Werkzeuge',
-        text: 'Auswählen, Ansicht verschieben sowie Schritte, Transitionen, Kommentare und Aktionen platzieren; der Buchstabe auf jeder Schaltfläche ist ihre Taste. Zoom, Rückgängig und Wiederholen finden Sie unten links, Hilfe und Feedback unten rechts.',
+        text: 'Auswählen (V), Ansicht verschieben (H) oder Schritte (S), Transitionen (T), Kommentare (C) und Aktionen (Shift+A) setzen: Die Taste steht in der Ecke jeder Schaltfläche. Bei ausgewähltem Schritt fügt A eine Aktion hinzu, P einen Parallelzweig, O einen Alternativzweig und L eine Rückführung zu einem früheren Schritt.',
       },
-      side: {
-        title: 'Eigenschaften',
-        text: 'Wählen Sie etwas aus, und seine Eigenschaften erscheinen links in einer Karte: Nummern, Transitionsbedingungen, Arten von Schritten und Aktionen. Ist nichts ausgewählt, zeigt diese Schaltfläche den Grafcet und das Projekt.',
+      simulate: {
+        title: 'Simulieren',
+        text: 'Diese Schaltfläche (F5) führt Ihren Grafcet nach den Regeln der IEC 60848 aus. Die Simulationssteuerung ersetzt die Werkzeuge, und links listet eine Karte die Eingänge zum Schalten und die Ausgänge zum Beobachten. Shift+F5 kehrt zum Bearbeiten zurück.',
       },
-      problems: {
-        title: 'Probleme',
-        text: 'GrafcetMaker prüft Ihren Plan, während Sie zeichnen. Klicken Sie auf die Zähler, um jedes Problem zu sehen, dorthin zu springen und es zu beheben, oft mit einem Klick.',
+      hints: {
+        title: 'Hinweise',
+        text: 'Diese Leiste zeigt immer, was Sie mit der aktuellen Auswahl, dem Werkzeug oder beim Ziehen tun können. Mehr erfahren öffnet die passende Hilfeseite; × blendet die Leiste aus, Ansicht › Hinweise blendet sie wieder ein.',
       },
-      bottom: {
-        title: 'Bereiche und Simulation',
-        text: 'Variablen, Probleme, Zeitdiagramm und Gliederung öffnen sich rechts, wenn Sie sie brauchen. Drücken Sie F5 (oder Simulieren), um Ihren Grafcet auszuführen: Der Simulationsbereich erscheint links mit seinen Eingängen.',
+      project: {
+        title: 'Menü und Projekt',
+        text: '☰ enthält alle Befehle (Datei, Bearbeiten, Ansicht, Simulieren, Hilfe), das Farbschema und die Sprache. Doppelklicken Sie auf den Namen, um das Projekt umzubenennen; ein Punkt zeigt ungespeicherte Änderungen. Ihre Arbeit wird laufend im Browser gesichert, und Ctrl+S speichert sie in eine Datei. Die letzte Schaltfläche zeigt die Eigenschaften der Auswahl.',
+      },
+      share: {
+        title: 'Probleme, Export und Teilen',
+        text: 'Die Zähler zeigen Fehler und Warnungen schon beim Zeichnen: Klicken Sie darauf, um jedes Problem aufzulisten, dorthin zu springen und es zu beheben, oft mit einem Klick. Exportieren (Ctrl+E) erzeugt PDF, SVG, PNG, Structured Text oder PLCopen XML. Die letzte Schaltfläche teilt das Projekt oder startet eine Live-Sitzung mit anderen.',
+      },
+      view: {
+        title: 'Zoom und Rückgängig',
+        text: 'Verkleinern und vergrößern, auf den Prozentwert klicken für 100 % oder den ganzen Grafcet ins Fenster einpassen. Rückgängig und Wiederholen (Ctrl+Z, Ctrl+Y) nehmen jede Änderung zurück; ein ganzes Ziehen zählt als eine.',
+      },
+      tabs: {
+        title: 'Grafcets',
+        text: 'Ein Projekt kann mehrere Teil-Grafcets enthalten, die nebeneinander ablaufen, jeder in einem eigenen Tab; + fügt einen hinzu. Makroschritt-Expansionen haben eigene Tabs.',
+      },
+      panels: {
+        title: 'Bereiche',
+        text: 'Variablen, Probleme, Zeitdiagramm und Gliederung öffnen sich jeweils in einer Karte rechts; ziehen Sie ihren linken Rand, um sie zu verbreitern. Das Zeitdiagramm zeichnet beim Simulieren jede Variable auf.',
+      },
+      help: {
+        title: 'Hilfe und mehr',
+        text: 'Hier finden Sie das Hilfe-Center (F1), anonymes Feedback und die Sprache. Ctrl+K findet jeden Befehl über seinen Namen, und ? listet alle Tastenkürzel. Viel Spaß beim Zeichnen!',
       },
     },
   },

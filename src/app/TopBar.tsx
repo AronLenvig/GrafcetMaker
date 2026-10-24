@@ -109,7 +109,6 @@ export function ProblemsIndicator() {
       onClick={() => showBottomTab('problems')}
       title={t('problems.open')}
       aria-label={t('problems.summary', { errors: counts.error, warnings: counts.warning })}
-      data-tour="problems"
       className="flex h-7 items-center gap-2 rounded-md px-2 tabular-nums hover:bg-surface-2"
     >
       <span className="flex items-center gap-1">

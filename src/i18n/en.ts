@@ -1000,7 +1000,7 @@ export const en = {
     continue: 'Continue “{{name}}”',
     continueShort: 'Continue',
     startDrawing: 'Start drawing',
-    tour: 'Take the tour (5 steps)',
+    tour: 'Take the tour (10 steps)',
     tourAgain: 'Take the tour again',
     gettingStarted: 'Getting started tutorial',
     guide: 'GRAFCET guide',
@@ -1030,24 +1030,44 @@ export const en = {
     done: 'Done',
     steps: {
       canvas: {
-        title: 'Draw here',
-        text: 'The diagram has the whole window. Click a step and press Enter: a transition and the next step appear, ready for the receptivity. A adds an action, P and O add branches, L loops back. The hints under the toolbar always list what you can do.',
+        title: 'Your diagram',
+        text: 'The diagram has the whole window. Double-click the empty canvas to add a step; select a step and press Enter for a transition and the next step, then type the receptivity. Space+drag pans, Ctrl+wheel zooms, and a right-click offers the commands for what is under the pointer.',
       },
       tools: {
         title: 'Tools',
-        text: 'Select, pan, and place steps, transitions, comments and actions; the letter in each button is its key. Zoom, undo and redo are at the bottom left, help and feedback at the bottom right.',
+        text: "Select (V), pan (H), or place steps (S), transitions (T), comments (C) and actions (Shift+A): each key is in its button's corner. With a step selected, A adds an action, P a parallel branch, O an alternative branch and L a loop back to an earlier step.",
       },
-      side: {
-        title: 'Properties',
-        text: 'Select something and its properties appear in a card on the left: numbers, receptivities, kinds of steps and actions. With nothing selected, this button shows the grafcet and the project.',
+      simulate: {
+        title: 'Simulate',
+        text: 'This button (F5) runs your grafcet by the IEC 60848 rules. The simulation controls take the place of the tools, and a card on the left lists the inputs to switch and the outputs to watch. Shift+F5 returns to editing.',
       },
-      problems: {
-        title: 'Problems',
-        text: 'GrafcetMaker checks your chart while you draw. Click the counters to see each problem, jump to it and fix it, often in one click.',
+      hints: {
+        title: 'Hints',
+        text: 'This bar always shows what you can do with the current selection, tool or drag. Learn more opens the matching help page; × hides the bar, and View › Hints brings it back.',
       },
-      bottom: {
-        title: 'Panels and simulation',
-        text: 'Variables, Problems, Chronogram and Outline open on the right when you need them. Press F5 (or Simulate) to run your grafcet: the simulation panel appears on the left with its inputs.',
+      project: {
+        title: 'Menu and project',
+        text: '☰ holds every command (File, Edit, View, Simulate, Help), the theme and the language. Double-click the name to rename the project; a dot means unsaved changes. Your work is kept in the browser as you go, and Ctrl+S saves it to a file. The last button shows the properties of the selection.',
+      },
+      share: {
+        title: 'Problems, export and sharing',
+        text: 'The counters show errors and warnings while you draw: click them to list each problem, jump to it and fix it, often in one click. Export (Ctrl+E) makes PDF, SVG, PNG, Structured Text or PLCopen XML. The last button shares the project or opens a live session with others.',
+      },
+      view: {
+        title: 'Zoom and undo',
+        text: 'Zoom out and in, click the percentage for 100 %, or fit the whole grafcet in the window. Undo and redo (Ctrl+Z, Ctrl+Y) take back any change; a whole drag counts as one.',
+      },
+      tabs: {
+        title: 'Grafcets',
+        text: 'A project can hold several partial grafcets that run side by side, one tab each; + adds one. Macro-step expansions have their own tabs.',
+      },
+      panels: {
+        title: 'Panels',
+        text: 'Variables, Problems, Chronogram and Outline each open in a card on the right; drag its left edge to make it wider. The chronogram records every variable while you simulate.',
+      },
+      help: {
+        title: 'Help and more',
+        text: 'Here are the help center (F1), anonymous feedback and the language. Ctrl+K finds any command by name, and ? lists every keyboard shortcut. Enjoy drawing!',
       },
     },
   },

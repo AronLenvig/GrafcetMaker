@@ -95,6 +95,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- The tour has ten steps and covers today's screen: the diagram, tools, Simulate, hints, menu and
+  project, problems / export / sharing, zoom and undo, grafcet tabs, panels, and help with the
+  language and the command palette.
 - The canvas comes first: the toolbars rest slightly faded until you point at them, and
   **Simulate** is a compact play button.
 - Each language has its own address: `/en/`, `/fr/`, `/de/` and `/es/` open the editor in that

@@ -40,7 +40,7 @@ function ProjectIsland() {
   const { t } = useTranslation();
   const properties = usePropertiesVisible();
   return (
-    <div className="gm-island flex items-center gap-0.5 p-1">
+    <div data-tour="project" className="gm-island flex items-center gap-0.5 p-1">
       <MainMenuButton />
       <div className="flex max-w-[min(260px,calc(50vw-260px))] min-w-0">
         <Title />
@@ -50,7 +50,6 @@ function ProjectIsland() {
           label={t('commands.view.toggleRight')}
           active={properties}
           className="h-9 w-9"
-          data-tour="side"
           onClick={toggleProperties}
         >
           <PropertiesIcon size={18} />
@@ -81,7 +80,7 @@ function ShareIsland() {
     </div>
   );
   return (
-    <div className="flex items-center gap-2">
+    <div data-tour="share" className="flex items-center gap-2">
       <div className="gm-island p-1">
         <ProblemsIndicator />
       </div>
@@ -120,7 +119,7 @@ function PanelsIsland() {
     <div className="flex items-center gap-2">
       <nav
         aria-label={t('panels.label')}
-        data-tour="bottom"
+        data-tour="panels"
         className="gm-island flex items-center gap-0.5 p-1"
       >
         {PANEL_TABS.map((x) => {
@@ -147,7 +146,7 @@ function PanelsIsland() {
           );
         })}
       </nav>
-      <div className="gm-island flex items-center p-0.5">
+      <div data-tour="help" className="gm-island flex items-center p-0.5">
         <Tip label={t('commands.help.open')} keys="F1" side="top">
           <IconButton
             label={t('commands.help.open')}
@@ -210,12 +209,12 @@ export function Islands() {
         </div>
       </header>
       <footer className="pointer-events-none absolute inset-x-3 bottom-3 z-30 flex items-end gap-2">
-        <div className="pointer-events-auto flex shrink-0 items-center gap-2">
+        <div data-tour="view" className="pointer-events-auto flex shrink-0 items-center gap-2">
           <ZoomIsland />
           {!simulating && <UndoRedoIsland />}
         </div>
         <div className="flex min-w-0 flex-1 justify-center">
-          <div className="pointer-events-auto min-w-0">
+          <div data-tour="tabs" className="pointer-events-auto min-w-0">
             <GrafcetTabs floating />
           </div>
         </div>

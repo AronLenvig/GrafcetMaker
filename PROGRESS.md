@@ -335,6 +335,9 @@ Autonomous build log. Read this first in every session and resume from **Current
   /<lang>/ the `../` base too, like the build. Guide at `<lang>/guide/`, help at `<lang>/help/` (Cloudflare
   `_redirects` for the former `help/`); hreflang on every page with the root as x-default.
   Flags (`src/app/ui/flags.ts`, SVG data shared by the app and the site) with hover hints.
+- Tour of ten stops around the screen (owner request; `Tour.tsx` `STEPS`, `data-tour` on the
+  canvas, tools, Simulate, hints, project, share, view, tabs, panels and help islands; a stop whose
+  element is hidden keeps its card centred), texts in the four languages with each one's labels.
 
 ## Decisions
 

@@ -7,7 +7,7 @@ right in your browser. These pages take you from your first chart to the advance
 
 - Open an example from the start screen (**Help › Start screen and examples**) and press
   <kbd>F5</kbd> to watch it run.
-- Take the five-step tour (**Help › Take the tour**) to learn where everything is.
+- Take the ten-step tour (**Help › Take the tour**) to learn where everything is.
 - [Getting started](getting-started.md): draw, check and simulate a small tank-filling chart in
   about ten minutes. Start here.
 - [GRAFCET basics](grafcet-basics.md): steps, transitions, receptivities, actions and the five

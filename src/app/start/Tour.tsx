@@ -3,13 +3,21 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/primitives';
 import { endTour, useTour } from './tourStore';
 
-/** The five stops of the tour: an element marked `data-tour` and where the card goes. */
+/**
+ * The ten stops of the tour, around the screen: an element marked `data-tour` and where the card
+ * goes. A stop whose element is not shown (hints hidden, phone layout) keeps its card centred.
+ */
 const STEPS = [
   { id: 'canvas', place: 'inside' },
   { id: 'tools', place: 'below' },
-  { id: 'side', place: 'below' },
-  { id: 'problems', place: 'below' },
-  { id: 'bottom', place: 'above' },
+  { id: 'simulate', place: 'below' },
+  { id: 'hints', place: 'below' },
+  { id: 'project', place: 'below' },
+  { id: 'share', place: 'below' },
+  { id: 'view', place: 'above' },
+  { id: 'tabs', place: 'above' },
+  { id: 'panels', place: 'above' },
+  { id: 'help', place: 'above' },
 ] as const;
 
 const CARD_W = 340;
@@ -21,7 +29,7 @@ function goTo(next: number): void {
 const GAP = 12;
 
 /**
- * A skippable five-step tour: dims the page around one region and explains it. Keyboard: → / Enter
+ * A skippable ten-step tour: dims the page around one region and explains it. Keyboard: → / Enter
  * next, ← back, Esc ends the tour.
  */
 export function Tour() {

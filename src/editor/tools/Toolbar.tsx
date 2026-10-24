@@ -84,6 +84,7 @@ export function ToolIsland() {
         <button
           type="button"
           aria-label={t('simulation.simulateLabel')}
+          data-tour="simulate"
           onClick={() => runCommand('sim.toggle')}
           className="relative flex h-9 w-9 items-center justify-center rounded-lg hover:bg-surface-2"
         >

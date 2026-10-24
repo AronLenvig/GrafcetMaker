@@ -170,6 +170,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- Export: notes that read the same are listed once with their count (e.g. "4× An expression does
+  not parse…") instead of once per element.
 - The action tool shows its key (⇧A) in its corner like the other tools, and Simulate shows F5.
 - The hint for an unknown name in an expression showed `{{type}} {{direction}}` instead of the
   variable it would become.

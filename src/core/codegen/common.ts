@@ -114,6 +114,20 @@ export function warningCollector(): {
   };
 }
 
+/** Warnings that read the same (one per element) once each, with how many there are. */
+export function groupWarnings(
+  warnings: CodegenWarning[],
+): { warning: CodegenWarning; count: number }[] {
+  const groups = new Map<string, { warning: CodegenWarning; count: number }>();
+  for (const w of warnings) {
+    const key = `${w.code}|${JSON.stringify(w.params)}`;
+    const group = groups.get(key);
+    if (group) group.count++;
+    else groups.set(key, { warning: w, count: 1 });
+  }
+  return [...groups.values()];
+}
+
 /** Variables named like an ST keyword: the target would reject the declaration. */
 export function warnKeywords(
   variables: Iterable<{ name: string }>,

@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { generatePlcOpen } from '@/core/codegen/plcopen';
 import { generateSt } from '@/core/codegen/st';
 import { generateStCase } from '@/core/codegen/stCase';
-import { timeLiteral } from '@/core/codegen/common';
+import { groupWarnings, timeLiteral, type CodegenWarning } from '@/core/codegen/common';
 import { dialectFile, mapIdentifiers, type StDialect } from '@/core/codegen/dialect';
 import { SCHEMA_VERSION } from '@/core/model/constants';
 import type {
@@ -341,6 +341,26 @@ const SOURCE_SINK = build([['a', 'BOOL', 'input']], {
 });
 
 describe('Structured Text', () => {
+  it('lists warnings that read the same once, with how many there are', () => {
+    const w = (code: CodegenWarning['code'], elementId: string, params = {}): CodegenWarning => ({
+      code,
+      elementId,
+      params,
+    });
+    const grouped = groupWarnings([
+      w('expression', 't1'),
+      w('expression', 't2'),
+      w('keyword', 'v1', { name: 'IF' }),
+      w('expression', 't3'),
+      w('keyword', 'v2', { name: 'END' }),
+    ]);
+    expect(grouped.map((g) => [g.warning.code, g.warning.params, g.count])).toEqual([
+      ['expression', {}, 3],
+      ['keyword', { name: 'IF' }, 1],
+      ['keyword', { name: 'END' }, 1],
+    ]);
+  });
+
   it.each([
     ['sequence and loop', SEQUENCE],
     ['OR divergence and convergence', OR],

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { variablesToCsv, variablesToXlsx } from '@/core/io/csv';
-import type { CodegenResult, CodegenWarning } from '@/core/codegen/common';
+import { groupWarnings, type CodegenResult, type CodegenWarning } from '@/core/codegen/common';
 import { dialectFile, ST_DIALECTS } from '@/core/codegen/dialect';
 import type { Id, Project } from '@/core/model/types';
 import { tDynamic } from '@/i18n/dynamic';
@@ -571,8 +571,11 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
                 aria-label={t('export.warnings')}
                 className="max-h-24 overflow-auto border-b border-border bg-warning-soft px-3 py-1.5 text-xs text-warning"
               >
-                {preview.warnings.map((w, i) => (
-                  <li key={i}>{tDynamic(t, `export.codeWarnings.${w.code}`, w.params)}</li>
+                {groupWarnings(preview.warnings).map(({ warning: w, count }, i) => (
+                  <li key={i}>
+                    {count > 1 && <span className="font-semibold tabular-nums">{count}× </span>}
+                    {tDynamic(t, `export.codeWarnings.${w.code}`, w.params)}
+                  </li>
                 ))}
               </ul>
             )}

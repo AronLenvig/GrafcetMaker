@@ -419,13 +419,14 @@ export const ExpressionInput = forwardRef<
           aria-label={t('expr.symbols.label')}
           onMouseDown={(e) => e.preventDefault()}
           className={cx(
-            'z-20 flex items-center gap-0.5 rounded-md border border-border bg-surface p-0.5 shadow-pop',
+            'z-20 flex items-center gap-0.5 rounded-md border border-border bg-surface p-0.5',
             floating
-              ? cx(
-                  'absolute left-0 w-max max-w-full flex-wrap',
+              ? // One low row of its own width over the text, faded until pointed at.
+                cx(
+                  'gm-symbols absolute left-0 w-max flex-nowrap shadow-sm',
                   dropUp ? 'top-full mt-1' : 'bottom-full mb-1',
                 )
-              : 'absolute right-1 bottom-full mb-1',
+              : 'absolute right-1 bottom-full mb-1 shadow-pop',
           )}
         >
           {SYMBOLS.map((sym) => {

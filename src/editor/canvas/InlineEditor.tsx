@@ -165,6 +165,9 @@ function placement(
 
 type Box = { left: number; top: number; width: number; height: number };
 
+/** Height of the symbol bar of a condition (ExpressionInput) and its gap, in screen pixels. */
+const SYMBOL_BAR_HEIGHT = 34;
+
 /**
  * Screen box of the editor for the current text: exactly the text, plus room for the caret. The
  * text is always left-aligned in it; a right-aligned or centered text moves the box instead, so it
@@ -346,18 +349,21 @@ function EditorField({
       : { fontSize: place.fontSize, lineHeight: `${place.lineHeight ?? box.height}px` }),
   };
   // Touch keyboards have no Esc: the key hint only shows with a mouse (errors always do).
+  const exprKind = expressionKind(g, target);
+  // Conditions show their symbol bar under the text when it sits low on the screen (dropUp):
+  // the key hint goes below the bar.
+  const belowBar = exprKind === 'condition' ? SYMBOL_BAR_HEIGHT : 0;
   const hint =
     coarse && !error ? null : (
       <EditorHint
         left={box.left}
-        top={box.top + box.height + 6}
+        top={box.top + box.height + 6 + belowBar}
         multiline={multiline}
         error={error}
         next={next}
       />
     );
 
-  const exprKind = expressionKind(g, target);
   if (exprKind) {
     return (
       <>

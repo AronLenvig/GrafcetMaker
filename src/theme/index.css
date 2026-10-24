@@ -318,6 +318,18 @@
     text-decoration-skip-ink: none;
   }
 
+  /* The symbol bar over a field on the diagram: nearly transparent until pointed at. */
+  @media (hover: hover) and (prefers-contrast: no-preference) {
+    .gm-symbols {
+      opacity: 0.35;
+      transition: opacity 120ms ease-out;
+    }
+
+    .gm-symbols:hover {
+      opacity: 1;
+    }
+  }
+
   /* Grey completion after the caret in expression fields (Tab or → accepts it). */
   .gm-ghost-text {
     z-index: 11;

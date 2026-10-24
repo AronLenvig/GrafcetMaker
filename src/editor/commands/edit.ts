@@ -117,12 +117,18 @@ export function addActionToSelection(kind: ActionKind = 'continuous'): void {
     ui.setTool('action');
     return;
   }
-  let created: Id | null = null;
-  editActive('history.addAction', (gd) => void (created = ops.addAction(gd, stepId, kind).id));
+  const created = addActionTo(stepId, kind);
   if (created) {
     ui.select([created]);
     ui.edit({ id: created, field: 'text' });
   }
+}
+
+/** Adds an action at the end of a step's actions, leaving the selection alone (the step's panel). */
+export function addActionTo(stepId: Id, kind: ActionKind = 'continuous'): Id | null {
+  let created: Id | null = null;
+  editActive('history.addAction', (gd) => void (created = ops.addAction(gd, stepId, kind).id));
+  return created;
 }
 
 /**

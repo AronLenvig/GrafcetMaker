@@ -6,7 +6,7 @@ import type { Action, Grafcet, Id, Step, Transition } from '@/core/model/types';
 import { ChevronDownIcon, ChevronUpIcon, InfoIcon, PlusIcon, TrashIcon } from '@/app/ui/icons';
 import { Button, cx, IconButton } from '@/app/ui/primitives';
 import {
-  addActionToSelection,
+  addActionTo,
   deleteSelection,
   editActive,
   renameGrafcet,
@@ -249,6 +249,11 @@ function StepProps({ g, step }: { g: Grafcet; step: Step }) {
       if (!next.delete(id)) next.add(id);
       return next;
     });
+  // The new action unfolds in the list; the step stays selected and the focus stays here.
+  const addAction = () => {
+    const id = addActionTo(step.id);
+    if (id) setOpen((prev) => new Set(prev).add(id));
+  };
   const update = (recipe: (s: Step) => void) =>
     editActive('history.edit', (gd) => {
       const s = gd.steps[step.id];
@@ -302,7 +307,7 @@ function StepProps({ g, step }: { g: Grafcet; step: Step }) {
       <Section
         title={t('props.step.actions')}
         actions={
-          <Button size="sm" variant="ghost" onClick={() => addActionToSelection()}>
+          <Button size="sm" variant="ghost" onClick={addAction}>
             <PlusIcon size={14} /> {t('props.step.addAction')}
           </Button>
         }

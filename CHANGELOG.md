@@ -101,6 +101,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- **Add** in a step's properties adds the action without selecting it: the step stays selected and
+  the new action unfolds in its list.
 - Typing on the diagram looks like typing on the canvas: the text is edited in place, in the
   diagram's own font and size, with only the caret showing (no box around it), and the box around
   it (an action, a comment, the selection) grows as you type. Phones keep a field across the

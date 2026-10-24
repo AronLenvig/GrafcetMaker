@@ -194,7 +194,8 @@ shows its place among the step's actions, so dragging along the row reorders the
 canvas to leave it without a step. `Esc` cancels the drag.
 
 A selected step lists its actions in the properties panel as compact rows (symbol, text,
-condition); click a row to unfold its fields: the output (or assignment, forcing order) first,
+condition); click a row to unfold its fields. **Add** puts a new action at the end, already
+unfolded, while the step stays selected. A row's fields: the output (or assignment, forcing order) first,
 then the **Kind** buttons, each showing the symbol the diagram uses. A conditional action and an
 action on event get their condition (or event) input right under the buttons:
 

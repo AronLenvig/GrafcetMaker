@@ -304,6 +304,8 @@ export const es: Messages = {
       languageFr: 'Idioma: Français',
       languageDe: 'Idioma: Deutsch',
       languageEs: 'Idioma: Español',
+      languageDa: 'Idioma: Dansk',
+      languageSv: 'Idioma: Svenska',
       palette: 'Paleta de comandos',
       toggleTextbook: 'Alternar notación clásica',
       textbook: 'Notación clásica (NO con barra, ·, +)',
@@ -965,7 +967,7 @@ export const es: Messages = {
     welcomeHelp:
       'Muestra ejemplos, proyectos recientes y la visita guiada al abrir GrafcetMaker. Siempre disponible en Ayuda › Pantalla de inicio y ejemplos.',
     hintsHelp:
-      'Muestra en la parte inferior del lienzo lo que puedes hacer con la selección, la herramienta o el gesto.',
+      'Muestra en la parte superior del lienzo lo que puedes hacer con la selección, la herramienta o el gesto.',
     autosave: 'Guardado automático',
     autosaveHelp:
       'Cada cambio se guarda en este navegador y se restaura tras un fallo. Usa Archivo › Guardar para escribir un archivo .grafcet.json.',
@@ -1063,7 +1065,7 @@ export const es: Messages = {
       },
       project: {
         title: 'Menú y proyecto',
-        text: '☰ reúne todos los comandos (Archivo, Editar, Ver, Simular, Ayuda), el tema y el idioma. Haz doble clic en el nombre para renombrar el proyecto; un punto indica cambios sin guardar. Tu trabajo se guarda en el navegador sobre la marcha, y Ctrl+S lo guarda en un archivo. El último botón muestra las propiedades de la selección.',
+        text: '☰ reúne todos los comandos (Archivo, Editar, Ver, Simular, Ayuda) y el tema. Haz doble clic en el nombre para renombrar el proyecto; un punto indica cambios sin guardar. Tu trabajo se guarda en el navegador sobre la marcha, y Ctrl+S lo guarda en un archivo. El último botón muestra las propiedades de la selección.',
       },
       share: {
         title: 'Problemas, exportación y compartir',

@@ -52,38 +52,6 @@ export function LanguageItems() {
   );
 }
 
-/** The languages as one row of flags named on hover, under its label (the main menu). */
-export function LanguageFlagRow() {
-  const { t } = useTranslation();
-  const language = useLanguage((s) => s.language);
-  return (
-    <div className="flex items-center gap-2 px-2 py-1">
-      <span className="flex-1 text-[11px] font-semibold tracking-wider text-muted uppercase">
-        {t('language.label')}
-      </span>
-      <DropdownMenu.RadioGroup
-        value={language}
-        onValueChange={(v) => void setLanguage(v as Language)}
-        aria-label={t('language.label')}
-        className="flex gap-0.5"
-      >
-        {CODES.map((l) => (
-          <Tip key={l} label={LANGUAGES[l]} side="bottom">
-            <DropdownMenu.RadioItem
-              value={l}
-              lang={l}
-              aria-label={LANGUAGES[l]}
-              className="flex h-7 w-8 cursor-default items-center justify-center rounded outline-none data-[highlighted]:bg-accent-soft data-[state=checked]:bg-surface-2 data-[state=checked]:ring-1 data-[state=checked]:ring-accent"
-            >
-              <Flag lang={l} />
-            </DropdownMenu.RadioItem>
-          </Tip>
-        ))}
-      </DropdownMenu.RadioGroup>
-    </div>
-  );
-}
-
 /** A small button showing the flag of the language, named on hover; the languages open above it. */
 export function LanguageButton() {
   const { t } = useTranslation();

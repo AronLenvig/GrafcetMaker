@@ -60,9 +60,9 @@ fully when you point at them or reach them with the keyboard:
 - **Command palette** (`Ctrl+K`) runs any command by name; **Settings** is `Ctrl+,`.
 - **GRAFCET guide** (**Help › GRAFCET guide**, or the start screen): a web page that explains the
   language itself (elements, the five evolution rules, actions, branches, hierarchy, GRAFCET and
-  SFC) in English, French, German and Spanish, with examples that open in the editor. It is part
+  SFC) in English, French, German, Spanish, Danish and Swedish, with examples that open in the editor. It is part
   of the app, so it also works offline and on-premise (`en/guide/`, `fr/guide/`, `de/guide/`,
-  `es/guide/` next to the app).
+  `es/guide/`, `da/guide/`, `sv/guide/` next to the app).
 
 ### Phones and tablets
 
@@ -91,8 +91,9 @@ desktop layout with these touch additions.
 A new project contains grafcet `G1` with initial step 0.
 
 - **Continue a sequence**: select a step and press `Enter`. A transition and the next step are
-  added and numbered automatically, and the receptivity editor opens: type the receptivity and
-  press `Enter`. Press `Enter` again to continue. With nothing selected, `Enter` continues from
+  added and numbered automatically, and you type the receptivity right where it is drawn: only
+  the caret shows, in the diagram's font, and the box around the text grows as you type. Press
+  `Enter` to apply it (`Esc` cancels), and `Enter` again to continue. With nothing selected, `Enter` continues from
   the lowest step that has no successor.
 - **Insert in the middle**: `Enter` on a step that already continues inserts the new transition
   and step; everything below moves down.
@@ -127,7 +128,9 @@ A new project contains grafcet `G1` with initial step 0.
   `Shift+Del` deletes without healing. Click a link to select it, then `Del` removes just that
   link.
 - **Move**: drag (snaps to the 10-unit grid) or use the arrow keys (`Shift` moves 5× further).
-- **Select several**: drag a rectangle on empty space, `Shift`/`Ctrl`-click, or `Ctrl+A`.
+- **Select several**: drag a rectangle on empty space (a step brings all its actions),
+  `Shift`/`Ctrl`-click, or `Ctrl+A`. The links between selected elements are highlighted, and
+  dragging any selected element moves the whole selection.
 - **Copy / paste**: `Ctrl+C`, `Ctrl+X`, `Ctrl+V` — between grafcets, projects and browser tabs.
   Pasted steps are renumbered when their numbers are already taken.
 - **Undo / redo**: `Ctrl+Z`, `Ctrl+Shift+Z` (or `Ctrl+Y`). A whole drag is one undo step. The Edit
@@ -501,12 +504,11 @@ system setting and updates live when it changes. The choice is remembered on thi
 
 ## Language
 
-GrafcetMaker is in English, French, German and Spanish. On grafcet.org the first visit starts in
+GrafcetMaker is in English, French, German, Spanish, Danish and Swedish. On grafcet.org the first visit starts in
 the language of the country you visit from (English for countries that speak none of the other
-three, and on self-hosted installs). To change it, use the language button at the bottom right (it
-shows the flag of the current language; point at it for its name), the row of flags at the bottom
-of the main menu ☰ (on phones: of the menu drawer), or the command palette (`Ctrl+K`,
-"Language"). The choice is remembered on this device.
+five, and on self-hosted installs). To change it, use the language button at the bottom right (it
+shows the flag of the current language; point at it for its name), on phones the flags at the
+bottom of the menu drawer ☰, or the command palette (`Ctrl+K`, "Language"). The choice is remembered on this device.
 
 Each language also has its own address: `…/fr/`, `…/de/`, `…/es/` and `…/en/` open the editor in
 that language, and changing the language changes the address, so a link you share opens in your

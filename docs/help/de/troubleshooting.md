@@ -35,6 +35,19 @@ geschrieben werden. Ändern Sie die Richtung der Variablen oder verwenden Sie ei
 **Eine Zwangssteuerung verweist auf einen fehlenden Grafcet oder Schritt.** Prüfen Sie den Namen
 des Grafcets und die Schrittnummern in der Zwangssteuerung.
 
+**Die Zwangssteuerungen bilden einen Kreis.** Ein Grafcet kann keinen Grafcet zwangssteuern, der
+ihn selbst zwangssteuert, weder direkt noch über andere. Entfernen Sie eine der Zwangssteuerungen,
+oder lassen Sie beide von einem dritten Grafcet zwangssteuern.
+
+**Makroschritt … hat keinen Expansions-Grafcet** (oder **Der einschließende Schritt … hat keinen
+eingeschlossenen Grafcet**). Sein Unter-Grafcet wurde gelöscht. Stellen Sie die Art des Schritts
+auf _Schritt_ und wieder zurück auf _Makroschritt_ (oder _Einschließender Schritt_), um einen
+neuen zu erhalten, oder lassen Sie ihn ein normaler Schritt bleiben.
+
+**Grafcet … wird von mehreren Schritten verwendet.** Jeder Makroschritt und jeder einschließende
+Schritt braucht seinen eigenen Unter-Grafcet. Stellen Sie einen der Schritte auf _Schritt_ und
+wieder zurück: Er erhält einen eigenen Unter-Grafcet.
+
 ## Warnungen {#warnings}
 
 **Schritt … kann nie aktiv werden.** Kein Weg führt von einem Anfangsschritt zu ihm. Verbinden Sie
@@ -65,6 +78,21 @@ Ausgang ist wahr, sobald eine von ihnen wahr ist. Prüfen Sie, ob Sie das so wol
 **Speichernd bei einem Ereignis, aber ohne Ereignis.** Geben Sie das Ereignis (z. B. `↑b`) im
 Bereich Eigenschaften ein.
 
+**Die bedingte Aktion … hat noch keine Bedingung.** Sie wirkt wie eine kontinuierlich wirkende
+Aktion, bis Sie ihre Bedingung im Bereich Eigenschaften eingeben.
+
+**Speichernd wirkende Aktionen am Makroschritt … werden ignoriert.** Ein Makroschritt ist über
+seine Expansion aktiv: Legen Sie die speichernd wirkenden Aktionen auf einen Schritt der
+Expansion.
+
+**Ein Grafcet wird in die leere Situation gezwungen, und nichts aktiviert seine Schritte wieder.**
+Eine Zwangssteuerung wie `G2{}` deaktiviert alle Schritte von G2, und nichts aktiviert sie wieder.
+Verwenden Sie `G2{INIT}`, um G2 in seiner Anfangssituation neu zu starten.
+
+**Die Expansion … wird nicht verwendet** (oder **Der eingeschlossene Grafcet … wird nicht
+verwendet**). Weder ein Makroschritt noch ein einschließender Schritt verweist darauf. Löschen Sie
+den zugehörigen Reiter, wenn Sie ihn nicht mehr brauchen.
+
 **Die Expansion braucht genau einen Eingangsschritt und einen Ausgangsschritt.** In einer
 Makroschritt-Expansion hat der Eingangsschritt keine Transition darüber und der Ausgangsschritt
 keine darunter.
@@ -90,6 +118,7 @@ reagieren.
 Versionen im Browser aufbewahrt. Nach einem Neuladen oder einem Absturz öffnet GrafcetMaker Ihr
 letztes Projekt automatisch wieder, einschließlich ungespeicherter Änderungen.
 
-**Die Datei lässt sich nicht öffnen.** Es lassen sich nur `.grafcet.json`-Dateien öffnen, die mit
-GrafcetMaker gespeichert wurden. Eine Datei, die mit einer neueren Version gespeichert wurde,
-braucht diese neuere Version.
+**Die Datei lässt sich nicht öffnen.** GrafcetMaker öffnet seine eigenen `.grafcet.json`-Dateien
+und grafcet.io-Dateien (`.grafcetio`); die Meldung sagt, warum eine Datei abgelehnt wurde. Eine
+Datei, die mit einer neueren Version von GrafcetMaker gespeichert wurde, braucht diese neuere
+Version.

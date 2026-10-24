@@ -9,17 +9,20 @@ unos diez minutos.
 
 ## 1. Oriéntate {#1-find-your-way-around}
 
-- El **lienzo** ocupa toda la ventana: ahí es donde dibujas. Todo lo demás flota sobre él.
+- El **lienzo** ocupa toda la ventana: ahí es donde dibujas. Todo lo demás flota sobre él,
+  ligeramente atenuado hasta que pasas el puntero por encima, para que el diagrama quede en primer
+  plano.
 - **Arriba**: el menú principal ☰ y el nombre del proyecto a la izquierda; las herramientas en el
-  centro (seleccionar, desplazar, colocar etapa, transición, comentario o acción); los problemas y
-  **Simular** a la derecha.
+  centro (seleccionar, desplazar, colocar etapa, transición, comentario o acción), que terminan con
+  ▶ **Simular**; los contadores de problemas, **Exportar** y el botón para compartir a la derecha.
 - **Bajo las herramientas**: las sugerencias muestran lo que puedes hacer en este momento. Fíjate en
   ellas mientras sigues este tutorial.
 - **Izquierda**: las **Propiedades** de lo que seleccionas aparecen en una tarjeta mientras está
   seleccionado.
 - **Abajo**: zoom, deshacer y rehacer a la izquierda; una pestaña por grafcet en el centro; los
-  botones **Variables**, **Problemas**, **Cronograma** y **Esquema** a la derecha. Cada uno abre su
-  panel en el lado derecho de la ventana.
+  botones **Variables**, **Problemas**, **Cronograma** y **Esquema** a la derecha, cada uno de los
+  cuales abre su panel en el lado derecho de la ventana, y después la ayuda, los comentarios y la
+  bandera que cambia el idioma.
 
 Un proyecto nuevo ya contiene el grafcet **G1** con la etapa **0**. Su cuadrado doble indica que es
 una **etapa inicial**: está activa cuando el sistema arranca.
@@ -27,8 +30,8 @@ una **etapa inicial**: está activa cuando el sistema arranca.
 ## 2. Añade la primera transición y etapa {#2-add-the-first-transition-and-step}
 
 1. Haz clic en la etapa **0** para seleccionarla.
-2. Pulsa <kbd>Enter</kbd>. Debajo aparecen una transición y la etapa **1**, y se abre un editor
-   junto a la transición para que escribas su **receptividad**, la condición para avanzar.
+2. Pulsa <kbd>Enter</kbd>. Debajo aparecen una transición y la etapa **1**, y escribes la
+   **receptividad** de la transición, la condición para avanzar, justo donde está dibujada.
 3. Escribe `start` y pulsa <kbd>Enter</kbd>.
 
 `start` aún no está declarada: mientras escribes, el editor indica **Nueva variable start: BOOL,
@@ -44,6 +47,10 @@ se crea como salida BOOL. Ahora la bomba funciona mientras la etapa 1 está acti
 1. Vuelve a pulsar <kbd>Enter</kbd>: se añaden una transición y la etapa **2** después de la etapa
    1. Escribe `full` como receptividad y crea la entrada.
 2. Pulsa <kbd>A</kbd> y añade la acción `Valve` (crea la salida).
+
+> **Consejo:** ¿prefieres el ratón? Una etapa seleccionada muestra **fantasmas** discontinuos de lo
+> que añadirían <kbd>Enter</kbd> y <kbd>A</kbd>; haz clic en uno para añadirlo (consulta
+> [Editar diagramas](editing.md#ghosts)).
 
 ## 5. Cierra el bucle {#5-close-the-loop}
 
@@ -69,12 +76,12 @@ para saber qué significa cada mensaje.
 
 1. Pulsa <kbd>F5</kbd>. El diagrama se bloquea y el panel **Simulación** aparece a la izquierda. La
    etapa 0 lleva una marca: está activa.
-2. En el panel, activa **start**. La transición se franquea: la etapa 1 se activa y su acción
-   **Pump** muestra un ✓.
+2. En el panel, activa **start** (o haz clic en `start` donde está escrita en el diagrama). La
+   transición se franquea: la etapa 1 se activa y su acción **Pump** muestra un ✓.
 3. Desactiva **start** y luego activa **full**: la etapa 2 se activa y **Valve** se enciende.
 4. Desactiva **full** y activa **empty**: el grafcet vuelve a la etapa 0.
-5. Abre la pestaña **Cronograma** para ver todas las señales a lo largo del tiempo. Pulsa
-   <kbd>Shift+F5</kbd> para detener la simulación.
+5. Haz clic en **Cronograma**, abajo a la derecha, para ver todas las señales a lo largo del
+   tiempo. Pulsa <kbd>Shift+F5</kbd> para detener la simulación.
 
 ¿Qué pasa si **start** sigue activada cuando el depósito se vacía? Pruébalo: en cuanto la etapa 0
 vuelve a estar activa, su transición se franquea de nuevo. Es el GRAFCET comportándose exactamente

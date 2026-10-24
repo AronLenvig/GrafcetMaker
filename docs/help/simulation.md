@@ -64,7 +64,8 @@ and its safety grafcet, or a macro-step and its expansion, side by side.
 
 ## Chronogram
 
-The **Chronogram** tab draws every variable and the steps of the open grafcet over time. Click or
+The **Chronogram** panel (its button is at the bottom right) draws every variable and the steps
+of the open grafcet over time. Click or
 drag in it to move back in time: the diagram follows. **Back to live** returns to the present.
 
 ## Scenarios

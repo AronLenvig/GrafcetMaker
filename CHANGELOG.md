@@ -8,6 +8,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- GrafcetMaker in **Danish and Swedish**: the interface, the help center, the website's GRAFCET
+  guide and the home page text, at `/da/` and `/sv/`. A first visit from Denmark, Greenland and
+  the Faroe Islands starts in Danish, from Sweden and Åland in Swedish.
 - The ghost under a step that ends its sequence has two parts: click the ghost **transition** to
   add the transition alone (it is selected, with its own ghost step next), or the ghost **step**
   to add both.
@@ -15,7 +18,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   first visit starts in the language of the visitor's country (French in France, Belgium,
   Luxembourg, French-speaking Africa and the Maghreb, German in Germany, Austria and Switzerland,
   Spanish in Spain and Latin America) and in English everywhere else; change it with the small flag button at the bottom
-  right, the row of flags in the main menu or the command palette. The website's help pages are
+  right (in the menu drawer on phones) or the command palette. The website's help pages are
   published in the four languages too.
 - Transitions can be rotated to flow **right to left** (`R`, **Direction** in the properties, or
   the right-click menu): the bar stands vertical, the link from the step before it enters on the
@@ -111,6 +114,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   language, and changing the language changes the address. The GRAFCET guide moved to
   `/<language>/guide/` and the help pages to `/<language>/help/`.
 - The language button and the website's language links show flags, named on hover.
+- The help center covers the latest editor: typing on the diagram, ghosts, selections, the
+  language, and the newer problems in Troubleshooting.
 - A transition whose receptivity is not written yet shows a grey "?" instead of a red problem
   badge (it is still listed in Problems).
 - Clicking the ghost transition and step selects the new step, as if it had been clicked, instead

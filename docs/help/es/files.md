@@ -30,8 +30,7 @@ hay una nueva versión lista, una tarjeta en la esquina te ofrece recargar: tu t
   copia** descarga una copia sin cambiar dónde escribe Guardar.
 - **Abrir** (<kbd>Ctrl+O</kbd>), **Archivo › Abrir reciente**, o suelta un archivo `.grafcet.json`
   en cualquier lugar de la ventana. Si el proyecto abierto tiene cambios sin guardar, primero se te
-  pregunta, y un archivo no válido se rechaza con una explicación sin tocar tu proyecto. Los
-  archivos de grafcet.io (`.grafcetio`) se abren igual y se convierten en un proyecto nuevo.
+  pregunta, y un archivo no válido se rechaza con una explicación sin tocar tu proyecto.
 
 Los archivos `.grafcet.json` son texto legible, muy adecuado para el control de versiones (Git) y la
 revisión de código.
@@ -142,7 +141,14 @@ código generado antes de ejecutarlo en una máquina.
 
 ## Configuración {#settings}
 
-**Configuración** (<kbd>Ctrl+,</kbd>, o el engranaje de arriba a la derecha) contiene el tema, la
-notación, la pantalla de bienvenida, la cuadrícula, las sugerencias y las preferencias de
-simulación, y muestra cuánto almacenamiento del navegador se usa. Ahí puedes borrar el historial
-local y la lista de archivos recientes.
+**Archivo › Configuración…** (<kbd>Ctrl+,</kbd>) contiene el tema, la notación, la pantalla de
+bienvenida, la cuadrícula, las sugerencias y las preferencias de simulación, y muestra cuánto
+almacenamiento del navegador se usa. Ahí puedes borrar el historial local y la lista de archivos
+recientes.
+
+## Idioma {#language}
+
+Elige el idioma con la bandera de abajo a la derecha (en un teléfono, en la parte inferior del
+menú ☰); la elección se recuerda en este dispositivo. Cada idioma tiene además su
+propia dirección, como `…/de/` para el alemán, así que un enlace se abre en el idioma en que se
+envió.

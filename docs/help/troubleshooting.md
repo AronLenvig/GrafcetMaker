@@ -30,6 +30,16 @@ variable's direction or use another variable.
 **Forcing order targets a missing grafcet or step.** Check the grafcet name and step numbers in the
 order.
 
+**Forcing orders form a cycle.** A grafcet cannot force one that forces it, directly or through
+others. Remove one of the orders, or let a third grafcet force both.
+
+**Macro-step … has no expansion grafcet** (or **Enclosing step … has no enclosed grafcet**). Its
+sub-grafcet was deleted. Set the step's Kind to _Step_ and back to _Macro-step_ (or _Enclosing
+step_) to get a new one, or keep it a normal step.
+
+**Grafcet … is used by several steps.** Each macro-step and enclosing step needs its own
+sub-grafcet. Set one of the steps to _Step_ and back: it gets a sub-grafcet of its own.
+
 ## Warnings
 
 **Step … can never become active.** No path leads to it from an initial step. Link it, or delete it.
@@ -55,6 +65,18 @@ of them is. Make sure that is what you want.
 
 **Stored on an event but no event.** Enter the event (e.g. `↑b`) in the Properties panel.
 
+**Conditional action without a condition.** It acts like a continuous action until you enter its
+condition in the Properties panel.
+
+**Stored actions on a macro-step are ignored.** A macro-step is active through its expansion: put
+the stored actions on a step of the expansion.
+
+**Forced to the empty situation, never undone.** An order such as `G2{}` deactivates every step of
+G2, and nothing activates them again. Use `G2{INIT}` to restart G2 in its initial situation.
+
+**Expansion (or enclosed grafcet) … is not used.** No macro-step or enclosing step points to it.
+Delete its tab if you no longer need it.
+
 **Expansion needs exactly one entry step and one exit step.** In a macro-step expansion, the entry
 step has no transition above it and the exit step none below it.
 
@@ -77,5 +99,6 @@ fast as it can. Use an edge `↑a` to react once per press.
 **I lost my work.** Look in **File › Local history**: snapshots are kept in the browser. After a reload
 or a crash, GrafcetMaker reopens your last project automatically, unsaved changes included.
 
-**The file does not open.** Only `.grafcet.json` files saved by GrafcetMaker can be opened. A file
-saved by a newer version needs that newer version.
+**The file does not open.** GrafcetMaker opens its own `.grafcet.json` files and grafcet.io files
+(`.grafcetio`); the message says why a file was rejected. A file saved by a newer version of
+GrafcetMaker needs that newer version.

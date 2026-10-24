@@ -10,6 +10,7 @@ funciones avanzadas.
   <kbd>F5</kbd> para verlo funcionar.
 - Haz la visita guiada de diez pasos (**Ayuda › Hacer la visita guiada**) para saber dónde está
   cada cosa.
+- Elige tu idioma con la bandera de abajo a la derecha.
 - [Primeros pasos](getting-started.md): dibuja, comprueba y simula un pequeño diagrama de llenado
   de depósito en unos diez minutos. Empieza por aquí.
 - [Conceptos básicos de GRAFCET](grafcet-basics.md): etapas, transiciones, receptividades, acciones

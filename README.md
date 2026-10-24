@@ -129,7 +129,7 @@ toolbar.
   Studio 5000, and **PLCopen XML** (SFC) generation.
 - **Learn as you go**: start screen with examples, guided tour, help center with a beginner
   tutorial and diagrams, glossary of standard terms, in-app changelog, and a GRAFCET guide web
-  page in English, French, German and Spanish.
+  page in English, French, German, Spanish, Danish and Swedish.
 - **Phones and tablets**: a one-handed phone layout (bottom toolbar, panels in a sheet, menu
   drawer), pinch-zoom, double-tap, and a selection toolbar for what the shortcuts do.
 - **Accessible and offline**: WCAG 2.2 AA (keyboard everywhere, outline tree view, light/dark
@@ -286,7 +286,7 @@ docs/guide/<lang>.md (website GRAFCET guide)
 
 To edit the guide, change `docs/guide/<lang>.md` (the same Markdown subset as the help pages;
 `<!-- figure: id | caption -->` draws a diagram of `src/site/figures.ts`, `example-<id>` one of the
-start screen examples, and `app:` links lead into the editor), keep the four languages in step, and
+start screen examples, and `app:` links lead into the editor), keep the six languages in step, and
 update `updated` in `src/site/locales.ts`. Preview with `npm run build && npm run preview`.
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for conventions and

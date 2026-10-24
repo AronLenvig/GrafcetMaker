@@ -1,8 +1,8 @@
 # Editing diagrams
 
 GrafcetMaker is built so you rarely place anything by hand: select an element and use a key, and
-the new elements are numbered, linked and positioned for you. The hints under the toolbar at the top of the
-canvas lists the keys that apply to the current selection.
+the new elements are numbered, linked and positioned for you. The hints under the toolbar at the
+top of the canvas list the keys that apply to the current selection.
 
 ## The essential keys
 
@@ -29,20 +29,31 @@ While you edit a receptivity or an action, <kbd>Shift+Enter</kbd> applies it and
 the next receptivity down the sequence (a new transition and step at its end), or the next action
 of the step (a new one after the last). Type a whole sequence, or a row of actions, in one go.
 
+## Typing on the diagram
+
+<kbd>F2</kbd>, a double-click or <kbd>Enter</kbd> opens a text right where it is drawn: type as on
+the canvas, and the box around it grows as you type. <kbd>Enter</kbd> applies it
+(<kbd>Ctrl+Enter</kbd> in a comment), <kbd>Esc</kbd> cancels, and clicking elsewhere applies it
+too. A red wavy underline marks a value that is not valid yet; the box under the text says why.
+
 ## Ghosts
 
 A selected step shows dashed **ghosts** of what <kbd>A</kbd> and <kbd>Enter</kbd> would add: an action
 after its last action and, at the end of a sequence, a transition and a step with the number it
-will get. A transition that leads nowhere shows a ghost step. Click a ghost to add it; click only the bar of the ghost transition to add the transition alone: it is selected, and its own ghost step comes next. A new step
-added from its ghost is selected, as if you had clicked it, so its own ghost is one click away;
+will get. A transition that leads nowhere shows a ghost step. Click a ghost to add it; click only
+the bar of the ghost transition to add the transition alone: it is selected, and its own ghost
+step comes next. A new step added from its ghost is selected, as if you had clicked it, so its own
+ghost is one click away;
 type the receptivities later (<kbd>F2</kbd> or double-click), or use <kbd>Enter</kbd> to type each
 one as you go. With a placing tool, a ghost under the pointer shows what a click will place.
 
 ## Mouse
 
 - **Click** selects; <kbd>Shift</kbd>+click or <kbd>Ctrl</kbd>+click adds to or removes from the
-  selection; drag on empty canvas selects with a frame; <kbd>Ctrl+A</kbd> selects everything.
-- **Drag** moves (it snaps to the grid), the arrow keys nudge (<kbd>Shift</kbd> for larger steps).
+  selection; drag on empty canvas selects with a frame (a step brings all its actions);
+  <kbd>Ctrl+A</kbd> selects everything. The links between selected elements are highlighted too.
+- **Drag** any selected element to move the whole selection (it snaps to the grid); the arrow keys
+  nudge (<kbd>Shift</kbd> for larger steps).
 - **Double-click** an element to edit its text; double-click empty canvas to add a step there.
 - **Right-click** an element for what you can do with it (add an action, branches, loop back,
   edit, make macro-step, cut, copy, delete…), the selection, or empty canvas (add a step there,

@@ -299,6 +299,8 @@ export const en = {
       languageFr: 'Language: Français',
       languageDe: 'Language: Deutsch',
       languageEs: 'Language: Español',
+      languageDa: 'Language: Dansk',
+      languageSv: 'Language: Svenska',
       palette: 'Command palette',
       toggleTextbook: 'Toggle textbook notation',
       textbook: 'Textbook notation (overbar NOT, ·, +)',
@@ -954,7 +956,7 @@ export const en = {
     welcomeHelp:
       'Shows examples, recent projects and the tour when GrafcetMaker opens. Always available from Help › Start screen and examples.',
     hintsHelp:
-      'Shows at the bottom of the canvas what you can do with the selection, tool or gesture.',
+      'Shows at the top of the canvas what you can do with the selection, tool or gesture.',
     autosave: 'Autosave',
     autosaveHelp:
       'Every change is kept in this browser and restored after a crash. Use File › Save to write a .grafcet.json file.',
@@ -1048,7 +1050,7 @@ export const en = {
       },
       project: {
         title: 'Menu and project',
-        text: '☰ holds every command (File, Edit, View, Simulate, Help), the theme and the language. Double-click the name to rename the project; a dot means unsaved changes. Your work is kept in the browser as you go, and Ctrl+S saves it to a file. The last button shows the properties of the selection.',
+        text: '☰ holds every command (File, Edit, View, Simulate, Help) and the theme. Double-click the name to rename the project; a dot means unsaved changes. Your work is kept in the browser as you go, and Ctrl+S saves it to a file. The last button shows the properties of the selection.',
       },
       share: {
         title: 'Problems, export and sharing',

@@ -34,8 +34,7 @@ Arbeit bleibt erhalten.
 - **Öffnen** (<kbd>Ctrl+O</kbd>), **Datei › Zuletzt geöffnet** oder eine `.grafcet.json`-Datei
   irgendwo auf das Fenster ziehen. Hat das geöffnete Projekt ungespeicherte Änderungen, werden Sie
   zuerst gefragt, und eine ungültige Datei wird mit einer Erklärung abgelehnt, ohne Ihr Projekt
-  anzutasten. Dateien von grafcet.io (`.grafcetio`) öffnen Sie genauso; sie werden zu einem neuen
-  Projekt.
+  anzutasten.
 
 `.grafcet.json`-Dateien sind lesbarer Text und eignen sich gut für Versionsverwaltung (Git) und
 Code-Reviews.
@@ -147,7 +146,14 @@ immer, bevor er auf einer Maschine läuft.
 
 ## Einstellungen {#settings}
 
-**Einstellungen** (<kbd>Ctrl+,</kbd> oder das Zahnrad oben rechts) enthält das Farbschema, die
-Schreibweise, den Startbildschirm, das Raster, die Hinweise und die Simulationseinstellungen und
-zeigt, wie viel Browserspeicher belegt ist. Dort können Sie den lokalen Verlauf und die Liste der
-zuletzt geöffneten Dateien leeren.
+**Datei › Einstellungen…** (<kbd>Ctrl+,</kbd>) enthält das Farbschema, die Schreibweise, den
+Startbildschirm, das Raster, die Hinweise und die Simulationseinstellungen und zeigt, wie viel
+Browserspeicher belegt ist. Dort können Sie den lokalen Verlauf und die Liste der zuletzt
+geöffneten Dateien leeren.
+
+## Sprache {#language}
+
+Wählen Sie die Sprache mit der Flagge unten rechts (auf dem Smartphone unten im Menü ☰); die Wahl
+wird auf diesem Gerät gespeichert. Jede Sprache hat außerdem ihre eigene
+Adresse, etwa `…/de/` für Deutsch, sodass sich ein Link in der Sprache öffnet, in der er gesendet
+wurde.

@@ -13,7 +13,14 @@ declare module 'i18next' {
 }
 
 /** The languages of the interface, each named in itself. */
-export const LANGUAGES = { en: 'English', fr: 'Français', de: 'Deutsch', es: 'Español' } as const;
+export const LANGUAGES = {
+  en: 'English',
+  fr: 'Français',
+  de: 'Deutsch',
+  es: 'Español',
+  da: 'Dansk',
+  sv: 'Svenska',
+} as const;
 export type Language = keyof typeof LANGUAGES;
 
 const STORAGE_KEY = 'grafcetmaker.lang';
@@ -23,6 +30,8 @@ const LOAD: Record<Exclude<Language, 'en'>, () => Promise<Messages>> = {
   fr: () => import('./fr').then((m) => m.fr),
   de: () => import('./de').then((m) => m.de),
   es: () => import('./es').then((m) => m.es),
+  da: () => import('./da').then((m) => m.da),
+  sv: () => import('./sv').then((m) => m.sv),
 };
 
 const isLanguage = (v: unknown): v is Language => typeof v === 'string' && v in LANGUAGES;
@@ -55,6 +64,8 @@ const COUNTRIES: Record<Exclude<Language, 'en'>, string> = {
   fr: 'FR BE LU MC GP MQ GF RE YT PM NC PF WF BL MF SN CI ML BF NE TD GN BJ TG CM GA CG CD CF BI DJ KM MG HT MA DZ TN',
   de: 'DE AT CH LI',
   es: 'ES MX GT HN SV NI CR PA CU DO PR CO VE EC PE BO CL AR PY UY GQ',
+  da: 'DK GL FO',
+  sv: 'SE AX',
 };
 
 /** The language a visitor from a country (ISO 3166 code) starts in. */

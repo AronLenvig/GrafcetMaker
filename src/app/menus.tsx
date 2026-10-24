@@ -7,7 +7,7 @@ import { useDoc } from '@/editor/store/document';
 import { tDynamic } from '@/i18n/dynamic';
 import { THEME_MODES, useTheme, type ThemeMode } from '@/theme/theme';
 import { ThemeSwitcher } from '@/theme/ThemeSwitcher';
-import { LanguageFlagRow, LanguageSwitcher } from './LanguageMenu';
+import { LanguageSwitcher } from './LanguageMenu';
 import { listRecent, type RecentEntry } from './persistence/db';
 import { openRecent } from './persistence/session';
 import { setPrefs, usePrefs } from './prefs';
@@ -346,8 +346,6 @@ export function MainMenuButton() {
               </DropdownMenu.RadioItem>
             ))}
           </DropdownMenu.RadioGroup>
-          <MenuSeparator />
-          <LanguageFlagRow />
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>

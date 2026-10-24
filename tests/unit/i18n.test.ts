@@ -7,9 +7,9 @@ import { en } from '@/i18n/en';
  * Translations keep what the code relies on: every key with the same placeholders, and help pages
  * with the anchors, figures, links and keys of the English page.
  */
-const LANGS = ['fr', 'de', 'es'] as const;
+const LANGS = ['fr', 'de', 'es', 'da', 'sv'] as const;
 
-const strings = import.meta.glob<Record<string, unknown>>('/src/i18n/{fr,de,es}.ts', {
+const strings = import.meta.glob<Record<string, unknown>>('/src/i18n/{fr,de,es,da,sv}.ts', {
   eager: true,
 });
 const help = import.meta.glob<string>('/docs/help/**/*.md', {

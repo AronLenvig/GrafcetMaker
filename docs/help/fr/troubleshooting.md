@@ -35,6 +35,19 @@ Changez la direction de la variable ou utilisez une autre variable.
 **Un ordre de forçage vise un grafcet ou une étape qui n'existe pas.** Vérifiez le nom du grafcet
 et les numéros d'étape dans l'ordre.
 
+**Les ordres de forçage forment un cycle.** Un grafcet ne peut pas forcer un grafcet qui le force,
+directement ou par l'intermédiaire d'autres. Supprimez l'un des ordres, ou faites forcer les deux
+par un troisième grafcet.
+
+**La macro-étape … n'a pas de grafcet d'expansion** (ou **L'étape encapsulante … n'a pas de
+grafcet encapsulé**). Son sous-grafcet a été supprimé. Réglez le Type de l'étape sur _Étape_, puis
+de nouveau sur _Macro-étape_ (ou _Étape encapsulante_) pour en obtenir un nouveau, ou gardez-la
+comme étape normale.
+
+**Le grafcet … est utilisé par plusieurs étapes.** Chaque macro-étape et chaque étape
+encapsulante a besoin de son propre sous-grafcet. Réglez l'une des étapes sur _Étape_, puis
+revenez au type d'origine : elle obtient son propre sous-grafcet.
+
 ## Avertissements {#warnings}
 
 **L'étape … ne peut jamais devenir active.** Aucun chemin n'y mène depuis une étape initiale.
@@ -65,6 +78,19 @@ l'une d'elles l'est. Vérifiez que c'est bien ce que vous voulez.
 **Mémorisée sur événement, mais sans événement.** Saisissez l'événement (p. ex. `↑b`) dans le
 panneau Propriétés.
 
+**L'action conditionnelle … n'a pas encore de condition.** Elle se comporte comme une action
+continue tant que vous n'avez pas saisi sa condition dans le panneau Propriétés.
+
+**Les actions mémorisées de la macro-étape … sont ignorées.** Une macro-étape est active à travers
+son expansion : placez les actions mémorisées sur une étape de l'expansion.
+
+**Un grafcet est forcé dans la situation vide, et rien ne réactive ses étapes.** Un ordre comme
+`G2{}` désactive toutes les étapes de G2, et rien ne les active de nouveau. Utilisez `G2{INIT}` pour
+relancer G2 dans sa situation initiale.
+
+**L'expansion … n'est pas utilisée** (ou **Le grafcet encapsulé … n'est pas utilisé**). Aucune
+macro-étape ni étape encapsulante n'y renvoie. Supprimez son onglet si vous n'en avez plus besoin.
+
 **L'expansion doit avoir exactement une étape d'entrée et une étape de sortie.** Dans une
 expansion de macro-étape, l'étape d'entrée n'a pas de transition en amont et l'étape de sortie n'en
 a pas en aval.
@@ -90,6 +116,7 @@ aussi vite que possible. Utilisez un front `↑a` pour ne réagir qu'une fois pa
 conservés dans le navigateur. Après un rechargement ou un plantage, GrafcetMaker rouvre
 automatiquement votre dernier projet, modifications non enregistrées comprises.
 
-**Le fichier ne s'ouvre pas.** Seuls les fichiers `.grafcet.json` enregistrés par GrafcetMaker
-peuvent être ouverts. Un fichier enregistré par une version plus récente nécessite cette version
-plus récente.
+**Le fichier ne s'ouvre pas.** GrafcetMaker ouvre ses propres fichiers `.grafcet.json` et les
+fichiers grafcet.io (`.grafcetio`) ; le message indique pourquoi un fichier a été refusé. Un
+fichier enregistré par une version plus récente de GrafcetMaker nécessite cette version plus
+récente.

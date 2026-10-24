@@ -69,9 +69,9 @@ lado del otro.
 
 ## Cronograma {#chronogram}
 
-La pestaña **Cronograma** dibuja todas las variables y las etapas del grafcet abierto a lo largo del
-tiempo. Haz clic o arrastra en ella para retroceder en el tiempo: el diagrama la sigue. **Volver al
-tiempo real** regresa al presente.
+El panel **Cronograma** (su botón está abajo a la derecha) dibuja todas las variables y las etapas
+del grafcet abierto a lo largo del tiempo. Haz clic o arrastra en él para retroceder en el tiempo:
+el diagrama lo sigue. **Volver al tiempo real** regresa al presente.
 
 ## Escenarios {#scenarios}
 

@@ -8,15 +8,17 @@ waits for the next start. It takes about ten minutes.
 
 ## 1. Find your way around
 
-- The **canvas** fills the window: that is where you draw. Everything else floats over it.
+- The **canvas** fills the window: that is where you draw. Everything else floats over it,
+  slightly faded until you point at it, so the diagram stays in front.
 - **Top**: the main menu ☰ and the project name on the left; the tools in the middle (select,
-  pan, place step, transition, comment or action); problems and **Simulate** on the right.
+  pan, place step, transition, comment or action), ending with ▶ **Simulate**; the problem
+  counters, **Export** and sharing on the right.
 - **Under the tools**: the hints show what you can do right now. Watch them while you follow this
   tutorial.
 - **Left**: the **Properties** of what you select appear in a card while it is selected.
 - **Bottom**: zoom, undo and redo on the left; one tab per grafcet in the middle; the
-  **Variables**, **Problems**, **Chronogram** and **Outline** buttons on the right. Each opens its
-  panel on the right of the window.
+  **Variables**, **Problems**, **Chronogram** and **Outline** buttons on the right, each opening its
+  panel on the right of the window, then help, feedback and the flag that changes the language.
 
 A new project already contains the grafcet **G1** with step **0**. Its double square means it is an
 **initial step**: it is active when the system starts.
@@ -24,8 +26,8 @@ A new project already contains the grafcet **G1** with step **0**. Its double sq
 ## 2. Add the first transition and step
 
 1. Click step **0** to select it.
-2. Press <kbd>Enter</kbd>. A transition and step **1** appear below, and an editor opens next to the
-   transition so you can type its **receptivity**, the condition for moving on.
+2. Press <kbd>Enter</kbd>. A transition and step **1** appear below, and you type the transition's
+   **receptivity**, the condition for moving on, right where it is drawn.
 3. Type `start` and press <kbd>Enter</kbd>.
 
 `start` is not declared yet: while you type, the editor notes **New variable start: BOOL input**,
@@ -41,6 +43,9 @@ created as a BOOL output. The pump now runs as long as step 1 is active.
 1. Press <kbd>Enter</kbd> again: transition and step **2** are added after step 1. Type `full` as
    the receptivity and create the input.
 2. Press <kbd>A</kbd> and add the action `Valve` (create the output).
+
+> **Tip:** prefer the mouse? A selected step shows dashed **ghosts** of what <kbd>Enter</kbd> and
+> <kbd>A</kbd> would add; click one to add it (see [Editing diagrams](editing.md#ghosts)).
 
 ## 5. Close the loop
 
@@ -65,11 +70,12 @@ errors. See [Troubleshooting](troubleshooting.md) for the meaning of each messag
 
 1. Press <kbd>F5</kbd>. The diagram is locked and the **Simulation** panel appears on the left. Step 0 carries a
    token: it is active.
-2. In the panel, switch **start** on. The transition clears: step 1 becomes active and its action
-   **Pump** shows a check mark ✓.
+2. In the panel, switch **start** on (or click `start` where it is written on the diagram). The
+   transition clears: step 1 becomes active and its action **Pump** shows a check mark ✓.
 3. Switch **start** off, then **full** on: step 2 becomes active and **Valve** turns on.
 4. Switch **full** off and **empty** on: the grafcet goes back to step 0.
-5. Open the **Chronogram** tab to see every signal over time. Press <kbd>Shift+F5</kbd> to stop.
+5. Click **Chronogram** at the bottom right to see every signal over time. Press
+   <kbd>Shift+F5</kbd> to stop.
 
 What happens if **start** stays on when the tank becomes empty? Try it: as soon as step 0 is
 active again, its transition is cleared again. That is GRAFCET behaving exactly as drawn. Use a

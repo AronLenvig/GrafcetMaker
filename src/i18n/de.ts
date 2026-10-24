@@ -307,6 +307,8 @@ export const de: Messages = {
       languageFr: 'Sprache: Français',
       languageDe: 'Sprache: Deutsch',
       languageEs: 'Sprache: Español',
+      languageDa: 'Sprache: Dansk',
+      languageSv: 'Sprache: Svenska',
       palette: 'Befehlspalette',
       toggleTextbook: 'Lehrbuchschreibweise ein/aus',
       textbook: 'Lehrbuchschreibweise (NICHT als Überstrich, ·, +)',
@@ -984,7 +986,7 @@ export const de: Messages = {
     welcomeHelp:
       'Zeigt Beispiele, zuletzt geöffnete Projekte und den Rundgang, wenn GrafcetMaker startet. Jederzeit erreichbar über Hilfe › Startbildschirm und Beispiele.',
     hintsHelp:
-      'Zeigt unten auf der Zeichenfläche, was Sie mit der Auswahl, dem Werkzeug oder der Geste tun können.',
+      'Zeigt oben auf der Zeichenfläche, was Sie mit der Auswahl, dem Werkzeug oder der Geste tun können.',
     autosave: 'Automatisch speichern',
     autosaveHelp:
       'Jede Änderung wird in diesem Browser aufbewahrt und nach einem Absturz wiederhergestellt. Mit Datei › Speichern schreiben Sie eine .grafcet.json-Datei.',
@@ -1081,7 +1083,7 @@ export const de: Messages = {
       },
       project: {
         title: 'Menü und Projekt',
-        text: '☰ enthält alle Befehle (Datei, Bearbeiten, Ansicht, Simulieren, Hilfe), das Farbschema und die Sprache. Doppelklicken Sie auf den Namen, um das Projekt umzubenennen; ein Punkt zeigt ungespeicherte Änderungen. Ihre Arbeit wird laufend im Browser gesichert, und Ctrl+S speichert sie in eine Datei. Die letzte Schaltfläche zeigt die Eigenschaften der Auswahl.',
+        text: '☰ enthält alle Befehle (Datei, Bearbeiten, Ansicht, Simulieren, Hilfe) und das Farbschema. Doppelklicken Sie auf den Namen, um das Projekt umzubenennen; ein Punkt zeigt ungespeicherte Änderungen. Ihre Arbeit wird laufend im Browser gesichert, und Ctrl+S speichert sie in eine Datei. Die letzte Schaltfläche zeigt die Eigenschaften der Auswahl.',
       },
       share: {
         title: 'Probleme, Export und Teilen',

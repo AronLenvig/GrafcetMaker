@@ -28,8 +28,7 @@ in the corner offers to reload: your work is kept.
   without changing where Save writes.
 - **Open** (<kbd>Ctrl+O</kbd>), **File › Open recent**, or drop a `.grafcet.json` file anywhere on
   the window. If the open project has unsaved changes you are asked first, and an invalid file is
-  rejected with an explanation without touching your project. Files from grafcet.io (`.grafcetio`)
-  open the same way and become a new project.
+  rejected with an explanation without touching your project.
 
 `.grafcet.json` files are readable text, well suited to version control (Git) and code review.
 
@@ -128,7 +127,12 @@ Always review generated code before it runs on a machine.
 
 ## Settings
 
-**Settings** (<kbd>Ctrl+,</kbd>, or the gear at the top right) holds the theme, notation, welcome
-screen, grid,
-hints and simulation preferences, and shows how much browser storage is used. You can clear the
-local history and the recent files list there.
+**File › Settings…** (<kbd>Ctrl+,</kbd>) holds the theme, notation, welcome screen, grid, hints and
+simulation preferences, and shows how much browser storage is used. You can clear the local history
+and the recent files list there.
+
+## Language
+
+Choose the language with the flag at the bottom right (on a phone, at the bottom of the menu ☰);
+the choice is remembered on this device. Each language also has its own address,
+such as `…/de/` for German, so a link opens in the language it was sent in.

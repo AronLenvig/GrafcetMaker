@@ -10,6 +10,7 @@ fortgeschrittenen Funktionen.
   drücken Sie <kbd>F5</kbd>, um es laufen zu sehen.
 - Machen Sie den Rundgang in zehn Schritten (**Hilfe › Rundgang starten**), um zu erfahren, wo sich
   was befindet.
+- Wählen Sie Ihre Sprache mit der Flagge unten rechts.
 - [Erste Schritte](getting-started.md): Zeichnen, prüfen und simulieren Sie in etwa zehn Minuten
   einen kleinen Plan für eine Tankbefüllung. Beginnen Sie hier.
 - [GRAFCET-Grundlagen](grafcet-basics.md): Schritte, Transitionen, Transitionsbedingungen, Aktionen

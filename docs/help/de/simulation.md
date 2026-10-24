@@ -70,9 +70,9 @@ Expansion nebeneinander.
 
 ## Zeitdiagramm {#chronogram}
 
-Der Reiter **Zeitdiagramm** zeichnet jede Variable und die Schritte des geöffneten Grafcets über der
-Zeit. Klicken oder ziehen Sie darin, um in der Zeit zurückzugehen: Das Diagramm folgt. **Zurück zu
-live** kehrt in die Gegenwart zurück.
+Der Bereich **Zeitdiagramm** (seine Schaltfläche ist unten rechts) zeichnet jede Variable und die
+Schritte des geöffneten Grafcets über der Zeit. Klicken oder ziehen Sie darin, um in der Zeit
+zurückzugehen: Das Diagramm folgt. **Zurück zu live** kehrt in die Gegenwart zurück.
 
 ## Szenarien {#scenarios}
 

@@ -32,24 +32,34 @@ siguiente: la siguiente receptividad de la secuencia (una nueva transición y un
 final), o la siguiente acción de la etapa (una nueva después de la última). Escribe una secuencia
 entera, o una fila de acciones, de una sola vez.
 
+## Escribir en el diagrama {#typing-on-the-diagram}
+
+<kbd>F2</kbd>, un doble clic o <kbd>Enter</kbd> abre un texto justo donde está dibujado: escribe
+como en el lienzo, y el recuadro que lo rodea crece a medida que escribes. <kbd>Enter</kbd> lo
+aplica (<kbd>Ctrl+Enter</kbd> en un comentario), <kbd>Esc</kbd> cancela, y hacer clic en otro sitio
+también lo aplica. Un subrayado ondulado rojo marca un valor que aún no es válido; el recuadro bajo
+el texto explica por qué.
+
 ## Fantasmas {#ghosts}
 
 Una etapa seleccionada muestra **fantasmas** discontinuos de lo que añadirían <kbd>A</kbd> y
 <kbd>Enter</kbd>: una acción después de su última acción y, al final de una secuencia, una
 transición y una etapa con el número que tendrá. Una transición que no lleva a ninguna parte muestra
-una etapa fantasma. Haz clic en un fantasma para añadirlo; haz clic solo en la barra de la transición fantasma para añadir únicamente la transición: queda seleccionada y su etapa fantasma viene después. Una etapa nueva añadida desde su fantasma
-queda seleccionada, como si hubieras hecho clic en ella, así que su propio fantasma está a un clic;
-escribe las receptividades después (<kbd>F2</kbd> o doble clic), o usa <kbd>Enter</kbd> para
-escribir cada una sobre la marcha. Con una herramienta de colocación, un fantasma bajo el puntero
-muestra lo que colocará un clic.
+una etapa fantasma. Haz clic en un fantasma para añadirlo; haz clic solo en la barra de la
+transición fantasma para añadir únicamente la transición: queda seleccionada y su etapa fantasma
+viene después. Una etapa nueva añadida desde su fantasma queda seleccionada, como si hubieras hecho
+clic en ella, así que su propio fantasma está a un clic; escribe las receptividades después
+(<kbd>F2</kbd> o doble clic), o usa <kbd>Enter</kbd> para escribir cada una sobre la marcha. Con
+una herramienta de colocación, un fantasma bajo el puntero muestra lo que colocará un clic.
 
 ## Ratón {#mouse}
 
 - **Clic** selecciona; <kbd>Shift</kbd>+clic o <kbd>Ctrl</kbd>+clic añade a la selección o quita de
-  ella; arrastrar en un espacio vacío del lienzo selecciona con un marco; <kbd>Ctrl+A</kbd> lo
-  selecciona todo.
-- **Arrastrar** mueve (se ajusta a la cuadrícula); las flechas desplazan un poco (<kbd>Shift</kbd>
-  para pasos más largos).
+  ella; arrastrar en un espacio vacío del lienzo selecciona con un marco (una etapa incluye todas
+  sus acciones); <kbd>Ctrl+A</kbd> lo selecciona todo. Los enlaces entre los elementos
+  seleccionados también se resaltan.
+- **Arrastra** cualquier elemento seleccionado para mover toda la selección (se ajusta a la
+  cuadrícula); las flechas desplazan un poco (<kbd>Shift</kbd> para pasos más largos).
 - **Doble clic** en un elemento para editar su texto; doble clic en un espacio vacío para añadir
   una etapa ahí.
 - **Clic derecho** en un elemento para ver lo que puedes hacer con él (añadir una acción, ramas,

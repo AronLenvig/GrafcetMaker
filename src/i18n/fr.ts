@@ -307,6 +307,8 @@ export const fr: Messages = {
       languageFr: 'Langue : Français',
       languageDe: 'Langue : Deutsch',
       languageEs: 'Langue : Español',
+      languageDa: 'Langue : Dansk',
+      languageSv: 'Langue : Svenska',
       palette: 'Palette de commandes',
       toggleTextbook: 'Activer / désactiver la notation usuelle',
       textbook: 'Notation usuelle (NON surligné, ·, +)',
@@ -978,7 +980,7 @@ export const fr: Messages = {
     welcomeHelp:
       "Affiche les exemples, les projets récents et la visite guidée à l'ouverture de GrafcetMaker. Toujours disponible depuis Aide › Écran d'accueil et exemples.",
     hintsHelp:
-      "Affiche en bas du canevas ce que vous pouvez faire avec la sélection, l'outil ou le geste.",
+      "Affiche en haut du canevas ce que vous pouvez faire avec la sélection, l'outil ou le geste.",
     autosave: 'Enregistrement automatique',
     autosaveHelp:
       'Chaque modification est conservée dans ce navigateur et restaurée après un plantage. Utilisez Fichier › Enregistrer pour écrire un fichier .grafcet.json.',
@@ -1077,7 +1079,7 @@ export const fr: Messages = {
       },
       project: {
         title: 'Menu et projet',
-        text: "☰ réunit toutes les commandes (Fichier, Édition, Affichage, Simulation, Aide), le thème et la langue. Double-cliquez sur le nom pour renommer le projet ; un point signale des modifications non enregistrées. Votre travail est conservé dans le navigateur au fil de l'eau, et Ctrl+S l'enregistre dans un fichier. Le dernier bouton affiche les propriétés de la sélection.",
+        text: "☰ réunit toutes les commandes (Fichier, Édition, Affichage, Simulation, Aide) et le thème. Double-cliquez sur le nom pour renommer le projet ; un point signale des modifications non enregistrées. Votre travail est conservé dans le navigateur au fil de l'eau, et Ctrl+S l'enregistre dans un fichier. Le dernier bouton affiche les propriétés de la sélection.",
       },
       share: {
         title: 'Problèmes, export et partage',

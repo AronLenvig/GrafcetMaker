@@ -5,8 +5,7 @@ traduit en code automate. Il s'adresse aux automaticiens, aux enseignants et aux
 et open source (licence MIT), sans compte, et il fonctionne hors ligne.
 
 GrafcetMaker est une application web : il fonctionne dans tout navigateur récent avec JavaScript
-activé. Le GRAFCET est nouveau pour vous ? Lisez le [cours GRAFCET](fr/guide/), aussi en
-[anglais](en/guide/), en [allemand](de/guide/) et en [espagnol](es/guide/).
+activé. Le GRAFCET est nouveau pour vous ? Lisez le [cours GRAFCET](fr/guide/), aussi en [anglais](en/guide/), en [allemand](de/guide/), en [espagnol](es/guide/), en [danois](da/guide/) et en [suédois](sv/guide/).
 
 ## Ce que vous pouvez faire
 

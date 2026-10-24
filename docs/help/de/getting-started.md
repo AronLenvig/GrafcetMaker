@@ -8,17 +8,19 @@ füllt eine Pumpe den Tank, bis er **full** (voll) ist, dann leert ein Ventil ih
 
 ## 1. Orientierung {#1-find-your-way-around}
 
-- Die **Zeichenfläche** füllt das Fenster: Dort zeichnen Sie. Alles andere schwebt darüber.
+- Die **Zeichenfläche** füllt das Fenster: Dort zeichnen Sie. Alles andere schwebt darüber und ist
+  leicht abgeblendet, bis Sie mit der Maus darauf zeigen, damit das Diagramm im Vordergrund bleibt.
 - **Oben**: links das Hauptmenü ☰ und der Projektname; in der Mitte die Werkzeuge (auswählen,
-  Ansicht verschieben, Schritt, Transition, Kommentar oder Aktion platzieren); rechts die Probleme
-  und **Simulieren**.
+  Ansicht verschieben, Schritt, Transition, Kommentar oder Aktion platzieren), zuletzt
+  ▶ **Simulieren**; rechts die Problemzähler, **Exportieren** und die Schaltfläche zum Teilen.
 - **Unter den Werkzeugen**: Die Hinweise zeigen, was Sie gerade tun können. Achten Sie während
   dieser Einführung darauf.
 - **Links**: Die **Eigenschaften** des ausgewählten Elements erscheinen in einer Karte, solange es
   ausgewählt ist.
 - **Unten**: links Zoom, Rückgängig und Wiederholen; in der Mitte ein Reiter pro Grafcet; rechts
-  die Schaltflächen **Variablen**, **Probleme**, **Zeitdiagramm** und **Gliederung**. Jede öffnet
-  ihren Bereich rechts im Fenster.
+  die Schaltflächen **Variablen**, **Probleme**, **Zeitdiagramm** und **Gliederung**, die jeweils
+  ihren Bereich rechts im Fenster öffnen, dann Hilfe, Feedback und die Flagge, mit der Sie die
+  Sprache wechseln.
 
 Ein neues Projekt enthält bereits den Grafcet **G1** mit dem Schritt **0**. Sein Doppelquadrat
 zeigt, dass er ein **Anfangsschritt** ist: Er ist aktiv, wenn die Anlage startet.
@@ -26,9 +28,9 @@ zeigt, dass er ein **Anfangsschritt** ist: Er ist aktiv, wenn die Anlage startet
 ## 2. Die erste Transition und den ersten Schritt hinzufügen {#2-add-the-first-transition-and-step}
 
 1. Klicken Sie auf Schritt **0**, um ihn auszuwählen.
-2. Drücken Sie <kbd>Enter</kbd>. Darunter erscheinen eine Transition und Schritt **1**, und neben
-   der Transition öffnet sich ein Eingabefeld für ihre **Transitionsbedingung**, die Bedingung zum
-   Weiterschalten.
+2. Drücken Sie <kbd>Enter</kbd>. Darunter erscheinen eine Transition und Schritt **1**, und Sie
+   tippen die **Transitionsbedingung** der Transition, die Bedingung zum Weiterschalten, genau dort
+   ein, wo sie gezeichnet ist.
 3. Geben Sie `start` ein und drücken Sie <kbd>Enter</kbd>.
 
 `start` ist noch nicht deklariert: Während Sie tippen, zeigt das Eingabefeld **Neue Variable
@@ -46,6 +48,10 @@ aktiv ist.
 1. Drücken Sie erneut <kbd>Enter</kbd>: Nach Schritt 1 werden eine Transition und Schritt **2**
    hinzugefügt. Geben Sie `full` als Transitionsbedingung ein und legen Sie den Eingang an.
 2. Drücken Sie <kbd>A</kbd> und fügen Sie die Aktion `Valve` hinzu (legen Sie den Ausgang an).
+
+> **Tipp:** Lieber mit der Maus? Ein ausgewählter Schritt zeigt gestrichelte **Platzhalter**
+> dessen, was <kbd>Enter</kbd> und <kbd>A</kbd> hinzufügen würden; klicken Sie auf einen, um ihn
+> hinzuzufügen (siehe [Diagramme bearbeiten](editing.md#ghosts)).
 
 ## 5. Die Rückführung schließen {#5-close-the-loop}
 
@@ -72,13 +78,14 @@ Meldung finden Sie unter [Problembehebung](troubleshooting.md).
 
 1. Drücken Sie <kbd>F5</kbd>. Das Diagramm wird gesperrt, und links erscheint der Bereich
    **Simulation**. Schritt 0 trägt eine Marke: Er ist aktiv.
-2. Schalten Sie im Bereich **start** ein. Die Transition schaltet: Schritt 1 wird aktiv, und seine
-   Aktion **Pump** zeigt ein Häkchen ✓.
+2. Schalten Sie im Bereich **start** ein (oder klicken Sie auf `start` dort, wo es im Diagramm
+   steht). Die Transition schaltet: Schritt 1 wird aktiv, und seine Aktion **Pump** zeigt ein
+   Häkchen ✓.
 3. Schalten Sie **start** aus und dann **full** ein: Schritt 2 wird aktiv, und **Valve** schaltet
    ein.
 4. Schalten Sie **full** aus und **empty** ein: Der Grafcet kehrt zu Schritt 0 zurück.
-5. Öffnen Sie den Reiter **Zeitdiagramm**, um jedes Signal über der Zeit zu sehen. Drücken Sie
-   <kbd>Shift+F5</kbd>, um die Simulation zu beenden.
+5. Klicken Sie unten rechts auf **Zeitdiagramm**, um jedes Signal über der Zeit zu sehen. Drücken
+   Sie <kbd>Shift+F5</kbd>, um die Simulation zu beenden.
 
 Was passiert, wenn **start** eingeschaltet bleibt, während der Tank leer wird? Probieren Sie es
 aus: Sobald Schritt 0 wieder aktiv ist, schaltet seine Transition erneut. Genau so verhält sich der

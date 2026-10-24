@@ -10,6 +10,7 @@ grafcet jusqu'aux fonctions avancées.
   sur <kbd>F5</kbd> pour le voir évoluer.
 - Suivez la visite guidée en dix écrans (**Aide › Visite guidée**) pour savoir où se trouve
   chaque chose.
+- Choisissez votre langue avec le drapeau en bas à droite.
 - [Premiers pas](getting-started.md) : dessinez, vérifiez et simulez un petit grafcet de
   remplissage de cuve en une dizaine de minutes. Commencez ici.
 - [Les bases du GRAFCET](grafcet-basics.md) : étapes, transitions, réceptivités, actions et les

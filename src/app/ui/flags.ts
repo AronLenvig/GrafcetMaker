@@ -1,7 +1,8 @@
 /**
  * Flags of the interface languages, drawn as SVG (flag emoji do not render on Windows). Plain data,
  * so the app (React) and the website (static HTML, src/site) draw the same flags. Simplified for
- * a 21 × 14 icon: no coat of arms, the Union Jack without its counterchange.
+ * a 21 × 14 icon: no coat of arms, the Union Jack without its counterchange; the Nordic crosses
+ * keep their place off centre.
  */
 export interface FlagShape {
   d: string;
@@ -18,7 +19,7 @@ export interface Flag {
 const UNION = 'M30 0v30M0 15h60';
 const SALTIRE = 'M0 0l60 30M60 0L0 30';
 
-export const FLAGS: Record<'en' | 'fr' | 'de' | 'es', Flag> = {
+export const FLAGS: Record<'en' | 'fr' | 'de' | 'es' | 'da' | 'sv', Flag> = {
   en: {
     viewBox: '0 0 60 30',
     shapes: [
@@ -50,6 +51,20 @@ export const FLAGS: Record<'en' | 'fr' | 'de' | 'es', Flag> = {
     shapes: [
       { d: 'M0 0h3v2H0z', fill: '#c60b1e' },
       { d: 'M0 .5h3v1H0z', fill: '#ffc400' },
+    ],
+  },
+  da: {
+    viewBox: '0 0 37 28',
+    shapes: [
+      { d: 'M0 0h37v28H0z', fill: '#c8102e' },
+      { d: 'M12 0h4v28h-4zM0 12h37v4H0z', fill: '#fff' },
+    ],
+  },
+  sv: {
+    viewBox: '0 0 16 10',
+    shapes: [
+      { d: 'M0 0h16v10H0z', fill: '#006aa7' },
+      { d: 'M5 0h2v10H5zM0 4h16v2H0z', fill: '#fecc02' },
     ],
   },
 };

@@ -3,7 +3,7 @@
  * page frame. Titles and descriptions are what search engines show, so keep them short: about 60
  * and 155 characters.
  */
-export const LANGS = ['en', 'fr', 'de', 'es'] as const;
+export const LANGS = ['en', 'fr', 'de', 'es', 'da', 'sv'] as const;
 export type Lang = (typeof LANGS)[number];
 
 /** The guide linked from the app, the page for search engines' x-default and the sitemap's first. */
@@ -132,5 +132,53 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     documentation: 'Documentación',
     footer:
       'GrafcetMaker es un editor y simulador de GRAFCET gratuito y de código abierto (MIT). Funciona en el navegador, sin conexión y sin cuenta.',
+  },
+  da: {
+    language: 'Dansk',
+    locale: 'da_DK',
+    title: 'Hvad er GRAFCET? Komplet guide til IEC 60848 med eksempler',
+    description:
+      'GRAFCET (DS/EN 60848) forklaret: trin, transitioner, aktioner, de fem udviklingsregler, ELLER- og OG-grene, makrotrin og tvangsstyring, med eksempler.',
+    updated: '2026-10-24',
+    updatedLabel: 'Opdateret',
+    skip: 'Gå til indhold',
+    contents: 'På denne side',
+    languages: 'Sprog',
+    openEditor: 'Åbn editoren',
+    openExample: 'Åbn dette eksempel i editoren',
+    guide: 'GRAFCET-guide',
+    appTitle: 'Gratis GRAFCET-editor og -simulator online | GrafcetMaker',
+    appDescription:
+      'Tegn, kontroller og simuler GRAFCET-diagrammer (IEC 60848) i browseren. Gratis, open source, offline. Eksport til PDF, SVG, Structured Text og PLCopen XML.',
+    ogTitle: 'GrafcetMaker: gratis GRAFCET-editor og -simulator online',
+    ogDescription:
+      'Tegn, kontroller og simuler GRAFCET-diagrammer (IEC 60848) i din browser. Gratis og open source, virker offline, ingen konto.',
+    documentation: 'Dokumentation',
+    footer:
+      'GrafcetMaker er en gratis GRAFCET-editor og -simulator med åben kildekode (MIT). Den kører i din browser, virker offline og kræver ingen konto.',
+  },
+  sv: {
+    language: 'Svenska',
+    locale: 'sv_SE',
+    title: 'Vad är GRAFCET? Komplett guide till IEC 60848 med exempel',
+    description:
+      'GRAFCET enligt SS-EN 60848 förklarat: steg, övergångar, aktioner, de fem utvecklingsreglerna, förgreningar, makrosteg och tvångsstyrning, med exempel.',
+    updated: '2026-10-24',
+    updatedLabel: 'Uppdaterad',
+    skip: 'Hoppa till innehållet',
+    contents: 'På den här sidan',
+    languages: 'Språk',
+    openEditor: 'Öppna editorn',
+    openExample: 'Öppna exemplet i editorn',
+    guide: 'GRAFCET-guide',
+    appTitle: 'Gratis GRAFCET-editor och simulator online | GrafcetMaker',
+    appDescription:
+      'Rita, kontrollera och simulera GRAFCET (IEC 60848) i webbläsaren. Gratis, öppen källkod, offline. Export till PDF, SVG, Structured Text och PLCopen XML.',
+    ogTitle: 'GrafcetMaker: gratis GRAFCET-editor och simulator online',
+    ogDescription:
+      'Rita, kontrollera och simulera GRAFCET-diagram (IEC 60848) i webbläsaren. Gratis och öppen källkod, fungerar offline, inget konto.',
+    documentation: 'Dokumentation',
+    footer:
+      'GrafcetMaker är en kostnadsfri editor och simulator för GRAFCET med öppen källkod (MIT). Den körs i webbläsaren, fungerar offline och kräver inget konto.',
   },
 };

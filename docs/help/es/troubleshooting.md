@@ -33,6 +33,18 @@ el sentido de la variable o usa otra variable.
 **Una orden de forzado apunta a un grafcet o una etapa que no existe.** Comprueba el nombre del
 grafcet y los números de etapa de la orden.
 
+**Las órdenes de forzado forman un ciclo.** Un grafcet no puede forzar a otro que lo fuerza a él,
+directamente o a través de otros. Elimina una de las órdenes, o haz que un tercer grafcet fuerce a
+los dos.
+
+**La macroetapa … no tiene grafcet de expansión** (o **La etapa encapsulante … no tiene grafcet
+encapsulado**). Su subgrafcet se eliminó. Pon el Tipo de la etapa en _Etapa_ y de nuevo en
+_Macroetapa_ (o _Etapa encapsulante_) para obtener uno nuevo, o déjala como etapa normal.
+
+**El grafcet … lo usan varias etapas.** Cada macroetapa y cada etapa encapsulante necesita su
+propio subgrafcet. Pon una de las etapas en _Etapa_ y vuelve a su tipo: obtiene un subgrafcet
+propio.
+
 ## Advertencias {#warnings}
 
 **La etapa … nunca puede activarse.** Ningún camino lleva a ella desde una etapa inicial. Enlázala o
@@ -61,6 +73,19 @@ lo sea cualquiera de ellas. Asegúrate de que es lo que quieres.
 **Memorizada ante un evento, pero sin evento.** Escribe el evento (p. ej. `↑b`) en el panel
 Propiedades.
 
+**La acción condicional … aún no tiene condición.** Actúa como una acción continua hasta que
+escribas su condición en el panel Propiedades.
+
+**La simulación ignora las acciones memorizadas de una macroetapa.** Una macroetapa está activa a
+través de su expansión: pon las acciones memorizadas en una etapa de la expansión.
+
+**Un grafcet queda forzado a la situación vacía, y nada vuelve a activar sus etapas.** Una orden
+como `G2{}` desactiva todas las etapas de G2, y nada vuelve a activarlas. Usa `G2{INIT}` para
+reiniciar G2 en su situación inicial.
+
+**La expansión … no se usa** (o **El grafcet encapsulado … no se usa**). Ninguna macroetapa ni
+etapa encapsulante apunta a este grafcet. Elimina su pestaña si ya no lo necesitas.
+
 **La expansión necesita exactamente una etapa de entrada y una etapa de salida.** En una expansión
 de macroetapa, la etapa de entrada no tiene ninguna transición encima y la etapa de salida ninguna
 debajo.
@@ -85,5 +110,6 @@ grafcet da vueltas tan rápido como puede. Usa un flanco `↑a` para reaccionar 
 navegador. Tras una recarga o un fallo, GrafcetMaker vuelve a abrir automáticamente tu último
 proyecto, cambios sin guardar incluidos.
 
-**El archivo no se abre.** Solo se pueden abrir los archivos `.grafcet.json` guardados por
-GrafcetMaker. Un archivo guardado con una versión más reciente necesita esa versión.
+**El archivo no se abre.** GrafcetMaker abre sus propios archivos `.grafcet.json` y los archivos de
+grafcet.io (`.grafcetio`); el mensaje indica por qué se rechazó un archivo. Un archivo guardado con
+una versión más reciente de GrafcetMaker necesita esa versión.

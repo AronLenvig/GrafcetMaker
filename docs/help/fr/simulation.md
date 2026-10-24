@@ -69,9 +69,9 @@ expansion.
 
 ## Chronogramme {#chronogram}
 
-L'onglet **Chronogramme** trace toutes les variables et les étapes du grafcet ouvert au cours du
-temps. Cliquez ou faites glisser dedans pour remonter dans le temps : le diagramme suit.
-**Retour au direct** revient au présent.
+Le panneau **Chronogramme** (son bouton est en bas à droite) trace toutes les variables et les
+étapes du grafcet ouvert au cours du temps. Cliquez ou faites glisser dedans pour remonter dans le
+temps : le diagramme suit. **Retour au direct** revient au présent.
 
 ## Scénarios {#scenarios}
 

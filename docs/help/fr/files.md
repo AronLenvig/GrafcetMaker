@@ -36,8 +36,7 @@ travail est conservé.
 - **Ouvrir** (<kbd>Ctrl+O</kbd>), **Fichier › Ouvrir un projet récent**, ou déposez un fichier
   `.grafcet.json` n'importe où sur la fenêtre. Si le projet ouvert a des modifications non
   enregistrées, la question vous est d'abord posée, et un fichier invalide est refusé avec une
-  explication, sans toucher à votre projet. Les fichiers de grafcet.io (`.grafcetio`) s'ouvrent de
-  la même façon et deviennent un nouveau projet.
+  explication, sans toucher à votre projet.
 
 Les fichiers `.grafcet.json` sont du texte lisible, bien adapté à la gestion de versions (Git) et
 à la revue de code.
@@ -151,7 +150,13 @@ généré avant qu'il ne s'exécute sur une machine.
 
 ## Paramètres {#settings}
 
-**Paramètres** (<kbd>Ctrl+,</kbd>, ou l'engrenage en haut à droite) contient le thème, la
-notation, l'écran d'accueil, la grille, les indications et les préférences de simulation, et
-indique l'espace de stockage du navigateur utilisé. Vous pouvez y effacer l'historique local et la
-liste des fichiers récents.
+**Fichier › Paramètres…** (<kbd>Ctrl+,</kbd>) contient le thème, la notation, l'écran d'accueil,
+la grille, les indications et les préférences de simulation, et indique l'espace de stockage du
+navigateur utilisé. Vous pouvez y effacer l'historique local et la liste des fichiers récents.
+
+## Langue {#language}
+
+Choisissez la langue avec le drapeau en bas à droite (sur un téléphone, en bas du menu ☰) ; ce
+choix est mémorisé sur cet appareil. Chaque langue a aussi sa propre adresse, par
+exemple `…/de/` pour l'allemand : un lien s'ouvre ainsi dans la langue dans laquelle il a été
+envoyé.

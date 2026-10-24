@@ -492,7 +492,7 @@ export const COMMANDS: Command[] = [
     group: 'view',
     run: () => useTheme.getState().setMode('dark'),
   },
-  ...(['En', 'Fr', 'De', 'Es'] as const).map((l): Command => ({
+  ...(['En', 'Fr', 'De', 'Es', 'Da', 'Sv'] as const).map((l): Command => ({
     id: `view.language${l}`,
     label: `view.language${l}`,
     group: 'view',

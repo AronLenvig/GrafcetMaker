@@ -32,24 +32,37 @@ Eingabe und öffnet die nächste: die nächste Transitionsbedingung im Ablauf (e
 und ein neuer Schritt an seinem Ende) oder die nächste Aktion des Schritts (eine neue nach der
 letzten). So tippen Sie einen ganzen Ablauf oder eine Reihe von Aktionen in einem Zug.
 
+## Direkt im Diagramm tippen {#typing-on-the-diagram}
+
+<kbd>F2</kbd>, ein Doppelklick oder <kbd>Enter</kbd> öffnet einen Text genau dort, wo er
+gezeichnet ist: Tippen Sie wie auf der Zeichenfläche, und der Rahmen um ihn wächst beim Tippen mit.
+<kbd>Enter</kbd> übernimmt ihn (<kbd>Ctrl+Enter</kbd> in einem Kommentar), <kbd>Esc</kbd> bricht
+ab, und ein Klick an eine andere Stelle übernimmt ihn ebenfalls. Eine rote Wellenlinie markiert
+einen Wert, der noch nicht gültig ist; der Kasten unter dem Text sagt, warum.
+
 ## Platzhalter {#ghosts}
 
 Ein ausgewählter Schritt zeigt gestrichelte **Platzhalter** dessen, was <kbd>A</kbd> und
 <kbd>Enter</kbd> hinzufügen würden: eine Aktion nach seiner letzten Aktion und, am Ende eines
 Ablaufs, eine Transition und einen Schritt mit der Nummer, die er erhalten wird. Eine Transition,
-die nirgendwohin führt, zeigt einen Platzhalter-Schritt. Klicken Sie auf einen Platzhalter, um ihn hinzuzufügen; klicken Sie nur auf den Balken der Platzhalter-Transition, um allein die Transition hinzuzufügen: Sie wird ausgewählt, und ihr Platzhalter-Schritt folgt. Ein aus seinem Platzhalter hinzugefügter Schritt wird ausgewählt, als hätten Sie ihn
-angeklickt, sodass sein eigener Platzhalter nur einen Klick entfernt ist; tippen Sie die
-Transitionsbedingungen später (<kbd>F2</kbd> oder Doppelklick) oder verwenden Sie <kbd>Enter</kbd>,
-um jede gleich mitzutippen. Mit einem Platzierungswerkzeug zeigt ein Platzhalter unter dem
-Mauszeiger, was ein Klick platzieren wird.
+die nirgendwohin führt, zeigt einen Platzhalter-Schritt. Klicken Sie auf einen Platzhalter, um ihn
+hinzuzufügen; klicken Sie nur auf den Balken der Platzhalter-Transition, um allein die Transition
+hinzuzufügen: Sie wird ausgewählt, und ihr Platzhalter-Schritt folgt. Ein aus seinem Platzhalter
+hinzugefügter Schritt wird ausgewählt, als hätten Sie ihn angeklickt, sodass sein eigener
+Platzhalter nur einen Klick entfernt ist; tippen Sie die Transitionsbedingungen später
+(<kbd>F2</kbd> oder Doppelklick) oder verwenden Sie <kbd>Enter</kbd>, um jede gleich mitzutippen.
+Mit einem Platzierungswerkzeug zeigt ein Platzhalter unter dem Mauszeiger, was ein Klick
+platzieren wird.
 
 ## Maus {#mouse}
 
 - **Klick** wählt aus; <kbd>Shift</kbd>+Klick oder <kbd>Ctrl</kbd>+Klick fügt zur Auswahl hinzu
-  oder entfernt aus ihr; Ziehen auf einer leeren Fläche wählt mit einem Rahmen aus;
-  <kbd>Ctrl+A</kbd> wählt alles aus.
-- **Ziehen** verschiebt (es rastet am Raster ein), die Pfeiltasten verschieben schrittweise
-  (<kbd>Shift</kbd> für größere Schritte).
+  oder entfernt aus ihr; Ziehen auf einer leeren Fläche wählt mit einem Rahmen aus (ein Schritt
+  bringt alle seine Aktionen mit); <kbd>Ctrl+A</kbd> wählt alles aus. Auch die Verbindungen
+  zwischen ausgewählten Elementen werden hervorgehoben.
+- **Ziehen** Sie ein beliebiges ausgewähltes Element, um die ganze Auswahl zu verschieben (sie
+  rastet am Raster ein); die Pfeiltasten verschieben schrittweise (<kbd>Shift</kbd> für größere
+  Schritte).
 - **Doppelklick** auf ein Element bearbeitet seinen Text; Doppelklick auf eine leere Fläche fügt
   dort einen Schritt hinzu.
 - **Rechtsklick** auf ein Element zeigt, was Sie damit tun können (Aktion hinzufügen,

@@ -32,24 +32,34 @@ ouvre la suivante : la réceptivité suivante dans la séquence (une nouvelle t
 nouvelle étape à sa fin), ou l'action suivante de l'étape (une nouvelle après la dernière). Tapez
 ainsi toute une séquence, ou toute une rangée d'actions, d'un seul trait.
 
+## Saisir sur le diagramme {#typing-on-the-diagram}
+
+<kbd>F2</kbd>, un double-clic ou <kbd>Enter</kbd> ouvre un texte à l'endroit même où il est
+dessiné : tapez comme sur le canevas, et le cadre qui l'entoure s'agrandit au fil de la saisie.
+<kbd>Enter</kbd> le valide (<kbd>Ctrl+Enter</kbd> dans un commentaire), <kbd>Esc</kbd> annule, et
+un clic ailleurs le valide aussi. Un soulignement ondulé rouge marque une valeur qui n'est pas
+encore valide ; l'encadré sous le texte en donne la raison.
+
 ## Fantômes {#ghosts}
 
 Une étape sélectionnée affiche en pointillés des **fantômes** de ce qu'ajouteraient <kbd>A</kbd> et
 <kbd>Enter</kbd> : une action après sa dernière action et, en fin de séquence, une transition et
 une étape avec le numéro qu'elle recevra. Une transition qui ne mène nulle part affiche une étape
-fantôme. Cliquez sur un fantôme pour l'ajouter ; cliquez seulement sur la barre de la transition fantôme pour n'ajouter que la transition : elle est sélectionnée, et son étape fantôme vient ensuite. Une nouvelle étape ajoutée depuis son fantôme est
-sélectionnée, comme si vous aviez cliqué dessus : son propre fantôme est donc à un clic ; saisissez
-les réceptivités plus tard (<kbd>F2</kbd> ou double-clic), ou utilisez <kbd>Enter</kbd> pour les
-saisir une à une au fur et à mesure. Avec un outil de placement, un fantôme sous le pointeur montre
-ce qu'un clic va placer.
+fantôme. Cliquez sur un fantôme pour l'ajouter ; cliquez seulement sur la barre de la transition
+fantôme pour n'ajouter que la transition : elle est sélectionnée, et son étape fantôme vient
+ensuite. Une nouvelle étape ajoutée depuis son fantôme est sélectionnée, comme si vous aviez cliqué
+dessus : son propre fantôme est donc à un clic ; saisissez les réceptivités plus tard
+(<kbd>F2</kbd> ou double-clic), ou utilisez <kbd>Enter</kbd> pour les saisir une à une au fur et à
+mesure. Avec un outil de placement, un fantôme sous le pointeur montre ce qu'un clic va placer.
 
 ## Souris {#mouse}
 
 - Un **clic** sélectionne ; <kbd>Shift</kbd>+clic ou <kbd>Ctrl</kbd>+clic ajoute à la sélection ou
-  en retire ; glisser sur une zone vide sélectionne avec un cadre ; <kbd>Ctrl+A</kbd> sélectionne
-  tout.
-- **Glisser** déplace (avec aimantation à la grille), les flèches décalent (<kbd>Shift</kbd> pour
-  aller plus loin).
+  en retire ; glisser sur une zone vide sélectionne avec un cadre (une étape y entraîne toutes ses
+  actions) ; <kbd>Ctrl+A</kbd> sélectionne tout. Les liaisons entre les éléments sélectionnés sont
+  aussi mises en surbrillance.
+- **Faites glisser** n'importe quel élément sélectionné pour déplacer toute la sélection (avec
+  aimantation à la grille) ; les flèches décalent (<kbd>Shift</kbd> pour aller plus loin).
 - **Double-cliquez** sur un élément pour modifier son texte ; double-cliquez sur une zone vide pour
   y ajouter une étape.
 - **Cliquez avec le bouton droit** sur un élément pour voir ce que vous pouvez en faire (ajouter

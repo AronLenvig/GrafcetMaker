@@ -338,6 +338,17 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Tour of ten stops around the screen (owner request; `Tour.tsx` `STEPS`, `data-tour` on the
   canvas, tools, Simulate, hints, project, share, view, tabs, panels and help islands; a stop whose
   element is hidden keeps its card centred), texts in the four languages with each one's labels.
+- Danish and Swedish (`src/i18n/{da,sv}.ts`, `docs/help/{da,sv}/`, `docs/guide/{da,sv}.md`,
+  `docs/home/{da,sv}.md`, `SITE_TEXT` and figure `WORDS`): first visits from DK/GL/FO start in
+  Danish, SE/AX in Swedish. No official Danish or Swedish GRAFCET vocabulary was found; the terms
+  follow DS/EN and SS-EN 60848 usage where known (trin/steg, transition/övergång,
+  transitionsbetingelse/övergångsvillkor, aktion). Figure action names stay ASCII (identifiers),
+  e.g. `Hoejre`, `Upp`/`Ned`.
+- The main menu no longer lists the languages (owner request): the flag button at the bottom
+  right and the palette on desktop, the flags in the menu drawer on phones.
+- Help center revision: typing on the diagram, ghosts (transition alone), selections with
+  actions and links, the language section, the current layout, every problem message in
+  Troubleshooting, Settings under File; synced to all six languages.
 
 ## Decisions
 
@@ -442,11 +453,11 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Enclosing step symbol (vertical inner lines) not verified against the IEC 60848 figure; adjust
   in `elements.tsx` and `svgExport.ts` if the standard differs.
 - An initial step cannot be a macro-step or an enclosing step (data model limitation).
-- The interface and help exist in English, French, German and Spanish, kept in step by hand (the
-  i18n test catches missing keys, placeholders and anchors, not stale wording). The examples, the
-  help diagrams, generated PLC code and the home page text for crawlers stay English. The
+- The interface and help exist in English, French, German, Spanish, Danish and Swedish, kept in
+  step by hand (the i18n test catches missing keys, placeholders and anchors, not stale wording).
+  The examples, the help diagrams and generated PLC code stay English. The
   translations were made by a model; a native review of each language is still to do.
-- The website guide exists in four languages kept in step by hand. Guide figures use the system monospace font (the app's JetBrains Mono
+- The website guide exists in six languages kept in step by hand. Guide figures use the system monospace font (the app's JetBrains Mono
   is not loaded there).
 - Generated code is not compiled by a real PLC toolchain in CI (no vendor tools available); the
   ST uses only standard IEC 61131-3 constructs and the XML follows TC6 2.01 by hand. Vendor

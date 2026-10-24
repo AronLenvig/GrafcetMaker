@@ -338,6 +338,7 @@ export const en = {
       guide: 'GRAFCET guide (web page)',
       shortcuts: 'Keyboard shortcuts',
       feedback: 'Send feedback…',
+      source: 'Source code on GitHub',
       whatsNew: 'What’s new',
       about: 'About GrafcetMaker',
     },

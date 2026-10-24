@@ -178,6 +178,7 @@ const MAIN_MENU: MenuSection[] = [
       SEP,
       cmd('help.shortcuts', { desktopOnly: true }),
       cmd('help.feedback'),
+      cmd('help.source'),
       cmd('help.whatsNew'),
       cmd('help.about'),
     ],

@@ -4,6 +4,7 @@ import { COMMANDS, formatKeys, useAppDialog } from '@/editor/commands/registry';
 import { getProject, useDoc } from '@/editor/store/document';
 import { listSnapshots, type Snapshot } from '../persistence/db';
 import { restoreSnapshot } from '../persistence/session';
+import { SOURCE_URL } from '../source';
 import { FeedbackDialog } from '../feedback/FeedbackDialog';
 import { SettingsDialog } from '../settings/SettingsDialog';
 import { Button, Modal } from '../ui/primitives';
@@ -161,6 +162,16 @@ function AboutDialog({ onClose }: { onClose: () => void }) {
     <Modal open title={t('help.aboutTitle')} onOpenChange={(o) => !o && onClose()} width={420}>
       <p>{t('app.tagline')}</p>
       <p className="mt-2 text-muted">{t('help.aboutText', { version: __APP_VERSION__ })}</p>
+      <p className="mt-3">
+        <a
+          href={SOURCE_URL}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="text-accent underline"
+        >
+          {t('commands.help.source')}
+        </a>
+      </p>
     </Modal>
   );
 }

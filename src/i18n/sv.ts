@@ -343,6 +343,7 @@ export const sv: Messages = {
       guide: 'GRAFCET-guide (webbsida)',
       shortcuts: 'Kortkommandon',
       feedback: 'Skicka feedback…',
+      source: 'Källkod på GitHub',
       whatsNew: 'Nyheter',
       about: 'Om GrafcetMaker',
     },

@@ -8,6 +8,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- A link to the source code on GitHub: **Help › Source code on GitHub**, the About dialog and the
+  footer of the website's pages.
 - GrafcetMaker in **Danish and Swedish**: the interface, the help center, the website's GRAFCET
   guide and the home page text, at `/da/` and `/sv/`. A first visit from Denmark, Greenland and
   the Faroe Islands starts in Danish, from Sweden and Åland in Swedish.

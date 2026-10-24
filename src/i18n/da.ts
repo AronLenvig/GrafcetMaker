@@ -343,6 +343,7 @@ export const da: Messages = {
       guide: 'GRAFCET-guide (webside)',
       shortcuts: 'Tastaturgenveje',
       feedback: 'Send feedback…',
+      source: 'Kildekode på GitHub',
       whatsNew: 'Nyheder',
       about: 'Om GrafcetMaker',
     },

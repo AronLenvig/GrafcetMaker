@@ -346,6 +346,7 @@ export const fr: Messages = {
       guide: 'Cours sur le GRAFCET (page web)',
       shortcuts: 'Raccourcis clavier',
       feedback: 'Envoyer un avis…',
+      source: 'Code source sur GitHub',
       whatsNew: 'Nouveautés',
       about: 'À propos de GrafcetMaker',
     },

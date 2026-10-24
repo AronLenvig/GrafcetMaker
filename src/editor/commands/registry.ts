@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { startTour } from '@/app/start/tourStore';
 import { closeSplit, focusOtherPane, openSplit, swapPanes } from './split';
 import { guideUrl, openHelp, toggleHelp } from '@/app/help/helpStore';
+import { SOURCE_URL } from '@/app/source';
 import { setPrefs, showBottomTab, showSideTab, usePrefs } from '@/app/prefs';
 import { toggleProperties } from '@/app/sheet';
 import { toast } from '@/app/toasts';
@@ -661,6 +662,12 @@ export const COMMANDS: Command[] = [
     group: 'help',
     keys: ['?', 'Shift+?'],
     run: () => openAppDialog('shortcuts'),
+  },
+  {
+    id: 'help.source',
+    label: 'help.source',
+    group: 'help',
+    run: () => void window.open(SOURCE_URL, '_blank', 'noopener'),
   },
   {
     id: 'help.whatsNew',

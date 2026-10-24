@@ -10,6 +10,7 @@ import { EXAMPLES, type ExampleId } from '@/app/examples/examples';
 import { FIGURES } from '@/app/help/figures';
 import { inlineText, parseMarkdown, type Block, type Inline } from '@/app/help/markdown';
 import { helpPages, type HelpPage } from '@/app/help/pages';
+import { SOURCE_URL } from '@/app/source';
 import { flagSvg } from '@/app/ui/flags';
 import { encodeShareHash } from '@/core/io/shareLink';
 import {
@@ -252,7 +253,7 @@ function frame(f: Frame, input: SiteInput): string {
     </main>
     <footer class="foot">
       <p>${esc(text.footer)}</p>
-      <p>${f.links}</p>
+      <p>${f.links} · <a href="${SOURCE_URL}">GitHub</a></p>
     </footer>
   </body>
 </html>
@@ -523,7 +524,9 @@ function llmsTxt(input: SiteInput): string {
   const docs = docLinks('en')
     .map((d) => `- [${d.title}](${abs(d.path)}): ${d.description}`)
     .join('\n');
-  return `${[title, `> ${intro.replace(/\n/g, ' ')}`, ...rest, '## Documentation', docs].join('\n\n')}\n`;
+  const source = `- [GitHub](${SOURCE_URL}): the source code (MIT), issues and self-hosting.`;
+  const parts = [title, `> ${intro.replace(/\n/g, ' ')}`, ...rest, '## Documentation', docs];
+  return `${[...parts, '## Source code', source].join('\n\n')}\n`;
 }
 
 /** One page of the sitemap with its language versions; `xDefault` is for other languages. */

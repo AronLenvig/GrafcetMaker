@@ -500,11 +500,12 @@ system setting and updates live when it changes. The choice is remembered on thi
 
 ## Language
 
-GrafcetMaker is in English, French, German and Spanish. The first visit follows your browser's
-language. To change it, use the language button at the bottom right (it shows the flag of the
-current language; point at it for its name), the bottom of the main menu ☰ (on phones: of the
-menu drawer), or the command palette (`Ctrl+K`, "Language"). The choice is remembered on this
-device.
+GrafcetMaker is in English, French, German and Spanish. On grafcet.org the first visit starts in
+the language of the country you visit from (English for countries that speak none of the other
+three, and on self-hosted installs). To change it, use the language button at the bottom right (it
+shows the flag of the current language; point at it for its name), the row of flags at the bottom
+of the main menu ☰ (on phones: of the menu drawer), or the command palette (`Ctrl+K`,
+"Language"). The choice is remembered on this device.
 
 Each language also has its own address: `…/fr/`, `…/de/`, `…/es/` and `…/en/` open the editor in
 that language, and changing the language changes the address, so a link you share opens in your

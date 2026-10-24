@@ -7,7 +7,7 @@ import { useDoc } from '@/editor/store/document';
 import { tDynamic } from '@/i18n/dynamic';
 import { THEME_MODES, useTheme, type ThemeMode } from '@/theme/theme';
 import { ThemeSwitcher } from '@/theme/ThemeSwitcher';
-import { LanguageItems, LanguageSwitcher } from './LanguageMenu';
+import { LanguageFlagRow, LanguageSwitcher } from './LanguageMenu';
 import { listRecent, type RecentEntry } from './persistence/db';
 import { openRecent } from './persistence/session';
 import { setPrefs, usePrefs } from './prefs';
@@ -347,10 +347,7 @@ export function MainMenuButton() {
             ))}
           </DropdownMenu.RadioGroup>
           <MenuSeparator />
-          <DropdownMenu.Label className="px-2 py-1 text-[11px] font-semibold tracking-wider text-muted uppercase">
-            {t('language.label')}
-          </DropdownMenu.Label>
-          <LanguageItems />
+          <LanguageFlagRow />
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>

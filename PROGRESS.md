@@ -309,7 +309,10 @@ Autonomous build log. Read this first in every session and resume from **Current
 
 - French, German and Spanish. `src/i18n/{fr,de,es}.ts` typed as `Messages` (the keys of `en.ts`,
   any wording); `src/i18n/index.ts` loads them as separate chunks, starts in the saved choice
-  (`grafcetmaker.lang`) or the first browser language it speaks, renders only once that language
+  (`grafcetmaker.lang`), else in the language of the visitor's country (owner decision: the
+  Worker serves `/` with `<html data-country>` from `request.cf.country`, `worker/country.ts`;
+  `languageOfCountry` maps it, English otherwise and without the Worker; the result is remembered
+  because the service worker later serves `/` without the attribute), renders only once that language
   is loaded (no English flash) and sets `<html lang>`. Help pages in `docs/help/<lang>/` keep the
   English anchors with `## Titre {#anchor}` (deep links from the app and the guide), loaded by
   `helpPages(lang)` with English as fallback; the website publishes them at `<lang>/help/` with

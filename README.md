@@ -197,6 +197,11 @@ storage, available on the Workers Free plan). The migration in `wrangler.jsonc` 
 first deploy. Messages are end-to-end encrypted in the browser, so the Worker forwards and stores
 data it cannot read; a room's storage is deleted 30 days after its last change.
 
+The Worker also serves the root page (`/`, in `run_worker_first`) with the visitor's country from
+Cloudflare on `<html data-country>` ([`worker/country.ts`](worker/country.ts)): the app starts a
+first visit in French, German or Spanish for those countries and in English otherwise. Nothing is
+stored or logged. Without the Worker (on premises, other hosts) a first visit starts in English.
+
 New feedback then arrives as GitHub notifications (web, mobile app or the email of your GitHub
 account, which stays private). Renew the token before it expires. Without these settings the
 endpoint answers `{ "ok": false }` and the app falls back to email or copy.
@@ -208,7 +213,8 @@ Besides the app, the build writes the public website's pages for search engines 
 - `en/`, `fr/`, `de/`, `es/`: the editor in that language: `index.html` with the language's
   title, description and home page text ([`docs/home/<lang>.md`](docs/home/en.md)) for readers
   without JavaScript, such as AI crawlers (the editor replaces it). The root `index.html` (English
-  text) follows the visitor's saved or browser language;
+  text) starts in the visitor's saved language, else in the language of their country (English
+  elsewhere);
 - `<lang>/guide/`: the GRAFCET guide, static HTML rendered at build time from
   [`docs/guide/<lang>.md`](docs/guide/en.md) by [`src/site/`](src/site/render.ts), with diagrams
   drawn by the editor's own exporter and examples that open in the editor;

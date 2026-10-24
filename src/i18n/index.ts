@@ -48,8 +48,27 @@ function save(language: Language): void {
 }
 
 /**
- * The language of the address (…/de/, remembered as a choice), else the saved choice, else the
- * first browser language the app speaks, else English.
+ * Countries whose visitors start in French, German or Spanish: the main language of the country,
+ * or the one engineering is taught in. Everyone else starts in English.
+ */
+const COUNTRIES: Record<Exclude<Language, 'en'>, string> = {
+  fr: 'FR BE LU MC GP MQ GF RE YT PM NC PF WF BL MF SN CI ML BF NE TD GN BJ TG CM GA CG CD CF BI DJ KM MG HT MA DZ TN',
+  de: 'DE AT CH LI',
+  es: 'ES MX GT HN SV NI CR PA CU DO PR CO VE EC PE BO CL AR PY UY GQ',
+};
+
+/** The language a visitor from a country (ISO 3166 code) starts in. */
+export function languageOfCountry(country: string | undefined): Language {
+  const found = (Object.keys(COUNTRIES) as (keyof typeof COUNTRIES)[]).find(
+    (lang) => country !== undefined && COUNTRIES[lang].split(' ').includes(country),
+  );
+  return found ?? 'en';
+}
+
+/**
+ * The language of the address (…/de/), else the saved choice, else, on a first visit, the
+ * language of the visitor's country (the site's Worker puts it on <html data-country>; English
+ * without it). The language found is remembered, so later visits start in it.
  */
 function startLanguage(): Language {
   const fromAddress =
@@ -62,10 +81,13 @@ function startLanguage(): Language {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (isLanguage(saved)) return saved;
   } catch {
-    // Storage blocked: follow the browser.
+    // Storage blocked: decide from the country each time.
   }
-  const tags = typeof navigator === 'undefined' ? [] : navigator.languages;
-  return tags.map((tag) => tag.slice(0, 2).toLowerCase()).find(isLanguage) ?? 'en';
+  const first = languageOfCountry(
+    typeof document === 'undefined' ? undefined : document.documentElement.dataset.country,
+  );
+  save(first);
+  return first;
 }
 
 /** Shows the language in the address: …/de/ becomes …/fr/ (keeping a ?query and #hash). */

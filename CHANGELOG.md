@@ -9,8 +9,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 ### Added
 
 - GrafcetMaker in **French, German and Spanish**: the whole interface and the help center. The
-  first visit follows the browser's language; change it with the small language button at the
-  bottom right, in the main menu or in the command palette. The website's help pages are
+  first visit starts in the language of the visitor's country (French in France, Belgium,
+  Luxembourg, French-speaking Africa and the Maghreb, German in Germany, Austria and Switzerland,
+  Spanish in Spain and Latin America) and in English everywhere else; change it with the small flag button at the bottom
+  right, the row of flags in the main menu or the command palette. The website's help pages are
   published in the four languages too.
 - Transitions can be rotated to flow **right to left** (`R`, **Direction** in the properties, or
   the right-click menu): the bar stands vertical, the link from the step before it enters on the

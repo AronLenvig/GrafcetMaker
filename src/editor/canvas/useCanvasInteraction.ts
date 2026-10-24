@@ -639,7 +639,11 @@ export function useCanvasInteraction(
           const b = elementBounds(g, geom, id);
           return b && rectsIntersect(b, r);
         });
-        ui.select(ids, g0.additive ? 'add' : 'replace');
+        // A step brings all its actions, also those reaching beyond the box.
+        const boxed = new Set(ids);
+        for (const a of Object.values(g.actions))
+          if (a.stepId !== null && boxed.has(a.stepId)) boxed.add(a.id);
+        ui.select([...boxed], g0.additive ? 'add' : 'replace');
         break;
       }
       case 'link': {

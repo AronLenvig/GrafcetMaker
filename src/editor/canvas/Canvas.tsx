@@ -19,7 +19,7 @@ import type { Grafcet, Id } from '@/core/model/types';
 import type { Value } from '@/core/simulation/engine';
 import { stateAt, useSim } from '../simulation/simStore';
 import { getProject, useDoc } from '../store/document';
-import { useUi } from '../store/uiStore';
+import { useUi, type EditTarget } from '../store/uiStore';
 import {
   ActionView,
   BarView,
@@ -47,6 +47,31 @@ import { ZoomControls } from './ZoomControls';
 import './canvas.css';
 
 const DEFAULT_VIEWPORT = { x: 0, y: 0, zoom: 1 };
+
+/**
+ * The grafcet as drawn while text is typed in place: the edited text is the draft, so the boxes
+ * around it grow as it is typed (only that element is a new object; the others keep their memo).
+ */
+function withDraft(
+  g: Grafcet | undefined,
+  t: EditTarget | null,
+  draft: string | null,
+): Grafcet | undefined {
+  if (!g || !t || draft === null) return g;
+  const a = g.actions[t.id];
+  if (a && (t.field === 'text' || t.field === 'condition'))
+    return { ...g, actions: { ...g.actions, [a.id]: { ...a, [t.field]: draft } } };
+  const tr = g.transitions[t.id];
+  if (tr && t.field === 'receptivity')
+    return { ...g, transitions: { ...g.transitions, [tr.id]: { ...tr, receptivity: draft } } };
+  const s = g.steps[t.id];
+  if (s && t.field === 'label')
+    return { ...g, steps: { ...g.steps, [s.id]: { ...s, label: draft } } };
+  const c = g.comments[t.id];
+  if (c && t.field === 'text')
+    return { ...g, comments: { ...g.comments, [c.id]: { ...c, text: draft } } };
+  return g;
+}
 /** Above this many elements, only what is (nearly) visible is rendered. */
 const CULL_THRESHOLD = 1000;
 
@@ -135,7 +160,10 @@ export function Canvas({
   const sim = useSimDisplay();
   const snapshot = useSim((s) => s.snapshot);
   const cursor = useSim((s) => s.cursor);
-  const g = useDoc((s) => (gid ? s.project.grafcets[gid] : undefined));
+  const docG = useDoc((s) => (gid ? s.project.grafcets[gid] : undefined));
+  const editing = useUi((s) => s.editing);
+  const draft = useInteraction((s) => s.draft);
+  const g = useMemo(() => withDraft(docG, editing, draft), [docG, editing, draft]);
   const viewport = useUi((s) => (gid ? s.viewports[gid] : undefined)) ?? DEFAULT_VIEWPORT;
   const tool = useUi((s) => s.tool);
   const showGrid = usePrefs((s) => s.showGrid);
@@ -236,12 +264,14 @@ export function Canvas({
     // While simulating: which signals of a condition are true or inputs, as a key that changes
     // only when they do (so unchanged elements keep their memoized drawing).
     const signalKey = sim ? signalKeys(g, sim.values, sim.active) : () => undefined;
+    // The field typed in place: the editor (in the focused pane) shows it instead of the element.
+    const editField = (id: Id) => (focused && editing?.id === id ? editing.field : undefined);
     return (
       <>
         {comments
           .filter((c) => inView(c.id))
           .map((c) => (
-            <CommentView key={c.id} comment={c} />
+            <CommentView key={c.id} comment={c} editing={editField(c.id)} />
           ))}
         {geom.links
           .filter((l) => linkInView(l.points))
@@ -257,12 +287,23 @@ export function Canvas({
         {transitions
           .filter((tr) => inView(tr.id))
           .map((tr) => (
-            <TransitionView key={tr.id} transition={tr} signals={signalKey(tr.receptivity)} />
+            <TransitionView
+              key={tr.id}
+              transition={tr}
+              signals={signalKey(tr.receptivity)}
+              editing={editField(tr.id)}
+            />
           ))}
         {steps
           .filter((s) => inView(s.id))
           .map((s) => (
-            <StepView key={s.id} step={s} active={sim?.active.has(s.id)} mark={markOf(s.id)} />
+            <StepView
+              key={s.id}
+              step={s}
+              active={sim?.active.has(s.id)}
+              mark={markOf(s.id)}
+              editing={editField(s.id)}
+            />
           ))}
         {actionBoxes.map(({ box, first }) => {
           const action = g.actions[box.id]!;
@@ -289,6 +330,7 @@ export function Canvas({
               height={box.height}
               first={first}
               on={on}
+              editing={editField(action.id)}
               conditionSignals={action.condition ? signalKey(action.condition) : undefined}
               live={
                 value === undefined
@@ -306,7 +348,7 @@ export function Canvas({
     );
     // cull is derived from cullKey; listing it would re-render on every pan.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [g, geom, cullKey, sim]);
+  }, [g, geom, cullKey, sim, editing, focused]);
 
   const enabled = useMemo(() => {
     if (!sim || !g) return new Set<string>();

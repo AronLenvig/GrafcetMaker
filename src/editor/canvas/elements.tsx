@@ -19,6 +19,7 @@ import {
   transitionTextAnchor,
 } from '@/core/layout/geometry';
 import type { Action, Comment, Step, Transition } from '@/core/model/types';
+import type { EditField } from '../store/uiStore';
 import { ExprText } from './ExprText';
 import { baseline } from './svg';
 
@@ -32,11 +33,14 @@ export const StepView = memo(function StepView({
   step,
   active,
   mark,
+  editing,
 }: {
   step: Step;
   /** Simulation: filled box plus a token dot, so activity never relies on color alone. */
   active?: boolean;
   mark?: StepMark;
+  /** The field typed in place: the editor shows its text instead (also on the elements below). */
+  editing?: EditField;
 }) {
   const { x, y } = step.position;
   const r = STEP_HALF;
@@ -82,10 +86,12 @@ export const StepView = memo(function StepView({
           d={`M${x - r + 6} ${y - r}V${y + r}M${x + r - 6} ${y - r}V${y + r}`}
         />
       )}
-      <text className="gm-step-number" x={x} y={baseline(y, STEP_FONT_SIZE)} textAnchor="middle">
-        {step.number}
-      </text>
-      {label && (
+      {editing !== 'number' && (
+        <text className="gm-step-number" x={x} y={baseline(y, STEP_FONT_SIZE)} textAnchor="middle">
+          {step.number}
+        </text>
+      )}
+      {label && editing !== 'label' && (
         <text
           className="gm-label gm-muted"
           x={label.x}
@@ -102,10 +108,12 @@ export const StepView = memo(function StepView({
 export const TransitionView = memo(function TransitionView({
   transition,
   signals,
+  editing,
 }: {
   transition: Transition;
   /** Simulation: the signals of the receptivity that are true or inputs (see ExprText). */
   signals?: string;
+  editing?: EditField;
 }) {
   const { t } = useTranslation();
   const hit = transitionHitRect(transition);
@@ -117,7 +125,7 @@ export const TransitionView = memo(function TransitionView({
       {/* Behind the text: a click anywhere on the bar, number or receptivity selects it. */}
       <rect className="gm-hit" x={hit.x} y={hit.y} width={hit.width} height={hit.height} />
       <rect className="gm-fill" x={bar.x} y={bar.y} width={bar.width} height={bar.height} />
-      {transition.number !== undefined && (
+      {transition.number !== undefined && editing !== 'number' && (
         <text
           className="gm-text gm-muted"
           x={num.x}
@@ -127,7 +135,7 @@ export const TransitionView = memo(function TransitionView({
           ({transition.number})
         </text>
       )}
-      {transition.receptivity.trim() ? (
+      {editing === 'receptivity' ? null : transition.receptivity.trim() ? (
         <ExprText source={transition.receptivity} x={text.x} y={text.y} signals={signals} />
       ) : (
         // Not written yet: a quiet placeholder (the Problems list still reports it).
@@ -149,6 +157,7 @@ export const ActionView = memo(function ActionView({
   on,
   live,
   conditionSignals,
+  editing,
 }: {
   action: Action;
   x: number;
@@ -162,6 +171,7 @@ export const ActionView = memo(function ActionView({
   live?: string;
   /** Simulation: the signals of its condition or event that are true or inputs (see ExprText). */
   conditionSignals?: string;
+  editing?: EditField;
 }) {
   const textX = x + ACTION_PAD + (action.kind === 'forcing' ? 3 : 0);
   const cy = y + height / 2;
@@ -185,12 +195,14 @@ export const ActionView = memo(function ActionView({
       {action.kind === 'forcing' && (
         <rect className="gm-thin" x={x + 3} y={y + 3} width={width - 6} height={height - 6} />
       )}
-      <text className="gm-text" x={textX} y={baseline(cy, FONT_SIZE)}>
-        {action.text}
-      </text>
+      {editing !== 'text' && (
+        <text className="gm-text" x={textX} y={baseline(cy, FONT_SIZE)}>
+          {action.text}
+        </text>
+      )}
       {decor.stem && <path className="gm-thin" d={decor.stem} />}
       {decor.mark && <path className="gm-fill" d={decor.mark} />}
-      {decor.text && (
+      {decor.text && editing !== 'condition' && (
         <ExprText
           source={decor.text.source}
           x={decor.text.x}
@@ -203,13 +215,19 @@ export const ActionView = memo(function ActionView({
   );
 });
 
-export const CommentView = memo(function CommentView({ comment }: { comment: Comment }) {
+export const CommentView = memo(function CommentView({
+  comment,
+  editing,
+}: {
+  comment: Comment;
+  editing?: EditField;
+}) {
   const r = commentRect(comment);
   const lines = comment.text.split('\n');
   return (
     <g data-el="comment" data-id={comment.id}>
       <rect className="gm-comment-box" x={r.x} y={r.y} width={r.width} height={r.height} rx={2} />
-      <text className="gm-text">
+      <text className="gm-text" visibility={editing ? 'hidden' : undefined}>
         {lines.map((line, i) => (
           <tspan key={i} x={r.x + 8} y={r.y + 6 + LINE_HEIGHT * i + LINE_HEIGHT * 0.75}>
             {line || ' '}

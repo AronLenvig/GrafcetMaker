@@ -29,6 +29,11 @@ export interface InteractionState {
   cursor: { at: Point; stepId: Id | null } | null;
   /** Where the context menu was opened (snapped, diagram units): "Add step here". */
   menuAt: Point | null;
+  /**
+   * The text being typed in place (the field of `ui.editing`), drawn live: the boxes around it grow
+   * as it is typed; the document changes only when the edit is applied.
+   */
+  draft: string | null;
 }
 
 export const useInteraction = create<InteractionState>(() => ({
@@ -40,4 +45,5 @@ export const useInteraction = create<InteractionState>(() => ({
   dropTarget: null,
   cursor: null,
   menuAt: null,
+  draft: null,
 }));

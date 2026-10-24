@@ -98,6 +98,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- Typing on the diagram looks like typing on the canvas: the text is edited in place, in the
+  diagram's own font and size, with only the caret showing (no box around it), and the box around
+  it (an action, a comment, the selection) grows as you type. Phones keep a field across the
+  canvas.
 - The tour has ten steps and covers today's screen: the diagram, tools, Simulate, hints, menu and
   project, problems / export / sharing, zoom and undo, grafcet tabs, panels, and help with the
   language and the command palette.

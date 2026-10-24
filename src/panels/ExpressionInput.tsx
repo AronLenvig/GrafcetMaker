@@ -139,6 +139,8 @@ export const ExpressionInput = forwardRef<
     style?: CSSProperties;
     className?: string;
     floating?: boolean;
+    /** Floating in place on the diagram, in its font, with no box: only the caret shows. */
+    seamless?: boolean;
     /** Open suggestions and diagnostics above the input (when it sits low in its container). */
     dropUp?: boolean;
     placeholder?: string;
@@ -158,6 +160,7 @@ export const ExpressionInput = forwardRef<
     style,
     className,
     floating,
+    seamless,
     dropUp,
     placeholder,
   },
@@ -327,7 +330,11 @@ export const ExpressionInput = forwardRef<
         autoCapitalize="off"
         autoCorrect="off"
         enterKeyHint="done"
-        className={floating ? 'gm-inline-editor static h-full w-full' : 'gm-input gm-input-mono'}
+        className={
+          floating
+            ? cx('gm-inline-editor static h-full w-full', seamless && 'gm-seamless')
+            : 'gm-input gm-input-mono'
+        }
         onChange={(e) => {
           // ^ is not part of the grammar: typed (also as a dead key) it becomes a rising edge.
           const raw = e.target.value;

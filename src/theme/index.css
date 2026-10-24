@@ -297,6 +297,27 @@
     outline: none;
   }
 
+  /*
+   * In place on the diagram (desktops): the diagram's font and size, no box, no padding; only the
+   * caret shows, as if typing on the canvas. An invalid value is underlined in red.
+   */
+  .gm-inline-editor.gm-seamless,
+  .gm-inline-editor.gm-seamless[aria-invalid='true'] {
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    caret-color: var(--ink);
+    overflow: hidden;
+    resize: none;
+    white-space: pre;
+  }
+
+  .gm-inline-editor.gm-seamless[aria-invalid='true'] {
+    text-decoration: underline wavy var(--danger);
+    text-decoration-skip-ink: none;
+  }
+
   /* Grey completion after the caret in expression fields (Tab or → accepts it). */
   .gm-ghost-text {
     z-index: 11;

@@ -2,10 +2,14 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ACTION_PAD,
+  CHAR_WIDTH_EM,
   FONT_SIZE,
+  LABEL_FONT_SIZE,
+  LINE_HEIGHT,
   STEP_FONT_SIZE,
-  commentRect,
   actionBoxOf,
+  actionDecor,
+  commentRect,
   stepLabelAnchor,
   transitionNumberAnchor,
   transitionTextAnchor,
@@ -17,6 +21,7 @@ import { ExpressionInput, type ExpressionInputHandle } from '@/panels/Expression
 import { continueAfter, nextAfter } from '../commands/edit';
 import { editExpression } from '../commands/variables';
 import { ui, useUi, type EditTarget, type Viewport } from '../store/uiStore';
+import { useInteraction } from './interactionStore';
 import { useCoarsePointer, useCompact } from '@/app/ui/media';
 import { canvasSizeOf } from './viewport';
 
@@ -90,20 +95,20 @@ export function applyEdit(t: EditTarget, raw: string): 'editor.invalidNumber' | 
   return null;
 }
 
-/** Where the edited text sits on screen: the editor overlays it exactly, same font and size. */
+/**
+ * Where the edited text is drawn on screen, with the diagram's own font size: the editor takes its
+ * place, so typing looks like typing on the diagram.
+ */
 interface Placement {
   /** Screen x where the text starts (left), is centered (center) or ends (right). */
   x: number;
-  /** Screen y of the text's vertical center (single line) or top (multi-line). */
+  /** Screen y of the text's vertical center (single line), or of the top of its first line. */
   y: number;
   align: 'left' | 'center' | 'right';
   fontSize: number;
-  minWidth: number;
-  multiline?: { width: number; height: number };
+  /** Multi-line text (comments): the height of a line on screen. */
+  lineHeight?: number;
 }
-
-const PAD = 6;
-const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
 function placement(
   g: Grafcet,
@@ -114,83 +119,88 @@ function placement(
   const z = v.zoom;
   const sx = (x: number) => (x - v.x) * z;
   const sy = (y: number) => (y - v.y) * z;
-  const fontSize = clamp(FONT_SIZE * z, 11, 26);
+  const fontSize = FONT_SIZE * z;
   const s = g.steps[t.id];
   if (s) {
-    if (t.field === 'number') {
+    if (t.field === 'number')
       return {
         x: sx(s.position.x),
         y: sy(s.position.y),
         align: 'center',
-        fontSize: clamp(STEP_FONT_SIZE * z, 12, 28),
-        minWidth: 56,
+        fontSize: STEP_FONT_SIZE * z,
       };
-    }
     const a = stepLabelAnchor(s);
-    return { x: sx(a.x), y: sy(a.y), align: 'right', fontSize, minWidth: 140 };
+    return { x: sx(a.x), y: sy(a.y), align: 'right', fontSize: LABEL_FONT_SIZE * z };
   }
   const tr = g.transitions[t.id];
   if (tr) {
-    const a = transitionTextAnchor(tr);
-    if (t.field === 'number') {
-      const n = transitionNumberAnchor(tr);
-      return {
-        x: sx(n.x),
-        y: sy(n.y),
-        align: 'right',
-        fontSize,
-        minWidth: 56,
-      };
-    }
-    return { x: sx(a.x), y: sy(a.y), align: 'left', fontSize, minWidth: 160 };
+    const a = t.field === 'number' ? transitionNumberAnchor(tr) : transitionTextAnchor(tr);
+    return { x: sx(a.x), y: sy(a.y), align: t.field === 'number' ? 'right' : 'left', fontSize };
   }
   const act = g.actions[t.id];
   if (act) {
     const box = actionBoxOf(g, geom, act.id);
     if (!box) return null;
-    if (t.field === 'condition')
-      return { x: sx(box.x + 16), y: sy(box.y - 9), align: 'left', fontSize, minWidth: 140 };
-    return {
-      x: sx(box.x + ACTION_PAD),
-      y: sy(box.y + box.height / 2),
-      align: 'left',
-      fontSize,
-      minWidth: Math.max(110, box.width * z - 2 * ACTION_PAD * z),
-    };
+    if (t.field === 'condition') {
+      // Where its condition is written, also while it is still empty.
+      const d = actionDecor({ ...act, condition: 'x' }, box).text!;
+      return { x: sx(d.x), y: sy(d.y), align: d.anchor === 'end' ? 'right' : 'left', fontSize };
+    }
+    const pad = ACTION_PAD + (act.kind === 'forcing' ? 3 : 0);
+    return { x: sx(box.x + pad), y: sy(box.y + box.height / 2), align: 'left', fontSize };
   }
   const c = g.comments[t.id];
   if (c) {
     const r = commentRect(c);
     return {
-      x: sx(r.x),
-      y: sy(r.y),
+      x: sx(r.x + 8),
+      y: sy(r.y + 6),
       align: 'left',
       fontSize,
-      minWidth: 220,
-      multiline: { width: Math.max(r.width * z, 240), height: Math.max(r.height * z, 72) },
+      lineHeight: LINE_HEIGHT * z,
     };
   }
   return null;
 }
 
-/** Screen box of the editor for the current text: grows with the text, never shrinks below minWidth. */
-function boxFor(
-  p: Placement,
-  value: string,
-): { left: number; top: number; width: number; height: number } {
-  if (p.multiline) {
+type Box = { left: number; top: number; width: number; height: number };
+
+/**
+ * Screen box of the editor for the current text: exactly the text, plus room for the caret. The
+ * text is always left-aligned in it; a right-aligned or centered text moves the box instead, so it
+ * grows to the left (or both ways) as it would on the diagram.
+ */
+function boxFor(p: Placement, value: string): Box {
+  const char = p.fontSize * CHAR_WIDTH_EM;
+  if (p.lineHeight) {
     const lines = value.split('\n');
     const longest = Math.max(...lines.map((l) => [...l].length));
-    const width = Math.max(p.multiline.width, longest * p.fontSize * 0.6 + 2 * PAD + p.fontSize);
-    const height = Math.max(p.multiline.height, lines.length * p.fontSize * 1.25 + 16);
-    return { left: p.x - 4, top: p.y - 4, width, height };
+    return {
+      left: p.x,
+      top: p.y,
+      width: (longest + 1) * char,
+      height: lines.length * p.lineHeight,
+    };
   }
-  const textW = [...value].length * p.fontSize * 0.6;
-  const width = Math.max(p.minWidth, textW + 2 * PAD + p.fontSize * 1.2);
-  const height = Math.round(p.fontSize * 1.8);
+  const textWidth = [...value].length * char;
+  const height = Math.round(p.fontSize * 1.3);
   const left =
-    p.align === 'left' ? p.x - PAD : p.align === 'center' ? p.x - width / 2 : p.x - width + PAD;
-  return { left, top: p.y - height / 2, width, height };
+    p.align === 'left' ? p.x : p.align === 'center' ? p.x - textWidth / 2 : p.x - textWidth;
+  return { left, top: p.y - height / 2, width: textWidth + char, height };
+}
+
+/** Phones: a boxed field across the canvas, large enough to read and keep on screen. */
+function phoneBoxFor(p: Placement, value: string, canvasWidth: number): Box & { fontSize: number } {
+  const fontSize = Math.min(26, Math.max(14, p.fontSize));
+  const lines = p.lineHeight ? value.split('\n').length : 1;
+  const height = p.lineHeight ? lines * fontSize * 1.25 + 16 : Math.round(fontSize * 1.8);
+  return {
+    left: 8,
+    top: p.lineHeight ? p.y - 4 : p.y - height / 2,
+    width: Math.max(120, canvasWidth - 16),
+    height,
+    fontSize,
+  };
 }
 
 /** Expression kind edited by a field, or null for plain text (numbers, labels, comments). */
@@ -274,15 +284,20 @@ function EditorField({
     }
   }, []);
 
+  // The diagram draws the typed text's surroundings live: boxes grow as it is typed.
+  useEffect(() => {
+    useInteraction.setState({ draft: value });
+  }, [value]);
+  useEffect(() => () => useInteraction.setState({ draft: null }), []);
+
   const place = placement(g, geom, target, viewport);
   if (!place) return null;
-  const box = boxFor(place, value);
-  if (compact && !place.multiline) {
-    // Phones: the whole canvas width, so the text and the symbol buttons stay on screen.
-    const width = canvasSizeOf(g.id).width;
-    box.left = 8;
-    box.width = Math.max(120, width - 16);
-  }
+  // Desktops: in place, in the diagram's font, only the caret shows. Phones: a boxed field across
+  // the canvas, so the text and the symbol buttons stay on screen above the keyboard.
+  const seamless = !compact;
+  const phone = seamless ? null : phoneBoxFor(place, value, canvasSizeOf(g.id).width);
+  const box = phone ?? boxFor(place, value);
+  const multiline = place.lineHeight !== undefined;
 
   const finish = (save: boolean) => {
     if (done.current) return;
@@ -326,8 +341,9 @@ function EditorField({
     top: box.top,
     width: box.width,
     height: box.height,
-    fontSize: place.fontSize,
-    textAlign: place.align,
+    ...(phone
+      ? { fontSize: phone.fontSize, textAlign: multiline ? 'left' : place.align }
+      : { fontSize: place.fontSize, lineHeight: `${place.lineHeight ?? box.height}px` }),
   };
   // Touch keyboards have no Esc: the key hint only shows with a mouse (errors always do).
   const hint =
@@ -335,7 +351,7 @@ function EditorField({
       <EditorHint
         left={box.left}
         top={box.top + box.height + 6}
-        multiline={!!place.multiline}
+        multiline={multiline}
         error={error}
         next={next}
       />
@@ -357,6 +373,7 @@ function EditorField({
           onBlur={onBlur}
           label={label}
           floating
+          seamless={seamless}
           dropUp={box.top > canvasSizeOf(g.id).height / 2}
           className="absolute z-10"
           style={style}
@@ -374,13 +391,13 @@ function EditorField({
     style,
     'aria-label': label,
     'aria-invalid': !!error,
-    className: 'gm-inline-editor',
+    className: seamless ? 'gm-inline-editor gm-seamless' : 'gm-inline-editor',
     spellCheck: false,
     autoComplete: 'off',
     // Phone keyboards: no capitals or "corrections" in step numbers and action code.
     autoCapitalize: prose ? undefined : 'off',
     autoCorrect: prose ? undefined : 'off',
-    enterKeyHint: place.multiline ? undefined : ('done' as const),
+    enterKeyHint: multiline ? undefined : ('done' as const),
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setValue(e.target.value);
       setError(null);
@@ -390,7 +407,7 @@ function EditorField({
       if (e.key === 'Escape') {
         e.preventDefault();
         finish(false);
-      } else if (e.key === 'Enter' && (!place.multiline || e.ctrlKey || e.metaKey)) {
+      } else if (e.key === 'Enter' && (!multiline || e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         finish(true);
       }
@@ -400,7 +417,7 @@ function EditorField({
 
   return (
     <>
-      {place.multiline ? <textarea {...common} /> : <input {...common} />}
+      {multiline ? <textarea {...common} wrap="off" /> : <input {...common} />}
       {hint}
     </>
   );

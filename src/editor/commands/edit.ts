@@ -212,7 +212,12 @@ export function deleteSelection(heal = true): void {
 export function selectAll(): void {
   const g = getActiveGrafcet();
   if (!g) return;
-  ui.select([...Object.keys(g.steps), ...Object.keys(g.transitions), ...Object.keys(g.comments)]);
+  ui.select([
+    ...Object.keys(g.steps),
+    ...Object.keys(g.transitions),
+    ...Object.keys(g.comments),
+    ...Object.keys(g.actions),
+  ]);
 }
 
 export function nudgeSelection(dx: number, dy: number): void {

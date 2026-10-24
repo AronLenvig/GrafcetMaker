@@ -291,7 +291,10 @@ function OverlayView({
     if (hover && (g.steps[hover] || g.transitions[hover])) handleIds.add(hover);
     if (link) handleIds.clear();
   }
-  const selLink = selectedLink ? geom.links.find((l) => l.key === selectedLink) : undefined;
+  // The selected link, and every link between two selected elements.
+  const selLinks = geom.links.filter(
+    (l) => l.key === selectedLink || (selection[l.transitionId] && selection[l.stepId]),
+  );
   // Ghosts of the selection with the Select tool only (a placing tool shows its own ghost).
   const ghostsOf =
     !readOnly &&
@@ -324,7 +327,9 @@ function OverlayView({
         const r = elementBounds(g, geom, id);
         return r ? <SelectionRect key={id} r={r} /> : null;
       })}
-      {selLink && <path className="gm-selected-link" d={pointsToPath(selLink.points)} />}
+      {selLinks.map((l) => (
+        <path key={l.key} className="gm-selected-link" d={pointsToPath(l.points)} />
+      ))}
       {targets.map((id) => {
         const r = elementBounds(g, geom, id);
         if (!r) return null;

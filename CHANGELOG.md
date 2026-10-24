@@ -170,6 +170,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- Selecting with a box or **Select all** also selects the actions of the steps (Select all left
+  out every action), and the links between selected elements are highlighted. Dragging one of
+  the selected actions moves the whole selection.
 - Dragging one of several selected actions without a step moves the whole selection, not that
   action alone.
 - Export: notes that read the same are listed once with their count (e.g. "4× An expression does

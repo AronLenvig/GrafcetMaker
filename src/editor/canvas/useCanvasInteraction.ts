@@ -440,11 +440,15 @@ export function useCanvasInteraction(
         if (Math.hypot(p.x - g0.start.x, p.y - g0.start.y) < g0.slop) return;
         const g = getProject().grafcets[gid];
         const selected = ui.selectedIds();
-        // An action dragged on its own can be dropped on a step; a free action dragged with other
-        // selected elements moves with them.
+        // An action dragged on its own can be dropped on a step; dragged with other selected
+        // elements, a free action moves with them, and so does an attached one whose step is in
+        // the selection.
         const pressed = g?.actions[g0.id];
         const withOthers =
-          pressed?.stepId === null && selected.length > 1 && selected.includes(pressed.id);
+          !!pressed &&
+          selected.length > 1 &&
+          selected.includes(pressed.id) &&
+          (pressed.stepId === null || selected.includes(pressed.stepId));
         if (pressed && !withOthers) {
           // Off its step while dragged, drawn where it was.
           const step = pressed.stepId === null ? undefined : g!.steps[pressed.stepId];
@@ -630,9 +634,7 @@ export function useCanvasInteraction(
           ...Object.keys(g.steps),
           ...Object.keys(g.transitions),
           ...Object.keys(g.comments),
-          ...Object.values(g.actions)
-            .filter((a) => a.stepId === null)
-            .map((a) => a.id),
+          ...Object.keys(g.actions),
         ].filter((id) => {
           const b = elementBounds(g, geom, id);
           return b && rectsIntersect(b, r);

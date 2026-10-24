@@ -1,8 +1,21 @@
 /** Routing of loop (upward) links: bottom lines clear of their own sequence, lanes, overrides. */
 import { describe, expect, it } from 'vitest';
 import { EXAMPLE_IDS, EXAMPLES } from '@/app/examples/examples';
-import { computeGeometry, stepRect, type LinkGeom } from '@/core/layout/geometry';
-import { addStep, moveElements } from '@/core/model/ops';
+import {
+  computeGeometry,
+  flowOf,
+  nextStepPosition,
+  portPosition,
+  ROW,
+  stepRect,
+  STUB,
+  transitionBar,
+  transitionHitRect,
+  transitionTextAnchor,
+  type LinkGeom,
+} from '@/core/layout/geometry';
+import { createProject } from '@/core/model/factory';
+import { addStep, appendAfterTransition, moveElements, setTransitionFlow } from '@/core/model/ops';
 import type { Grafcet, Point } from '@/core/model/types';
 
 const drill = (): Grafcet => {
@@ -85,5 +98,91 @@ describe('loop routing', () => {
     moveElements(g, [tid], 20, 40);
     expect(t.routing).toEqual({ sideX: -80, dropY: t.position.y + 300 });
     expect(loopFrom(g, '< 100').loop!.sideX).toBe(-80);
+  });
+});
+
+describe('transitions flowing right to left', () => {
+  /** Step 0 at (300, 100) → transition → step 1; the transition is turned right to left. */
+  function chart(t: Point, s1: Point): Grafcet {
+    const p = createProject('R');
+    const g = p.grafcets[p.grafcetOrder[0]!]!;
+    const s0 = Object.values(g.steps)[0]!;
+    s0.position = { x: 300, y: 100 };
+    const step1 = addStep(g, s1);
+    g.transitions.t = {
+      id: 't',
+      from: [s0.id],
+      to: [step1.id],
+      receptivity: 'start',
+      position: t,
+    };
+    setTransitionFlow(g, ['t'], 'left');
+    return g;
+  }
+  const link = (g: Grafcet, side: 'in' | 'out') =>
+    computeGeometry(g).links.find((l) => l.side === side)!;
+
+  it('enters on the right and leaves on the left, with arrows pointing left', () => {
+    const g = chart({ x: 200, y: 160 }, { x: 100, y: 240 });
+    const tr = g.transitions.t!;
+    expect(flowOf(tr)).toBe('left');
+    expect(link(g, 'in').points).toEqual([
+      { x: 300, y: 120 },
+      { x: 300, y: 160 },
+      { x: 200, y: 160 },
+    ]);
+    expect(link(g, 'in').flowArrow).toEqual({ x: 250, y: 160, dir: 'left' });
+    expect(link(g, 'out').points).toEqual([
+      { x: 200, y: 160 },
+      { x: 100, y: 160 },
+      { x: 100, y: 220 },
+    ]);
+    expect(link(g, 'out').flowArrow).toEqual({ x: 150, y: 160, dir: 'left' });
+    expect(portPosition(g, 't', 'in')).toEqual({ x: 210, y: 160 });
+    expect(portPosition(g, 't', 'out')).toEqual({ x: 190, y: 160 });
+  });
+
+  it('turned in place in a vertical sequence: lanes on both sides, never through the bar', () => {
+    const g = chart({ x: 300, y: 160 }, { x: 300, y: 220 + 40 });
+    const lane = 300 + STUB;
+    expect(link(g, 'in').points).toEqual([
+      { x: 300, y: 120 },
+      { x: 300, y: 130 },
+      { x: lane, y: 130 },
+      { x: lane, y: 160 },
+      { x: 300, y: 160 },
+    ]);
+    expect(link(g, 'out').points[1]).toEqual({ x: 300 - STUB, y: 160 });
+    expect(link(g, 'out').points.at(-1)).toEqual({ x: 300, y: 240 });
+  });
+
+  it('stays top to bottom with AND links, and Enter adds the next step below its left end', () => {
+    const g = chart({ x: 200, y: 160 }, { x: 100, y: 240 });
+    const tr = g.transitions.t!;
+    expect(transitionBar(tr)).toMatchObject({ width: 3, height: 24 });
+    const other = addStep(g, { x: 400, y: 240 });
+    tr.to.push(other.id);
+    expect(flowOf(tr)).toBe('down');
+    tr.to.pop();
+    tr.to = [];
+    expect(nextStepPosition(tr)).toEqual({ x: 200 - ROW, y: 160 + ROW });
+    const r = appendAfterTransition(g, 't')!;
+    expect(g.steps[r.stepId]!.position).toEqual({ x: 200 - ROW, y: 160 + ROW });
+    setTransitionFlow(g, ['t'], 'down');
+    expect(tr.flow).toBeUndefined();
+  });
+
+  it('a click on the receptivity hits the transition', () => {
+    const g = chart({ x: 200, y: 160 }, { x: 100, y: 240 });
+    for (const flow of ['left', 'down'] as const) {
+      setTransitionFlow(g, ['t'], flow);
+      const tr = g.transitions.t!;
+      const a = transitionTextAnchor(tr);
+      const hit = transitionHitRect(tr);
+      const inside = (x: number, y: number) =>
+        x >= hit.x && x <= hit.x + hit.width && y >= hit.y && y <= hit.y + hit.height;
+      expect(inside(a.x + 20, a.y)).toBe(true);
+      expect(inside(tr.position.x, tr.position.y + 9)).toBe(true);
+    }
   });
 });

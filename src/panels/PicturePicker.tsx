@@ -25,7 +25,7 @@ export function PicturePicker<T extends string>({
   value: T;
   options: readonly PictureOption<T>[];
   onChange: (value: T) => void;
-  columns?: 3 | 4;
+  columns?: 2 | 3 | 4;
 }) {
   const labelId = useId();
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -42,7 +42,10 @@ export function PicturePicker<T extends string>({
       <div
         role="radiogroup"
         aria-labelledby={labelId}
-        className={cx('grid gap-1', columns === 4 ? 'grid-cols-4' : 'grid-cols-3')}
+        className={cx(
+          'grid gap-1',
+          columns === 4 ? 'grid-cols-4' : columns === 2 ? 'grid-cols-2' : 'grid-cols-3',
+        )}
       >
         {options.map((o, i) => {
           const selected = value === o.value;

@@ -7,7 +7,7 @@ import { cachedBool } from '@/core/expr/cache';
 import { buildEnv } from '@/core/expr/check';
 import { formatTextbook, runsToPlainText } from '@/core/expr/format';
 import { stateValue, waitingTerms, type TimerNode } from '@/core/expr/signals';
-import { FONT_SIZE, transitionTextAnchor } from '@/core/layout/geometry';
+import { flowOf, FONT_SIZE, transitionBar, transitionTextAnchor } from '@/core/layout/geometry';
 import type { Grafcet, Id, Transition } from '@/core/model/types';
 import type { Value } from '@/core/simulation/engine';
 import { getProject } from '../store/document';
@@ -111,6 +111,9 @@ export function SimWhy({
   if (!tr) return null;
   const message = explain(t, g, tr, sim, enabled.has(tr.id), time, activatedAt, textbook);
   const at = transitionTextAnchor(tr);
+  // Under the receptivity; under the bar when the text is above it (right to left).
+  const bar = transitionBar(tr);
+  const below = flowOf(tr) === 'left' ? bar.y + bar.height : at.y + FONT_SIZE / 2;
   const z = viewport.zoom;
   return (
     <div
@@ -118,7 +121,7 @@ export function SimWhy({
       className="pointer-events-none absolute z-10 max-w-80 rounded-md border border-border bg-surface px-2 py-1 text-xs text-text shadow-pop"
       style={{
         left: (at.x - viewport.x) * z,
-        top: (at.y - viewport.y) * z + (FONT_SIZE * z) / 2 + 6,
+        top: (below - viewport.y) * z + 6,
       }}
     >
       {message}

@@ -4,6 +4,7 @@ import {
   computeGeometry,
   elementBounds,
   layoutActions,
+  linkArrow,
   rectsIntersect,
   type ActionBox,
   type Rect,
@@ -245,13 +246,7 @@ export function Canvas({
         {geom.links
           .filter((l) => linkInView(l.points))
           .map((l) => (
-            <LinkView
-              key={l.key}
-              linkKey={l.key}
-              d={pointsToPath(l.points)}
-              arrowX={l.arrow?.x}
-              arrowY={l.arrow?.y}
-            />
+            <LinkView key={l.key} linkKey={l.key} d={pointsToPath(l.points)} arrow={linkArrow(l)} />
           ))}
         {geom.bars.map((b) => (
           <BarView key={b.key} x1={b.x1} x2={b.x2} y={b.y} stem={pointsToPath(b.stem)} />

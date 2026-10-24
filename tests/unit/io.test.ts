@@ -33,6 +33,7 @@ function sampleProject() {
     to: [s0.id],
     receptivity: '3s/X1',
     position: { x: 200, y: 280 },
+    flow: 'left',
     routing: { sideX: 120, dropY: 400 },
   };
   g.actions.a1 = {
@@ -66,6 +67,14 @@ describe('project file round-trip', () => {
     const loaded = parseProjectFile(text);
     expect(loaded).toEqual(p);
     expect(serializeProject(loaded)).toBe(text);
+  });
+
+  it('opens version 2 files unchanged (version 3 added right-to-left transitions)', () => {
+    const p = sampleProject();
+    delete p.grafcets[p.grafcetOrder[0]!]!.transitions.t2!.flow;
+    const old = JSON.parse(serializeProject(p)) as Record<string, unknown>;
+    old.schemaVersion = 2;
+    expect(parseProjectFile(JSON.stringify(old))).toEqual(p);
   });
 
   it('writes keys in canonical schema order regardless of in-memory order', () => {

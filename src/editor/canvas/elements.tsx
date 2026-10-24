@@ -10,12 +10,12 @@ import {
   LINE_HEIGHT,
   STEP_FONT_SIZE,
   STEP_HALF,
-  TRANSITION_THICKNESS,
-  TRANSITION_WIDTH,
   actionDecor,
   commentRect,
   stepLabelAnchor,
+  transitionBar,
   transitionHitRect,
+  transitionNumberAnchor,
   transitionTextAnchor,
 } from '@/core/layout/geometry';
 import type { Action, Comment, Step, Transition } from '@/core/model/types';
@@ -108,24 +108,20 @@ export const TransitionView = memo(function TransitionView({
   signals?: string;
 }) {
   const { t } = useTranslation();
-  const { x, y } = transition.position;
   const hit = transitionHitRect(transition);
+  const bar = transitionBar(transition);
   const text = transitionTextAnchor(transition);
+  const num = transitionNumberAnchor(transition);
   return (
     <g data-el="transition" data-id={transition.id}>
+      {/* Behind the text: a click anywhere on the bar, number or receptivity selects it. */}
       <rect className="gm-hit" x={hit.x} y={hit.y} width={hit.width} height={hit.height} />
-      <rect
-        className="gm-fill"
-        x={x - TRANSITION_WIDTH / 2}
-        y={y - TRANSITION_THICKNESS / 2}
-        width={TRANSITION_WIDTH}
-        height={TRANSITION_THICKNESS}
-      />
+      <rect className="gm-fill" x={bar.x} y={bar.y} width={bar.width} height={bar.height} />
       {transition.number !== undefined && (
         <text
           className="gm-text gm-muted"
-          x={x - TRANSITION_WIDTH / 2 - 6}
-          y={baseline(y, FONT_SIZE)}
+          x={num.x}
+          y={baseline(num.y, FONT_SIZE)}
           textAnchor="end"
         >
           ({transition.number})
@@ -227,24 +223,18 @@ export const CommentView = memo(function CommentView({ comment }: { comment: Com
 export const LinkView = memo(function LinkView({
   linkKey,
   d,
-  arrowX,
-  arrowY,
+  arrow,
 }: {
   linkKey: string;
   d: string;
-  arrowX?: number;
-  arrowY?: number;
+  /** Path of its direction arrow (loops, links of right-to-left transitions). */
+  arrow?: string;
 }) {
   return (
     <g data-el="link" data-key={linkKey}>
       <path className="gm-hit-line" d={d} />
       <path className="gm-line" d={d} />
-      {arrowX !== undefined && arrowY !== undefined && (
-        <path
-          className="gm-fill"
-          d={`M${arrowX} ${arrowY - 6}L${arrowX - 4.5} ${arrowY + 3}L${arrowX + 4.5} ${arrowY + 3}Z`}
-        />
-      )}
+      {arrow && <path className="gm-fill" d={arrow} />}
     </g>
   );
 });

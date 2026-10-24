@@ -41,6 +41,7 @@ const STEP: Hint[] = [
 const TRANSITION: Hint[] = [
   ['F2', 'editReceptivity'],
   ['Enter', 'appendFromTransition'],
+  ['R', 'rotate'],
   ['@dragHandle', 'connectToStep'],
   ['@edges', 'edges'],
   ['Delete', 'deleteHeal'],

@@ -130,6 +130,13 @@ A new project contains grafcet `G1` with initial step 0.
 - **Undo / redo**: `Ctrl+Z`, `Ctrl+Shift+Z` (or `Ctrl+Y`). A whole drag is one undo step. The Edit
   menu names the change that will be undone.
 
+**Rotate a transition** with `R` (or **Direction** in its properties, or the right-click menu):
+it then flows **right to left**. The bar stands vertical, the link from the step before it
+enters on the right and the link to the next step leaves on the left, both with an arrow, and the
+receptivity is written above. Use it for return paths and side branches drawn sideways. A
+transition with parallel (AND) links is always drawn top to bottom. Click a transition anywhere on
+its bar, number or receptivity to select it.
+
 Upward links (loops) are routed along the left side and drawn with an arrow, as IEC 60848
 requires. A loop drops below its source far enough not to cross its own sequence: a loop from a
 branch on the right passes below the steps and wires to its left instead of through them. Only

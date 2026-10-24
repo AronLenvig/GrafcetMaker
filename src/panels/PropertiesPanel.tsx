@@ -24,6 +24,8 @@ import { useProblems } from '@/editor/validation/problems';
 import { tDynamic } from '@/i18n/dynamic';
 import { ActionKindIcon, ActionKindPicker } from './ActionKindPicker';
 import { StepKindPicker } from './StepKindPicker';
+import { TransitionFlowPicker } from './TransitionFlowPicker';
+import { canFlowLeft, setTransitionFlow } from '@/core/model/ops';
 import { CommitField, ExpressionField, Section } from './fields';
 import { QuickFixButton, SeverityIcon } from './ProblemsPanel';
 
@@ -366,6 +368,16 @@ function TransitionProps({ g, transition }: { g: Grafcet; transition: Transition
           })
         }
       />
+      {canFlowLeft(transition) ? (
+        <TransitionFlowPicker
+          value={transition.flow === 'left' ? 'left' : 'down'}
+          onChange={(flow) =>
+            editActive('history.rotate', (gd) => setTransitionFlow(gd, [transition.id], flow))
+          }
+        />
+      ) : (
+        <p className="text-xs text-muted">{t('props.transition.flowAnd')}</p>
+      )}
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
         <dt className="text-muted">{t('props.transition.upstream')}</dt>
         <dd>{list(transition.from)}</dd>

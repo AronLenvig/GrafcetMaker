@@ -50,6 +50,8 @@ import {
   nudgeSelection,
   pasteFromSystem,
   selectAll,
+  canRotateSelection,
+  rotateSelection,
   toggleInitialStep,
 } from './edit';
 import { removeUnusedVariables } from './variables';
@@ -308,6 +310,14 @@ export const COMMANDS: Command[] = [
     group: 'edit',
     run: toggleInitialStep,
     enabled: hasSelection,
+  },
+  {
+    id: 'edit.rotate',
+    label: 'edit.rotate',
+    group: 'edit',
+    keys: ['R'],
+    run: rotateSelection,
+    enabled: canRotateSelection,
   },
   nudge('nudgeLeft', 'ArrowLeft', -1, 0),
   nudge('nudgeRight', 'ArrowRight', 1, 0),

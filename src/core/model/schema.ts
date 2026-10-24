@@ -52,6 +52,13 @@ export const transitionSchema = z.object({
   /** Center of the transition bar, in diagram units. */
   position: point,
   /**
+   * Direction of the flow through the transition. Absent: top to bottom (horizontal bar, upstream
+   * links enter from above, downstream links leave below). `left`: right to left (vertical bar,
+   * upstream links enter on the right, downstream links leave on the left). A transition with
+   * AND links (several upstream or downstream steps) is always drawn top to bottom.
+   */
+  flow: z.literal('left').optional(),
+  /**
    * Manual routing of the upward (loop) links of this transition: x of their vertical segment
    * (side lane) and y of their bottom line. Missing values are routed automatically.
    */

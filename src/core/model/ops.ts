@@ -2,7 +2,7 @@
  * Editing operations. Each mutates a Grafcet in place and is meant to run inside an Immer recipe
  * (`execute(label, p => op(p.grafcets[id], ...))`), which turns the mutation into undoable patches.
  */
-import { PITCH, ROW } from '../layout/geometry';
+import { nextStepPosition, PITCH, ROW } from '../layout/geometry';
 import { createStep, newId } from './factory';
 import { indexGrafcet } from './graph';
 import type {
@@ -165,18 +165,36 @@ export function appendAfterTransition(
 ): { stepId: Id; transitionId?: Id } | null {
   const t = g.transitions[transitionId];
   if (!t) return null;
-  const { x, y } = t.position;
+  // Below the transition, or below the left end of one flowing right to left.
+  const at = nextStepPosition(t);
   const prev = Math.max(-1, ...t.from.map((id) => g.steps[id]?.number ?? -1));
   if (t.to.length === 0) {
-    const ns = addStep(g, { x, y: y + ROW }, 'normal', preferredStepNumber(g, prev));
+    const ns = addStep(g, at, 'normal', preferredStepNumber(g, prev));
     t.to = [ns.id];
     return { stepId: ns.id };
   }
-  shiftBelow(g, y, PITCH);
-  const ns = addStep(g, { x, y: y + ROW }, 'normal', preferredStepNumber(g, prev));
-  const t2 = addTransition(g, { x, y: y + PITCH }, [ns.id], t.to);
+  shiftBelow(g, t.position.y, PITCH);
+  const ns = addStep(g, at, 'normal', preferredStepNumber(g, prev));
+  const t2 = addTransition(g, { x: at.x, y: at.y + ROW }, [ns.id], t.to);
   t.to = [ns.id];
   return { stepId: ns.id, transitionId: t2.id };
+}
+
+/** Transitions that can flow right to left: at most one upstream and one downstream step. */
+export const canFlowLeft = (t: Transition) => t.from.length <= 1 && t.to.length <= 1;
+
+/**
+ * Turns transitions to flow right to left (vertical bar, upstream links entering on the right,
+ * downstream links leaving on the left) or top to bottom. Transitions with AND links stay top to
+ * bottom.
+ */
+export function setTransitionFlow(g: Grafcet, ids: Iterable<Id>, flow: 'down' | 'left'): void {
+  for (const id of ids) {
+    const t = g.transitions[id];
+    if (!t) continue;
+    if (flow === 'down') delete t.flow;
+    else if (canFlowLeft(t)) t.flow = 'left';
+  }
 }
 
 /** Links step → transition or transition → step. Any other pair is unrepresentable: returns false. */

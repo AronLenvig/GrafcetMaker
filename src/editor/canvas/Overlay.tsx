@@ -6,6 +6,7 @@ import {
   ACTION_MIN_WIDTH,
   elementBounds,
   layoutActions,
+  nextStepPosition,
   PITCH,
   portPosition,
   ROW,
@@ -195,12 +196,14 @@ function SelectionGhosts({ g, geom, id }: { g: Grafcet; geom: GrafcetGeometry; i
   }
   if (tr && tr.to.length === 0) {
     const { x, y } = tr.position;
+    const at = nextStepPosition(tr);
     const prev = Math.max(-1, ...tr.from.map((s) => g.steps[s]?.number ?? -1));
     out.push(
       <g key="step" className="gm-ghost gm-ghost-hit" data-ghost="sequence">
         <title>{t('canvas.ghost.step')}</title>
-        <path d={`M${x} ${y}V${y + ROW - STEP_HALF}`} />
-        <GhostStep at={{ x, y: y + ROW }} number={preferredStepNumber(g, prev)} />
+        {/* Below the bar, or from its left end down (right to left). */}
+        <path d={`M${x} ${y}H${at.x}V${at.y - STEP_HALF}`} />
+        <GhostStep at={at} number={preferredStepNumber(g, prev)} />
       </g>,
     );
   }

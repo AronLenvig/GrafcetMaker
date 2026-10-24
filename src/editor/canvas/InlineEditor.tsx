@@ -4,10 +4,10 @@ import {
   ACTION_PAD,
   FONT_SIZE,
   STEP_FONT_SIZE,
-  TRANSITION_WIDTH,
   commentRect,
   actionBoxOf,
   stepLabelAnchor,
+  transitionNumberAnchor,
   transitionTextAnchor,
   type GrafcetGeometry,
 } from '@/core/layout/geometry';
@@ -133,9 +133,10 @@ function placement(
   if (tr) {
     const a = transitionTextAnchor(tr);
     if (t.field === 'number') {
+      const n = transitionNumberAnchor(tr);
       return {
-        x: sx(tr.position.x - TRANSITION_WIDTH / 2 - 6),
-        y: sy(a.y),
+        x: sx(n.x),
+        y: sy(n.y),
         align: 'right',
         fontSize,
         minWidth: 56,

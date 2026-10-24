@@ -8,6 +8,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- Transitions can be rotated to flow **right to left** (`R`, **Direction** in the properties, or
+  the right-click menu): the bar stands vertical, the link from the step before it enters on the
+  right and the link to the next step leaves on the left, both with an arrow, as IEC 60848 asks for
+  links not drawn top to bottom. File format version 3; version 2 files open unchanged.
+- A click anywhere on a transition's receptivity or number, or near its bar, selects it: the thin
+  bar is no longer hard to hit.
 - Easier to find for search engines and AI assistants: the home page carries a full description
   (features, supported GRAFCET elements, simulation, exports and the PLC tools that take them,
   examples, frequently asked questions) for readers that do not run JavaScript, the help pages are

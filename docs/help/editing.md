@@ -14,7 +14,12 @@ canvas lists the keys that apply to the current selection.
 | <kbd>O</kbd>                   | add an alternative branch (OR)                               | add an alternative transition (bypass)      |
 | <kbd>L</kbd> then click a step | loop back to that step                                       | link to that step (if it leads nowhere yet) |
 | <kbd>F2</kbd> or double-click  | edit the number                                              | edit the receptivity                        |
+| <kbd>R</kbd>                   | —                                                            | rotate: top to bottom or right to left      |
 | <kbd>Del</kbd>                 | delete and reconnect the sequence                            | delete                                      |
+
+A transition turned **right to left** has a vertical bar: the link from the step before it enters
+on the right and the link to the next step leaves on the left, with arrows. Click a transition
+anywhere on its bar, number or receptivity to select it.
 
 With nothing selected, <kbd>Enter</kbd> continues the sequence from its last step. <kbd>Enter</kbd> on
 a step that already continues inserts the new transition and step and moves everything below

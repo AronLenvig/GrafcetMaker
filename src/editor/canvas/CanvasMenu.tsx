@@ -36,6 +36,7 @@ const MENUS: Record<MenuKind, readonly string[]> = {
   transition: [
     'edit.rename',
     'insert.append',
+    'edit.rotate',
     'autoRoute',
     '-',
     'edit.cut',

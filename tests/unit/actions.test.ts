@@ -14,6 +14,7 @@ import {
   pasteElements,
   serializeClipboard,
 } from '@/core/model/clipboard';
+import { SCHEMA_VERSION } from '@/core/model/constants';
 import { createGrafcet, createProject } from '@/core/model/factory';
 import {
   addAction,
@@ -93,11 +94,11 @@ describe('unattached actions', () => {
     expect(g.actions[free.id]).toBeUndefined();
   });
 
-  it('are saved (format version 2) and loaded back identically', () => {
+  it('are saved (current format version) and loaded back identically', () => {
     const { p, g } = setup();
     addFreeAction(g, { x: 400, y: 300 }, 'storedOnActivation', 'C := 0');
     const text = serializeProject(p);
-    expect(JSON.parse(text).schemaVersion).toBe(2);
+    expect(JSON.parse(text).schemaVersion).toBe(SCHEMA_VERSION);
     expect(parseProjectFile(text)).toEqual(p);
   });
 

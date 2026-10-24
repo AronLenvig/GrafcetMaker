@@ -9,9 +9,10 @@ The authoritative definition is the Zod schema in
 
 ## Versioning
 
-- `schemaVersion` (integer) identifies the format. Current version: **2**.
+- `schemaVersion` (integer) identifies the format. Current version: **3**.
 - History: **1** first release; **2** actions may have no step (`stepId: null` with a
-  `position`). Version 1 files are upgraded unchanged.
+  `position`); **3** transitions may flow right to left (`flow: 'left'`). Older files are upgraded
+  unchanged.
 - Older files are upgraded on load through a migration chain
   ([`src/core/io/migrations.ts`](../src/core/io/migrations.ts)); each migration upgrades exactly
   one version.
@@ -132,7 +133,7 @@ equal the object's `id`.
 
 ```ts
 Project {
-  schemaVersion: 2
+  schemaVersion: 3
   id: string
   name: string
   meta: { author, company, revision, createdAt, updatedAt }   // ISO 8601 timestamps
@@ -177,6 +178,9 @@ Transition {
   to: Id[]                    // downstream steps; [] = sink transition; 2+ = AND divergence
   receptivity: string         // expression, see semantics.md
   position: { x, y }          // center of the transition bar
+  flow?: 'left'               // right to left: vertical bar, upstream links enter on the right,
+                              //   downstream links leave on the left (absent: top to bottom;
+                              //   a transition with AND links is always drawn top to bottom)
   routing?: {                 // manual routing of upward (loop) links; missing = automatic
     sideX?: number            //   x of their vertical segment (side lane)
     dropY?: number            //   y of their bottom line (kept below the source)

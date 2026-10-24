@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePrefs } from '@/app/prefs';
-import { LABEL_FONT_SIZE, STEP_HALF, TRANSITION_WIDTH } from '@/core/layout/geometry';
+import { flowOf, LABEL_FONT_SIZE, STEP_HALF, transitionBar } from '@/core/layout/geometry';
 import type { Grafcet, Id } from '@/core/model/types';
 import { useSim } from '../simulation/simStore';
 import { baseline } from './svg';
@@ -38,14 +38,17 @@ function SimOverlayView({
     <g className="gm-overlay">
       {Object.values(g.transitions).map((tr) => {
         if (!enabled.has(tr.id)) return null;
-        const x = tr.position.x - TRANSITION_WIDTH / 2 - 4;
+        // A triangle pointing at the bar: from its left end, or from below a vertical bar.
+        const bar = transitionBar(tr);
+        const x = bar.x - 4;
         const y = tr.position.y;
+        const by = bar.y + bar.height + 4;
+        const d =
+          flowOf(tr) === 'left'
+            ? `M${tr.position.x - 5} ${by + 8}L${tr.position.x} ${by}L${tr.position.x + 5} ${by + 8}Z`
+            : `M${x - 8} ${y - 5}L${x} ${y}L${x - 8} ${y + 5}Z`;
         return (
-          <path
-            key={tr.id}
-            className="gm-enabled"
-            d={`M${x - 8} ${y - 5}L${x} ${y}L${x - 8} ${y + 5}Z`}
-          >
+          <path key={tr.id} className="gm-enabled" d={d}>
             <title>{t('simulation.enabled')}</title>
           </path>
         );
@@ -55,14 +58,15 @@ function SimOverlayView({
         flash.ids.map((id) => {
           const tr = g.transitions[id];
           if (!tr) return null;
+          const bar = transitionBar(tr);
           return (
             <rect
               key={`${flash.at}:${id}`}
               className="gm-fired"
-              x={tr.position.x - TRANSITION_WIDTH / 2 - 4}
-              y={tr.position.y - 6}
-              width={TRANSITION_WIDTH + 8}
-              height={12}
+              x={bar.x - 4.5}
+              y={bar.y - 4.5}
+              width={bar.width + 9}
+              height={bar.height + 9}
               rx={3}
             />
           );

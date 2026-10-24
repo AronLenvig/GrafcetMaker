@@ -43,7 +43,7 @@ Project { schemaVersion; id; name; meta{author,company,revision,createdAt,update
 Variable { id; name; type:'BOOL'|'INT'|'REAL'|'TIME'; direction:'input'|'output'|'internal'; initialValue?; address?; comment? }
 Grafcet { id; name; kind:'partial'|'macroExpansion'|'enclosed'; steps; transitions; actions; comments }
 Step { id; number /*unique per grafcet*/; kind:'normal'|'initial'|'macro'|'enclosing'; label?; position; refGrafcetId? }
-Transition { id; number?; from: Id[] /*[]=source*/; to: Id[] /*[]=sink*/; receptivity: string; position; routing? }
+Transition { id; number?; from: Id[] /*[]=source*/; to: Id[] /*[]=sink*/; receptivity: string; position; flow?: 'left' /*right to left: in on the right, out on the left*/; routing? }
 Action { id; stepId; order; kind:'continuous'|'storedOnActivation'|'storedOnDeactivation'|'storedOnEvent'|'forcing'; text; condition? }
 ```
 Divergence/convergence are derived, not stored: step→2+ transitions = OR div (single bar); 2+ transitions→step = OR conv; transition.to.length>1 = AND div (double bar); transition.from.length>1 = AND conv. Step↔step or transition↔transition links are unrepresentable.
@@ -80,7 +80,7 @@ UI: Problems panel grouped/sorted; click → pan/zoom/flash element; on-element 
 - One `<svg>` with viewBox pan/zoom; separate static and overlay layers; `React.memo` per element; cull off-screen beyond ~1000 elements. 60 fps at 500 steps.
 - Dimensions (grid 10): step 40×40, initial inner gap 4, transition bar 24×3, step↔transition spacing 40, action box height 40, double-bar gap 4. Orthogonal links; upward links get arrows.
 - Link drag highlights only valid targets (step→transition, transition→step).
-- Shortcuts: `Enter` append transition+step (auto-number, focus receptivity) · `A` action · `P` parallel branch · `O` alternative branch · `L`+click loop back · `F2` edit · `Del` delete and heal sequence · `Ctrl/Cmd+K` command palette · standard undo/redo/copy/paste (cross-project).
+- Shortcuts: `Enter` append transition+step (auto-number, focus receptivity) · `A` action · `P` parallel branch · `O` alternative branch · `L`+click loop back · `F2` edit · `R` rotate transition (top to bottom ↔ right to left) · `Del` delete and heal sequence · `Ctrl/Cmd+K` command palette · standard undo/redo/copy/paste (cross-project).
 - Auto-layout on demand only: BFS ranks from initial steps ignoring back-edges, branch columns centered under divergence, back-edges routed at sides, optional selection-only.
 - Features: multiple partial grafcets (tabs), macro-steps with expansion sheets, enclosing steps, comments, renumber, variable table with autocomplete + rename refactor.
 

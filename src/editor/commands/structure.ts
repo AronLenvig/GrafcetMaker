@@ -124,6 +124,8 @@ export function autoLayoutActive(selectionOnly = false): void {
       if (tr) {
         tr.position = p;
         delete tr.routing;
+        // The layout runs top to bottom.
+        delete tr.flow;
       }
     }
   });

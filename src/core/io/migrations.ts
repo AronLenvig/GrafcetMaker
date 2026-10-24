@@ -9,6 +9,8 @@ export type Migration = (doc: RawDocument) => RawDocument;
 export const MIGRATIONS: Readonly<Record<number, Migration>> = {
   // 2: actions may be unattached (stepId null, with a position). Every version 1 file is valid.
   1: (doc) => doc,
+  // 3: transitions may flow right to left (`flow: 'left'`). Every version 2 file is valid.
+  2: (doc) => doc,
 };
 
 export class MigrationError extends Error {

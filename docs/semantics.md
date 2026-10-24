@@ -221,6 +221,18 @@ hand-verified charts (`tests/unit/simulation.test.ts`).
 
 ### Symbols
 
+- Transition flowing **right to left** (`flow: 'left'`, `R`): the bar is vertical, the link from
+  its upstream step enters on the **right** and the link to its downstream step leaves on the
+  **left**; only this direction is offered, so input and output can never be mixed up. Both links
+  carry an arrow pointing left (IEC 60848: links not drawn top to bottom show their direction).
+  The receptivity is written above the incoming link, the number above on the left. A link comes
+  straight from a step above on the right (down, then left) and goes straight to a step below on
+  the left (left, then down); otherwise it runs along a lane 20 units beside the bar. A transition
+  with AND links (several upstream or downstream steps) is always drawn top to bottom, its double
+  bars being horizontal; it keeps its direction for when the AND links are gone. Auto-layout turns
+  transitions back to top to bottom. The direction is drawing only: evolution and generated code
+  are the same.
+- A transition is selected by a click anywhere on its bar (with a margin), number or receptivity.
 - Macro-step: step square with a horizontal line near its top and bottom edges (IEC 60848).
 - Enclosing step: step square with a vertical line near its left and right edges. This is chosen
   to be distinct from the macro-step; it was not checked against the figure of the standard.

@@ -18,8 +18,7 @@ import {
   LINE_HEIGHT,
   STEP_FONT_SIZE,
   STEP_HALF,
-  TRANSITION_THICKNESS,
-  TRANSITION_WIDTH,
+  arrowPath,
   commentRect,
   computeGeometry,
   grafcetBounds,
@@ -27,6 +26,8 @@ import {
   type ActionBox,
   type GrafcetGeometry,
   stepLabelAnchor,
+  transitionBar,
+  transitionNumberAnchor,
   transitionTextAnchor,
   type Rect,
 } from '../layout/geometry';
@@ -211,10 +212,8 @@ function render(
   for (const l of geom.links) {
     if (!keep(l.stepId) || !keep(l.transitionId)) continue;
     w.line(path(l.points));
-    if (l.arrow)
-      w.fill(
-        `M${n(l.arrow.x)} ${n(l.arrow.y - 6)}L${n(l.arrow.x - 4.5)} ${n(l.arrow.y + 3)}L${n(l.arrow.x + 4.5)} ${n(l.arrow.y + 3)}Z`,
-      );
+    const arrow = l.flowArrow ?? (l.arrow && { ...l.arrow, dir: 'up' as const });
+    if (arrow) w.fill(arrowPath(arrow, arrow.dir));
   }
   for (const b of geom.bars) {
     if (!keep(b.transitionId)) continue;
@@ -226,23 +225,11 @@ function render(
 
   for (const t of Object.values(g.transitions)) {
     if (!keep(t.id)) continue;
-    const { x, y } = t.position;
-    w.rect(
-      {
-        x: x - TRANSITION_WIDTH / 2,
-        y: y - TRANSITION_THICKNESS / 2,
-        width: TRANSITION_WIDTH,
-        height: TRANSITION_THICKNESS,
-      },
-      pal.ink,
-      'none',
-      0,
-    );
-    if (t.number !== undefined)
-      w.text(`(${t.number})`, x - TRANSITION_WIDTH / 2 - 6, y, FONT_SIZE, {
-        anchor: 'end',
-        color: pal.muted,
-      });
+    w.rect(transitionBar(t), pal.ink, 'none', 0);
+    if (t.number !== undefined) {
+      const num = transitionNumberAnchor(t);
+      w.text(`(${t.number})`, num.x, num.y, FONT_SIZE, { anchor: 'end', color: pal.muted });
+    }
     const a = transitionTextAnchor(t);
     w.expr(t.receptivity, a.x, a.y);
   }

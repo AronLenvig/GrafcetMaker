@@ -269,6 +269,31 @@ export function toggleInitialStep(): void {
   });
 }
 
+/** Selected transitions that can be turned (at most one upstream and one downstream step). */
+function rotatableSelection(): Id[] {
+  const g = getActiveGrafcet();
+  if (!g) return [];
+  return ui.selectedIds().filter((id) => {
+    const t = g.transitions[id];
+    return !!t && ops.canFlowLeft(t);
+  });
+}
+
+export const canRotateSelection = () => rotatableSelection().length > 0;
+
+/**
+ * `R`: turns the selected transitions between top to bottom and right to left (upstream link
+ * entering on the right, downstream link leaving on the left); all right to left unless they all
+ * already are.
+ */
+export function rotateSelection(): void {
+  const g = getActiveGrafcet();
+  const ids = rotatableSelection();
+  if (!g || !ids.length) return;
+  const flow = ids.every((id) => g.transitions[id]!.flow === 'left') ? 'down' : 'left';
+  editActive('history.rotate', (gd) => ops.setTransitionFlow(gd, ids, flow));
+}
+
 // ---------------------------------------------------------------------------------------------
 // Clipboard (cross-tab and cross-project via JSON text)
 

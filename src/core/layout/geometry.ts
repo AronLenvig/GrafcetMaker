@@ -80,18 +80,86 @@ export function stepRect(s: Step): Rect {
   };
 }
 
-/** Generous hit area around the thin transition bar. */
-export function transitionHitRect(t: Transition): Rect {
-  return {
-    x: t.position.x - TRANSITION_WIDTH / 2 - 4,
-    y: t.position.y - 8,
-    width: TRANSITION_WIDTH + 8,
-    height: 16,
-  };
+/**
+ * Direction of the flow through a transition as drawn: top to bottom, or right to left
+ * (`flow: 'left'`). A transition with AND links is always drawn top to bottom: its double bars are
+ * horizontal.
+ */
+export function flowOf(t: Transition): 'down' | 'left' {
+  return t.flow === 'left' && t.from.length <= 1 && t.to.length <= 1 ? 'left' : 'down';
 }
 
+/** The bar of a transition: horizontal (top to bottom), vertical (right to left). */
+export function transitionBar(t: Transition): Rect {
+  const { x, y } = t.position;
+  return flowOf(t) === 'left'
+    ? {
+        x: x - TRANSITION_THICKNESS / 2,
+        y: y - TRANSITION_WIDTH / 2,
+        width: TRANSITION_THICKNESS,
+        height: TRANSITION_WIDTH,
+      }
+    : {
+        x: x - TRANSITION_WIDTH / 2,
+        y: y - TRANSITION_THICKNESS / 2,
+        width: TRANSITION_WIDTH,
+        height: TRANSITION_THICKNESS,
+      };
+}
+
+/**
+ * Start of the receptivity (left end, vertical center): right of a horizontal bar; above the
+ * incoming link of a vertical one.
+ */
 export function transitionTextAnchor(t: Transition): Point {
-  return { x: t.position.x + TRANSITION_WIDTH / 2 + 8, y: t.position.y };
+  const { x, y } = t.position;
+  return flowOf(t) === 'left'
+    ? { x: x + 6, y: y - TRANSITION_WIDTH / 2 - 8 }
+    : { x: x + TRANSITION_WIDTH / 2 + 8, y };
+}
+
+/** End of the transition number `(n)` (right-aligned): left of the bar, or above it on the left. */
+export function transitionNumberAnchor(t: Transition): Point {
+  const { x, y } = t.position;
+  return flowOf(t) === 'left'
+    ? { x: x - 6, y: y - TRANSITION_WIDTH / 2 - 8 }
+    : { x: x - TRANSITION_WIDTH / 2 - 6, y };
+}
+
+/** What is drawn for a transition: its bar, number and receptivity (lines of text included). */
+export function transitionBox(t: Transition): Rect {
+  const bar = transitionBar(t);
+  const text = transitionTextAnchor(t);
+  const num = transitionNumberAnchor(t);
+  const x1 = t.number !== undefined ? Math.min(bar.x, num.x - textWidth(`(${t.number})`)) : bar.x;
+  const x2 = Math.max(bar.x + bar.width, text.x + expressionWidth(t.receptivity));
+  const y1 = Math.min(bar.y, text.y - LINE_HEIGHT / 2);
+  const y2 = Math.max(bar.y + bar.height, text.y + LINE_HEIGHT / 2);
+  return { x: x1, y: y1, width: x2 - x1, height: y2 - y1 };
+}
+
+/** Margin of the clickable area around a transition bar. */
+const HIT_MARGIN = 8;
+
+/**
+ * Clickable area of a transition: a generous margin around its thin bar, its number and its
+ * receptivity (a click on the text selects the transition).
+ */
+export function transitionHitRect(t: Transition): Rect {
+  const box = transitionBox(t);
+  const bar = transitionBar(t);
+  const text = transitionTextAnchor(t);
+  const x1 = Math.min(box.x, bar.x - HIT_MARGIN);
+  const x2 = Math.max(box.x + box.width, bar.x + bar.width + HIT_MARGIN, text.x + textWidth('?'));
+  const y1 = Math.min(box.y - 2, bar.y - HIT_MARGIN);
+  const y2 = Math.max(box.y + box.height + 2, bar.y + bar.height + HIT_MARGIN);
+  return { x: x1, y: y1, width: x2 - x1, height: y2 - y1 };
+}
+
+/** Where `Enter` adds the step a transition leads to: below it, or below its left end. */
+export function nextStepPosition(t: Transition): Point {
+  const { x, y } = t.position;
+  return flowOf(t) === 'left' ? { x: x - ROW, y: y + ROW } : { x, y: y + ROW };
 }
 
 export function stepLabelAnchor(s: Step): Point {
@@ -264,6 +332,94 @@ export interface LinkGeom {
   loop?: { sideX: number };
   /** Middle of the upward segment, drawn with an arrow (once per lane shared by loops to one target). */
   arrow?: Point;
+  /**
+   * Arrow showing the direction of a link into or out of a transition flowing right to left (IEC
+   * 60848: links not drawn top to bottom carry an arrow).
+   */
+  flowArrow?: Point & { dir: ArrowDir };
+}
+
+export type ArrowDir = 'up' | 'down' | 'left' | 'right';
+
+/** Filled arrowhead centred on `p`, pointing `dir`. */
+export function arrowPath(p: Point, dir: ArrowDir): string {
+  const { x, y } = p;
+  switch (dir) {
+    case 'up':
+      return `M${x} ${y - 6}L${x - 4.5} ${y + 3}L${x + 4.5} ${y + 3}Z`;
+    case 'down':
+      return `M${x} ${y + 6}L${x - 4.5} ${y - 3}L${x + 4.5} ${y - 3}Z`;
+    case 'left':
+      return `M${x - 6} ${y}L${x + 3} ${y - 4.5}L${x + 3} ${y + 4.5}Z`;
+    case 'right':
+      return `M${x + 6} ${y}L${x - 3} ${y - 4.5}L${x - 3} ${y + 4.5}Z`;
+  }
+}
+
+/** The direction arrow of a link, if it has one: loops point up, links of right-to-left transitions left. */
+export function linkArrow(l: LinkGeom): string | undefined {
+  if (l.flowArrow) return arrowPath(l.flowArrow, l.flowArrow.dir);
+  return l.arrow ? arrowPath(l.arrow, 'up') : undefined;
+}
+
+/** A polyline without repeated points or points in the middle of a straight run. */
+function simplify(points: Point[]): Point[] {
+  const out: Point[] = [];
+  for (const p of points) {
+    const last = out[out.length - 1];
+    if (last && last.x === p.x && last.y === p.y) continue;
+    const prev = out[out.length - 2];
+    if (
+      prev &&
+      last &&
+      ((prev.x === last.x && last.x === p.x) || (prev.y === last.y && last.y === p.y))
+    )
+      out[out.length - 1] = p;
+    else out.push(p);
+  }
+  return out;
+}
+
+/**
+ * Step → transition flowing right to left: the link enters the bar from the right, straight from
+ * a step above on its right (down, then left), otherwise below the step (on its OR line), along
+ * a lane STUB right of the bar and into it.
+ */
+function leftwardIn(
+  start: Point,
+  t: Transition,
+  divY: number,
+): Pick<LinkGeom, 'points' | 'flowArrow'> {
+  const end = { ...t.position };
+  const lane = end.x + STUB;
+  const points = simplify(
+    start.x >= lane && start.y + OR_LINE_OFFSET <= end.y
+      ? [start, { x: start.x, y: end.y }, end]
+      : [start, { x: start.x, y: divY }, { x: lane, y: divY }, { x: lane, y: end.y }, end],
+  );
+  const from = points[points.length - 2]!;
+  return { points, flowArrow: { x: (from.x + end.x) / 2, y: end.y, dir: 'left' } };
+}
+
+/**
+ * Transition flowing right to left → step: the link leaves the bar on the left, straight to a
+ * step below on its left (left, then down), otherwise along a lane STUB left of the bar to the
+ * step's OR line and into its top.
+ */
+function leftwardOut(
+  t: Transition,
+  end: Point,
+  convY: number,
+): Pick<LinkGeom, 'points' | 'flowArrow'> {
+  const start = { ...t.position };
+  const lane = start.x - STUB;
+  const points = simplify(
+    end.x <= lane && start.y <= convY
+      ? [start, { x: end.x, y: start.y }, end]
+      : [start, { x: lane, y: start.y }, { x: lane, y: convY }, { x: end.x, y: convY }, end],
+  );
+  const to = points[1]!;
+  return { points, flowArrow: { x: (start.x + to.x) / 2, y: start.y, dir: 'left' } };
 }
 
 export interface BarGeom {
@@ -373,8 +529,7 @@ function leftExtent(
   for (const t of Object.values(g.transitions)) {
     if (!inSequence(t.id)) continue;
     if (t.position.y < yMin || t.position.y > yMax) continue;
-    const label = t.number !== undefined ? textWidth(`(${t.number})`) + 6 : 0;
-    min = Math.min(min, t.position.x - TRANSITION_WIDTH / 2 - label);
+    min = Math.min(min, transitionBox(t).x);
   }
   return min;
 }
@@ -427,14 +582,8 @@ function obstaclesBySequence(
     }
   }
   for (const t of Object.values(g.transitions)) {
-    const { x, y } = t.position;
-    const label = t.number !== undefined ? textWidth(`(${t.number})`) + 6 : 0;
-    add(t.id, {
-      x1: x - TRANSITION_WIDTH / 2 - label,
-      x2: transitionTextAnchor(t).x + expressionWidth(t.receptivity),
-      y1: y - LINE_HEIGHT / 2,
-      y2: y + LINE_HEIGHT / 2,
-    });
+    const r = transitionBox(t);
+    add(t.id, { x1: r.x, x2: r.x + r.width, y1: r.y, y2: r.y + r.height });
   }
   for (const w of wires)
     for (let i = 1; i < w.points.length; i++)
@@ -501,7 +650,9 @@ export function computeGeometry(
         points: [],
       };
       links.push(link);
-      if (end.y <= divY) {
+      if (flowOf(t) === 'left') {
+        Object.assign(link, leftwardIn(start, t, divY));
+      } else if (end.y <= divY) {
         upward.push({
           link,
           start,
@@ -540,7 +691,9 @@ export function computeGeometry(
         points: [],
       };
       links.push(link);
-      if (start.y >= convY) {
+      if (flowOf(t) === 'left') {
+        Object.assign(link, leftwardOut(t, end, convY));
+      } else if (start.y >= convY) {
         const dropY = start.y + (t.to.length > 1 ? OR_LINE_OFFSET : LOOP_DROP);
         upward.push({
           link,
@@ -564,6 +717,24 @@ export function computeGeometry(
   // AND double bars and source/sink stubs.
   for (const t of Object.values(g.transitions)) {
     const tp = t.position;
+    if (flowOf(t) === 'left') {
+      // Right to left: a source is fed from the right, a sink leads off to the left.
+      if (!t.from.length)
+        stubs.push({
+          key: `${t.id}:source`,
+          transitionId: t.id,
+          kind: 'source',
+          points: [{ x: tp.x + STUB, y: tp.y }, { ...tp }],
+        });
+      if (!t.to.length)
+        stubs.push({
+          key: `${t.id}:sink`,
+          transitionId: t.id,
+          kind: 'sink',
+          points: [{ ...tp }, { x: tp.x - STUB, y: tp.y }],
+        });
+      continue;
+    }
     if (t.from.length > 1) {
       const xs = [tp.x, ...t.from.map((id) => g.steps[id]?.position.x ?? tp.x)];
       const y = joinY(t);
@@ -741,7 +912,8 @@ export function grafcetBounds(
   for (const t of Object.values(g.transitions)) {
     if (!take(t.id)) continue;
     const a = transitionTextAnchor(t);
-    unionInto(acc, transitionHitRect(t));
+    const bar = transitionBar(t);
+    unionInto(acc, { x: bar.x - 4, y: bar.y - 6.5, width: bar.width + 8, height: bar.height + 13 });
     unionInto(acc, { x: a.x, y: a.y - 10, width: expressionWidth(t.receptivity), height: 20 });
   }
   for (const c of Object.values(g.comments)) if (take(c.id)) unionInto(acc, commentRect(c));
@@ -766,11 +938,16 @@ export function elementBounds(g: Grafcet, geom: GrafcetGeometry, id: Id): Rect |
   return null;
 }
 
-/** Link ports: where links leave (out, bottom) or enter (in, top) a step or transition. */
+/**
+ * Link ports: where links leave (out, bottom) or enter (in, top) a step or transition; for a
+ * transition flowing right to left, in on the right and out on the left.
+ */
 export function portPosition(g: Grafcet, id: Id, port: 'in' | 'out'): Point | null {
   const s = g.steps[id];
   if (s) return { x: s.position.x, y: s.position.y + (port === 'in' ? -STEP_HALF : STEP_HALF) };
   const t = g.transitions[id];
+  if (t && flowOf(t) === 'left')
+    return { x: t.position.x + (port === 'in' ? 10 : -10), y: t.position.y };
   if (t) return { x: t.position.x, y: t.position.y + (port === 'in' ? -10 : 10) };
   return null;
 }

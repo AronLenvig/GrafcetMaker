@@ -195,9 +195,11 @@ canvas to leave it without a step. `Esc` cancels the drag.
 
 A selected step lists its actions in the properties panel as compact rows (symbol, text,
 condition); click a row to unfold its fields. **Add** puts a new action at the end, already
-unfolded, while the step stays selected. A row's fields: the output (or assignment, forcing order) first,
-then the **Kind** buttons, each showing the symbol the diagram uses. A conditional action and an
-action on event get their condition (or event) input right under the buttons:
+unfolded, while the step stays selected. At the bottom of an unfolded row, the arrows move the
+action left or right and the bin deletes it. A row's fields: the output (or assignment, forcing
+order) first, then the **Kind** as one row of the symbols the diagram uses (point at one for its
+name and meaning; the chosen kind is named next to the label). A conditional action and an action
+on event get their condition (or event) input right under the symbols:
 
 - **Continuous action**: the output is true while the step is active. Text: the output name,
   e.g. `M1`.

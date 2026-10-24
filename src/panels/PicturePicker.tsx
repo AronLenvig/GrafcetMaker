@@ -1,31 +1,30 @@
 import { useId, useRef, type ReactNode } from 'react';
-import { cx } from '@/app/ui/primitives';
+import { cx, Tip } from '@/app/ui/primitives';
 
 export interface PictureOption<T extends string> {
   value: T;
   label: string;
-  /** Tooltip: what the choice means. */
+  /** Tooltip under the name: what the choice means. */
   help: string;
   /** SVG content in a 40 × 30 box, drawn with currentColor like the diagram symbol. */
   picture: ReactNode;
 }
 
 /**
- * A choice among pictures (WAI-ARIA radio group: arrow keys move the choice). Each picture is the
- * symbol the diagram draws for that choice, so the choice is recognized at a glance.
+ * A choice among pictures (WAI-ARIA radio group: arrow keys move the choice), as one row of
+ * symbols with the chosen one named next to the label. Each picture is the symbol the diagram
+ * draws for that choice, so it is recognized at a glance; pointing at one names and explains it.
  */
 export function PicturePicker<T extends string>({
   label,
   value,
   options,
   onChange,
-  columns = 3,
 }: {
   label: string;
   value: T;
   options: readonly PictureOption<T>[];
   onChange: (value: T) => void;
-  columns?: 2 | 3 | 4;
 }) {
   const labelId = useId();
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -34,62 +33,65 @@ export function PicturePicker<T extends string>({
     onChange(options[next]!.value);
     refs.current[next]?.focus();
   };
+  const chosen = options.find((o) => o.value === value);
   return (
     <div className="flex flex-col gap-1.5">
-      <span id={labelId} className="text-xs font-medium text-muted">
-        {label}
-      </span>
+      <div className="flex items-baseline gap-2 text-xs">
+        <span id={labelId} className="font-medium text-muted">
+          {label}
+        </span>
+        <span className="ml-auto truncate font-medium" aria-hidden="true">
+          {chosen?.label}
+        </span>
+      </div>
       <div
         role="radiogroup"
         aria-labelledby={labelId}
-        className={cx(
-          'grid gap-1',
-          columns === 4 ? 'grid-cols-4' : columns === 2 ? 'grid-cols-2' : 'grid-cols-3',
-        )}
+        className="flex gap-0.5 rounded-lg border border-border bg-surface-2 p-0.5"
       >
         {options.map((o, i) => {
           const selected = value === o.value;
           return (
-            <button
-              key={o.value}
-              ref={(el) => void (refs.current[i] = el)}
-              type="button"
-              role="radio"
-              aria-checked={selected}
-              tabIndex={selected ? 0 : -1}
-              title={o.help}
-              onClick={() => onChange(o.value)}
-              onKeyDown={(e) => {
-                const delta =
-                  e.key === 'ArrowRight' || e.key === 'ArrowDown'
-                    ? 1
-                    : e.key === 'ArrowLeft' || e.key === 'ArrowUp'
-                      ? -1
-                      : 0;
-                if (!delta) return;
-                e.preventDefault();
-                move(i, delta);
-              }}
-              className={cx(
-                'flex flex-col items-center gap-0.5 rounded-md border px-1 pt-1.5 pb-1 text-[11px] leading-tight',
-                selected
-                  ? 'border-accent bg-accent-soft text-text'
-                  : 'border-border text-muted hover:border-border-strong hover:text-text',
-              )}
-            >
-              <svg
-                width="40"
-                height="30"
-                viewBox="0 0 40 30"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                aria-hidden="true"
+            <Tip key={o.value} label={o.label} detail={o.help} side="top">
+              <button
+                ref={(el) => void (refs.current[i] = el)}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                aria-label={o.label}
+                tabIndex={selected ? 0 : -1}
+                onClick={() => onChange(o.value)}
+                onKeyDown={(e) => {
+                  const delta =
+                    e.key === 'ArrowRight' || e.key === 'ArrowDown'
+                      ? 1
+                      : e.key === 'ArrowLeft' || e.key === 'ArrowUp'
+                        ? -1
+                        : 0;
+                  if (!delta) return;
+                  e.preventDefault();
+                  move(i, delta);
+                }}
+                className={cx(
+                  'flex h-10 min-w-0 flex-1 items-center justify-center rounded-md',
+                  selected
+                    ? 'bg-surface text-text shadow-sm ring-1 ring-accent'
+                    : 'text-muted hover:bg-surface/60 hover:text-text',
+                )}
               >
-                {o.picture}
-              </svg>
-              <span className="text-center">{o.label}</span>
-            </button>
+                <svg
+                  width="36"
+                  height="27"
+                  viewBox="0 0 40 30"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  aria-hidden="true"
+                >
+                  {o.picture}
+                </svg>
+              </button>
+            </Tip>
           );
         })}
       </div>

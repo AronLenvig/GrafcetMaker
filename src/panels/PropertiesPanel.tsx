@@ -1,9 +1,16 @@
 import { useMemo, useState } from 'react';
-import { TermHelp, type Term } from '@/app/ui/TermHelp';
+import type { Term } from '@/app/ui/TermHelp';
 import { useTranslation } from 'react-i18next';
 import { indexGrafcet } from '@/core/model/graph';
 import type { Action, Grafcet, Id, Step, Transition } from '@/core/model/types';
-import { ChevronDownIcon, ChevronUpIcon, InfoIcon, PlusIcon, TrashIcon } from '@/app/ui/icons';
+import {
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  InfoIcon,
+  PlusIcon,
+  TrashIcon,
+} from '@/app/ui/icons';
 import { Button, cx, IconButton } from '@/app/ui/primitives';
 import {
   addActionTo,
@@ -70,7 +77,7 @@ function ActionTools({ action, index, count }: { action: Action; index: number; 
             disabled={index === 0}
             className="h-6 w-6"
           >
-            <ChevronUpIcon size={14} />
+            <ChevronLeftIcon size={14} />
           </IconButton>
           <IconButton
             label={t('props.action.moveDown')}
@@ -78,7 +85,7 @@ function ActionTools({ action, index, count }: { action: Action; index: number; 
             disabled={index === count - 1}
             className="h-6 w-6"
           >
-            <ChevronDownIcon size={14} />
+            <ChevronRightIcon size={14} />
           </IconButton>
         </>
       )}
@@ -121,6 +128,7 @@ function ActionFields({ action }: { action: Action }) {
       <ExpressionField
         kind={actionTextKind(action.kind)}
         label={t(`props.action.textLabel.${action.kind}`)}
+        term={actionTerm(action)}
         value={action.text}
         placeholder={t(`props.action.textPlaceholder.${action.kind}`)}
         onCommit={(v) => write('text', v)}
@@ -168,7 +176,6 @@ function ActionEditor({ action, index, count }: { action: Action; index: number;
           {index >= 0
             ? t('props.action.title', { n: index + 1 })
             : tDynamic(t, `props.action.kinds.${uiKindOf(action)}.label`)}
-          <TermHelp term={actionTerm(action)} />
         </span>
         <ActionTools action={action} index={index} count={count} />
       </div>
@@ -194,39 +201,37 @@ function ActionRow({
   const { t } = useTranslation();
   const kind = uiKindOf(action);
   return (
-    <li className="rounded-md border border-border">
-      <div className="flex items-center gap-1 pr-1">
-        <button
-          type="button"
-          aria-expanded={open}
-          onClick={onToggle}
-          className="flex min-h-8 min-w-0 flex-1 items-center gap-1.5 rounded-md pl-1.5 text-left hover:bg-surface-2"
-        >
-          <ChevronDownIcon
-            size={14}
-            className={cx('shrink-0 text-muted transition-transform', !open && '-rotate-90')}
-          />
-          <ActionKindIcon kind={kind} />
-          <span className="sr-only">{tDynamic(t, `props.action.kinds.${kind}.label`)}:</span>
-          <span className={cx('min-w-0 truncate font-mono text-xs', !action.text && 'text-muted')}>
-            {action.text || t('props.action.noText')}
-          </span>
-          {action.condition && (
-            <span className="min-w-0 shrink-[2] truncate font-mono text-xs text-muted">
-              {action.condition}
-            </span>
-          )}
-        </button>
-        {open && (
-          <>
-            <TermHelp term={actionTerm(action)} />
-            <ActionTools action={action} index={index} count={count} />
-          </>
+    <li className={cx('rounded-lg border', open ? 'border-border-strong' : 'border-border')}>
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={onToggle}
+        className={cx(
+          'flex min-h-9 w-full min-w-0 items-center gap-2 px-2 text-left hover:bg-surface-2',
+          open ? 'rounded-t-lg' : 'rounded-lg',
         )}
-      </div>
+      >
+        <ActionKindIcon kind={kind} />
+        <span className="sr-only">{tDynamic(t, `props.action.kinds.${kind}.label`)}:</span>
+        <span className={cx('min-w-0 truncate font-mono text-xs', !action.text && 'text-muted')}>
+          {action.text || t('props.action.noText')}
+        </span>
+        {action.condition && (
+          <span className="min-w-0 shrink-[2] truncate font-mono text-xs text-muted">
+            {action.condition}
+          </span>
+        )}
+        <ChevronDownIcon
+          size={14}
+          className={cx('ml-auto shrink-0 text-muted transition-transform', open && 'rotate-180')}
+        />
+      </button>
       {open && (
-        <div className="flex flex-col gap-2 border-t border-border p-2">
+        <div className="flex flex-col gap-3 border-t border-border px-2.5 pt-2.5 pb-1.5">
           <ActionFields action={action} />
+          <div className="-mx-1 -mt-1.5 flex items-center justify-end gap-0.5">
+            <ActionTools action={action} index={index} count={count} />
+          </div>
         </div>
       )}
     </li>

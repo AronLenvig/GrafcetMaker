@@ -5,7 +5,7 @@ import { cx } from '@/app/ui/primitives';
 import { useProblems } from '@/editor/validation/problems';
 
 /** Desktops: widths of the cards floating at the left of the canvas. */
-export const PROPERTIES_CARD_WIDTH = 288;
+export const PROPERTIES_CARD_WIDTH = 320;
 export const SIMULATION_CARD_WIDTH = 320;
 
 /** The name of each panel, as on its tab and its button. */
@@ -62,7 +62,9 @@ export function FloatingCard({
         </h2>
         {action}
       </div>
-      {children !== undefined && <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>}
+      {children !== undefined && (
+        <div className="gm-thin-scrollbar min-h-0 flex-1 overflow-y-auto">{children}</div>
+      )}
     </section>
   );
 }

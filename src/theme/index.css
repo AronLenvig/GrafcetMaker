@@ -378,6 +378,12 @@
   .gm-no-scrollbar {
     scrollbar-width: none;
   }
+
+  /* Cards: a slim scrollbar in the border colour, so the content keeps the width. */
+  .gm-thin-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
   .gm-no-scrollbar::-webkit-scrollbar {
     display: none;
   }

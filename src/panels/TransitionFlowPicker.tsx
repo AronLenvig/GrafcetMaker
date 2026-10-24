@@ -37,7 +37,6 @@ export function TransitionFlowPicker({
       label={t('props.transition.flow')}
       value={value}
       onChange={onChange}
-      columns={2}
       options={FLOWS.map((f) => ({
         value: f,
         label: t(`props.transition.flows.${f}`),

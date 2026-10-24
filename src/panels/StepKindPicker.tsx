@@ -60,7 +60,6 @@ export function StepKindPicker({
       label={t('props.step.kind')}
       value={value}
       onChange={onChange}
-      columns={4}
       options={KINDS.map((k) => {
         const star = enclosed && k === 'initial';
         return {

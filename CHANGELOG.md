@@ -103,6 +103,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- A roomier properties card: wider, the step, action and transition kinds as one row of symbols
+  (named and explained on hover, the chosen one named next to the label), an action row that
+  shows its whole text with move and delete at the bottom of its fields, and a slim scrollbar.
 - **Add** in a step's properties adds the action without selecting it: the step stays selected and
   the new action unfolds in its list.
 - Typing on the diagram looks like typing on the canvas: the text is edited in place, in the

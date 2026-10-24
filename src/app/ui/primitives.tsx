@@ -64,18 +64,22 @@ export const IconButton = forwardRef<
   );
 });
 
-/** Tooltip with an optional keyboard shortcut. */
+/** Tooltip with an optional keyboard shortcut, or an explanation under the name. */
 export function Tip({
   label,
   keys,
+  detail,
   children,
   side = 'right',
 }: {
   label: string;
   keys?: string;
+  /** What it means, in a second line (left out when it only repeats the name). */
+  detail?: string;
   children: ReactNode;
   side?: 'top' | 'right' | 'bottom' | 'left';
 }) {
+  const more = detail && detail !== label ? detail : null;
   return (
     <Tooltip.Root delayDuration={400}>
       <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
@@ -83,10 +87,15 @@ export function Tip({
         <Tooltip.Content
           side={side}
           sideOffset={6}
-          className="z-50 rounded-md border border-border bg-surface px-2 py-1 text-xs text-text shadow-pop"
+          collisionPadding={8}
+          className={cx(
+            'z-50 rounded-md border border-border bg-surface px-2 py-1 text-xs text-text shadow-pop',
+            more && 'max-w-64',
+          )}
         >
-          {label}
+          {more ? <span className="font-medium">{label}</span> : label}
           {keys && <kbd className="ml-2 font-mono text-muted">{keys}</kbd>}
+          {more && <span className="mt-0.5 block text-muted">{more}</span>}
         </Tooltip.Content>
       </Tooltip.Portal>
     </Tooltip.Root>

@@ -8,6 +8,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- The ghost under a step that ends its sequence has two parts: click the ghost **transition** to
+  add the transition alone (it is selected, with its own ghost step next), or the ghost **step**
+  to add both.
 - GrafcetMaker in **French, German and Spanish**: the whole interface and the help center. The
   first visit starts in the language of the visitor's country (French in France, Belgium,
   Luxembourg, French-speaking Africa and the Maghreb, German in Germany, Austria and Switzerland,

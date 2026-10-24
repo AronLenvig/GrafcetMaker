@@ -188,6 +188,7 @@ export const en = {
     },
     ghost: {
       action: 'Add an action (A)',
+      transition: 'Add a transition',
       sequence: 'Add a transition and a step (Enter)',
       step: 'Add the step this transition leads to (Enter)',
     },

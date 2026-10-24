@@ -37,7 +37,7 @@ ainsi toute une séquence, ou toute une rangée d'actions, d'un seul trait.
 Une étape sélectionnée affiche en pointillés des **fantômes** de ce qu'ajouteraient <kbd>A</kbd> et
 <kbd>Enter</kbd> : une action après sa dernière action et, en fin de séquence, une transition et
 une étape avec le numéro qu'elle recevra. Une transition qui ne mène nulle part affiche une étape
-fantôme. Cliquez sur un fantôme pour l'ajouter. Une nouvelle étape ajoutée depuis son fantôme est
+fantôme. Cliquez sur un fantôme pour l'ajouter ; cliquez seulement sur la barre de la transition fantôme pour n'ajouter que la transition : elle est sélectionnée, et son étape fantôme vient ensuite. Une nouvelle étape ajoutée depuis son fantôme est
 sélectionnée, comme si vous aviez cliqué dessus : son propre fantôme est donc à un clic ; saisissez
 les réceptivités plus tard (<kbd>F2</kbd> ou double-clic), ou utilisez <kbd>Enter</kbd> pour les
 saisir une à une au fur et à mesure. Avec un outil de placement, un fantôme sous le pointeur montre

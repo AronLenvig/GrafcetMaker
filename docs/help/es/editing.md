@@ -37,7 +37,7 @@ entera, o una fila de acciones, de una sola vez.
 Una etapa seleccionada muestra **fantasmas** discontinuos de lo que añadirían <kbd>A</kbd> y
 <kbd>Enter</kbd>: una acción después de su última acción y, al final de una secuencia, una
 transición y una etapa con el número que tendrá. Una transición que no lleva a ninguna parte muestra
-una etapa fantasma. Haz clic en un fantasma para añadirlo. Una etapa nueva añadida desde su fantasma
+una etapa fantasma. Haz clic en un fantasma para añadirlo; haz clic solo en la barra de la transición fantasma para añadir únicamente la transición: queda seleccionada y su etapa fantasma viene después. Una etapa nueva añadida desde su fantasma
 queda seleccionada, como si hubieras hecho clic en ella, así que su propio fantasma está a un clic;
 escribe las receptividades después (<kbd>F2</kbd> o doble clic), o usa <kbd>Enter</kbd> para
 escribir cada una sobre la marcha. Con una herramienta de colocación, un fantasma bajo el puntero

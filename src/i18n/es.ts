@@ -193,6 +193,7 @@ export const es: Messages = {
     },
     ghost: {
       action: 'Añadir una acción (A)',
+      transition: 'Añadir una transición',
       sequence: 'Añadir una transición y una etapa (Enter)',
       step: 'Añadir la etapa a la que lleva esta transición (Enter)',
     },

@@ -184,13 +184,26 @@ function SelectionGhosts({ g, geom, id }: { g: Grafcet; geom: GrafcetGeometry; i
       />,
     );
   if (step && !geom.index.outgoing.has(id)) {
+    // Two ghosts in one: the step adds the transition and the step, the bar (drawn last, on top
+    // of the line to the step) adds the transition alone.
     const { x, y } = step.position;
     out.push(
       <g key="sequence" className="gm-ghost gm-ghost-hit" data-ghost="sequence">
         <title>{t('canvas.ghost.sequence')}</title>
-        <path d={`M${x} ${y + STEP_HALF}V${y + PITCH - STEP_HALF}`} />
-        <GhostBar at={{ x, y: y + ROW }} />
+        <path d={`M${x} ${y + ROW}V${y + PITCH - STEP_HALF}`} />
         <GhostStep at={{ x, y: y + PITCH }} number={preferredStepNumber(g, step.number)} />
+      </g>,
+      <g key="transition" className="gm-ghost gm-ghost-hit" data-ghost="transition">
+        <title>{t('canvas.ghost.transition')}</title>
+        <path d={`M${x} ${y + STEP_HALF}V${y + ROW}`} />
+        <GhostBar at={{ x, y: y + ROW }} />
+        <rect
+          className="gm-ghost-pad"
+          x={x - TRANSITION_WIDTH / 2 - 6}
+          y={y + ROW - 10}
+          width={TRANSITION_WIDTH + 12}
+          height={20}
+        />
       </g>,
     );
   }

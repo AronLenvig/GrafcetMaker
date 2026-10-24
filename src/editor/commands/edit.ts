@@ -83,6 +83,27 @@ export function appendSequence({
 }
 
 /**
+ * A click on the ghost transition of a step that ends its sequence: add only the transition and
+ * select it, so its own ghost step is one click away.
+ */
+export function appendTransition(): void {
+  const g = getActiveGrafcet();
+  if (!g) return;
+  const sel = ui.selectedIds();
+  const stepId = sel.length === 1 && g.steps[sel[0]!] ? sel[0]! : null;
+  if (!stepId) return;
+  let created: Id | null = null;
+  editActive(
+    'history.addTransition',
+    (gd) => void (created = ops.appendTransitionAfterStep(gd, stepId)?.id ?? null),
+  );
+  if (created) {
+    ui.select([created]);
+    reveal([created]);
+  }
+}
+
+/**
  * `A`: add an action to the selected step (or after the selected action) and edit its text.
  * With no step to attach it to, the Action tool is selected: click a step, or empty canvas.
  */

@@ -160,6 +160,12 @@
   stroke: none;
 }
 
+/* A wider target around a thin ghost (the transition bar). */
+.gm-ghost .gm-ghost-pad {
+  fill: transparent;
+  stroke: none;
+}
+
 .gm-ghost text {
   fill: var(--selection);
   stroke: none;

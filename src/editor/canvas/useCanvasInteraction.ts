@@ -26,6 +26,7 @@ import {
   addStepAt,
   addTransitionAt,
   appendSequence,
+  appendTransition,
   editActive,
   editSelection,
 } from '../commands/edit';
@@ -253,12 +254,17 @@ export function useCanvasInteraction(
       placeOrWait(() => toggleInput(input));
       return;
     }
-    // A ghost of the selection: add the action (and type its text), or the transition and step it
-    // shows with the new step selected (its ghosts are next; Enter would type the receptivity).
+    // A ghost of the selection: add the action (and type its text), the transition alone, or the
+    // transition and step it shows; the new transition or step is selected, so its ghosts are next
+    // (Enter would type the receptivity).
     const ghost = target.closest('[data-ghost]')?.getAttribute('data-ghost');
     if (!readOnly && ghost) {
       placeOrWait(() =>
-        ghost === 'action' ? addActionToSelection() : appendSequence({ editReceptivity: false }),
+        ghost === 'action'
+          ? addActionToSelection()
+          : ghost === 'transition'
+            ? appendTransition()
+            : appendSequence({ editReceptivity: false }),
       );
       return;
     }

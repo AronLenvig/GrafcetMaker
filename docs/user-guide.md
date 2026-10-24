@@ -104,7 +104,8 @@ A new project contains grafcet `G1` with initial step 0.
 - **Ghosts**: a selected step shows a dashed **ghost** action after its last action and, at the
   end of a sequence, a ghost transition and step with the number the step will get; a transition
   leading nowhere shows a ghost step. Click a ghost to add what it shows: a ghost action opens
-  its text, a ghost transition and step selects the new step (as if you had clicked it), so
+  its text, the bar of a ghost transition adds the transition alone and selects it, a ghost step
+  below it adds both and selects the new step (as if you had clicked it), so
   clicking its ghost again keeps the sequence growing; type the receptivities later (`F2` or
   double-click). `Enter` adds the same and types the receptivity at once. With a placing tool, a
   ghost under the pointer shows what a click will place (and, with the Action tool over a step,

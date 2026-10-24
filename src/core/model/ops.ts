@@ -155,6 +155,13 @@ export function appendAfterStep(g: Grafcet, stepId: Id): { transitionId: Id; ste
   return { transitionId: t.id, stepId: ns.id };
 }
 
+/** A transition below a step that ends its sequence, leading nowhere yet (its step comes later). */
+export function appendTransitionAfterStep(g: Grafcet, stepId: Id): Transition | null {
+  const s = g.steps[stepId];
+  if (!s || indexGrafcet(g).outgoing.has(stepId)) return null;
+  return addTransition(g, { x: s.position.x, y: s.position.y + ROW }, [stepId]);
+}
+
 /**
  * `Enter` on a transition: add the step it leads to, or, if it already leads somewhere, insert a
  * step + transition after it.

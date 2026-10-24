@@ -33,7 +33,7 @@ of the step (a new one after the last). Type a whole sequence, or a row of actio
 
 A selected step shows dashed **ghosts** of what <kbd>A</kbd> and <kbd>Enter</kbd> would add: an action
 after its last action and, at the end of a sequence, a transition and a step with the number it
-will get. A transition that leads nowhere shows a ghost step. Click a ghost to add it. A new step
+will get. A transition that leads nowhere shows a ghost step. Click a ghost to add it; click only the bar of the ghost transition to add the transition alone: it is selected, and its own ghost step comes next. A new step
 added from its ghost is selected, as if you had clicked it, so its own ghost is one click away;
 type the receptivities later (<kbd>F2</kbd> or double-click), or use <kbd>Enter</kbd> to type each
 one as you go. With a placing tool, a ghost under the pointer shows what a click will place.

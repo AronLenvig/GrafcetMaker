@@ -37,8 +37,7 @@ letzten). So tippen Sie einen ganzen Ablauf oder eine Reihe von Aktionen in eine
 Ein ausgewählter Schritt zeigt gestrichelte **Platzhalter** dessen, was <kbd>A</kbd> und
 <kbd>Enter</kbd> hinzufügen würden: eine Aktion nach seiner letzten Aktion und, am Ende eines
 Ablaufs, eine Transition und einen Schritt mit der Nummer, die er erhalten wird. Eine Transition,
-die nirgendwohin führt, zeigt einen Platzhalter-Schritt. Klicken Sie auf einen Platzhalter, um ihn
-hinzuzufügen. Ein aus seinem Platzhalter hinzugefügter Schritt wird ausgewählt, als hätten Sie ihn
+die nirgendwohin führt, zeigt einen Platzhalter-Schritt. Klicken Sie auf einen Platzhalter, um ihn hinzuzufügen; klicken Sie nur auf den Balken der Platzhalter-Transition, um allein die Transition hinzuzufügen: Sie wird ausgewählt, und ihr Platzhalter-Schritt folgt. Ein aus seinem Platzhalter hinzugefügter Schritt wird ausgewählt, als hätten Sie ihn
 angeklickt, sodass sein eigener Platzhalter nur einen Klick entfernt ist; tippen Sie die
 Transitionsbedingungen später (<kbd>F2</kbd> oder Doppelklick) oder verwenden Sie <kbd>Enter</kbd>,
 um jede gleich mitzutippen. Mit einem Platzierungswerkzeug zeigt ein Platzhalter unter dem

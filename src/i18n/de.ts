@@ -196,6 +196,7 @@ export const de: Messages = {
     },
     ghost: {
       action: 'Aktion hinzufügen (A)',
+      transition: 'Transition hinzufügen',
       sequence: 'Transition und Schritt hinzufügen (Enter)',
       step: 'Schritt hinzufügen, zu dem diese Transition führt (Enter)',
     },

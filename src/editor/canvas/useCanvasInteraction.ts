@@ -439,8 +439,13 @@ export function useCanvasInteraction(
       case 'press': {
         if (Math.hypot(p.x - g0.start.x, p.y - g0.start.y) < g0.slop) return;
         const g = getProject().grafcets[gid];
+        const selected = ui.selectedIds();
+        // An action dragged on its own can be dropped on a step; a free action dragged with other
+        // selected elements moves with them.
         const pressed = g?.actions[g0.id];
-        if (pressed) {
+        const withOthers =
+          pressed?.stepId === null && selected.length > 1 && selected.includes(pressed.id);
+        if (pressed && !withOthers) {
           // Off its step while dragged, drawn where it was.
           const step = pressed.stepId === null ? undefined : g!.steps[pressed.stepId];
           const siblings = step ? (indexGrafcet(g!).actions.get(step.id) ?? []) : [];
@@ -468,16 +473,11 @@ export function useCanvasInteraction(
           return;
         }
         // Attached actions follow their step.
-        const ids = ui
-          .selectedIds()
-          .filter(
-            (id) =>
-              g &&
-              (g.steps[id] ||
-                g.transitions[id] ||
-                g.comments[id] ||
-                g.actions[id]?.stepId === null),
-          );
+        const ids = selected.filter(
+          (id) =>
+            g &&
+            (g.steps[id] || g.transitions[id] || g.comments[id] || g.actions[id]?.stepId === null),
+        );
         if (!ids.length) {
           gesture.current = { kind: 'idle' };
           return;

@@ -32,10 +32,23 @@ function keysOf(id: string): string | undefined {
   return k ? formatKeys(k) : undefined;
 }
 
+/** The key in a button's corner, compact (`⇧A`); the tooltip spells it out. */
+function CornerKey({ id }: { id: string }) {
+  const k = getCommand(id).keys?.[0];
+  if (!k) return null;
+  return (
+    <span
+      aria-hidden="true"
+      className="absolute right-1 bottom-0.5 text-[9px] leading-none font-normal text-muted"
+    >
+      {k.replace('Shift+', '⇧')}
+    </span>
+  );
+}
+
 /**
  * Desktops and tablets: the tools as a floating island at the top of the canvas, Simulate at its
- * right end. Each tool shows its key in the corner (single keys only; the tooltip has the full
- * combination).
+ * right end. Each button shows its key in the corner.
  */
 export function ToolIsland() {
   const { t } = useTranslation();
@@ -60,14 +73,7 @@ export function ToolIsland() {
                 )}
               >
                 <Icon size={20} />
-                {keys && keys.length === 1 && (
-                  <span
-                    aria-hidden="true"
-                    className="absolute right-1 bottom-0.5 text-[9px] leading-none text-muted"
-                  >
-                    {keys}
-                  </span>
-                )}
+                <CornerKey id={`tools.${id}`} />
               </button>
             </Tip>
           );
@@ -79,10 +85,16 @@ export function ToolIsland() {
           type="button"
           aria-label={t('simulation.simulateLabel')}
           onClick={() => runCommand('sim.toggle')}
-          className="flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-medium hover:bg-surface-2"
+          className="group relative flex h-9 min-w-9 items-center justify-center rounded-lg px-[11px] text-[13px] font-medium hover:bg-surface-2"
         >
           <PlayIcon size={14} className="text-success" />
-          <span className="hidden lg:inline">{t('simulation.simulate')}</span>
+          {/* A play icon at rest; the label slides out while pointed at or focused. */}
+          <span className="grid grid-cols-[0fr] transition-[grid-template-columns] duration-200 ease-out group-hover:grid-cols-[1fr] group-focus-visible:grid-cols-[1fr]">
+            <span className="overflow-hidden whitespace-nowrap">
+              <span className="pl-1.5">{t('simulation.simulate')}</span>
+            </span>
+          </span>
+          <CornerKey id="sim.toggle" />
         </button>
       </Tip>
     </div>

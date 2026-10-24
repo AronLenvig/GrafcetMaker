@@ -24,14 +24,15 @@ available, a card offers to reload; your work is kept. **Help › What's new** s
 ## Screen layout
 
 The diagram fills the window. Everything else floats over it in small "islands" and shows only
-when it is needed:
+when it is needed. The toolbars rest slightly faded so the diagram stays in front; they come back
+fully when you point at them or reach them with the keyboard:
 
-- **Top left**: the main menu ☰ (File, Edit, View, Simulate and Help as submenus, and the System /
-  Light / Dark theme), the project name (a dot `●` means unsaved changes; double-click it to
+- **Top left**: the main menu ☰ (File, Edit, View, Simulate and Help as submenus, the System /
+  Light / Dark theme and the language), the project name (a dot `●` means unsaved changes; double-click it to
   rename the project) and the **properties** button.
 - **Top centre**: the tools: select (`V`), pan (`H`), step (`S`), transition (`T`), comment (`C`)
   and action (`Shift+A`); the letter in each button is its key. ▶ **Simulate** (`F5`) ends the
-  bar. While simulating, the simulation controls take its place. Under them, the **hints** list the keys and gestures available for
+  bar: a play button whose label slides out when you point at it. While simulating, the simulation controls take its place. Under them, the **hints** list the keys and gestures available for
   the current selection, tool or drag, with a **Learn more** link; hide them with their `×` and
   show them again from **View › Hints** or Settings.
 - **Top right**: the problem counters, **Export** (`Ctrl+E`) and **Live collaboration** (in a
@@ -47,8 +48,8 @@ when it is needed:
 - **Bottom centre**: one tab per partial grafcet, and `+` to add one.
 - **Bottom right**: the panels **Variables**, **Problems**, **Chronogram** and **Outline**. Each
   opens in a card on the right of the window; click its button again or `×` to close it, drag
-  its left edge to make it wider or narrower (the width is remembered). Then **Help** (`F1`) and
-  **Send feedback**.
+  its left edge to make it wider or narrower (the width is remembered). Then **Help** (`F1`),
+  **Send feedback** and the **language** button (`EN`, `FR`, `DE` or `ES`).
 - **Outline** panel: every grafcet, step, action and transition as a tree, an accessible
   alternative to the diagram. Arrow keys move and fold, `Enter` shows the element on the diagram,
   `F2` edits it there; active steps are marked while simulating.
@@ -495,3 +496,11 @@ remembered on this device:
 
 Choose System, Light or Dark at the bottom of the main menu ☰ (or in Settings). _System_ follows your operating
 system setting and updates live when it changes. The choice is remembered on this device.
+
+## Language
+
+GrafcetMaker is in English, French, German and Spanish. The first visit follows your browser's
+language. To change it, use the language button at the bottom right (it shows the current code,
+e.g. `FR`), the bottom of the main menu ☰ (on phones: of the menu drawer), or the command palette
+(`Ctrl+K`, "Language"). The choice is remembered on this device. The help pages and the GRAFCET
+guide follow the language; the examples and the generated PLC code stay in English.

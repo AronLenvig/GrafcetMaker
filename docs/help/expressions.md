@@ -75,7 +75,8 @@ See [Actions](actions.md).
 - **Empty field**: the first variable of the table that nothing uses yet shows in grey (an input
   for a receptivity, an output for an action); <kbd>Tab</kbd> accepts it.
 - **Problems**: a box under the field explains what is wrong, underlines where, and offers fixes:
-  **Use “Start”** for a misspelt name, **Create BOOL input “start”** for a new one.
+  **Use Start** for a misspelt name. A new name is announced (_New variable start: BOOL input_)
+  and declared when you confirm.
 - **Symbol bar**: buttons for ↑ ↓ NOT AND OR, parentheses (they wrap the selected text) and a timer
   template.
 

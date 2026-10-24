@@ -204,7 +204,7 @@ function HintBarView() {
       className={
         compact
           ? 'pointer-events-auto absolute top-2 left-2 flex max-w-[calc(100%-64px)] items-start gap-2 rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs text-muted shadow-pop'
-          : 'pointer-events-auto flex max-w-full items-start gap-2 rounded-lg border border-border bg-surface/90 px-2.5 py-1 text-xs text-muted backdrop-blur-sm'
+          : 'gm-hints pointer-events-auto flex max-w-full items-start gap-2 rounded-lg border border-border bg-surface/90 px-2.5 py-1 text-xs text-muted backdrop-blur-sm'
       }
     >
       <p className="flex flex-wrap items-center gap-x-3 gap-y-1">

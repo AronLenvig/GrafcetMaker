@@ -5,7 +5,7 @@ available in GrafcetMaker.
 
 ## Several partial grafcets
 
-A project can hold several **partial grafcets**, one per tab above the canvas, e.g. _G1_ for the
+A project can hold several **partial grafcets**, one per tab at the bottom of the window, e.g. _G1_ for the
 production cycle and _G2_ for the safety logic. They all run at the same time and can watch each
 other through step variables (`X21` in G1 is true while step 21 of G2 is active).
 

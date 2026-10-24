@@ -48,7 +48,7 @@ export function FloatingCard({
   return (
     <section
       aria-label={title}
-      className="gm-island absolute top-[60px] left-3 z-20 flex max-h-[calc(100%-132px)] flex-col overflow-hidden"
+      className="gm-island gm-card absolute top-[60px] left-3 z-20 flex max-h-[calc(100%-132px)] flex-col overflow-hidden"
       style={{ width }}
     >
       <div

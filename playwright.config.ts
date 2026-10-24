@@ -9,6 +9,8 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:4391',
     trace: 'retain-on-failure',
+    // The tests read English labels; the app follows the browser's language.
+    locale: 'en-US',
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: [

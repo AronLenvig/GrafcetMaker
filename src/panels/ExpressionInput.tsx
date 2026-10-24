@@ -535,7 +535,7 @@ function NewNamesNote({
           {t('expr.newVariable', {
             name: d.create!.name,
             type: d.create!.type,
-            direction: t(`variables.directions.${d.create!.direction}`).toLowerCase(),
+            direction: t(`variables.directions.${d.create!.direction}`),
           })}
           {/* Close to an existing name: perhaps a typo. */}
           {d.params.suggestion && (
@@ -571,7 +571,14 @@ function DiagnosticBox({
   onReplace: (start: number, end: number, text: string) => void;
 }) {
   const { t } = useTranslation();
-  const params: Record<string, string> = { ...d.params };
+  // The variable an unknown name would become, for the hint that says so.
+  const params: Record<string, string> = {
+    ...d.params,
+    ...(d.create && {
+      type: d.create.type,
+      direction: t(`variables.directions.${d.create.direction}`),
+    }),
+  };
   const end = Math.max(d.end, d.start + 1);
   return (
     <div

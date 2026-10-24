@@ -26,8 +26,6 @@ export interface SiteText {
   openExample: string;
   /** Name of the guide in the breadcrumb of search results. */
   guide: string;
-  /** Link to the help pages, which are in English. */
-  help: string;
   footer: string;
 }
 
@@ -46,7 +44,6 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     openEditor: 'Open the editor',
     openExample: 'Open this example in the editor',
     guide: 'GRAFCET guide',
-    help: 'Help center',
     footer:
       'GrafcetMaker is a free, open-source (MIT) GRAFCET editor and simulator. It runs in your browser, works offline and needs no account.',
   },
@@ -64,7 +61,6 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     openEditor: 'Ouvrir l’éditeur',
     openExample: 'Ouvrir cet exemple dans l’éditeur',
     guide: 'Cours GRAFCET',
-    help: 'Aide (en anglais)',
     footer:
       'GrafcetMaker est un éditeur et simulateur de GRAFCET gratuit et open source (MIT). Il fonctionne dans le navigateur, hors ligne et sans compte.',
   },
@@ -82,7 +78,6 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     openEditor: 'Editor öffnen',
     openExample: 'Dieses Beispiel im Editor öffnen',
     guide: 'GRAFCET-Leitfaden',
-    help: 'Hilfe (auf Englisch)',
     footer:
       'GrafcetMaker ist ein kostenloser Open-Source-Editor und -Simulator für GRAFCET (MIT-Lizenz). Er läuft im Browser, auch offline und ohne Konto.',
   },
@@ -100,7 +95,6 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     openEditor: 'Abrir el editor',
     openExample: 'Abrir este ejemplo en el editor',
     guide: 'Guía de GRAFCET',
-    help: 'Ayuda (en inglés)',
     footer:
       'GrafcetMaker es un editor y simulador de GRAFCET gratuito y de código abierto (MIT). Funciona en el navegador, sin conexión y sin cuenta.',
   },

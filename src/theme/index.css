@@ -326,6 +326,22 @@
       0 4px 12px -4px var(--shadow-color);
   }
 
+  /*
+   * The canvas comes first (owner decision): toolbar islands and the hints rest slightly faded until
+   * pointed at, focused or holding an open menu. 80 % keeps text at 4.5:1 and icons at 3:1 in both
+   * themes. Cards being worked in (gm-card), touch screens and a request for more contrast stay
+   * solid.
+   */
+  @media (hover: hover) and (prefers-contrast: no-preference) {
+    :is(.gm-island:not(.gm-card), .gm-hints) {
+      transition: opacity 150ms ease-out;
+    }
+
+    :is(.gm-island:not(.gm-card), .gm-hints):not(:hover, :focus-within, :has([data-state='open'])) {
+      opacity: 0.8;
+    }
+  }
+
   .gm-no-scrollbar {
     scrollbar-width: none;
   }

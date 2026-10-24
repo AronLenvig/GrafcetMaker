@@ -4,11 +4,13 @@ import { ArrowLeftIcon, BookIcon, ChevronRightIcon, CloseIcon, SearchIcon } from
 import { IconButton } from '../ui/primitives';
 import { Blocks } from './MarkdownView';
 import { closeHelp, HELP_HOME, openHelp, useHelp } from './helpStore';
-import { ORDER, pageById, PAGES, searchHelp } from './pages';
+import { useLanguage } from '@/i18n';
+import { helpPages, ORDER, searchHelp } from './pages';
 
 function Results({ query }: { query: string }) {
   const { t } = useTranslation();
-  const hits = useMemo(() => searchHelp(query), [query]);
+  const language = useLanguage((s) => s.language);
+  const hits = useMemo(() => searchHelp(helpPages(language).pages, query), [language, query]);
   if (!hits.length) return <p className="text-muted">{t('help.noResults', { query })}</p>;
   return (
     <ul className="flex flex-col gap-1.5">
@@ -37,7 +39,8 @@ export default function HelpPanel() {
   const { page: pageId, anchor } = useHelp();
   const [query, setQuery] = useState('');
   const body = useRef<HTMLDivElement>(null);
-  const page = pageById.get(pageId) ?? pageById.get(HELP_HOME) ?? PAGES[0];
+  const { pages, byId: pageById } = helpPages(useLanguage((s) => s.language));
+  const page = pageById.get(pageId) ?? pageById.get(HELP_HOME) ?? pages[0];
   const index = page ? ORDER.indexOf(page.id) : -1;
   const prev = index > 0 ? pageById.get(ORDER[index - 1]!) : undefined;
   const next = index >= 0 ? pageById.get(ORDER[index + 1]!) : undefined;

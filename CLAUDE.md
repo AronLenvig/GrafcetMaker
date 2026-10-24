@@ -23,7 +23,7 @@ Browser GRAFCET (IEC 60848) editor + simulator for professional automation engin
 - When the spec is ambiguous, pick the option closest to IEC 60848 and common engineering practice, note it in `docs/semantics.md` or this file, and continue.
 
 ## Stack (fixed)
-TypeScript strict · Vite · React 18 · Zustand + Immer (patches → undo/redo) · custom SVG renderer (no React Flow/JointJS) · Radix UI · Tailwind + CSS variables · Zod · Dexie (IndexedDB) · i18next (EN first) · svg2pdf.js + jsPDF · vite-plugin-pwa · Vitest · Playwright · ESLint + Prettier.
+TypeScript strict · Vite · React 18 · Zustand + Immer (patches → undo/redo) · custom SVG renderer (no React Flow/JointJS) · Radix UI · Tailwind + CSS variables · Zod · Dexie (IndexedDB) · i18next (EN, FR, DE, ES) · svg2pdf.js + jsPDF · vite-plugin-pwa · Vitest · Playwright · ESLint + Prettier.
 
 ## Architecture
 ```
@@ -89,6 +89,7 @@ Separate mode (locks editing, distinct simulation controls in place of the tools
 
 ## Layout
 Owner decision: the canvas fills the window and everything else floats over it as islands (Excalidraw-like), shown when needed: top-left ☰ menu (File/Edit/View/Simulate/Help submenus + theme), project name, properties toggle · top-center tools + Simulate (simulation controls while simulating) with hints below · top-right problems, Export, live collaboration (others' avatars in a session; the share link button where no relay answers, File menu otherwise) · left properties card while something is selected (or pinned), replaced by the simulation card (inputs, values, log, scenarios) while simulating · bottom-left zoom + undo/redo · bottom-center grafcet tabs · bottom-right panel buttons (Variables, Problems, Chronogram, Outline → one floating card on the right, width resizable and persisted) + help + feedback. Step and action kinds are picture buttons. Start screen: new/open/recent/examples (traffic light, drilling station, tank filling, parallel conveyor, bottling line, operating modes). Skippable ≤5-step tour. Help panel with GRAFCET quick reference + glossary tooltips using standard terms (step, transition, receptivity, clear, enabled).
+Owner decisions: the canvas comes first, so toolbar islands and hints rest at 80 % opacity until hovered or focused (cards stay solid); Simulate is a play icon whose label slides out on hover; a small language button (EN/FR/DE/ES) sits with help and feedback.
 Phones (`src/app/ui/media.ts`: ≤639 px wide or ≤479 px tall, Tailwind `compact:` variant): top bar with ☰ menu drawer, canvas, bottom toolbar, panels in one sheet, help full screen, no split view. Touch screens (`pointer: coarse`): pan/pinch/double-tap/long-press gestures, selection toolbar, larger handles and hit areas.
 
 ## Theme

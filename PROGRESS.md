@@ -307,6 +307,22 @@ Autonomous build log. Read this first in every session and resume from **Current
   simulating, leave). Checked by hand against `wrangler dev` (join from the snapshot alone,
   reload rejoins).
 
+- French, German and Spanish. `src/i18n/{fr,de,es}.ts` typed as `Messages` (the keys of `en.ts`,
+  any wording); `src/i18n/index.ts` loads them as separate chunks, starts in the saved choice
+  (`grafcetmaker.lang`) or the first browser language it speaks, renders only once that language
+  is loaded (no English flash) and sets `<html lang>`. Help pages in `docs/help/<lang>/` keep the
+  English anchors with `## Titre {#anchor}` (deep links from the app and the guide), loaded by
+  `helpPages(lang)` with English as fallback; the website publishes them at `<lang>/help/` with
+  hreflang alternates, a language switcher and sitemap entries. Language button (`LanguageMenu`,
+  bottom right with help and feedback), a Language group in the main menu, a switch in the phone
+  drawer, one palette command per language. `tests/unit/i18n.test.ts`: every key with the same
+  placeholders, every help page with the same anchors, figures, links and keys. Translations by
+  model, terminology from the four guides; e2e pinned to `en-US`.
+- The canvas first: toolbar islands and the hints rest at 80 % opacity until hovered, focused or
+  holding an open menu (`gm-card` marks the cards that stay solid; no fade on touch screens or
+  with `prefers-contrast: more`). Simulate is a play icon whose label slides out on hover or
+  keyboard focus (grid `0fr → 1fr`, no layout jump of the icon).
+
 ## Decisions
 
 - Floating layout (owner request): no docked bars on desktops and tablets. `src/app/Islands.tsx`
@@ -410,10 +426,11 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Enclosing step symbol (vertical inner lines) not verified against the IEC 60848 figure; adjust
   in `elements.tsx` and `svgExport.ts` if the standard differs.
 - An initial step cannot be a macro-step or an enclosing step (data model limitation).
-- Only English is translated; i18next keys are typed and complete, so adding a language is a new
-  file in `src/i18n` (help pages would need `docs/help/<lang>/`).
-- The website guide exists in four languages kept in step by hand; the examples it opens, the
-  home page text, the help pages and the app itself stay English. Guide figures use the system monospace font (the app's JetBrains Mono
+- The interface and help exist in English, French, German and Spanish, kept in step by hand (the
+  i18n test catches missing keys, placeholders and anchors, not stale wording). The examples, the
+  help diagrams, generated PLC code and the home page text for crawlers stay English. The
+  translations were made by a model; a native review of each language is still to do.
+- The website guide exists in four languages kept in step by hand. Guide figures use the system monospace font (the app's JetBrains Mono
   is not loaded there).
 - Generated code is not compiled by a real PLC toolchain in CI (no vendor tools available); the
   ST uses only standard IEC 61131-3 constructs and the XML follows TC6 2.01 by hand. Vendor

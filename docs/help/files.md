@@ -28,7 +28,8 @@ in the corner offers to reload: your work is kept.
   without changing where Save writes.
 - **Open** (<kbd>Ctrl+O</kbd>), **File › Open recent**, or drop a `.grafcet.json` file anywhere on
   the window. If the open project has unsaved changes you are asked first, and an invalid file is
-  rejected with an explanation without touching your project.
+  rejected with an explanation without touching your project. Files from grafcet.io (`.grafcetio`)
+  open the same way and become a new project.
 
 `.grafcet.json` files are readable text, well suited to version control (Git) and code review.
 

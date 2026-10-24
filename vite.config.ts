@@ -178,7 +178,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,woff2,webmanifest}'],
         // The link-preview image is for other sites, never shown in the app; the app has its own
         // help, so the help pages of the website are not kept offline.
-        globIgnores: ['og-image.png', 'help/**'],
+        globIgnores: ['og-image.png', 'help/**', '*/help/**'],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         navigateFallback: 'index.html',
         // The guide pages are precached as themselves; never answer them or the help with the app.

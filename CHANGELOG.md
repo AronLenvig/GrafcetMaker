@@ -8,6 +8,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- GrafcetMaker in **French, German and Spanish**: the whole interface and the help center. The
+  first visit follows the browser's language; change it with the small language button at the
+  bottom right, in the main menu or in the command palette. The website's help pages are
+  published in the four languages too.
 - Transitions can be rotated to flow **right to left** (`R`, **Direction** in the properties, or
   the right-click menu): the bar stands vertical, the link from the step before it enters on the
   right and the link to the next step leaves on the left, both with an arrow, as IEC 60848 asks for
@@ -89,6 +93,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- The canvas comes first: the toolbars rest slightly faded until you point at them, and
+  **Simulate** is a play button whose label appears when you point at it.
 - A transition whose receptivity is not written yet shows a grey "?" instead of a red problem
   badge (it is still listed in Problems).
 - Clicking the ghost transition and step selects the new step, as if it had been clicked, instead
@@ -155,6 +161,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- The action tool shows its key (⇧A) in its corner like the other tools, and Simulate shows F5.
+- The hint for an unknown name in an expression showed `{{type}} {{direction}}` instead of the
+  variable it would become.
 - Many grafcet tabs no longer show a scrollbar that pushed the tabs up: the strip scrolls with the
   wheel and ‹ › buttons, and keeps the active tab in view.
 - A grafcet name error while renaming a tab is no longer cut off by the tab strip.

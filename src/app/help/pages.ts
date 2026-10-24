@@ -1,7 +1,8 @@
 import { blockText, inlineText, parseMarkdown, type Block } from './markdown';
 
-// The pages are the Markdown files of docs/help, bundled with the (lazy) help panel.
-const RAW = import.meta.glob('/docs/help/*.md', {
+// The pages are the Markdown files of docs/help (English) and docs/help/<lang>/ (translations),
+// bundled with the (lazy) help panel.
+const RAW = import.meta.glob('/docs/help/**/*.md', {
   query: '?raw',
   import: 'default',
   eager: true,
@@ -51,12 +52,29 @@ function load(id: string, src: string): HelpPage {
   return { id, title, blocks: blocks.filter((b) => b !== h1), sections };
 }
 
-export const PAGES: HelpPage[] = ORDER.flatMap((id) => {
-  const src = RAW[`/docs/help/${id}.md`];
-  return src === undefined ? [] : [load(id, src)];
-});
+export interface Help {
+  pages: HelpPage[];
+  byId: Map<string, HelpPage>;
+}
 
-export const pageById = new Map(PAGES.map((p) => [p.id, p]));
+const cache = new Map<string, Help>();
+
+/** The help in one language; a page not translated yet stays in English. */
+export function helpPages(lang: string): Help {
+  let help = cache.get(lang);
+  if (!help) {
+    const pages = ORDER.flatMap((id) => {
+      const src = RAW[`/docs/help/${lang}/${id}.md`] ?? RAW[`/docs/help/${id}.md`];
+      return src === undefined ? [] : [load(id, src)];
+    });
+    help = { pages, byId: new Map(pages.map((p) => [p.id, p])) };
+    cache.set(lang, help);
+  }
+  return help;
+}
+
+/** The English pages. */
+export const PAGES: HelpPage[] = helpPages('en').pages;
 
 export interface SearchHit extends HelpSection {
   pageTitle: string;
@@ -64,11 +82,11 @@ export interface SearchHit extends HelpSection {
 }
 
 /** Sections containing every word of the query; title matches rank first. */
-export function searchHelp(query: string): SearchHit[] {
+export function searchHelp(pages: HelpPage[], query: string): SearchHit[] {
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
   if (!words.length) return [];
   const hits: (SearchHit & { score: number })[] = [];
-  for (const p of PAGES) {
+  for (const p of pages) {
     for (const s of p.sections) {
       const title = s.title.toLowerCase();
       const text = s.text.toLowerCase();

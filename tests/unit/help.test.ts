@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { FIGURES } from '@/app/help/figures';
 import { TERM_HELP } from '@/app/ui/TermHelp';
 import { parseInline, parseMarkdown, type Block, type Inline } from '@/app/help/markdown';
-import { ORDER, PAGES, pageById, searchHelp } from '@/app/help/pages';
+import { helpPages, ORDER, PAGES, searchHelp } from '@/app/help/pages';
 import { grafcetToSvg } from '@/core/io/svgExport';
 
 function links(c: Inline[]): string[] {
@@ -25,6 +25,8 @@ function blockLinks(b: Block): string[] {
       return [];
   }
 }
+
+const pageById = helpPages('en').byId;
 
 describe('help pages', () => {
   it('loads every page in reading order', () => {
@@ -57,9 +59,16 @@ describe('help pages', () => {
   });
 
   it('finds sections by words', () => {
-    const hits = searchHelp('falling edge');
+    const hits = searchHelp(PAGES, 'falling edge');
     expect(hits[0]?.page).toBe('expressions');
-    expect(searchHelp('zzzz-not-there')).toEqual([]);
+    expect(searchHelp(PAGES, 'zzzz-not-there')).toEqual([]);
+  });
+
+  it('keeps the English anchor of a translated heading', () => {
+    expect(parseMarkdown('## Opérateurs {#operators}')[0]).toMatchObject({
+      id: 'operators',
+      text: 'Opérateurs',
+    });
   });
 });
 

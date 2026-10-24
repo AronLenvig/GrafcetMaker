@@ -15,6 +15,7 @@ import {
   downloadCopy,
   copyShareLink,
 } from '@/app/persistence/session';
+import { setLanguage, type Language } from '@/i18n';
 import { useTheme } from '@/theme/theme';
 import { fitToContent, setZoom, zoomBy } from '../canvas/viewport';
 import {
@@ -491,6 +492,12 @@ export const COMMANDS: Command[] = [
     group: 'view',
     run: () => useTheme.getState().setMode('dark'),
   },
+  ...(['En', 'Fr', 'De', 'Es'] as const).map((l): Command => ({
+    id: `view.language${l}`,
+    label: `view.language${l}`,
+    group: 'view',
+    run: () => void setLanguage(l.toLowerCase() as Language),
+  })),
   {
     id: 'view.toggleTextbook',
     label: 'view.toggleTextbook',

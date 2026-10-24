@@ -7,6 +7,7 @@ import { useDoc } from '@/editor/store/document';
 import { tDynamic } from '@/i18n/dynamic';
 import { THEME_MODES, useTheme, type ThemeMode } from '@/theme/theme';
 import { ThemeSwitcher } from '@/theme/ThemeSwitcher';
+import { LanguageItems, LanguageSwitcher } from './LanguageMenu';
 import { listRecent, type RecentEntry } from './persistence/db';
 import { openRecent } from './persistence/session';
 import { setPrefs, usePrefs } from './prefs';
@@ -299,7 +300,7 @@ function BarNode({ node }: { node: MenuNode }) {
 
 /**
  * Desktops and tablets: the main menu behind one button (File, Edit, View, Simulate and Help as
- * submenus) with the theme at the bottom, so the canvas keeps the screen.
+ * submenus) with the theme and the language at the bottom, so the canvas keeps the screen.
  */
 export function MainMenuButton() {
   const { t } = useTranslation();
@@ -345,6 +346,11 @@ export function MainMenuButton() {
               </DropdownMenu.RadioItem>
             ))}
           </DropdownMenu.RadioGroup>
+          <MenuSeparator />
+          <DropdownMenu.Label className="px-2 py-1 text-[11px] font-semibold tracking-wider text-muted uppercase">
+            {t('language.label')}
+          </DropdownMenu.Label>
+          <LanguageItems />
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
@@ -549,6 +555,10 @@ export function MenuDrawer({
           <div className="flex shrink-0 items-center justify-between gap-2 border-t border-border px-4 py-3">
             <span className="text-sm text-muted">{t('theme.label')}</span>
             <ThemeSwitcher />
+          </div>
+          <div className="flex shrink-0 items-center justify-between gap-2 border-t border-border px-4 py-3">
+            <span className="text-sm text-muted">{t('language.label')}</span>
+            <LanguageSwitcher />
           </div>
         </Dialog.Content>
       </Dialog.Portal>

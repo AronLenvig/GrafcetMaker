@@ -2,7 +2,8 @@
  * Parser for the subset of Markdown used by the help pages (docs/help/*.md). Produces a small
  * block tree rendered as React elements: no HTML is ever injected. Supported: # headings,
  * paragraphs, - and 1. lists, > callouts, ``` code, | tables |, `code`, **bold**, *italic*,
- * [links](page.md#anchor), <kbd>keys</kbd> and <!-- figure: id | caption --> diagrams.
+ * [links](page.md#anchor), <kbd>keys</kbd>, <!-- figure: id | caption --> diagrams and
+ * `## Heading {#anchor}` for an anchor of its own.
  */
 
 export type Inline =
@@ -100,13 +101,14 @@ export function parseMarkdown(src: string): Block[] {
     } else if (trimmed.startsWith('<!--')) {
       flushPara();
       while (i < lines.length && !lines[i]!.includes('-->')) i++;
-    } else if ((m = /^(#{1,3})\s+(.*)$/.exec(trimmed))) {
+    } else if ((m = /^(#{1,3})\s+(.*?)(?:\s+\{#([\w-]+)\})?$/.exec(trimmed))) {
+      // `## Titre {#title}`: translations keep the anchor of the English heading.
       flushPara();
       const text = m[2]!;
       blocks.push({
         t: 'h',
         level: m[1]!.length as 1 | 2 | 3,
-        id: slug(text),
+        id: m[3] ?? slug(text),
         c: parseInline(text),
         text,
       });

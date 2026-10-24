@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useLanguage } from '@/i18n';
 
 /** The help panel: open state and the page shown, mirrored in the URL as #help/<page>[/<anchor>]. */
 export interface HelpState {
@@ -32,10 +33,9 @@ export function toggleHelp(): void {
   else openHelp(useHelp.getState().page);
 }
 
-/** The website's GRAFCET guide (src/site), bundled with the app, in the browser's language if any. */
+/** The website's GRAFCET guide (src/site), bundled with the app, in the language of the app. */
 export function guideUrl(): string {
-  const lang = navigator.language.slice(0, 2).toLowerCase();
-  return `./${['fr', 'de', 'es'].includes(lang) ? lang : 'en'}/`;
+  return `./${useLanguage.getState().language}/`;
 }
 
 /** Opens the page named in the URL (a shared #help/... link). */

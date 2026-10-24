@@ -232,7 +232,7 @@ export function PanelCard() {
     <section
       ref={ref}
       aria-label={t('panels.label')}
-      className="gm-island absolute top-[60px] right-3 bottom-[60px] z-20 flex flex-col overflow-hidden"
+      className="gm-island gm-card absolute top-[60px] right-3 bottom-[60px] z-20 flex flex-col overflow-hidden"
       style={{ width: w }}
     >
       <Grip

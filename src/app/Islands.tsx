@@ -8,6 +8,7 @@ import { useUi } from '@/editor/store/uiStore';
 import { ToolIsland, UndoRedoIsland } from '@/editor/tools/Toolbar';
 import { ProblemsBadge, usePanelLabel } from '@/panels/panelParts';
 import { LiveIsland } from './collab/LiveIsland';
+import { LanguageButton } from './LanguageMenu';
 import { MainMenuButton } from './menus';
 import { SimBar } from './SimBar';
 import {
@@ -109,7 +110,7 @@ const PANEL_ICONS: Record<SheetTab, typeof TableIcon> = {
   outline: OutlineIcon,
 };
 
-/** Bottom right: the panels (each opens a floating card), help and feedback. */
+/** Bottom right: the panels (each opens a floating card), help, feedback and the language. */
 function PanelsIsland() {
   const { t } = useTranslation();
   const open = useSheet((s) => s.open);
@@ -165,6 +166,7 @@ function PanelsIsland() {
             <FeedbackIcon size={18} />
           </IconButton>
         </Tip>
+        <LanguageButton />
       </div>
     </div>
   );

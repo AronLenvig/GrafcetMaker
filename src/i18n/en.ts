@@ -14,6 +14,9 @@ export const en = {
     light: 'Light',
     dark: 'Dark',
   },
+  language: {
+    label: 'Language',
+  },
   common: {
     ok: 'OK',
     cancel: 'Cancel',
@@ -291,6 +294,10 @@ export const en = {
       themeSystem: 'Theme: system',
       themeLight: 'Theme: light',
       themeDark: 'Theme: dark',
+      languageEn: 'Language: English',
+      languageFr: 'Language: Français',
+      languageDe: 'Language: Deutsch',
+      languageEs: 'Language: Español',
       palette: 'Command palette',
       toggleTextbook: 'Toggle textbook notation',
       textbook: 'Textbook notation (overbar NOT, ·, +)',
@@ -1399,7 +1406,7 @@ export const en = {
       forcingSyntax:
         'Forcing order syntax: G2{8}, G2{8, 9}, G2{*} (freeze), G2{} (empty), G2{INIT}.',
       didYouMean: 'Did you mean “{{suggestion}}”?',
-      createVariable: 'Declare it as a {{type}} {{direction}} variable.',
+      createVariable: 'Declare it as a {{type}} {{direction, lowercase}} variable.',
       renumberSteps: 'Renumber steps so numbers are unique across grafcets.',
       parenthesizeComparison:
         'Comparisons read the longest arithmetic on their left: put them in parentheses, e.g. a * (C > 3).',
@@ -1410,6 +1417,11 @@ export const en = {
       use: 'Use {{name}}',
       useOne: 'Use 1',
     },
-    newVariable: 'New variable {{name}}: {{type}} {{direction}}',
+    newVariable: 'New variable {{name}}: {{type}} {{direction, lowercase}}',
   },
 } as const;
+
+/** What every translation provides: the same keys as English, in its own words. */
+export type Messages<T = typeof en> = {
+  readonly [K in keyof T]: T[K] extends string ? string : Messages<T[K]>;
+};

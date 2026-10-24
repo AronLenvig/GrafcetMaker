@@ -18,8 +18,8 @@ Names are not case-sensitive, use letters, digits and `_`, and cannot be reserve
 
 ## Creating variables
 
-- While typing an expression, an unknown name offers **Create BOOL input “name”** (or output,
-  depending on where you use it). This is the fastest way.
+- While typing an expression, a new name is declared when you confirm: an input in a receptivity,
+  an output in an action. This is the fastest way.
 - **Add variable** in the Variables list or table.
 - **Import** a list from Excel or CSV (below).
 

@@ -173,7 +173,7 @@ function DesktopLayout() {
       {helpOpen && (
         // Next to the panel card when both are open.
         <div
-          className="gm-island absolute top-[60px] bottom-[60px] z-30 w-[min(440px,40vw)] min-w-72 overflow-hidden"
+          className="gm-island gm-card absolute top-[60px] bottom-[60px] z-30 w-[min(440px,40vw)] min-w-72 overflow-hidden"
           style={{ right: 12 + panelSpace }}
         >
           <Suspense fallback={null}>

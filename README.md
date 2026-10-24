@@ -1,12 +1,108 @@
+<div align="center">
+
+<img src="public/favicon.svg" width="72" height="72" alt="GrafcetMaker logo" />
+
 # GrafcetMaker
 
-A fast, offline-capable **GRAFCET (IEC 60848)** editor and simulator that runs entirely in the
-browser. Built for automation engineers: correct semantics first, then editing speed.
+**Draw, check and simulate GRAFCET charts (IEC 60848) in your browser, then turn them into PLC
+code.**
 
-- No backend, no accounts, no telemetry. Your projects stay on your machine.
-- One static build serves both the public website and air-gapped on-premise installs: every asset
-  is bundled (no CDNs, no external fonts, no runtime network calls).
-- MIT licensed.
+[![Open the editor](https://img.shields.io/badge/open_the_editor-grafcet.org-1d4ed8?style=for-the-badge)](https://grafcet.org)
+
+[![CI](https://github.com/AronLenvig/GrafcetMaker/actions/workflows/ci.yml/badge.svg)](https://github.com/AronLenvig/GrafcetMaker/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-16a34a)](LICENSE)
+[![IEC 60848](https://img.shields.io/badge/GRAFCET-IEC_60848-475569)](https://grafcet.org/en/)
+[![Works offline](https://img.shields.io/badge/PWA-works_offline-7c3aed)](#self-hosting)
+
+[GRAFCET guide](https://grafcet.org/en/) · [Help center](https://grafcet.org/help/) ·
+[Self-hosting](#self-hosting) · [Contributing](CONTRIBUTING.md)
+
+<br />
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/hero-dark.png" />
+  <img src="docs/images/hero-light.png" alt="GrafcetMaker simulating a bottling line: tokens in three parallel branches, live inputs and outputs, and the true receptivities highlighted in green" />
+</picture>
+
+</div>
+
+<br />
+
+GrafcetMaker is a GRAFCET editor and simulator for automation engineers, teachers and students. It
+follows the evolution rules of IEC 60848 to the letter, checks your chart while you draw, and
+generates Structured Text and PLCopen XML for your PLC.
+
+- **Free and open source** (MIT). No paid tier, no limits on projects, grafcets or steps.
+- **Nothing to install, no account.** It runs in any modern browser, and can be installed as an app.
+- **Your projects stay yours.** They are stored on your computer, live sessions are end-to-end
+  encrypted, there is no tracking, and it works offline and air-gapped.
+
+## Simulate exactly as the standard says
+
+<img src="docs/images/simulation.png" alt="A traffic light in simulation with its chronogram: the active step carries a token, the step timer counts, and every input, output and step is plotted over time" />
+
+Press <kbd>F5</kbd> and the chart comes alive. Tokens mark the active steps, enabled transitions
+and true signals light up, and step timers count. Behind it is a faithful implementation of
+IEC 60848: simultaneous clearing, search for stability with unstable (transient) steps, rising and
+falling edges, timers, and forcing orders between grafcets.
+
+- Click inputs in the panel or right on the diagram; hold a button for a momentary press.
+- Virtual time: real time, ×N fast forward that jumps to the next timer, or one evolution at a time.
+- A **chronogram** of every variable with time travel, an evolution log per cycle, and recorded
+  scenarios you can replay.
+
+## Errors caught while you draw
+
+<img src="docs/images/problems.png" alt="The Problems panel listing an incomplete expression, alternative branches that are not exclusive with a one-click fix, and an unused variable, with badges on the diagram" />
+
+Every receptivity and action is parsed as you type, with the exact error position and a
+“did you mean” for unknown names. The checks go further than syntax: unreachable steps, dead ends,
+alternative branches that are not exclusive, possible transient loops, outputs driven from parallel
+branches, and macro-step or forcing inconsistencies. Most problems come with a quick fix.
+
+## From chart to PLC code
+
+<img src="docs/images/export-st.png" alt="The Export dialog generating IEC 61131-3 Structured Text of a drilling station: a CASE per sequence with one IF per transition" />
+
+| Target                    | What you get                                                              |
+| ------------------------- | ------------------------------------------------------------------------- |
+| IEC 61131-3               | a function block (`.st`) for CODESYS and most other tools                 |
+| Siemens TIA Portal        | an SCL source for S7-1200/1500, ready for **Generate blocks from source** |
+| Beckhoff TwinCAT 3        | a POU file (`.TcPOU`) to add to the PLC project                           |
+| Allen-Bradley Studio 5000 | a Structured Text routine with its tag list                               |
+| PLCopen XML (TC6)         | one SFC program per grafcet, for engineering tools with PLCopen import    |
+
+Structured Text comes as a `CASE` per sequence, the way you would write it by hand, or as one BOOL
+per step with an optional search for stability. For documents: vector PDF on A4 or A3 with a title
+block and tiling, SVG, PNG and WebP, copy to the clipboard, and the variable table to Excel and CSV.
+Generated code is a starting point: always review it before it runs on a machine.
+
+## Fast to draw, on any screen
+
+The keyboard does most of the work: <kbd>Enter</kbd> appends a transition and a step and puts you
+in the receptivity, <kbd>A</kbd> adds an action, <kbd>P</kbd> and <kbd>O</kbd> open parallel and
+alternative branches, <kbd>L</kbd> loops back, and <kbd>Del</kbd> heals the sequence. Links only
+snap to valid targets, auto-layout tidies on demand, and <kbd>Ctrl</kbd>+<kbd>K</kbd> finds any
+command. Phones get their own one-handed layout, and touch screens get gestures and a selection
+toolbar.
+
+<p align="center">
+  <img src="docs/images/phone-light.png" width="270" alt="The phone layout: a drilling station with a step selected and the touch selection toolbar" />
+  &nbsp;&nbsp;
+  <img src="docs/images/phone-dark.png" width="270" alt="A parallel conveyor simulating on a phone in the dark theme" />
+</p>
+
+## Try it
+
+- **Online:** open [grafcet.org](https://grafcet.org). The start screen has six examples, from a
+  traffic light to a bottling line with a macro-step, and a five-step tour.
+- **As an app:** install it from the browser; it then starts like a desktop program and works
+  offline.
+- **On your own server:** `docker build -t grafcetmaker . && docker run -p 8080:8080 grafcetmaker`,
+  or copy the static build anywhere (see [Self-hosting](#self-hosting)).
+- **New to GRAFCET?** The [GRAFCET guide](https://grafcet.org/en/) explains the standard with
+  diagrams, in English, [French](https://grafcet.org/fr/), [German](https://grafcet.org/de/) and
+  [Spanish](https://grafcet.org/es/).
 
 ## Features
 
@@ -188,4 +284,5 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for conventions and
 
 ## License
 
-[MIT](LICENSE). Bundled font JetBrains Mono is under the SIL Open Font License 1.1.
+[MIT](LICENSE). Bundled third-party assets keep their own licences: see
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

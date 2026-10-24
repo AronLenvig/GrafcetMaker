@@ -499,8 +499,8 @@ remembered on this device:
 
 ## Theme
 
-Choose System, Light or Dark at the bottom of the main menu ☰ (or in Settings). _System_ follows your operating
-system setting and updates live when it changes. The choice is remembered on this device.
+Choose System (screen icon), Light (sun) or Dark (moon) in the row at the bottom of the main menu ☰
+(or in Settings). _System_ follows your operating system setting and updates live when it changes. The choice is remembered on this device.
 
 ## Language
 

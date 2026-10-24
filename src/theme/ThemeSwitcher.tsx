@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { MonitorIcon, MoonIcon, SunIcon } from '@/app/ui/icons';
 import { useTheme, type ThemeMode } from './theme';
 
-const OPTIONS: { mode: ThemeMode; Icon: typeof SunIcon }[] = [
+/** The theme modes with their icons, in menu order. */
+export const THEME_OPTIONS: { mode: ThemeMode; Icon: typeof SunIcon }[] = [
   { mode: 'system', Icon: MonitorIcon },
   { mode: 'light', Icon: SunIcon },
   { mode: 'dark', Icon: MoonIcon },
@@ -22,7 +23,7 @@ export function ThemeSwitcher() {
       aria-label={t('theme.label')}
       className="flex rounded-md border border-border bg-surface-2 p-0.5"
     >
-      {OPTIONS.map(({ mode: m, Icon }) => (
+      {THEME_OPTIONS.map(({ mode: m, Icon }) => (
         <ToggleGroup.Item
           key={m}
           value={m}

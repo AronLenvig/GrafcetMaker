@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { formatKeys, getCommand, runCommand } from '@/editor/commands/registry';
 import { useDoc } from '@/editor/store/document';
 import { tDynamic } from '@/i18n/dynamic';
-import { THEME_MODES, useTheme, type ThemeMode } from '@/theme/theme';
-import { ThemeSwitcher } from '@/theme/ThemeSwitcher';
+import { useTheme, type ThemeMode } from '@/theme/theme';
+import { THEME_OPTIONS, ThemeSwitcher } from '@/theme/ThemeSwitcher';
 import { LanguageSwitcher } from './LanguageMenu';
 import { listRecent, type RecentEntry } from './persistence/db';
 import { openRecent } from './persistence/session';
@@ -18,9 +18,9 @@ import {
   MenuCheckItem,
   menuContentClass,
   MenuItem,
-  menuItemClass,
   MenuSeparator,
   SubMenu,
+  Tip,
 } from './ui/primitives';
 
 type BoolPref = 'textbookNotation' | 'showGrid' | 'snapToGrid' | 'showHints';
@@ -300,7 +300,7 @@ function BarNode({ node }: { node: MenuNode }) {
 
 /**
  * Desktops and tablets: the main menu behind one button (File, Edit, View, Simulate and Help as
- * submenus) with the theme and the language at the bottom, so the canvas keeps the screen.
+ * submenus) with the theme as one row of icons at the bottom, so the canvas keeps the screen.
  */
 export function MainMenuButton() {
   const { t } = useTranslation();
@@ -333,19 +333,29 @@ export function MainMenuButton() {
             </SubMenu>
           ))}
           <MenuSeparator />
-          <DropdownMenu.Label className="px-2 py-1 text-[11px] font-semibold tracking-wider text-muted uppercase">
-            {t('theme.label')}
-          </DropdownMenu.Label>
-          <DropdownMenu.RadioGroup value={mode} onValueChange={(v) => setMode(v as ThemeMode)}>
-            {THEME_MODES.map((m) => (
-              <DropdownMenu.RadioItem key={m} value={m} className={menuItemClass}>
-                <span className="w-4 text-center" aria-hidden="true">
-                  {mode === m ? '•' : ''}
-                </span>
-                <span className="flex-1">{t(`theme.${m}`)}</span>
-              </DropdownMenu.RadioItem>
-            ))}
-          </DropdownMenu.RadioGroup>
+          <div className="flex items-center gap-2 px-2 py-1">
+            <span className="flex-1 text-[11px] font-semibold tracking-wider text-muted uppercase">
+              {t('theme.label')}
+            </span>
+            <DropdownMenu.RadioGroup
+              value={mode}
+              onValueChange={(v) => setMode(v as ThemeMode)}
+              aria-label={t('theme.label')}
+              className="flex gap-0.5"
+            >
+              {THEME_OPTIONS.map(({ mode: m, Icon }) => (
+                <Tip key={m} label={t(`theme.${m}`)} side="bottom">
+                  <DropdownMenu.RadioItem
+                    value={m}
+                    aria-label={t(`theme.${m}`)}
+                    className="flex h-7 w-8 cursor-default items-center justify-center rounded text-muted outline-none data-[highlighted]:bg-accent-soft data-[highlighted]:text-text data-[state=checked]:bg-surface-2 data-[state=checked]:text-text data-[state=checked]:ring-1 data-[state=checked]:ring-accent"
+                  >
+                    <Icon size={15} />
+                  </DropdownMenu.RadioItem>
+                </Tip>
+              ))}
+            </DropdownMenu.RadioGroup>
+          </div>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>

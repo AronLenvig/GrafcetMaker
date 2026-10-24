@@ -8,6 +8,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- Easier to find for search engines and AI assistants: the home page carries a full description
+  (features, supported GRAFCET elements, simulation, exports and the PLC tools that take them,
+  examples, frequently asked questions) for readers that do not run JavaScript, the help pages are
+  published on the website (`help/`), and the site has an `llms.txt` and a fuller sitemap.
 - **Live collaboration** (**File › Live collaboration…**, or the people button at the top right,
   where the share link button was): edit a project together in real time from a link. Everyone's
   pointer, selection and the element they edit appear with their name and color; avatars show who

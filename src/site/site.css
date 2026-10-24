@@ -84,13 +84,13 @@ a:hover {
   color: var(--accent);
 }
 
-.langs {
+.nav {
   display: flex;
   gap: 2px;
   margin-left: auto;
 }
 
-.langs a {
+.nav a {
   padding: 4px 8px;
   border-radius: 6px;
   color: var(--text-muted);
@@ -99,12 +99,12 @@ a:hover {
   text-decoration: none;
 }
 
-.langs a:hover {
+.nav a:hover {
   background: var(--surface-2);
   color: var(--text);
 }
 
-.langs a[aria-current='page'] {
+.nav a[aria-current='page'] {
   background: var(--accent-soft);
   color: var(--text);
 }
@@ -195,6 +195,20 @@ a:hover {
 .toc a:hover {
   color: var(--accent);
   text-decoration: underline;
+}
+
+/* Help pages: the list of pages, the current one with its sections */
+
+.toc a[aria-current='page'] {
+  font-weight: 600;
+}
+
+.toc ol ol {
+  columns: auto;
+  margin: 2px 0 4px;
+  padding-left: 16px;
+  border-left: 0;
+  font-size: 14px;
 }
 
 @media (min-width: 1080px) {

@@ -63,6 +63,8 @@
             "name": "GrafcetMaker",
             "url": "__SITE_URL__",
             "image": "__SITE_URL__og-image.png",
+            "screenshot": "__SITE_URL__og-image.png",
+            "softwareHelp": { "@type": "CreativeWork", "url": "__SITE_URL__help/" },
             "description": "Free, open-source GRAFCET (IEC 60848) editor and simulator that runs in the browser: draw, validate and simulate GRAFCET charts, and export them to PDF, SVG, PNG, Structured Text and PLCopen XML.",
             "applicationCategory": "DesignApplication",
             "operatingSystem": "Any (web browser)",
@@ -83,16 +85,9 @@
     </script>
   </head>
   <body>
-    <noscript>
-      <h1>GrafcetMaker: free online GRAFCET editor and simulator</h1>
-      <p>
-        GrafcetMaker draws, checks and simulates GRAFCET charts (IEC 60848) in your browser. It
-        needs JavaScript: please turn it on. New to GRAFCET? Read the
-        <a href="./en/">GRAFCET guide</a> (<a href="./fr/" lang="fr">français</a>,
-        <a href="./de/" lang="de">Deutsch</a>, <a href="./es/" lang="es">español</a>).
-      </p>
-    </noscript>
-    <div id="root"></div>
+    <!-- The home page text (docs/home.md) for readers without JavaScript is rendered here at
+         build time (vite.config.ts); the editor replaces it. -->
+    <div id="root"><!--static-home--></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

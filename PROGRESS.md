@@ -257,6 +257,17 @@ Autonomous build log. Read this first in every session and resume from **Current
   the service worker and kept out of its SPA fallback. Help › GRAFCET guide and a start screen
   link (`guideUrl()`, browser language).
 
+- Readable without JavaScript (most AI crawlers do not run it). `docs/home.md` (features,
+  supported elements, simulation, exports and target PLC tools, examples, FAQ) is rendered by
+  `renderHome()` into `<div id="root">` of `index.html` at build time (`transformIndexHtml`, not in
+  dev), followed by a list of every page; `.static-home` in `src/theme/index.css` hides it once the
+  theme bootstrap has set `data-theme` (no flash) and makes it readable and scrollable otherwise.
+  The help pages (`docs/help`) are published at `help/` and `help/<page>/` with the guide's frame
+  (`frame()`), a page list with the current page's sections, TechArticle + BreadcrumbList data;
+  not precached (the app has its own help) and kept out of the SPA fallback. `llms.txt` is the
+  home text with absolute links plus the page list. Sitemap lists the help pages; guide footers
+  link the help. The `website()` plugin loads `src/site` once per build.
+
 - grafcet.io import (`src/core/io/grafcetIo.ts`, tests `tests/unit/grafcetIo.test.ts`): edges
   joined into nets through loop nodes/markers and branch bars, frames and separate charts as
   partial grafcets, all action types, conditional forcing as a helper grafcet, `*`/comparison
@@ -317,6 +328,8 @@ Autonomous build log. Read this first in every session and resume from **Current
 - The website lives next to the app rather than in front of it: the app stays at `/` (share links,
   installed PWAs, on-premise paths unchanged) and the guide pages are plain HTML generated from
   Markdown at build time, so search engines get real text without a separate site or server.
+  The home page text for crawlers lives in the root element of `index.html` instead of a landing
+  page in front of the app, for the same reason.
 - Phones get their own layout rather than a squeezed desktop one; tablets keep the desktop layout
   plus the touch additions. The diagram always gets the whole width; panels share one sheet over
   it (not persisted, so each visit starts with the full diagram). One finger on the empty canvas
@@ -399,8 +412,8 @@ Autonomous build log. Read this first in every session and resume from **Current
 - An initial step cannot be a macro-step or an enclosing step (data model limitation).
 - Only English is translated; i18next keys are typed and complete, so adding a language is a new
   file in `src/i18n` (help pages would need `docs/help/<lang>/`).
-- The website guide exists in four languages kept in step by hand; the examples it opens and the
-  app itself stay English. Guide figures use the system monospace font (the app's JetBrains Mono
+- The website guide exists in four languages kept in step by hand; the examples it opens, the
+  home page text, the help pages and the app itself stay English. Guide figures use the system monospace font (the app's JetBrains Mono
   is not loaded there).
 - Generated code is not compiled by a real PLC toolchain in CI (no vendor tools available); the
   ST uses only standard IEC 61131-3 constructs and the XML follows TC6 2.01 by hand. Vendor

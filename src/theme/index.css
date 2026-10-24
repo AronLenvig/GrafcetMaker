@@ -96,6 +96,89 @@
   }
 }
 
+/*
+ * The home page text that index.html carries for readers without JavaScript: search engines and
+ * AI crawlers (src/site/render.ts). With JavaScript the theme bootstrap has set data-theme before
+ * the body is parsed, so the text never shows before the editor replaces it.
+ */
+@layer components {
+  :root[data-theme] .static-home {
+    display: none;
+  }
+
+  :root:not([data-theme]) body {
+    overflow: auto;
+  }
+
+  :root:not([data-theme]) #root {
+    height: auto;
+  }
+
+  .static-home {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 16px 48px;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .static-home h1,
+  .static-home h2,
+  .static-home h3 {
+    line-height: 1.25;
+    font-weight: 700;
+  }
+
+  .static-home h1 {
+    margin: 0 0 16px;
+    font-size: 32px;
+  }
+
+  .static-home h2 {
+    margin: 2em 0 0.5em;
+    font-size: 24px;
+  }
+
+  .static-home h3 {
+    margin: 1.5em 0 0.25em;
+    font-size: 18px;
+  }
+
+  .static-home :is(p, ul, .table-wrap) {
+    margin: 0 0 1em;
+  }
+
+  .static-home ul {
+    padding-left: 1.5em;
+    list-style: disc;
+  }
+
+  .static-home a {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  .static-home :is(code, kbd) {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+
+  .static-home .table-wrap {
+    overflow-x: auto;
+  }
+
+  .static-home table {
+    border-collapse: collapse;
+  }
+
+  .static-home :is(th, td) {
+    padding: 6px 10px;
+    border: 1px solid var(--border-strong);
+    text-align: left;
+    vertical-align: top;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

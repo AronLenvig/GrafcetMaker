@@ -56,24 +56,43 @@ function contentSecurityPolicy(): Plugin {
 
 /** What src/site/render.ts exports (the config is type-checked apart from src). */
 interface SiteModule {
+  renderHome(home: string): Promise<string>;
   buildSite(input: {
     siteUrl: string;
     guides: Record<string, string>;
+    home: string;
     themeScript: string;
     css: string;
   }): Promise<{ fileName: string; source: string }[]>;
 }
 
 /**
- * The public website around the app: SITE_URL in index.html, and at build time the static GRAFCET
- * guide in each language (docs/guide/<lang>.md rendered by src/site), sitemap.xml and robots.txt.
+ * The public website around the app: SITE_URL in index.html, and at build time the home page text
+ * for readers without JavaScript (docs/home.md, in the root element of index.html), the static
+ * GRAFCET guide in each language (docs/guide/<lang>.md), the help pages (docs/help), sitemap.xml,
+ * robots.txt and llms.txt, all rendered by src/site.
  */
 function website(): Plugin {
+  let site: Promise<SiteModule> | undefined;
+  // src/site imports the app's modules, so it is loaded through Vite, once per build.
+  const loadSite = () =>
+    (site ??= runnerImport<SiteModule>('/src/site/render.ts', {
+      configFile: false,
+      root,
+      logLevel: 'error',
+      resolve: { alias },
+    }).then((r) => r.module));
   return {
     name: 'grafcetmaker-website',
     transformIndexHtml: {
       order: 'pre',
-      handler: (html) => html.replaceAll('__SITE_URL__', SITE_URL),
+      async handler(html, ctx) {
+        const page = html.replaceAll('__SITE_URL__', SITE_URL);
+        // While developing, the root stays empty: the editor replaces the text anyway.
+        if (ctx.server) return page;
+        const home = await (await loadSite()).renderHome(read('./docs/home.md'));
+        return page.replace('<!--static-home-->', () => home);
+      },
     },
     async generateBundle() {
       const css = this.emitFile({
@@ -86,15 +105,12 @@ function website(): Plugin {
           .filter((f) => f.endsWith('.md'))
           .map((f) => [f.slice(0, -3), read(`./docs/guide/${f}`)]),
       );
-      const { module } = await runnerImport<SiteModule>('/src/site/render.ts', {
-        configFile: false,
-        root,
-        logLevel: 'error',
-        resolve: { alias },
-      });
-      const files = await module.buildSite({
+      const files = await (
+        await loadSite()
+      ).buildSite({
         siteUrl: SITE_URL,
         guides,
+        home: read('./docs/home.md'),
         themeScript: /<script>([\s\S]*?)<\/script>/.exec(read('./index.html'))?.[1] ?? '',
         css: this.getFileName(css),
       });
@@ -160,12 +176,13 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2,webmanifest}'],
-        // The link-preview image is for other sites, never shown in the app.
-        globIgnores: ['og-image.png'],
+        // The link-preview image is for other sites, never shown in the app; the app has its own
+        // help, so the help pages of the website are not kept offline.
+        globIgnores: ['og-image.png', 'help/**'],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         navigateFallback: 'index.html',
-        // The guide pages are precached as themselves; never answer them with the app.
-        navigateFallbackDenylist: [/\/(?:en|fr|de|es)\/(?:index\.html)?$/],
+        // The guide pages are precached as themselves; never answer them or the help with the app.
+        navigateFallbackDenylist: [/\/(?:en|fr|de|es)\/(?:index\.html)?$/, /\/help\//],
         cleanupOutdatedCaches: true,
       },
     }),

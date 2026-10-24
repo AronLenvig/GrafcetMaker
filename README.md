@@ -112,9 +112,11 @@ Besides the app, the build writes the public website's pages for search engines 
 - `en/`, `fr/`, `de/`, `es/`: the GRAFCET guide, static HTML rendered at build time from
   [`docs/guide/<lang>.md`](docs/guide/en.md) by [`src/site/`](src/site/render.ts), with diagrams
   drawn by the editor's own exporter and examples that open in the app;
-- `sitemap.xml` and `robots.txt`;
-- in `index.html`: a descriptive title, canonical link, Open Graph preview (`og-image.png`) and
-  structured data.
+- `help/`: the in-app help pages ([`docs/help/`](docs/help/index.md)) as static HTML;
+- `sitemap.xml`, `robots.txt` and `llms.txt`;
+- in `index.html`: a descriptive title, canonical link, Open Graph preview (`og-image.png`),
+  structured data, and the home page text ([`docs/home.md`](docs/home.md)) for readers without
+  JavaScript, such as AI crawlers (the editor replaces it).
 
 Absolute URLs use `SITE_URL` (default `https://grafcet.org/`). A public mirror builds with its own
 address, `SITE_URL=https://grafcet.example.com/ npm run build`; on-premise installs need nothing.

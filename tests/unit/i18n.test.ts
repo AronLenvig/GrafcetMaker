@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseMarkdown, type Block, type Inline } from '@/app/help/markdown';
-import i18next, { languageOfPath } from '@/i18n';
+import i18next, { languageOfPath, rootOfPath } from '@/i18n';
 import { en } from '@/i18n/en';
 
 /**
@@ -74,6 +74,12 @@ it('reads the language of the address: the editor at <root>/<lang>/', () => {
   expect(languageOfPath('/')).toBeUndefined();
   expect(languageOfPath('/de/guide/')).toBeUndefined();
   expect(languageOfPath('/xx/')).toBeUndefined();
+  // Switching language replaces the language folder, never adds one: …/de/ → …/fr/.
+  expect(rootOfPath('/de/')).toBe('/');
+  expect(rootOfPath('/de/index.html')).toBe('/');
+  expect(rootOfPath('/')).toBe('/');
+  expect(rootOfPath('/tools/grafcet/fr/')).toBe('/tools/grafcet/');
+  expect(rootOfPath('/tools/grafcet/')).toBe('/tools/grafcet/');
 });
 
 describe.each(LANGS)('%s', (lang) => {

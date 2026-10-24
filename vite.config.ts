@@ -102,8 +102,12 @@ function website(): Plugin[] {
       order: 'pre',
       async handler(html, ctx) {
         const page = html.replaceAll('__SITE_URL__', SITE_URL);
-        // While developing, the root stays empty: the editor replaces the text anyway.
-        if (ctx.server) return page;
+        // While developing, the root stays empty (the editor replaces the text anyway), and
+        // /<lang>/ gets the base of the built <lang>/index.html.
+        if (ctx.server)
+          return /^\/[a-z]{2}\/(?:index\.html)?(?:[?#]|$)/.test(ctx.originalUrl ?? '')
+            ? page.replace('<base href="./" />', '<base href="../" />')
+            : page;
         const home = await (await loadSite()).renderHome(read('./docs/home/en.md'), 'en');
         return page.replace('<!--static-home-->', () => home);
       },

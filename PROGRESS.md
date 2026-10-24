@@ -327,8 +327,9 @@ Autonomous build log. Read this first in every session and resume from **Current
   language's (`SITE_TEXT`, `docs/home/<lang>.md`; the build fails if index.html drifts from
   them). `<base href>` pins the app's root (`./` at the root, `../` one folder down), so assets,
   `api/…`, the service worker and `history.replaceState` resolve from the root; the help hash
-  keeps the full path. The address's language wins and is remembered; `setLanguage` writes
-  `<lang>/` into the address. Guide at `<lang>/guide/`, help at `<lang>/help/` (Cloudflare
+  keeps the full path. The address's language wins and is remembered; `setLanguage` replaces the
+  address's language folder (`rootOfPath`: …/de/ → …/fr/, never …/de/fr/). The dev server gives
+  /<lang>/ the `../` base too, like the build. Guide at `<lang>/guide/`, help at `<lang>/help/` (Cloudflare
   `_redirects` for the former `help/`); hreflang on every page with the root as x-default.
   Flags (`src/app/ui/flags.ts`, SVG data shared by the app and the site) with hover hints.
 

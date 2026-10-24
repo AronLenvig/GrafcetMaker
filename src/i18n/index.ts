@@ -33,6 +33,12 @@ export function languageOfPath(pathname: string): Language | undefined {
   return isLanguage(lang) ? lang : undefined;
 }
 
+/** The app's root in an address: …/de/ and …/de/index.html are one folder down from it. */
+export function rootOfPath(pathname: string): string {
+  const folder = pathname.replace(/[^/]*$/, '');
+  return languageOfPath(pathname) ? folder.replace(/[^/]+\/$/, '') : folder;
+}
+
 function save(language: Language): void {
   try {
     localStorage.setItem(STORAGE_KEY, language);
@@ -62,15 +68,11 @@ function startLanguage(): Language {
   return tags.map((tag) => tag.slice(0, 2).toLowerCase()).find(isLanguage) ?? 'en';
 }
 
-/**
- * Shows the language in the address (…/fr/, keeping a #hash), from the app's root: index.html
- * pins it with <base>, so it stays the root after the address changes.
- */
+/** Shows the language in the address: …/de/ becomes …/fr/ (keeping a ?query and #hash). */
 function showInAddress(language: Language): void {
-  const url = new URL(`${language}/`, document.baseURI);
-  url.search = location.search;
-  url.hash = location.hash;
-  if (url.href !== location.href) history.replaceState(history.state, '', url);
+  const path = `${rootOfPath(location.pathname)}${language}/`;
+  if (path !== location.pathname)
+    history.replaceState(history.state, '', path + location.search + location.hash);
 }
 
 void i18next.use(initReactI18next).init({

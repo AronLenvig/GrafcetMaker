@@ -121,7 +121,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   language, and changing the language changes the address. The GRAFCET guide moved to
   `/<language>/guide/` and the help pages to `/<language>/help/`.
 - The language button and the website's language links show flags, named on hover.
-- The main menu shows the theme as one row of icons (screen, sun, moon), named on hover.
+- The main menu shows the theme as one row of icons (screen, sun, moon), named on hover; the menu
+  stays open while you try them.
 - The help center covers the latest editor: typing on the diagram, ghosts, selections, the
   language, and the newer problems in Troubleshooting.
 - A transition whose receptivity is not written yet shows a grey "?" instead of a red problem

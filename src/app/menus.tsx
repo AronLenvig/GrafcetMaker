@@ -349,6 +349,8 @@ export function MainMenuButton() {
                   <DropdownMenu.RadioItem
                     value={m}
                     aria-label={t(`theme.${m}`)}
+                    // The menu stays open, so the themes can be tried one after the other.
+                    onSelect={(e) => e.preventDefault()}
                     className="flex h-7 w-8 cursor-default items-center justify-center rounded text-muted outline-none data-[highlighted]:bg-accent-soft data-[highlighted]:text-text data-[state=checked]:bg-surface-2 data-[state=checked]:text-text data-[state=checked]:ring-1 data-[state=checked]:ring-accent"
                   >
                     <Icon size={15} />

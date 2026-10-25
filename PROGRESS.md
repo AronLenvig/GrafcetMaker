@@ -346,6 +346,11 @@ Autonomous build log. Read this first in every session and resume from **Current
   e.g. `Hoejre`, `Upp`/`Ned`.
 - The main menu no longer lists the languages (owner request): the flag button at the bottom
   right and the palette on desktop, the flags in the menu drawer on phones.
+- Multiple selection overview (`SelectionOverview.tsx`): counts per kind (a chip keeps only that
+  kind) and the selection as a WAI-ARIA tree in renumbering order (`stepOrder`), each step with its
+  selected actions and outgoing transitions; an unselected step shown for its children is faded and
+  italic. A line selects its element alone (`revealInGrafcet`), Ctrl/Shift+click toggles it; at
+  most 200 lines.
 - Help center revision: typing on the diagram, ghosts (transition alone), selections with
   actions and links, the language section, the current layout, every problem message in
   Troubleshooting, Settings under File; synced to all six languages.

@@ -20,7 +20,7 @@ import {
   validateGrafcetName,
 } from '@/editor/commands/edit';
 import { doc, getProject, useActiveGrafcet, useDoc } from '@/editor/store/document';
-import { ui, useUi } from '@/editor/store/uiStore';
+import { useUi } from '@/editor/store/uiStore';
 import { actionTextKind } from '@/core/expr/check';
 import { setUiKind, uiKindOf } from '@/core/model/actionKind';
 import { parentOf } from '@/core/model/hierarchy';
@@ -35,6 +35,7 @@ import { TransitionFlowPicker } from './TransitionFlowPicker';
 import { canFlowLeft, setTransitionFlow } from '@/core/model/ops';
 import { CommitField, ExpressionField, Section } from './fields';
 import { QuickFixButton, SeverityIcon } from './ProblemsPanel';
+import { SelectionOverview } from './SelectionOverview';
 
 function useNumberValidator() {
   const { t } = useTranslation();
@@ -510,16 +511,7 @@ export function PropertiesPanel() {
   } else if (ids.length === 0) {
     body = <GrafcetAndProjectProps g={g} />;
   } else if (ids.length > 1) {
-    body = (
-      <Section title={t('props.multi.title', { count: ids.length })}>
-        <div className="flex gap-2">
-          <Button variant="danger" onClick={() => deleteSelection()}>
-            <TrashIcon size={14} /> {t('commands.edit.delete')}
-          </Button>
-          <Button onClick={() => ui.clearSelection()}>{t('props.multi.clear')}</Button>
-        </div>
-      </Section>
-    );
+    body = <SelectionOverview g={g} ids={ids} />;
   } else {
     const id = ids[0]!;
     const step = g.steps[id];

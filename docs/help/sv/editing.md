@@ -163,3 +163,9 @@ markerat visar egenskapsknappen bredvid projektnamnet grafceten och projektet. P
 **Variabler**, **Problem**, **Tidsdiagram** och **Översikt** öppnas från knapparna nere till höger,
 i ett kort till höger som du kan göra bredare i dess vänstra kant. Under simulering svävar
 simuleringspanelen (ingångar, värden, logg, scenarier) till vänster.
+
+När flera element är markerade ger kortet en översikt: hur många steg, övergångar, aktioner och
+kommentarer (klicka på en för att bara behålla dem) och markeringen som ett träd i läsordning, varje
+steg med sina markerade aktioner och övergångar under sig (ett steg som bara visas för deras skull
+står i kursiv). Klicka på en rad för att bara markera det elementet; <kbd>Ctrl</kbd>+klick tar bort
+det från markeringen.

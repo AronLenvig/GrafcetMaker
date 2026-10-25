@@ -186,3 +186,9 @@ Projektnamen den Grafcet und das Projekt. Die Bereiche **Variablen**, **Probleme
 **Zeitdiagramm** und **Gliederung** öffnen sich über die Schaltflächen unten rechts in einer Karte
 rechts, die Sie an ihrem linken Rand verbreitern können. Während der Simulation schwebt der
 Simulationsbereich (Eingänge, Werte, Protokoll, Szenarien) links.
+
+Sind mehrere Elemente ausgewählt, zeigt die Karte eine Übersicht: wie viele Schritte, Transitionen,
+Aktionen und Kommentare (ein Klick auf eine Anzahl behält nur diese) und die Auswahl als Baum in
+Lesereihenfolge, jeder Schritt mit seinen ausgewählten Aktionen und Transitionen darunter (ein
+Schritt, der nur ihretwegen erscheint, ist kursiv). Ein Klick auf eine Zeile wählt nur dieses
+Element aus; <kbd>Ctrl</kbd>+Klick nimmt es aus der Auswahl.

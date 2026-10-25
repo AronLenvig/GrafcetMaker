@@ -180,3 +180,9 @@ projet affiche le grafcet et le projet. Les panneaux **Variables**, **Problèmes
 **Chronogramme** et **Plan** s'ouvrent depuis les boutons en bas à droite, dans une carte à droite
 que vous pouvez élargir par son bord gauche. Pendant la simulation, le panneau de simulation
 (entrées, valeurs, journal, scénarios) flotte à gauche.
+
+Quand plusieurs éléments sont sélectionnés, la carte en donne une vue d'ensemble : combien d'étapes,
+de transitions, d'actions et de commentaires (cliquez sur l'un pour ne garder que ceux-là) et la
+sélection sous forme d'arbre dans l'ordre de lecture, chaque étape avec ses actions et transitions
+sélectionnées en dessous (une étape affichée seulement pour elles est en italique). Cliquez sur une
+ligne pour ne sélectionner que cet élément ; <kbd>Ctrl</kbd>+clic le retire de la sélection.

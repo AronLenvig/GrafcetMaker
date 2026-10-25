@@ -43,6 +43,24 @@ const ENCLOSED_INITIAL = (
   </>
 );
 
+/** The symbol of a step kind, small (the selection overview). */
+export function StepKindIcon({ kind }: { kind: StepKind }) {
+  return (
+    <svg
+      width="15"
+      height="18"
+      viewBox="8 0 24 30"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+      className="shrink-0"
+    >
+      {PICTURES[kind]}
+    </svg>
+  );
+}
+
 /** The kind of a step as picture buttons: step, initial step, macro-step, enclosing step. */
 export function StepKindPicker({
   value,

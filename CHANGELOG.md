@@ -8,6 +8,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- An overview of a multiple selection in the properties card: how many steps, transitions, actions
+  and comments (a click keeps only that kind) and the selection as a tree in reading order, each
+  step with its selected actions and transitions; a line selects its element alone, Ctrl+click
+  takes it out.
 - A link to the source code on GitHub: **Help › Source code on GitHub**, the About dialog and the
   footer of the website's pages.
 - GrafcetMaker in **Danish and Swedish**: the interface, the help center, the website's GRAFCET

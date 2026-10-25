@@ -167,3 +167,9 @@ valgt, viser egenskabsknappen ved siden af projektnavnet grafcetten og projektet
 **Variabler**, **Problemer**, **Tidsdiagram** og **Oversigt** åbnes med knapperne nederst til
 højre, i et kort til højre, som du kan gøre bredere ved dets venstre kant. Under simulering svæver
 simuleringspanelet (indgange, værdier, log, scenarier) til venstre.
+
+Når flere elementer er valgt, giver kortet et overblik: hvor mange trin, transitioner, aktioner og
+kommentarer (klik på et af dem for kun at beholde dem) og markeringen som et træ i læserækkefølge,
+hvert trin med dets valgte aktioner og transitioner under sig (et trin, der kun vises for deres
+skyld, står i kursiv). Klik på en linje for kun at vælge det element; <kbd>Ctrl</kbd>+klik fjerner
+det fra markeringen.

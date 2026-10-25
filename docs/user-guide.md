@@ -42,6 +42,10 @@ fully when you point at them or reach them with the keyboard:
   (picture buttons), receptivity and actions. Its `×` hides it for this selection. With nothing
   selected, the properties button (or **View › Properties panel**) shows the grafcet and the
   project.
+  With several elements selected it shows an overview: how many of each kind (click one to keep
+  only those) and the selection as a tree in reading order, each step with its selected actions
+  and transitions under it; a step shown only for them is in italics. Click a line to select only
+  that element, `Ctrl+click` takes it out of the selection.
 - **Simulation card** (left, only while simulating): the inputs to drive, outputs and internal
   values, the evolution log and the scenarios. Its chevron folds it to its title.
 - **Bottom left**: zoom out, the zoom (click it for 100 %), zoom in and fit; undo and redo.

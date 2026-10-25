@@ -175,3 +175,9 @@ el grafcet y el proyecto. Los paneles **Variables**, **Problemas**, **Cronograma
 abren con los botones de abajo a la derecha, en una tarjeta a la derecha que puedes ensanchar desde
 su borde izquierdo. Durante la simulación, el panel de simulación (entradas, valores, registro,
 escenarios) flota a la izquierda.
+
+Con varios elementos seleccionados, la tarjeta muestra un resumen: cuántas etapas, transiciones,
+acciones y comentarios (haz clic en uno para quedarte solo con esos) y la selección como árbol en
+orden de lectura, cada etapa con sus acciones y transiciones seleccionadas debajo (una etapa
+mostrada solo por ellas va en cursiva). Haz clic en una línea para seleccionar solo ese elemento;
+<kbd>Ctrl</kbd>+clic lo quita de la selección.

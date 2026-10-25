@@ -154,3 +154,8 @@ selected, the properties button next to the project name shows the grafcet and t
 **Variables**, **Problems**, **Chronogram** and **Outline** panels open from the buttons at the
 bottom right, in a card on the right you can widen by its left edge. While simulating, the
 simulation panel (inputs, values, log, scenarios) floats on the left.
+
+With several elements selected, the card gives an overview: how many steps, transitions, actions and
+comments (click one to keep only those) and the selection as a tree in reading order, each step with
+its selected actions and transitions under it (a step shown only for them is in italics). Click a
+line to select only that element; <kbd>Ctrl</kbd>+click takes it out of the selection.

@@ -195,6 +195,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- An address that does not exist (such as `/abc/x` or `/api/x`) showed the editor's page without its
+  styles and scripts; it now answers "not found" (status 404) and leads straight to the editor, on
+  grafcet.org, in the installed app and in the Docker image.
 - Selecting with a box or **Select all** also selects all the actions of the selected steps, even
   those reaching beyond the box (Select all left out every action), and the links between selected elements are highlighted. Dragging one of
   the selected actions moves the whole selection.

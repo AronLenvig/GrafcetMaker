@@ -206,12 +206,12 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,woff2,webmanifest}'],
         // The link-preview image is for other sites, never shown in the app; the app has its own
         // help, so the help pages of the website are not kept offline.
-        globIgnores: ['og-image.png', '*/help/**'],
+        globIgnores: ['og-image.png', '*/help/**', '404.html'],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
-        navigateFallback: 'index.html',
-        // The editor's language pages and the guide are precached as themselves; never answer the
-        // guide or the help with the app.
-        navigateFallbackDenylist: [/\/guide\//, /\/help\//],
+        // The editor's pages and the guide are precached as themselves. Any other address goes to
+        // the server, whose 404 page leads to the editor: the editor's page answering there would
+        // load nothing, its paths being relative.
+        navigateFallback: null,
         cleanupOutdatedCaches: true,
       },
     }),

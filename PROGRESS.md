@@ -254,7 +254,7 @@ Autonomous build log. Read this first in every session and resume from **Current
   (`src/site/figures.ts`, words per language) and `grafcetToSvg` (sentinel colors restyled by
   `src/site/site.css` after `tokens.css`, so figures follow light/dark), examples linked as share
   links; CSP by hash like `index.html`; `sitemap.xml` with hreflang, `robots.txt`. Precached by
-  the service worker and kept out of its SPA fallback. Help › GRAFCET guide and a start screen
+  the service worker. Help › GRAFCET guide and a start screen
   link (`guideUrl()`, browser language).
 
 - Readable without JavaScript (most AI crawlers do not run it). `docs/home.md` (features,
@@ -264,7 +264,7 @@ Autonomous build log. Read this first in every session and resume from **Current
   theme bootstrap has set `data-theme` (no flash) and makes it readable and scrollable otherwise.
   The help pages (`docs/help`) are published at `help/` and `help/<page>/` with the guide's frame
   (`frame()`), a page list with the current page's sections, TechArticle + BreadcrumbList data;
-  not precached (the app has its own help) and kept out of the SPA fallback. `llms.txt` is the
+  not precached (the app has its own help). `llms.txt` is the
   home text with absolute links plus the page list. Sitemap lists the help pages; guide footers
   link the help. The `website()` plugin loads `src/site` once per build.
 
@@ -346,6 +346,12 @@ Autonomous build log. Read this first in every session and resume from **Current
   e.g. `Hoejre`, `Upp`/`Ned`.
 - The main menu no longer lists the languages (owner request): the flag button at the bottom
   right and the palette on desktop, the flags in the menu drawer on phones.
+- Unknown addresses: `public/404.html` (status 404, meta refresh to `/`, noindex) instead of the
+  editor's page, whose relative paths load nothing away from its own addresses. Cloudflare
+  `not_found_handling: "404-page"` (also for unknown `/api/*`, through the assets binding), nginx
+  `error_page 404`, and no `navigateFallback` in the service worker (the app's pages are precached
+  as themselves, so it still opens offline). The redirect goes to the server root: a sub-path
+  install behind a proxy needs its own not-found page.
 - Multiple selection overview (`SelectionOverview.tsx`): counts per kind (a chip keeps only that
   kind) and the selection as a WAI-ARIA tree in renumbering order (`stepOrder`), each step with its
   selected actions and outgoing transitions; an unselected step shown for its children is faded and
@@ -455,6 +461,8 @@ Autonomous build log. Read this first in every session and resume from **Current
 
 ## Known gaps
 
+- `404.html` sends people to the server root (`/`): an install under a sub-path behind a proxy
+  keeps the 404 status but should point its own not-found page at the app.
 - Enclosing step symbol (vertical inner lines) not verified against the IEC 60848 figure; adjust
   in `elements.tsx` and `svgExport.ts` if the standard differs.
 - An initial step cannot be a macro-step or an enclosing step (data model limitation).

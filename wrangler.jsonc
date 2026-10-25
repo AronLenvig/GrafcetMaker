@@ -7,6 +7,8 @@
 // Live collaboration: one Durable Object per room (CollabRoom, worker/collab.ts), SQLite storage
 // (available on the Workers Free plan). The migration below creates it on the first deploy; never
 // rename or remove the class without a new migration.
+// An address that does not exist gets dist/404.html (status 404), which sends people to the
+// editor; the editor's page itself only loads at its own addresses (its paths are relative).
 // Self-hosted and on-premise installs do not need this file (see server/relay.ts).
 {
   "name": "grafcetmaker",
@@ -16,7 +18,7 @@
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
-    "not_found_handling": "single-page-application",
+    "not_found_handling": "404-page",
     "run_worker_first": ["/api/*", "/"],
   },
   "durable_objects": {

@@ -411,6 +411,67 @@ describe('Structured Text', () => {
   });
 });
 
+describe('untrusted project text', () => {
+  it('keeps undeclared names apart from the generated ones', () => {
+    const p = build([['a', 'BOOL', 'input']], {
+      name: 'G1',
+      initial: [0],
+      steps: [0, 1],
+      transitions: [
+        [[0], 'a * G1_X1', [1]],
+        [[1], 'a', [0]],
+      ],
+    });
+    const code = st(p).code;
+    expect(code).toContain('G1_X1 : BOOL;   (* not declared in the project *)');
+    expect(code).toMatch(/G1_X1_2 := \(G1_X1_2 AND NOT /);
+  });
+
+  it('keeps comments closed and on one line, and the XML well formed', () => {
+    const lineSeparator = String.fromCharCode(0x2028);
+    const p = build(
+      [['go', 'BOOL', 'input', { comment: `ok *) Q := 1; (*${lineSeparator}x /* */` }]],
+      { name: 'G1', initial: [0], steps: [0], transitions: [] },
+    );
+    p.name = `Cell---A${String.fromCharCode(1)}`;
+    const line = st(p)
+      .code.split('\n')
+      .find((l) => l.includes('ok '))!;
+    expect(line).not.toContain(lineSeparator);
+    expect(line).toContain('(* ok * ) Q := 1; ( * x / * * / *)');
+    const doc = xml(p).code;
+    expect(wellFormed(doc)).toBe(true);
+    expect(doc).not.toContain(String.fromCharCode(1));
+    expect(/<!--([\s\S]*?)-->/.exec(doc)![1]).not.toContain('--');
+  });
+
+  it('generates a macro-step inside its own expansion without looping', () => {
+    const p = build(
+      [['a', 'BOOL', 'input']],
+      {
+        name: 'G1',
+        initial: [0],
+        macro: { 1: 'M1' },
+        steps: [0, 1],
+        transitions: [
+          [[0], 'a', [1]],
+          [[1], 'a', [0]],
+        ],
+      },
+      {
+        name: 'M1',
+        kind: 'macroExpansion',
+        macro: { 10: 'M1' },
+        steps: [10, 11],
+        transitions: [[[10], 'a', [11]]],
+      },
+    );
+    expect(() => st(p)).not.toThrow();
+    expect(() => generateStCase(p, OPTS)).not.toThrow();
+    expect(() => xml(p)).not.toThrow();
+  });
+});
+
 describe('forcing to the empty situation', () => {
   it('generates G{} as the empty situation and warns when nothing restarts the grafcet', () => {
     const p = build(

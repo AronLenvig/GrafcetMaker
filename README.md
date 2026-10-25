@@ -188,8 +188,9 @@ To enable the feedback endpoint:
    secret `GITHUB_TOKEN` in the Worker › Settings › Variables and Secrets (or
    `npx wrangler secret put GITHUB_TOKEN`). Secrets survive deploys; plain variables set only in
    the dashboard do not.
-4. Recommended: a Cloudflare rate-limiting rule on `/api/feedback` (e.g. 5 requests per minute per
-   IP) against spam.
+4. Recommended: a Cloudflare rate-limiting rule on `/api/` (e.g. 20 requests per minute per IP)
+   against feedback spam and scripts opening many live rooms; the Worker itself keeps no record
+   of who sends what.
 
 Live collaboration needs nothing to set up: the same Worker relays live sessions at
 `/api/room/<id>` with one Durable Object per room ([`worker/collab.ts`](worker/collab.ts), SQLite
@@ -201,6 +202,12 @@ The Worker also serves the root page (`/`, in `run_worker_first`) with the visit
 Cloudflare on `<html data-country>` ([`worker/country.ts`](worker/country.ts)): the app starts a
 first visit in French, German or Spanish for those countries and in English otherwise. Nothing is
 stored or logged. Without the Worker (on premises, other hosts) a first visit starts in English.
+
+Security headers (no framing by other sites, `nosniff`, no referrer, HTTPS only…) come from
+[`public/_headers`](public/_headers) for the static files and from
+[`worker/headers.ts`](worker/headers.ts) for the Worker's own responses; keep the two in step with
+[`deploy/security-headers.conf`](deploy/security-headers.conf), which nginx uses. The live relay
+accepts WebSockets only from the site's own pages (and from `localhost` for development).
 
 New feedback then arrives as GitHub notifications (web, mobile app or the email of your GitHub
 account, which stays private). Renew the token before it expires. Without these settings the

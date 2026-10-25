@@ -35,6 +35,10 @@ stegnumren i tvångsstyrningen.
 den, direkt eller via andra. Ta bort en av tvångsstyrningarna, eller låt en tredje grafcet
 tvångsstyra båda.
 
+**Makrosteg och omslutande steg bildar en cykel.** En grafcet kan inte innehålla sig själv: ett
+makrosteg eller omslutande steg leder, direkt eller via andra, tillbaka till sin egen grafcet.
+Ställ in stegets Typ till _Steg_ och sedan tillbaka för att få en egen undergrafcet.
+
 **Makrosteg … har ingen expansionsgrafcet** (eller **Omslutande steg … har ingen omsluten
 grafcet**). Dess undergrafcet har tagits bort. Ställ in stegets Typ till _Steg_ och sedan tillbaka
 till _Makrosteg_ (eller _Omslutande steg_) för att få en ny, eller behåll det som ett vanligt steg.

@@ -16,6 +16,7 @@ import {
   emptyForcingWarnings,
   heldActions,
   NameTable,
+  referencedNames,
   macroSteps,
   warningCollector,
   warnKeywords,
@@ -50,7 +51,7 @@ export function generateSt(project: Project, opts: StOptions): CodegenResult {
 
   const userVars = [...p.variables.values()];
   warnKeywords(userVars, warn);
-  const names = new NameTable(userVars.map((v) => v.name));
+  const names = new NameTable([...userVars.map((v) => v.name), ...referencedNames(p)]);
   const fbName = names.take(`FB_${project.name}`);
   const initName = names.take('Init');
 

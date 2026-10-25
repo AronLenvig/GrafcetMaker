@@ -83,8 +83,9 @@ export async function handleFeedback(request: Request, env: FeedbackEnv): Promis
 }
 
 async function post(request: Request, env: FeedbackEnv): Promise<Response> {
-  const origin = request.headers.get('Origin');
-  if (origin && origin !== new URL(request.url).origin) return json({ error: 'forbidden' }, 403);
+  // Browsers name the page of every POST: only the app's own pages may send.
+  if (request.headers.get('Origin') !== new URL(request.url).origin)
+    return json({ error: 'forbidden' }, 403);
   if (!env.GITHUB_REPO || !env.GITHUB_TOKEN) return json({ error: 'not configured' }, 503);
   if (Number(request.headers.get('Content-Length') ?? 0) > LIMITS.request) {
     return json({ error: 'too large' }, 413);

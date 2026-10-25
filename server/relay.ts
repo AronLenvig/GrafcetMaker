@@ -155,8 +155,17 @@ function enter(roomId: string, ws: WebSocket): void {
   ws.on('error', () => ws.terminate());
 }
 
+/** The path of a request; '' when its target is not a valid path (`//[` makes `new URL` throw). */
+function pathOf(target: string | undefined): string {
+  try {
+    return new URL(target ?? '/', 'http://relay').pathname;
+  } catch {
+    return '';
+  }
+}
+
 const server = createServer((req, res) => {
-  const { pathname } = new URL(req.url ?? '/', 'http://relay');
+  const pathname = pathOf(req.url);
   if (req.method === 'GET' && roomOfPath(pathname) === '') {
     res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
     res.end(PROBE_BODY);
@@ -167,7 +176,7 @@ const server = createServer((req, res) => {
 
 const wss = new WebSocketServer({ noServer: true, maxPayload: RELAY_LIMITS.frameChars + 1024 });
 server.on('upgrade', (req, socket, head) => {
-  const id = roomOfPath(new URL(req.url ?? '/', 'http://relay').pathname);
+  const id = roomOfPath(pathOf(req.url));
   if (!id) {
     socket.destroy();
     return;

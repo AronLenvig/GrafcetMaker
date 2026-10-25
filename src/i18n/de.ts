@@ -647,6 +647,8 @@ export const de: Messages = {
         'Speichernd wirkende Aktionen am Makroschritt {{step}} werden von der Simulation ignoriert: Legen Sie sie in seine Expansion {{grafcet}}.',
       forcingCycle:
         'Die Zwangssteuerungen bilden einen Kreis ({{grafcets}}): Ein Grafcet kann keinen Grafcet zwangssteuern, der ihn selbst zwangssteuert.',
+      hierarchyCycle:
+        'Makroschritte und einschließende Schritte bilden einen Kreis ({{grafcets}}): Ein Grafcet kann sich nicht selbst enthalten.',
       forcingEmpty:
         '{{order}} zwingt {{grafcet}} in die leere Situation (kein Schritt aktiv), und nichts aktiviert seine Schritte wieder (keine andere Zwangssteuerung wie {{grafcet}}{INIT}, keine Quelltransition). Um seine Anfangsschritte zu aktivieren, verwenden Sie {{grafcet}}{INIT}.',
       simTransientLoop:
@@ -1449,6 +1451,7 @@ export const de: Messages = {
       assignmentExpected: 'Erwartet wird eine Zuweisung wie C := C + 1.',
       identifierExpected: 'Erwartet wird der Name einer Variablen.',
       forcingSyntax: 'Ungültige Zwangssteuerung.',
+      tooDeep: 'Der Ausdruck ist zu tief verschachtelt (mehr als 100 Ebenen).',
       unknownIdentifier: 'Unbekannte Variable „{{name}}“.',
       notBoolean: '{{name}} ist {{type}}, kein boolescher Wert.',
       notNumeric: 'Eine Variable vom Typ {{type}} braucht einen Zahlenwert.',

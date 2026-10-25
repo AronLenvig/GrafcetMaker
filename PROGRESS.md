@@ -360,6 +360,20 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Help center revision: typing on the diagram, ghosts (transition alone), selections with
   actions and links, the language section, the current layout, every problem message in
   Troubleshooting, Settings under File; synced to all six languages.
+- Security review (owner request): ids that are `Object.prototype` names (`constructor`,
+  `__proto__`…) are refused by the shared `idSchema` (`isSafeKey`) and the collaboration record
+  keys, and integrity checks use `Object.hasOwn` (such ids passed `map[id]` checks and crashed the
+  editor on every launch, or broke a live room). Collaboration stores schema output (unknown
+  nested keys dropped), caps records at twice the element limit, checks the joined project with
+  `projectSchema`, and asks about unsaved changes unless rejoining. CSV export escapes formula
+  starts (`escapeFormula`, undone on import); xlsx import unpacks only XML parts (32 MB), bounds
+  rows/columns/cells and scans tags in linear time; grafcet.io import made linear in its frame
+  lookups. Exports drop non-XML characters (`core/io/xml.ts`); ST comments neutralize `/* */`,
+  U+2028/2029 and bidi controls; generated names avoid every referenced name. New validation error
+  `hierarchyCycle` (compile leaves such macro-steps un-inlined). Parser nesting limit 100
+  (`tooDeep`). Hosted site: security headers (`public/_headers`, `worker/headers.ts`), Origin
+  check on relay WebSockets (loopback allowed for development) and on feedback POSTs. Node relay:
+  malformed request paths no longer throw.
 
 ## Decisions
 
@@ -483,3 +497,9 @@ Autonomous build log. Read this first in every session and resume from **Current
   on-premise Docker files (`deploy/relay.Dockerfile`, `docker-compose.yml`) were not built here
   (no Docker on the build machine); the relay itself is covered by the e2e test. WebSockets rely on
   CSP `connect-src 'self'` matching `wss:` on the same host (CSP 3, current browsers).
+- Abuse limits of the optional backends: the hosted relay and feedback endpoint have no per-IP
+  rate limit in code (README recommends a Cloudflare rate-limiting rule on `/api/`; the Origin
+  checks stop other web pages, not scripts). The Node relay has no cap on the number of rooms it
+  keeps (in memory without `RELAY_DATA_DIR`, on disk with it) for their 30 days.
+- `npm audit`: undici advisories in Wrangler's local dev server (miniflare pins undici 7.29.1, also
+  in the latest Wrangler); development tooling only, nothing shipped to users.

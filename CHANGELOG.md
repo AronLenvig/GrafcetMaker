@@ -223,6 +223,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   initial steps), and the Structured Text export lists it.
 - Deleting the last step of a sequence keeps the transition leading to it (as a sink transition,
   ready for a new step with `Enter`) instead of deleting it too.
+- A macro-step inside its own expansion (directly or through others) is reported as an error
+  (**Macro-steps and enclosing steps form a cycle**) instead of stopping simulation and code
+  generation.
+
+### Security
+
+- A file, share link or live-session participant could use ids such as `constructor` or
+  `__proto__`, which passed the integrity checks and made the editor fail on every launch (the
+  project was autosaved) or broke a live room for everyone in it. Such ids are now rejected
+  everywhere, and a project already stored that way is no longer reopened.
+- Live sessions: the project of a room is checked against the file format before it opens;
+  records from others keep only the fields the format knows and are capped in number. Joining a
+  room whose project has the open project's id asks about unsaved changes first (except when
+  rejoining after a reload).
+- Variables CSV: an address or comment starting with `=`, `+`, `-` or `@` is written with a
+  leading `'`, so spreadsheets do not run it as a formula; importing restores the text exactly.
+  Type and direction names such as `constructor` are refused, and over-long text is cut to the
+  file format's limit.
+- Excel import: only the workbook's XML parts are unpacked, up to 32 MB, rows and columns beyond
+  Excel's limits are refused, and the sheet is read in linear time (crafted files could freeze or
+  crash the tab).
+- grafcet.io import no longer takes cubic time on files with many frames.
+- Exports: characters XML cannot carry are dropped (they made the SVG, PNG, PDF and PLCopen files
+  unreadable), the PLCopen header comment is always well formed, and generated code comments
+  neutralize `/* */`, line separators and bidirectional-text controls. An undeclared name such as
+  `G1_X1` no longer takes the name of a generated step variable.
+- Files are checked for size before being read; PDF tiling falls back to one page per grafcet
+  beyond 400 pages.
+- grafcet.org sends security headers (no framing by other sites, `nosniff`, no referrer, HTTPS
+  only); the live relay accepts WebSockets only from the site's own pages, and the feedback
+  endpoint only posts from them.
+- The on-premise relay (`server/relay.ts`) no longer stops on a request with a malformed path
+  such as `//[`.
 
 ## [1.0.0] - 2026-10-22
 

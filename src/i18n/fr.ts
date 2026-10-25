@@ -643,6 +643,8 @@ export const fr: Messages = {
         'Les actions mémorisées de la macro-étape {{step}} sont ignorées par la simulation : placez-les dans son expansion {{grafcet}}.',
       forcingCycle:
         'Les ordres de forçage forment un cycle ({{grafcets}}) : un grafcet ne peut pas forcer un grafcet qui le force.',
+      hierarchyCycle:
+        'Les macro-étapes et les étapes encapsulantes forment un cycle ({{grafcets}}) : un grafcet ne peut pas se contenir lui-même.',
       forcingEmpty:
         "{{order}} force {{grafcet}} dans la situation vide (aucune étape active), et rien ne réactive ses étapes (pas d'autre ordre comme {{grafcet}}{INIT}, pas de transition source). Pour activer ses étapes initiales, utilisez {{grafcet}}{INIT}.",
       simTransientLoop:
@@ -1443,6 +1445,7 @@ export const fr: Messages = {
       assignmentExpected: 'Affectation attendue, comme C := C + 1.',
       identifierExpected: 'Nom de variable attendu.',
       forcingSyntax: 'Ordre de forçage invalide.',
+      tooDeep: "L'expression est imbriquée trop profondément (plus de 100 niveaux).",
       unknownIdentifier: 'Variable inconnue « {{name}} ».',
       notBoolean: "{{name}} est de type {{type}}, ce n'est pas un booléen.",
       notNumeric: "Une variable {{type}} a besoin d'une valeur numérique.",

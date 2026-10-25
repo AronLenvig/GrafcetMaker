@@ -6,6 +6,7 @@ import { convertStep } from '@/core/model/hierarchy';
 import { appendAfterStep, connect } from '@/core/model/ops';
 import { addAlternativeBranch, addLoop, addParallelBranch } from '@/core/model/structure';
 import type { Grafcet, Project } from '@/core/model/types';
+import { compile } from '@/core/simulation/program';
 import { exclusive, satisfiable } from '@/core/validation/logic';
 import { coActiveSteps, validateProject } from '@/core/validation/validate';
 
@@ -205,6 +206,23 @@ describe('hierarchy rules', () => {
     delete p.grafcets[macroId];
     p.grafcetOrder = p.grafcetOrder.filter((id) => id !== macroId);
     expect(rules(p)).toContain('subgrafcetMissing');
+  });
+
+  it('reports a macro-step inside its own expansion, which then is not inlined', () => {
+    const p = createProject('M');
+    const g1 = first(p);
+    const m = appendAfterStep(g1, Object.values(g1.steps)[0]!.id)!.stepId;
+    const g2 = p.grafcets[convertStep(p, g1.id, m, 'macro')!]!;
+    const inner = Object.values(g2.steps)[0]!;
+    inner.kind = 'macro';
+    inner.refGrafcetId = g2.id;
+    const issue = validateProject(p).find((i) => i.ruleId === 'hierarchyCycle')!;
+    expect(issue).toMatchObject({
+      severity: 'error',
+      elementIds: [inner.id],
+      params: { grafcets: `${g2.name} → ${g2.name}` },
+    });
+    expect(compile(p).problems).toContainEqual({ kind: 'hierarchy', elementId: inner.id });
   });
 
   it('warns about G{} when nothing activates the grafcet again, with a fix to G{INIT}', () => {

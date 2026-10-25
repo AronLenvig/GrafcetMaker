@@ -33,6 +33,10 @@ order.
 **Forcing orders form a cycle.** A grafcet cannot force one that forces it, directly or through
 others. Remove one of the orders, or let a third grafcet force both.
 
+**Macro-steps and enclosing steps form a cycle.** A grafcet cannot contain itself: a macro-step or
+enclosing step leads back, directly or through others, to its own grafcet. Set that step to
+_Step_ and back: it gets a sub-grafcet of its own.
+
 **Macro-step … has no expansion grafcet** (or **Enclosing step … has no enclosed grafcet**). Its
 sub-grafcet was deleted. Set the step's Kind to _Step_ and back to _Macro-step_ (or _Enclosing
 step_) to get a new one, or keep it a normal step.

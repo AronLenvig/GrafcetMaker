@@ -26,6 +26,7 @@ const PARSE_CODES = new Set([
   'assignmentExpected',
   'identifierExpected',
   'forcingSyntax',
+  'tooDeep',
 ]);
 
 function ruleOf(d: Diagnostic): RuleId {
@@ -482,6 +483,43 @@ function parallelOutputRule(g: Grafcet, index: GrafcetIndex, out: Issue[]): void
  * grafcet; sub-grafcets should be used; forcing must not form a cycle; macro-steps carry no stored
  * actions (put them in the expansion).
  */
+/** A link from one grafcet to another, made by an element (forcing order, macro or enclosing step). */
+interface GrafcetLink {
+  target: Id;
+  elementId: Id;
+}
+
+/**
+ * Reports each cycle of links between grafcets once: the grafcets around it (the first repeated
+ * at the end), the grafcet whose link closes it and the element of that link.
+ */
+function eachCycle(
+  order: readonly Id[],
+  links: ReadonlyMap<Id, GrafcetLink[]>,
+  report: (gids: Id[], gid: Id, elementId: Id) => void,
+): void {
+  const state = new Map<Id, 1 | 2>();
+  const stack: { gid: Id; via: Id | null }[] = [];
+  const reported = new Set<Id>();
+  const visit = (gid: Id, via: Id | null) => {
+    stack.push({ gid, via });
+    state.set(gid, 1);
+    for (const e of links.get(gid) ?? []) {
+      if (state.get(e.target) === 1) {
+        const from = stack.findIndex((x) => x.gid === e.target);
+        const cycle = [...stack.slice(from + 1).map((x) => x.via!), e.elementId];
+        if (!cycle.some((id) => reported.has(id))) {
+          cycle.forEach((id) => reported.add(id));
+          report([...stack.slice(from).map((x) => x.gid), e.target], gid, e.elementId);
+        }
+      } else if (!state.has(e.target)) visit(e.target, e.elementId);
+    }
+    state.set(gid, 2);
+    stack.pop();
+  };
+  for (const gid of order) if (!state.has(gid)) visit(gid, null);
+}
+
 function hierarchyRules(p: Project, out: Issue[]): void {
   const users = new Map<Id, { grafcet: Grafcet; step: Step }[]>();
   for (const gid of p.grafcetOrder) {
@@ -548,47 +586,50 @@ function hierarchyRules(p: Project, out: Issue[]): void {
     }
   }
 
+  const path = (gids: Id[]) => gids.map((id) => p.grafcets[id]!.name).join(' → ');
+
+  // Macro-steps and enclosing steps must not lead back to their own grafcet.
+  const contains = new Map<Id, GrafcetLink[]>();
+  for (const [child, list] of users)
+    for (const u of list)
+      contains.set(u.grafcet.id, [
+        ...(contains.get(u.grafcet.id) ?? []),
+        { target: child, elementId: u.step.id },
+      ]);
+  eachCycle(p.grafcetOrder, contains, (gids, gid, stepId) =>
+    out.push({
+      ruleId: 'hierarchyCycle',
+      severity: 'error',
+      messageKey: 'problems.messages.hierarchyCycle',
+      params: { grafcets: path(gids) },
+      grafcetId: gid,
+      elementIds: [stepId],
+    }),
+  );
+
   // Forcing hierarchy must be acyclic.
   const byName = new Map(Object.values(p.grafcets).map((g) => [g.name.toLowerCase(), g.id]));
-  const forces = new Map<Id, { target: Id; actionId: Id }[]>();
+  const forces = new Map<Id, GrafcetLink[]>();
   for (const g of Object.values(p.grafcets)) {
     for (const a of Object.values(g.actions)) {
       if (a.kind !== 'forcing') continue;
       const r = cachedForcing(a.text);
       const target = r.ok ? byName.get(r.value.grafcet.toLowerCase()) : undefined;
       if (target && target !== g.id)
-        forces.set(g.id, [...(forces.get(g.id) ?? []), { target, actionId: a.id }]);
+        forces.set(g.id, [...(forces.get(g.id) ?? []), { target, elementId: a.id }]);
     }
   }
-  const state = new Map<Id, 1 | 2>();
-  const stack: { gid: Id; actionId: Id | null }[] = [];
-  const reported = new Set<Id>();
-  const visit = (gid: Id, via: Id | null) => {
-    stack.push({ gid, actionId: via });
-    state.set(gid, 1);
-    for (const e of forces.get(gid) ?? []) {
-      if (state.get(e.target) === 1) {
-        const from = stack.findIndex((x) => x.gid === e.target);
-        const cycle = [...stack.slice(from + 1).map((x) => x.actionId!), e.actionId];
-        const names = stack.slice(from).map((x) => p.grafcets[x.gid]!.name);
-        if (!cycle.some((id) => reported.has(id))) {
-          cycle.forEach((id) => reported.add(id));
-          out.push({
-            ruleId: 'forcingCycle',
-            severity: 'error',
-            messageKey: 'problems.messages.forcingCycle',
-            params: { grafcets: [...names, p.grafcets[e.target]!.name].join(' → ') },
-            // The forcing action belongs to the grafcet being visited.
-            grafcetId: gid,
-            elementIds: [e.actionId],
-          });
-        }
-      } else if (!state.has(e.target)) visit(e.target, e.actionId);
-    }
-    state.set(gid, 2);
-    stack.pop();
-  };
-  for (const gid of p.grafcetOrder) if (!state.has(gid)) visit(gid, null);
+  eachCycle(p.grafcetOrder, forces, (gids, gid, actionId) =>
+    out.push({
+      ruleId: 'forcingCycle',
+      severity: 'error',
+      messageKey: 'problems.messages.forcingCycle',
+      params: { grafcets: path(gids) },
+      // The forcing action belongs to the grafcet whose order closes the cycle.
+      grafcetId: gid,
+      elementIds: [actionId],
+    }),
+  );
 
   // G{} is the empty situation (IEC 60848); with nothing to restart G, G{INIT} was probably meant.
   for (const e of emptyForcingsNeverUndone(p)) {

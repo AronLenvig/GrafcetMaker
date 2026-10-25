@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import worker from '../../worker';
 import { handleFeedback, parseFeedback } from '../../worker/feedback';
+import { SECURITY_HEADERS } from '../../worker/headers';
 
 const env = { GITHUB_REPO: 'owner/feedback', GITHUB_TOKEN: 'secret' };
 const URL_ = 'https://grafcet.example/api/feedback';
@@ -74,6 +75,34 @@ describe('feedback endpoint', () => {
       'app',
     );
     expect((await worker.fetch(new Request(URL_, { method: 'PUT' }), env2)).status).toBe(405);
+  });
+
+  it('sends the security headers, and keeps other sites from the endpoint and the relay', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    const room = vi.fn(async () => new Response('room'));
+    const env2 = {
+      ...env,
+      ASSETS: { fetch: async () => new Response('app') },
+      ROOMS: { idFromName: (name: string) => name, get: () => ({ fetch: room }) },
+    };
+    const page = await worker.fetch(new Request('https://grafcet.example/'), env2 as never);
+    for (const [name, value] of Object.entries(SECURITY_HEADERS))
+      expect(page.headers.get(name)).toBe(value);
+    const anonymous = new Request(URL_, { method: 'POST', body: '{"kind":"idea","message":"x"}' });
+    expect((await handleFeedback(anonymous, env)).status).toBe(403);
+    expect(fetchMock).not.toHaveBeenCalled();
+    const join = (origin: string) =>
+      worker.fetch(
+        new Request('https://grafcet.example/api/room/abcdefghij0123456789', {
+          headers: { Origin: origin },
+        }),
+        env2 as never,
+      );
+    expect((await join('https://evil.example')).status).toBe(403);
+    expect(await (await join('https://grafcet.example')).text()).toBe('room');
+    expect(await (await join('http://localhost:5173')).text()).toBe('room');
+    expect(room).toHaveBeenCalledTimes(2);
   });
 
   it('reports a failed delivery', async () => {

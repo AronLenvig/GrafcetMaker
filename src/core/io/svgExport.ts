@@ -32,6 +32,7 @@ import {
   type Rect,
 } from '../layout/geometry';
 import type { Grafcet, Id, Point } from '../model/types';
+import { xmlChars } from './xml';
 
 export interface ExportPalette {
   /** null = transparent. */
@@ -79,7 +80,7 @@ export interface SvgResult {
 export const EXPORT_FONT_FAMILY = "'JetBrains Mono', 'Courier New', Courier, monospace";
 
 export function escapeXml(s: string): string {
-  return s.replace(
+  return xmlChars(s).replace(
     /[<>&"']/g,
     (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' })[c]!,
   );

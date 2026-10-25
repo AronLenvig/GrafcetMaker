@@ -92,7 +92,7 @@ function signalKeys(
       .filter((v) => v.direction === 'input' && v.type === 'BOOL')
       .map((v) => v.name.toLowerCase()),
   );
-  const read = (name: string) => values[name];
+  const read = (name: string) => (Object.hasOwn(values, name) ? values[name] : undefined);
   const stepActive = (n: number) => {
     const r = env.resolveStep(n);
     return typeof r === 'object' && active.has(r.stepId);
@@ -317,7 +317,10 @@ export function Canvas({
               : undefined;
           const target = action.text.split(':=')[0]!.trim().toLowerCase();
           const value =
-            sim && action.kind !== 'continuous' && action.kind !== 'forcing'
+            sim &&
+            action.kind !== 'continuous' &&
+            action.kind !== 'forcing' &&
+            Object.hasOwn(sim.values, target)
               ? sim.values[target]
               : undefined;
           return (

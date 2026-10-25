@@ -110,6 +110,24 @@ describe('invalid files are rejected with a clear code', () => {
     expect(err.details.join('\n')).toMatch(/unknown step "missing"/);
   });
 
+  it('rejects ids that every object has (constructor, __proto__…), which would pass as present', () => {
+    const tamper: ((p: ReturnType<typeof sampleProject>) => void)[] = [
+      (p) => (p.grafcetOrder = ['constructor', ...p.grafcetOrder]),
+      (p) => (p.grafcets[p.grafcetOrder[0]!]!.transitions.t1!.to = ['__proto__']),
+      (p) => (p.grafcets[p.grafcetOrder[0]!]!.actions.a1!.stepId = 'toString'),
+      (p) => {
+        const s = Object.values(p.grafcets[p.grafcetOrder[0]!]!.steps)[0]!;
+        s.kind = 'macro';
+        s.refGrafcetId = 'hasOwnProperty';
+      },
+    ];
+    for (const change of tamper) {
+      const p = sampleProject();
+      change(p);
+      expect(errorOf(() => parseProjectFile(JSON.stringify(p))).code).toBe('invalid');
+    }
+  });
+
   it('rejects duplicate variable names case-insensitively', () => {
     const p = sampleProject();
     p.variables.v3 = { id: 'v3', name: 'A', type: 'BOOL', direction: 'input' };
@@ -205,6 +223,34 @@ describe('variables CSV', () => {
     expect(Object.keys(p.variables)).toHaveLength(4);
   });
 
+  it('keeps spreadsheets from running free text as formulas, and reads it back exactly', () => {
+    const p = sampleProject();
+    const texts = ['=HYPERLINK("x")', '@SUM(1)', "'quoted", 'ok;=1+1', '-5 V', 'plain'];
+    texts.forEach((comment, i) => {
+      p.variables[`c${i}`] = {
+        id: `c${i}`,
+        name: `C${i}`,
+        type: 'BOOL',
+        direction: 'input',
+        comment,
+      };
+    });
+    const csv = variablesToCsv(p);
+    for (const line of csv.split('\r\n').slice(1))
+      expect(line.split(/[,;]/).every((cell) => !/^"?[=+\-@]/.test(cell))).toBe(true);
+    expect(planVariableImport(p, csv)).toMatchObject({ added: [], updated: [], errors: [] });
+  });
+
+  it('refuses types and directions named like built-in properties, and cuts over-long text', () => {
+    const p = sampleProject();
+    const plan = planVariableImport(
+      p,
+      `name,type,direction,address\nV1,constructor,input,\nV2,BOOL,__proto__,\nV3,BOOL,input,${'x'.repeat(300)}\n`,
+    );
+    expect(plan.errors.map((e) => e.code)).toEqual(['badType', 'badDirection']);
+    expect(plan.added[0]!.address).toHaveLength(256);
+  });
+
   it('rejects files without a name/type header', () => {
     expect(planVariableImport(sampleProject(), 'foo,bar\n1,2\n').errors[0]!.code).toBe('noHeader');
   });
@@ -256,5 +302,34 @@ describe('variables Excel', () => {
       ['Level', 'REAL', '', '2.5', 'TRUE'],
     ]);
     expect(() => readXlsx(strToU8('not a zip'))).toThrow(XlsxError);
+  });
+
+  it('refuses hostile workbooks quickly: unclosed tags, huge parts, impossible cells', () => {
+    const workbook = (sheet: string | Uint8Array, extra: Record<string, Uint8Array> = {}) =>
+      zipSync({
+        'xl/workbook.xml': strToU8(
+          '<workbook><sheets><sheet name="S" r:id="rId1"/></sheets></workbook>',
+        ),
+        'xl/worksheets/sheet1.xml': typeof sheet === 'string' ? strToU8(sheet) : sheet,
+        ...extra,
+      });
+    // Scanned once: a lazy regex took seconds here.
+    expect(readXlsx(workbook('<sheetData>' + '<row r="1">'.repeat(100_000)))).toEqual([]);
+    expect(
+      readXlsx(
+        workbook('<row r="1"/><row r="2"><c r="A2" t="inlineStr"><is><t>x</t></is></c></row>'),
+      ),
+    ).toEqual([['x']]);
+    expect(() => readXlsx(workbook('<row r="4294967295"><c><v>1</v></c></row>'))).toThrow(
+      XlsxError,
+    );
+    expect(() => readXlsx(workbook('<row r="1"><c r="AAAAA1"><v>1</v></c></row>'))).toThrow(
+      XlsxError,
+    );
+    // Parts are unpacked into buffers of their declared size: too large is refused unread.
+    const huge = new Uint8Array(33 * 1024 * 1024).fill(32);
+    expect(() => readXlsx(workbook('<sheetData/>', { 'xl/sharedStrings.xml': huge }))).toThrow(
+      'too large',
+    );
   });
 });

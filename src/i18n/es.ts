@@ -636,6 +636,8 @@ export const es: Messages = {
         'La simulación ignora las acciones memorizadas de la macroetapa {{step}}: ponlas en su expansión {{grafcet}}.',
       forcingCycle:
         'Las órdenes de forzado forman un ciclo ({{grafcets}}): un grafcet no puede forzar a otro que lo fuerza a él.',
+      hierarchyCycle:
+        'Las macroetapas y las etapas encapsulantes forman un ciclo ({{grafcets}}): un grafcet no puede contenerse a sí mismo.',
       forcingEmpty:
         '{{order}} fuerza {{grafcet}} a la situación vacía (ninguna etapa activa), y nada vuelve a activar sus etapas (ninguna otra orden como {{grafcet}}{INIT}, ninguna transición fuente). Para activar sus etapas iniciales, usa {{grafcet}}{INIT}.',
       simTransientLoop:
@@ -1427,6 +1429,7 @@ export const es: Messages = {
       assignmentExpected: 'Se esperaba una asignación como C := C + 1.',
       identifierExpected: 'Se esperaba el nombre de una variable.',
       forcingSyntax: 'Orden de forzado no válida.',
+      tooDeep: 'La expresión está anidada demasiado (más de 100 niveles).',
       unknownIdentifier: 'Variable desconocida «{{name}}».',
       notBoolean: '{{name}} es {{type}}, no booleana.',
       notNumeric: 'Una variable {{type}} necesita un valor numérico.',

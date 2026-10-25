@@ -635,6 +635,8 @@ export const sv: Messages = {
         'Lagrade aktioner i makrosteg {{step}} ignoreras av simuleringen: lägg dem i dess expansion {{grafcet}}.',
       forcingCycle:
         'Tvångsstyrningarna bildar en cykel ({{grafcets}}): en grafcet kan inte tvångsstyra en grafcet som tvångsstyr den.',
+      hierarchyCycle:
+        'Makrosteg och omslutande steg bildar en cykel ({{grafcets}}): en grafcet kan inte innehålla sig själv.',
       forcingEmpty:
         '{{order}} tvångsstyr {{grafcet}} till den tomma situationen (inget steg aktivt), och inget aktiverar dess steg igen (ingen annan tvångsstyrning som {{grafcet}}{INIT}, ingen källövergång). Använd {{grafcet}}{INIT} för att aktivera dess initialsteg.',
       simTransientLoop:
@@ -1420,6 +1422,7 @@ export const sv: Messages = {
       assignmentExpected: 'En tilldelning som C := C + 1 förväntades.',
       identifierExpected: 'Namnet på en variabel förväntades.',
       forcingSyntax: 'Ogiltig tvångsstyrning.',
+      tooDeep: 'Uttrycket är för djupt nästlat (mer än 100 nivåer).',
       unknownIdentifier: 'Okänd variabel ”{{name}}”.',
       notBoolean: '{{name}} är {{type}}, inte boolesk.',
       notNumeric: 'En {{type}}-variabel behöver ett numeriskt värde.',

@@ -39,6 +39,11 @@ des Grafcets und die Schrittnummern in der Zwangssteuerung.
 ihn selbst zwangssteuert, weder direkt noch über andere. Entfernen Sie eine der Zwangssteuerungen,
 oder lassen Sie beide von einem dritten Grafcet zwangssteuern.
 
+**Makroschritte und einschließende Schritte bilden einen Kreis.** Ein Grafcet kann sich nicht
+selbst enthalten: Ein Makroschritt oder einschließender Schritt führt direkt oder über andere zu
+seinem eigenen Grafcet zurück. Stellen Sie die Art des Schritts auf _Schritt_ und wieder zurück,
+um einen eigenen Unter-Grafcet zu erhalten.
+
 **Makroschritt … hat keinen Expansions-Grafcet** (oder **Der einschließende Schritt … hat keinen
 eingeschlossenen Grafcet**). Sein Unter-Grafcet wurde gelöscht. Stellen Sie die Art des Schritts
 auf _Schritt_ und wieder zurück auf _Makroschritt_ (oder _Einschließender Schritt_), um einen

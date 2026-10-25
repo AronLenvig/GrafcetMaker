@@ -102,7 +102,7 @@ export async function openRoomLink(): Promise<boolean> {
 /** Shows what a participant is looking at: their grafcet, centered on their pointer or selection. */
 export function followPeer(id: string): void {
   const p = useLive.getState().peers[id];
-  if (!p?.g || !getProject().grafcets[p.g]) return;
+  if (!p?.g || !Object.hasOwn(getProject().grafcets, p.g)) return;
   const gid = p.g;
   setActiveGrafcet(gid);
   requestAnimationFrame(() => {

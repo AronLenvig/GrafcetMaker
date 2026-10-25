@@ -39,6 +39,11 @@ et les numéros d'étape dans l'ordre.
 directement ou par l'intermédiaire d'autres. Supprimez l'un des ordres, ou faites forcer les deux
 par un troisième grafcet.
 
+**Les macro-étapes et les étapes encapsulantes forment un cycle.** Un grafcet ne peut pas se
+contenir lui-même : une macro-étape ou une étape encapsulante ramène, directement ou par
+l'intermédiaire d'autres, à son propre grafcet. Réglez le Type de l'étape sur _Étape_, puis de
+nouveau sur son type pour lui donner un sous-grafcet à elle.
+
 **La macro-étape … n'a pas de grafcet d'expansion** (ou **L'étape encapsulante … n'a pas de
 grafcet encapsulé**). Son sous-grafcet a été supprimé. Réglez le Type de l'étape sur _Étape_, puis
 de nouveau sur _Macro-étape_ (ou _Étape encapsulante_) pour en obtenir un nouveau, ou gardez-la

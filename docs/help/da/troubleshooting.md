@@ -35,6 +35,10 @@ trinnumrene i tvangsstyringen.
 tvangsstyrer den selv, hverken direkte eller via andre. Fjern en af tvangsstyringerne, eller lad en
 tredje grafcet tvangsstyre dem begge.
 
+**Makrotrin og omsluttende trin danner en cyklus.** En grafcet kan ikke indeholde sig selv: et
+makrotrin eller omsluttende trin fører, direkte eller via andre, tilbage til sin egen grafcet.
+Sæt trinnets Type til _Trin_ og tilbage for at få en ny undergrafcet.
+
 **Makrotrin … har ingen ekspansionsgrafcet** (eller **Det omsluttende trin … har ingen omsluttet
 grafcet**). Dets undergrafcet er blevet slettet. Sæt trinnets Type til _Trin_ og tilbage til
 _Makrotrin_ (eller _Omsluttende trin_) for at få en ny, eller behold det som et normalt trin.

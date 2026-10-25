@@ -24,6 +24,7 @@ import {
   emptyForcingWarnings,
   heldActions,
   NameTable,
+  referencedNames,
   macroSteps,
   warningCollector,
   warnKeywords,
@@ -89,7 +90,7 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
 
   const userVars = [...p.variables.values()];
   warnKeywords(userVars, warn);
-  const names = new NameTable(userVars.map((v) => v.name));
+  const names = new NameTable([...userVars.map((v) => v.name), ...referencedNames(p)]);
   const fbName = names.take(`FB_${project.name}`);
   const gName = (gi: number) => p.grafcets[gi]!.name;
   const num = (i: number) => p.steps[i]!.number;

@@ -629,6 +629,8 @@ export const en = {
         'Stored actions on macro-step {{step}} are ignored by the simulation: put them in its expansion {{grafcet}}.',
       forcingCycle:
         'Forcing orders form a cycle ({{grafcets}}): a grafcet cannot force one that forces it.',
+      hierarchyCycle:
+        'Macro-steps and enclosing steps form a cycle ({{grafcets}}): a grafcet cannot contain itself.',
       forcingEmpty:
         '{{order}} forces {{grafcet}} to the empty situation (no step active), and nothing activates its steps again (no other order such as {{grafcet}}{INIT}, no source transition). To activate its initial steps, use {{grafcet}}{INIT}.',
       simTransientLoop:
@@ -1408,6 +1410,7 @@ export const en = {
       assignmentExpected: 'Expected an assignment like C := C + 1.',
       identifierExpected: 'Expected the name of a variable.',
       forcingSyntax: 'Invalid forcing order.',
+      tooDeep: 'The expression is nested too deeply (more than 100 levels).',
       unknownIdentifier: 'Unknown variable “{{name}}”.',
       notBoolean: '{{name}} is {{type}}, not a boolean.',
       notNumeric: 'A {{type}} variable needs a numeric value.',

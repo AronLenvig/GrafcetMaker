@@ -33,6 +33,7 @@ import {
   type Presence,
 } from '@/core/collab/wire';
 import { SCHEMA_VERSION } from '@/core/model/constants';
+import { projectSchema } from '@/core/model/schema';
 import type { Project } from '@/core/model/types';
 import { reloadSimulation, useSim } from '@/editor/simulation/simStore';
 import { doc } from '@/editor/store/document';
@@ -622,7 +623,14 @@ export async function joinSession(link: RoomLink): Promise<void> {
     showLiveError(code);
     return;
   }
-  if (!(await openLiveProject(s.project()))) {
+  // The records are checked one by one; the project they make must also pass the file schema.
+  const project = s.project();
+  if (!projectSchema.safeParse(project).success) {
+    await s.leave('failed');
+    showLiveError('failed');
+    return;
+  }
+  if (!(await openLiveProject(project, saved !== undefined))) {
     await s.leave('user');
     return;
   }

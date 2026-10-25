@@ -44,9 +44,16 @@ const OPERAND_START: TokenKind[] = [
   'fall',
 ];
 
+/**
+ * Deepest nesting of NOT, parentheses, timers and minus signs. Deeper input is an error rather
+ * than a stack overflow, here or in the code that walks the tree (simulation, codegen, checks).
+ */
+const MAX_DEPTH = 100;
+
 class Parser {
   pos = 0;
   nextId = 0;
+  private depth = 0;
   private readonly hasCmp: boolean;
 
   constructor(private readonly tokens: Token[]) {
@@ -71,6 +78,17 @@ class Parser {
       params: { token: tok.text, ...params },
       hint,
     });
+  }
+
+  /** One more level of nesting: fails beyond MAX_DEPTH. */
+  private nested<T>(parse: () => T): T {
+    if (this.depth >= MAX_DEPTH) this.fail('tooDeep', this.peek());
+    this.depth++;
+    try {
+      return parse();
+    } finally {
+      this.depth--;
+    }
   }
 
   // ---- boolean ----
@@ -98,6 +116,10 @@ class Parser {
   }
 
   parseUnary(): BoolNode {
+    return this.nested(() => this.unary());
+  }
+
+  private unary(): BoolNode {
     const t = this.peek();
     if (t.kind === 'not' || t.kind === 'slash') {
       this.next();
@@ -134,7 +156,8 @@ class Parser {
         return { type: 'cmp', op: op.cmp!, left, right, start: left.start, end: right.end };
       }
     } catch (e) {
-      if (!(e instanceof Fail)) throw e;
+      // Too deep is too deep whichever way it is read.
+      if (!(e instanceof Fail) || e.error.code === 'tooDeep') throw e;
     }
     this.pos = save;
     return null;
@@ -181,6 +204,10 @@ class Parser {
   }
 
   parseTimer(): BoolNode {
+    return this.nested(() => this.timer());
+  }
+
+  private timer(): BoolNode {
     const d = this.next();
     if (this.peek().kind !== 'slash') this.fail('timerOperand', this.peek(), 'timerSyntax');
     this.next();
@@ -243,6 +270,10 @@ class Parser {
   }
 
   parseFactor(): ArithNode {
+    return this.nested(() => this.factor());
+  }
+
+  private factor(): ArithNode {
     const t = this.peek();
     switch (t.kind) {
       case 'minus': {

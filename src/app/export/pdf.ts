@@ -31,6 +31,9 @@ export async function buildPdf(
         renderPage(project, pages, i, settings),
         'image/svg+xml',
       ).documentElement;
+      // A parse error yields an error document instead: never put that into the page.
+      if (el.namespaceURI !== 'http://www.w3.org/2000/svg' || el.localName !== 'svg')
+        throw new Error('The page could not be drawn (invalid SVG)');
       host.appendChild(document.importNode(el, true));
       const { width, height } = pages[i]!.layout;
       await svg2pdf(host.firstElementChild as SVGElement, doc, { x: 0, y: 0, width, height });

@@ -3,6 +3,7 @@
  * existing ones by name. The delimiter is detected (comma, semicolon as written by Excel in many locales,
  * or tab), so spreadsheets round-trip.
  */
+import { LIMITS } from '../model/constants';
 import { newId } from '../model/factory';
 import { writeXlsx } from './xlsx';
 import type { Project, Variable, VariableDirection, VariableType } from '../model/types';
@@ -79,8 +80,23 @@ export function variableRows(p: Pick<Project, 'variables'>): string[][] {
   ];
 }
 
+/**
+ * Spreadsheets run a cell that starts with = + - @ (or a tab or CR) as a formula, and also what
+ * follows a semicolon or tab when they split on those. Free text (address, comment) goes out with
+ * a `'` before such a start, and a `'` there is doubled, so importing restores it exactly.
+ */
+export const escapeFormula = (s: string): string => s.replace(/(^|[;\t])(?=[=+\-@\t\r'])/g, "$1'");
+export const unescapeFormula = (s: string): string =>
+  s.replace(/(^|[;\t])'(?=[=+\-@\t\r'])/g, '$1');
+
+const TEXT_COLUMNS = [VARIABLE_COLUMNS.indexOf('address'), VARIABLE_COLUMNS.indexOf('comment')];
+
 export function variablesToCsv(p: Pick<Project, 'variables'>): string {
-  return toCsv(variableRows(p));
+  const [header, ...rows] = variableRows(p);
+  return toCsv([
+    header!,
+    ...rows.map((r) => r.map((s, i) => (TEXT_COLUMNS.includes(i) ? escapeFormula(s) : s))),
+  ]);
 }
 
 /** The variable table as an Excel workbook, with drop-down lists for type and direction. */
@@ -94,6 +110,10 @@ export function variablesToXlsx(p: Pick<Project, 'variables'>): Uint8Array {
     ],
   });
 }
+
+/** Looked up with `aliasOf`: a cell like `constructor` must not find an inherited property. */
+const aliasOf = <T>(table: Record<string, T>, key: string): T | undefined =>
+  Object.hasOwn(table, key) ? table[key] : undefined;
 
 const TYPE_ALIASES: Record<string, VariableType> = {
   bool: 'BOOL',
@@ -164,10 +184,12 @@ export function planVariableImportRows(p: Project, rows: string[][]): CsvImportP
     const existing = byName.get(lower);
     if (validateVariableName(p, name, existing?.id))
       return plan.errors.push({ row: rowNo, code: 'invalidName', value: name });
-    const type = TYPE_ALIASES[get('type').toLowerCase()];
+    const type = aliasOf(TYPE_ALIASES, get('type').toLowerCase());
     if (!type) return plan.errors.push({ row: rowNo, code: 'badType', value: get('type') });
     const dirText = get('direction').toLowerCase();
-    const direction = dirText ? DIRECTION_ALIASES[dirText] : (existing?.direction ?? 'internal');
+    const direction = dirText
+      ? aliasOf(DIRECTION_ALIASES, dirText)
+      : (existing?.direction ?? 'internal');
     if (!direction)
       return plan.errors.push({ row: rowNo, code: 'badDirection', value: get('direction') });
     const init = parseInitialValue(type, get('initial'));
@@ -175,8 +197,11 @@ export function planVariableImportRows(p: Project, rows: string[][]): CsvImportP
       return plan.errors.push({ row: rowNo, code: 'badInitial', value: get('initial') });
     const v: Variable = { id: existing?.id ?? newId(), name, type, direction };
     if (init.value !== undefined) v.initialValue = init.value;
-    if (get('address')) v.address = get('address');
-    if (get('comment')) v.comment = get('comment');
+    // Cut to what a project file may hold, so the project still loads after a reload.
+    const address = unescapeFormula(get('address')).slice(0, LIMITS.shortText);
+    const comment = unescapeFormula(get('comment')).slice(0, LIMITS.longText);
+    if (address) v.address = address;
+    if (comment) v.comment = comment;
     if (!existing) plan.added.push(v);
     else if (JSON.stringify({ ...existing }) !== JSON.stringify(v)) plan.updated.push(v);
     else plan.unchanged++;

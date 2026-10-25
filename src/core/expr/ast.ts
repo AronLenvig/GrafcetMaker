@@ -64,7 +64,8 @@ export type ExprErrorCode =
   | 'timerOperand'
   | 'assignmentExpected'
   | 'identifierExpected'
-  | 'forcingSyntax';
+  | 'forcingSyntax'
+  | 'tooDeep';
 
 export interface ExprError {
   code: ExprErrorCode;

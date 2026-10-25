@@ -4,6 +4,7 @@
  * Reading supports shared strings, inline strings, numbers and booleans of the first sheet.
  */
 import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
+import { xmlChars } from './xml';
 
 export type Cell = string | number | boolean | null;
 
@@ -15,15 +16,9 @@ export interface SheetOptions {
   lists?: { column: number; values: string[] }[];
 }
 
-/** XML-escapes text and drops control characters XML 1.0 cannot carry. */
+/** XML-escapes text and drops characters XML 1.0 cannot carry. */
 function esc(s: string): string {
-  const printable = Array.from(s)
-    .filter((c) => {
-      const n = c.charCodeAt(0);
-      return n >= 32 || n === 9 || n === 10 || n === 13;
-    })
-    .join('');
-  return printable.replace(
+  return xmlChars(s).replace(
     /[<>&"]/g,
     (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' })[c]!,
   );
@@ -125,67 +120,115 @@ function decode(s: string): string {
   });
 }
 
+/**
+ * The elements `<name …>…</name>` and `<name …/>` (any namespace prefix) of `xml` in order, as
+ * attributes and content. Linear in the length of `xml`: a lazy regex would rescan the rest of
+ * the text for every element that is never closed.
+ */
+function* elements(
+  xml: string,
+  name: string,
+): Generator<{ attrs: string; body: string }, undefined> {
+  const open = new RegExp(`<(\\w+:)?${name}(?=[\\s/>])`, 'y');
+  for (let at = xml.indexOf('<'); at >= 0;) {
+    open.lastIndex = at;
+    const m = open.exec(xml);
+    if (!m) {
+      at = xml.indexOf('<', at + 1);
+      continue;
+    }
+    const gt = xml.indexOf('>', open.lastIndex);
+    if (gt < 0) return;
+    const attrs = xml.slice(open.lastIndex, gt);
+    if (attrs.endsWith('/')) {
+      yield { attrs: attrs.slice(0, -1), body: '' };
+      at = xml.indexOf('<', gt + 1);
+      continue;
+    }
+    const close = `</${m[1] ?? ''}${name}>`;
+    const end = xml.indexOf(close, gt + 1);
+    if (end < 0) return;
+    yield { attrs, body: xml.slice(gt + 1, end) };
+    at = xml.indexOf('<', end + close.length);
+  }
+}
+
 /** Concatenated text of all <t> elements inside a fragment (rich-text runs included). */
 function texts(fragment: string): string {
   let out = '';
-  for (const m of fragment.matchAll(/<(?:\w+:)?t(?:\s[^>]*)?>([\s\S]*?)<\/(?:\w+:)?t>/g))
-    out += decode(m[1]!);
+  for (const t of elements(fragment, 't')) out += decode(t.body);
   return out;
 }
 
 const attr = (tag: string, name: string) => new RegExp(`\\s${name}="([^"]*)"`).exec(tag)?.[1];
 
+/** The parts read from a workbook, and how much they may hold once unpacked (a zip of 1 MB can). */
+const XLSX_PART = /^xl\/(?:_rels\/workbook\.xml\.rels|.+\.xml)$/;
+const MAX_UNPACKED = 32 * 1024 * 1024;
+/** The largest sheet Excel writes, and how many cells a read may produce. */
+const MAX_ROWS = 1_048_576;
+const MAX_COLUMNS = 16_384;
+const MAX_CELLS = 10_000_000;
+
 /** Reads the first worksheet as rows of strings (empty cells as ''). */
 export function readXlsx(bytes: Uint8Array): string[][] {
   let files: Record<string, Uint8Array>;
+  let unpacked = 0;
   try {
-    files = unzipSync(bytes);
+    files = unzipSync(bytes, {
+      // Only XML parts are unpacked (into buffers of their declared size, which bounds memory).
+      filter: (f) => XLSX_PART.test(f.name) && (unpacked += f.originalSize) <= MAX_UNPACKED,
+    });
   } catch {
     throw new XlsxError('not a zip archive');
   }
+  if (unpacked > MAX_UNPACKED) throw new XlsxError('too large');
   const read = (path: string) => (files[path] ? strFromU8(files[path]) : null);
   const workbook = read('xl/workbook.xml');
   if (!workbook) throw new XlsxError('no workbook');
-  const firstSheet = /<(?:\w+:)?sheet\s[^>]*>/.exec(workbook)?.[0];
+  const firstSheet = elements(workbook, 'sheet').next().value?.attrs;
   const rid = firstSheet && (attr(firstSheet, 'r:id') ?? attr(firstSheet, 'id'));
   const rels = read('xl/_rels/workbook.xml.rels') ?? '';
   let target = 'worksheets/sheet1.xml';
-  for (const m of rels.matchAll(/<(?:\w+:)?Relationship\s[^>]*>/g)) {
-    if (attr(m[0], 'Id') === rid) target = attr(m[0], 'Target') ?? target;
+  for (const rel of elements(rels, 'Relationship')) {
+    if (attr(rel.attrs, 'Id') === rid) target = attr(rel.attrs, 'Target') ?? target;
   }
   const path = target.startsWith('/') ? target.slice(1) : `xl/${target.replace(/^\.\//, '')}`;
   const sheet = read(path);
   if (!sheet) throw new XlsxError('no worksheet');
   const shared: string[] = [];
   const sst = read('xl/sharedStrings.xml');
-  if (sst)
-    for (const m of sst.matchAll(/<(?:\w+:)?si>([\s\S]*?)<\/(?:\w+:)?si>/g))
-      shared.push(texts(m[1]!));
+  if (sst) for (const si of elements(sst, 'si')) shared.push(texts(si.body));
 
   const rows: string[][] = [];
-  for (const rm of sheet.matchAll(/<(?:\w+:)?row(\s[^>]*)?>([\s\S]*?)<\/(?:\w+:)?row>/g)) {
-    const rowNo = Number(attr(rm[1] ?? '', 'r') ?? rows.length + 1);
+  let cells = 0;
+  for (const rm of elements(sheet, 'row')) {
+    const rowNo = Number(attr(rm.attrs, 'r') ?? rows.length + 1);
+    if (!Number.isInteger(rowNo) || rowNo < 1 || rowNo > MAX_ROWS)
+      throw new XlsxError('bad row number');
     const row: string[] = [];
     let next = 0;
-    for (const cm of rm[2]!.matchAll(/<(?:\w+:)?c(\s[^>]*?)(?:\/>|>([\s\S]*?)<\/(?:\w+:)?c>)/g)) {
-      const head = cm[1] ?? '';
-      const body = cm[2] ?? '';
-      const ref = attr(head, 'r');
+    for (const cm of elements(rm.body, 'c')) {
+      const ref = attr(cm.attrs, 'r');
       const col = ref ? columnIndex(ref) : next;
+      if (col >= MAX_COLUMNS) throw new XlsxError('bad cell reference');
       next = col + 1;
-      const type = attr(head, 't');
-      const v = /<(?:\w+:)?v>([\s\S]*?)<\/(?:\w+:)?v>/.exec(body)?.[1];
+      const type = attr(cm.attrs, 't');
+      const v = elements(cm.body, 'v').next().value?.body;
       let value = '';
       if (type === 's') value = shared[Number(v)] ?? '';
-      else if (type === 'inlineStr') value = texts(body);
+      else if (type === 'inlineStr') value = texts(cm.body);
       else if (type === 'b') value = v === '1' ? 'TRUE' : 'FALSE';
       else if (v !== undefined) value = decode(v);
       row[col] = value;
     }
+    cells += row.length;
+    if (cells > MAX_CELLS) throw new XlsxError('too large');
     rows[rowNo - 1] = Array.from(row, (x) => x ?? '');
   }
   const filled = Array.from(rows, (r) => r ?? []).filter((r) => r.some((c) => c.trim() !== ''));
   // Trailing empty cells are not stored: pad every row to the widest one.
-  const width = Math.max(0, ...filled.map((r) => r.length));
+  const width = filled.reduce((w, r) => Math.max(w, r.length), 0);
+  if (filled.length * width > MAX_CELLS) throw new XlsxError('too large');
   return filled.map((r) => [...r, ...Array<string>(width - r.length).fill('')]);
 }

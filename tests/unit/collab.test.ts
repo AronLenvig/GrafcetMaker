@@ -344,6 +344,43 @@ describe('live session links and messages', () => {
     await expect(unseal(key, flipped)).rejects.toThrow();
   });
 
+  it('ignores records and ids named like built-in properties, and fields it does not know', () => {
+    const p = createProject('Seq');
+    const a = Replica.first(p);
+    const gid = p.grafcetOrder[0]!;
+    const reg = (x: unknown) => ({ v: 9, n: 0, x });
+    const hostile: unknown[] = [
+      [['o'], { order: reg(['constructor', gid]) }],
+      [['g', '__proto__'], { name: reg('Evil'), kind: reg('partial') }],
+      [
+        ['s', 'constructor', 'x1'],
+        { number: reg(5), kind: reg('normal'), position: reg({ x: 0, y: 0 }) },
+      ],
+      [
+        ['s', gid, 'toString'],
+        { number: reg(6), kind: reg('normal'), position: reg({ x: 0, y: 0 }) },
+      ],
+    ];
+    expect(a.store.merge(hostile)).toBe(0);
+    const s = firstStep(p);
+    a.store.merge([
+      [['s', gid, s.id], { position: reg({ x: 10, y: 20, junk: 'x'.repeat(1000) }) }],
+    ]);
+    const next = a.store.derive(a.doc);
+    expect(next.grafcets[gid]!.steps[s.id]!.position).toEqual({ x: 10, y: 20 });
+    expectValid(next);
+    const presence = {
+      cid: 'c',
+      name: 'Eve',
+      g: gid,
+      c: null,
+      sel: ['constructor'],
+      ed: null,
+      sim: false,
+    };
+    expect(readMessage({ p: 1, s: p.schemaVersion, type: 'presence', presence })).toBeNull();
+  });
+
   it('recognizes messages from a newer version', () => {
     expect(readMessage({ p: 99, s: 1, type: 'changes', records: [] })).toBe('newer');
     expect(readMessage({ p: 1, s: 999, type: 'changes', records: [] })).toBe('newer');

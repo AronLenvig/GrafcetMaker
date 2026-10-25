@@ -60,7 +60,7 @@ function explain(
   const value = (x: BoolNode) =>
     stateValue(
       x,
-      (name) => sim.values[name],
+      (name) => (Object.hasOwn(sim.values, name) ? sim.values[name] : undefined),
       stepActive,
       (n) => (left(n) ?? 1) <= 0,
     );

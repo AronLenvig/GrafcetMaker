@@ -1,0 +1,10 @@
+# Cloudflare: headers of the static files (the Worker sets the same on its own responses, see
+# worker/headers.ts; nginx: deploy/security-headers.conf). The full
+# Content-Security-Policy is a <meta> tag in each page; this adds what a <meta> cannot express.
+/*
+  Content-Security-Policy: frame-ancestors 'self'; object-src 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Cross-Origin-Opener-Policy: same-origin
+  Strict-Transport-Security: max-age=31536000

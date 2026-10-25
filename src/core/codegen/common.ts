@@ -3,6 +3,7 @@
  * translation of GRAFCET expressions to Structured Text.
  */
 import type { ArithNode, BoolNode } from '../expr/ast';
+import { xmlChars } from '../io/xml';
 import { emptyForcingsNeverUndone } from '../model/forcing';
 import type { Id, Project, Variable, VariableType } from '../model/types';
 import type { CAction, Program } from '../simulation/program';
@@ -143,7 +144,8 @@ export function macroSteps(p: Program, i: number): number[] {
 }
 
 /** Text in an XML CDATA section (a `]]>` inside is split across two sections). */
-export const cdata = (s: string): string => `<![CDATA[${s.replaceAll(']]>', ']]]]><![CDATA[>')}]]>`;
+export const cdata = (s: string): string =>
+  `<![CDATA[${xmlChars(s).replaceAll(']]>', ']]]]><![CDATA[>')}]]>`;
 
 export interface CodegenResult {
   code: string;
@@ -165,6 +167,40 @@ export const ST_KEYWORDS = new Set(
 );
 
 /** Allocates generated identifiers that clash with nothing already used (case-insensitive). */
+/**
+ * Every variable name the program reads or writes, declared or not, for the NameTable: an
+ * undeclared `G1_X3` must not end up naming the activity of step 3 (Logix tags ignore case).
+ */
+export function referencedNames(p: Program): string[] {
+  const out = new Set<string>();
+  const walk = (n: BoolNode | ArithNode): void => {
+    switch (n.type) {
+      case 'var':
+      case 'avar':
+        out.add(n.name);
+        return;
+      case 'not':
+      case 'edge':
+      case 'timer':
+      case 'neg':
+        walk(n.operand);
+        return;
+      case 'and':
+      case 'or':
+      case 'cmp':
+      case 'arith':
+        walk(n.left);
+        walk(n.right);
+    }
+  };
+  for (const e of p.expressions) walk(e.ast);
+  for (const a of p.actions) {
+    if (a.target) out.add(a.target);
+    if (a.arithValue) walk(a.arithValue);
+  }
+  return [...out];
+}
+
 export class NameTable {
   private used = new Set<string>();
   constructor(reserved: Iterable<string>) {
@@ -213,12 +249,19 @@ export function initialLiteral(v: Variable): string {
   }
 }
 
-/** Escapes text for an ST comment. */
+/**
+ * Escapes text for an ST comment, block `(* *)` or line `//`: no comment delimiters, on one line,
+ * and no invisible controls (other line ends like U+2028, bidirectional overrides that would make
+ * the code read differently from what it does).
+ */
 export function comment(text: string): string {
   return text
     .replace(/\(\*/g, '( *')
     .replace(/\*\)/g, '* )')
-    .replace(/[\r\n]+/g, ' ');
+    .replace(/\/\*/g, '/ *')
+    .replace(/\*\//g, '* /')
+    .replace(/[\r\n]+/g, ' ')
+    .replace(/[\p{Cc}\u2028\u2029\u202A-\u202E\u2066-\u2069]/gu, ' ');
 }
 
 /** How references inside expressions are written by a given generator. */

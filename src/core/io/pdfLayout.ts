@@ -46,6 +46,9 @@ export interface PageLayout {
   box: Rect;
 }
 
+/** Most pages one grafcet is tiled over at a fixed scale. */
+const MAX_TILES = 400;
+
 export function pageLayout(box: Rect, opts: PageOptions): PageLayout {
   const [w, h] = PAPER_MM[opts.paper];
   const width = opts.orientation === 'portrait' ? w : h;
@@ -63,6 +66,8 @@ export function pageLayout(box: Rect, opts: PageOptions): PageLayout {
   const tile = { width: area.width / scale, height: area.height / scale };
   const cols = opts.scale === 'fit' ? 1 : Math.max(1, Math.ceil(box.width / tile.width - 1e-9));
   const rows = opts.scale === 'fit' ? 1 : Math.max(1, Math.ceil(box.height / tile.height - 1e-9));
+  // A diagram that would need more pages than anyone prints (or coordinates far out) is fitted.
+  if (!(cols * rows <= MAX_TILES)) return pageLayout(box, { ...opts, scale: 'fit' });
   return { width, height, area, scale, cols, rows, tile, box };
 }
 

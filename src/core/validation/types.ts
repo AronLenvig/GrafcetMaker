@@ -27,6 +27,7 @@ export type RuleId =
   | 'subgrafcetUnused'
   | 'macroActions'
   | 'forcingCycle'
+  | 'hierarchyCycle'
   | 'forcingEmpty'
   /** Runtime problem reported by the simulator (transient loop). */
   | 'simulation';

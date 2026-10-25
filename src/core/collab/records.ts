@@ -14,12 +14,13 @@
  * replicas show the same project, and it always passes the file schema's integrity checks.
  */
 import { z } from 'zod';
-import { LIMITS } from '../model/constants';
+import { isSafeKey, LIMITS } from '../model/constants';
 import { sameJson } from '../model/json';
 import {
   actionSchema,
   commentSchema,
   grafcetSchema,
+  idSchema,
   projectMetaSchema,
   projectNameSchema,
   scenarioSchema,
@@ -64,6 +65,8 @@ export type Change = [RecordKey, Fields];
 const DELETED = '$d';
 const MAX_VERSION = 2 ** 31;
 const NONCES = 2 ** 32;
+/** Records one replica keeps (tombstones included): twice what a project file may hold. */
+const MAX_RECORDS = 2 * LIMITS.elements;
 
 const FIELDS: Record<RecordKind, readonly string[]> = {
   p: ['name', 'meta'],
@@ -82,7 +85,7 @@ const ARITY: Record<RecordKind, number> = { p: 0, o: 0, v: 1, x: 1, g: 1, s: 2, 
 
 const SCHEMAS: Record<RecordKind, z.ZodObject> = {
   p: z.object({ name: projectNameSchema, meta: projectMetaSchema }),
-  o: z.object({ order: z.array(z.string().min(1).max(LIMITS.idLength)).max(10_000) }),
+  o: z.object({ order: z.array(idSchema).max(10_000) }),
   v: variableSchema,
   x: scenarioSchema,
   g: grafcetSchema.pick({ id: true, name: true, kind: true }),
@@ -102,7 +105,10 @@ function isRecordKey(k: unknown): k is RecordKey {
   if (k.length !== 1 + ARITY[k[0] as RecordKind]) return false;
   return k
     .slice(1)
-    .every((id) => typeof id === 'string' && id.length > 0 && id.length <= LIMITS.idLength);
+    .every(
+      (id) =>
+        typeof id === 'string' && id.length > 0 && id.length <= LIMITS.idLength && isSafeKey(id),
+    );
 }
 
 function isRegister(r: unknown): r is Register {
@@ -118,12 +124,18 @@ function isRegister(r: unknown): r is Register {
   );
 }
 
-/** Whether one field's register holds an acceptable value for that kind of record. */
-function validField(kind: RecordKind, field: string, reg: Register): boolean {
-  if (field === DELETED) return ARITY[kind] > 0 && typeof reg.x === 'boolean';
-  if (!FIELDS[kind].includes(field)) return false;
+/**
+ * One field's register as kept, or null when its value is not acceptable for that kind of
+ * record. The value is the schema's output, so keys the schema does not know are dropped.
+ */
+function validField(kind: RecordKind, field: string, reg: Register): Register | null {
+  if (field === DELETED)
+    return ARITY[kind] > 0 && typeof reg.x === 'boolean' ? { v: reg.v, n: reg.n, x: reg.x } : null;
+  if (!FIELDS[kind].includes(field)) return null;
   const schema = SCHEMAS[kind].shape[field] as z.ZodType;
-  return schema.safeParse('x' in reg ? reg.x : undefined).success;
+  if (!('x' in reg)) return schema.safeParse(undefined).success ? { v: reg.v, n: reg.n } : null;
+  const parsed = schema.safeParse(reg.x);
+  return parsed.success ? { v: reg.v, n: reg.n, x: parsed.data } : null;
 }
 
 /** Last writer wins: the higher version, then the lower nonce. Equal registers change nothing. */
@@ -221,15 +233,18 @@ export class RecordStore {
       const key = c[0];
       const ks = keyString(key);
       let rec = this.recs.get(ks);
+      // Beyond the cap, records already known still merge; new ones are ignored.
+      if (!rec && this.recs.size >= MAX_RECORDS) continue;
       let touched = false;
       for (const [field, reg] of Object.entries(c[1])) {
-        if (!isRegister(reg) || !validField(key[0], field, reg) || !wins(reg, rec?.fields[field]))
-          continue;
+        if (!isRegister(reg) || !wins(reg, rec?.fields[field])) continue;
+        const kept = validField(key[0], field, reg);
+        if (!kept) continue;
         if (!rec) {
           rec = { key: [...key], fields: {}, rev: 0 };
           this.recs.set(ks, rec);
         }
-        rec.fields[field] = 'x' in reg ? { v: reg.v, n: reg.n, x: reg.x } : { v: reg.v, n: reg.n };
+        rec.fields[field] = kept;
         touched = true;
       }
       if (touched) {
@@ -484,7 +499,7 @@ export class RecordStore {
     const order: Id[] = [];
     const placed = new Set<Id>();
     for (const gid of rawOrder) {
-      if (!grafcets[gid] || placed.has(gid)) continue;
+      if (!Object.hasOwn(grafcets, gid) || placed.has(gid)) continue;
       order.push(gid);
       placed.add(gid);
     }

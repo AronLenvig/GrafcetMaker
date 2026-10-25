@@ -325,10 +325,13 @@ export function importGrafcetIo(
     p.y >= b.position.y &&
     p.x <= b.position.x + num(b, 'width') &&
     p.y <= b.position.y + num(b, 'height');
-  const boxOf = (p: Point): RawNode | undefined =>
-    boxes
-      .filter((b) => inside(b, p))
-      .sort((a, b) => num(a, 'width') * num(a, 'height') - num(b, 'width') * num(b, 'height'))[0];
+  const area = (b: RawNode) => num(b, 'width') * num(b, 'height');
+  /** The innermost frame around a point: the smallest, the first of equal ones. */
+  const boxOf = (p: Point): RawNode | undefined => {
+    let best: RawNode | undefined;
+    for (const b of boxes) if (inside(b, p) && (!best || area(b) < area(best))) best = b;
+    return best;
+  };
 
   // ---- Nets: wires joined through connectors -------------------------------------------------
   const nets = new UnionFind();
@@ -413,14 +416,19 @@ export function importGrafcetIo(
   // ---- Actions: the step each one hangs on (directly or along a chain of actions) -------------
   const actionStep = new Map<string, string>();
   const neighbours = new Map<string, string[]>();
+  const link = (a: string, b: string) => {
+    const list = neighbours.get(a);
+    if (list) list.push(b);
+    else neighbours.set(a, [b]);
+  };
   for (const [a, b] of actionLinks) {
-    neighbours.set(a, [...(neighbours.get(a) ?? []), b]);
-    neighbours.set(b, [...(neighbours.get(b) ?? []), a]);
+    link(a, b);
+    link(b, a);
   }
   for (const s of all(isStep)) {
     const queue = (neighbours.get(s.id) ?? []).filter(isAction);
-    while (queue.length) {
-      const a = queue.shift()!;
+    for (let qi = 0; qi < queue.length; qi++) {
+      const a = queue[qi]!;
       if (actionStep.has(a)) continue;
       actionStep.set(a, s.id);
       for (const b of neighbours.get(a) ?? []) if (isAction(b) && !actionStep.has(b)) queue.push(b);
@@ -436,7 +444,9 @@ export function importGrafcetIo(
   const chartMembers = new Map<string, RawNode[]>();
   for (const id of charts.keys()) {
     const root = charts.find(id);
-    chartMembers.set(root, [...(chartMembers.get(root) ?? []), nodes.get(id)!]);
+    const members = chartMembers.get(root);
+    if (members) members.push(nodes.get(id)!);
+    else chartMembers.set(root, [nodes.get(id)!]);
   }
   for (const members of chartMembers.values()) {
     const votes = new Map<RawNode | undefined, number>();
@@ -478,10 +488,18 @@ export function importGrafcetIo(
     groups.delete(g.key);
   }
   // A frame without steps (e.g. manual commands as actions with a condition) is a grafcet too.
+  const freeIn = new Map<RawNode | undefined, RawNode[]>();
+  for (const a of all(isAction)) {
+    if (actionStep.has(a.id)) continue;
+    const b = boxOf(a.position);
+    const list = freeIn.get(b);
+    if (list) list.push(a);
+    else freeIn.set(b, [a]);
+  }
   for (const b of boxes) {
     const key = `box:${b.id}`;
     if (groups.has(key)) continue;
-    const free = all(isAction).filter((a) => !actionStep.has(a.id) && boxOf(a.position) === b);
+    const free = freeIn.get(b) ?? [];
     if (free.length) groups.set(key, { key, name: '', nodes: free, box: b });
   }
   const ordered = [...groups.values()].sort((a, b) => {

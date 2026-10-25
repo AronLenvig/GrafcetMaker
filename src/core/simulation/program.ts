@@ -196,6 +196,26 @@ export function compile(project: Project): Program {
       }
     }
   }
+  // A macro-step inside its own expansion (directly or nested) cannot be inlined: it stays a
+  // plain step (validation reports the cycle), so nothing below recurses forever.
+  const inCycle = (start: number): boolean => {
+    const seen = new Set<number>();
+    const todo = [start];
+    while (todo.length) {
+      for (const i of macros.get(todo.pop()!)?.members ?? []) {
+        if (i === start) return true;
+        if (macros.has(i) && !seen.has(i)) {
+          seen.add(i);
+          todo.push(i);
+        }
+      }
+    }
+    return false;
+  };
+  for (const idx of [...macros.keys()].filter(inCycle)) {
+    macros.delete(idx);
+    problems.push({ kind: 'hierarchy', elementId: steps[idx]!.id });
+  }
   // Links to a macro-step enter its expansion at E; links from it leave from S (nested too).
   const entryOf = (i: number): number => (macros.has(i) ? entryOf(macros.get(i)!.entry) : i);
   const exitOf = (i: number): number => (macros.has(i) ? exitOf(macros.get(i)!.exit) : i);

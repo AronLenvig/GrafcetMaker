@@ -7,6 +7,7 @@
  */
 import { z } from 'zod';
 import { LIMITS, SCHEMA_VERSION } from '../model/constants';
+import { idSchema } from '../model/schema';
 import { fromBase64Url, pipeBytes, toBase64Url } from '../io/bytes';
 
 export { formatRoomHash, parseRoomHash, ROOM_PREFIX, type RoomLink } from './link';
@@ -85,7 +86,7 @@ export async function unseal(key: CryptoKey, data: string): Promise<unknown> {
   return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(json)) as unknown;
 }
 
-const id = z.string().min(1).max(LIMITS.idLength);
+const id = idSchema;
 const point = z.object({ x: z.number(), y: z.number() });
 /** Records are checked one by one when merged; here only their number is capped. */
 const records = z.array(z.unknown()).max(500_000);

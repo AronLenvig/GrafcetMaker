@@ -1,12 +1,13 @@
 import { z } from 'zod';
-import { IDENT_RE, LIMITS, SCHEMA_VERSION } from './constants';
+import { IDENT_RE, isSafeKey, LIMITS, SCHEMA_VERSION } from './constants';
 
 // Strict CSP forbids eval/new Function: disable Zod's JIT so it never probes for it.
 z.config({ jitless: true });
 
 export { IDENT_RE, LIMITS, SCHEMA_VERSION };
 
-const id = z.string().min(1).max(LIMITS.idLength);
+const id = z.string().min(1).max(LIMITS.idLength).refine(isSafeKey, { message: 'Reserved id' });
+export { id as idSchema };
 const point = z.object({ x: z.number(), y: z.number() });
 const shortText = z.string().max(LIMITS.shortText);
 const longText = z.string().max(LIMITS.longText);
@@ -164,7 +165,7 @@ function checkIntegrity(p: ProjectShape, ctx: z.RefinementCtx): void {
     if (!order.has(key)) issue(`Grafcet "${key}" missing from grafcetOrder`, ['grafcetOrder']);
   }
   for (const gid of p.grafcetOrder) {
-    if (!p.grafcets[gid])
+    if (!Object.hasOwn(p.grafcets, gid))
       issue(`grafcetOrder references unknown grafcet "${gid}"`, ['grafcetOrder']);
   }
 
@@ -178,7 +179,7 @@ function checkIntegrity(p: ProjectShape, ctx: z.RefinementCtx): void {
     for (const [sid, s] of Object.entries(g.steps)) {
       elements++;
       if (sid !== s.id) issue(`Step key "${sid}" does not match its id`, [...at, 'steps', sid]);
-      if (s.refGrafcetId !== undefined && !p.grafcets[s.refGrafcetId]) {
+      if (s.refGrafcetId !== undefined && !Object.hasOwn(p.grafcets, s.refGrafcetId)) {
         issue(`Step references unknown grafcet "${s.refGrafcetId}"`, [...at, 'steps', sid]);
       }
     }
@@ -189,7 +190,8 @@ function checkIntegrity(p: ProjectShape, ctx: z.RefinementCtx): void {
       for (const side of ['from', 'to'] as const) {
         if (new Set(t[side]).size !== t[side].length) issue(`Duplicate step in "${side}"`, tAt);
         for (const sid of t[side]) {
-          if (!g.steps[sid]) issue(`Transition references unknown step "${sid}"`, tAt);
+          if (!Object.hasOwn(g.steps, sid))
+            issue(`Transition references unknown step "${sid}"`, tAt);
         }
       }
     }
@@ -198,7 +200,7 @@ function checkIntegrity(p: ProjectShape, ctx: z.RefinementCtx): void {
       if (aid !== a.id) issue(`Action key "${aid}" does not match its id`, [...at, 'actions', aid]);
       if (a.stepId === null) {
         if (!a.position) issue('Unattached action without a position', [...at, 'actions', aid]);
-      } else if (!g.steps[a.stepId])
+      } else if (!Object.hasOwn(g.steps, a.stepId))
         issue(`Action references unknown step "${a.stepId}"`, [...at, 'actions', aid]);
     }
     for (const [cid, c] of Object.entries(g.comments)) {

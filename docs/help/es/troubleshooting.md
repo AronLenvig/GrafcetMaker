@@ -37,6 +37,11 @@ grafcet y los números de etapa de la orden.
 directamente o a través de otros. Elimina una de las órdenes, o haz que un tercer grafcet fuerce a
 los dos.
 
+**Las macroetapas y las etapas encapsulantes forman un ciclo.** Un grafcet no puede contenerse a
+sí mismo: una macroetapa o etapa encapsulante lleva, directamente o a través de otras, de vuelta a
+su propio grafcet. Pon el Tipo de la etapa en _Etapa_ y de nuevo como estaba para obtener un
+subgrafcet propio.
+
 **La macroetapa … no tiene grafcet de expansión** (o **La etapa encapsulante … no tiene grafcet
 encapsulado**). Su subgrafcet se eliminó. Pon el Tipo de la etapa en _Etapa_ y de nuevo en
 _Macroetapa_ (o _Etapa encapsulante_) para obtener uno nuevo, o déjala como etapa normal.

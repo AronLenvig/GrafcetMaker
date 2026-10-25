@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { createProject } from '@/core/model/factory';
 import type { Project } from '@/core/model/types';
 import {
+  checkFileSize,
   ProjectFileError,
   parseProjectFile,
   serializeProject,
@@ -161,6 +162,7 @@ async function importGrafcetIoFile(file: File, text: string): Promise<void> {
 export async function openFile(file: File, handle?: FileSystemFileHandle): Promise<void> {
   let project: Project;
   try {
+    checkFileSize(file.size);
     const text = await file.text();
     // grafcet.io files (.grafcetio) are converted; the check runs on the cheap marker first.
     if (/\.grafcetio$/i.test(file.name) || text.includes('grafcet.io')) {
@@ -180,20 +182,24 @@ export async function openFile(file: File, handle?: FileSystemFileHandle): Promi
 }
 
 /**
- * Opens the project of a live session. Rejoining (the same project is open, e.g. after a reload)
- * updates it in place; another project asks about unsaved changes first. Returns false when the
- * user cancelled.
+ * Opens the project of a live session. Rejoining (`rejoin`: this device kept the room's records,
+ * e.g. after a reload) updates the same open project in place. Otherwise unsaved changes are
+ * asked about first, even when the room holds a project with the open one's id: whoever started
+ * the room chose that id. Returns false when the user cancelled.
  */
-export async function openLiveProject(project: Project): Promise<boolean> {
-  if (getProject().id === project.id) {
+export async function openLiveProject(project: Project, rejoin: boolean): Promise<boolean> {
+  const same = getProject().id === project.id;
+  if (!(same && rejoin)) {
+    if (!(await confirmDiscardIfDirty())) return false;
+    const existing = await safely(() => db.projects.get(project.id));
+    if (existing?.dirty) await addSnapshot(existing.project, 'beforeReplace');
+  }
+  if (same) {
     doc.applyRemote(project);
     useSession.setState({ fresh: false });
     rememberLastProject(project.id);
     return true;
   }
-  if (!(await confirmDiscardIfDirty())) return false;
-  const existing = await safely(() => db.projects.get(project.id));
-  if (existing?.dirty) await addSnapshot(existing.project, 'beforeReplace');
   // Never saved to a file on this device.
   await loadIntoEditor(project, { dirty: true });
   return true;

@@ -39,14 +39,19 @@ export function suggestedFileName(project: Project): string {
   return base + FILE_EXTENSION;
 }
 
-/** Parses untrusted file content into a validated, migrated project. Throws ProjectFileError. */
-export function parseProjectFile(text: string, byteLength: number = text.length): Project {
+/** Throws ProjectFileError `tooLarge` past the file size limit (checked before reading, too). */
+export function checkFileSize(byteLength: number): void {
   if (byteLength > LIMITS.fileBytes) {
     throw new ProjectFileError(
       'tooLarge',
       `File is larger than ${LIMITS.fileBytes / 1024 / 1024} MB`,
     );
   }
+}
+
+/** Parses untrusted file content into a validated, migrated project. Throws ProjectFileError. */
+export function parseProjectFile(text: string, byteLength: number = text.length): Project {
+  checkFileSize(byteLength);
   let raw: unknown;
   try {
     raw = JSON.parse(text);

@@ -129,7 +129,9 @@ and the result is checked against the project schema. Interpretation choices:
 ## Structure
 
 Collections are normalized maps keyed by id (ids are random 12-character strings); the key must
-equal the object's `id`.
+equal the object's `id`. An id may not be the name of a property every JavaScript object has
+(`constructor`, `toString`, `__proto__`…): such a file is rejected as invalid, so a reference to
+it can never look present.
 
 ```ts
 Project {

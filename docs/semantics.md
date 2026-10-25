@@ -218,6 +218,11 @@ hand-verified charts (`tests/unit/simulation.test.ts`).
   grafcet keeps its situation (rule 5).
 - At start, enclosed grafcets are inactive. `G{INIT}` applied to an enclosed grafcet restores its
   `*` steps.
+- A grafcet cannot contain itself: when macro-steps and enclosing steps lead back, directly or
+  through others, to the grafcet they belong to, validation reports an error (_Macro-steps and
+  enclosing steps form a cycle_). A macro-step on such a cycle is not inlined: simulation and code
+  generation treat it as a plain step (and list it as a hierarchy problem) instead of expanding
+  it forever.
 
 ### Symbols
 

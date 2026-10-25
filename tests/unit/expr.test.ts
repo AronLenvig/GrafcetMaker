@@ -163,6 +163,17 @@ describe('errors carry a position and a hint', () => {
     expect(e.start).toBe(start);
     expect(e.hint).toBe(hint);
   });
+
+  it('refuses nesting deeper than 100 levels instead of running out of stack', () => {
+    expect(parseBool('('.repeat(99) + 'a' + ')'.repeat(99)).ok).toBe(true);
+    for (const deep of [
+      '('.repeat(999) + 'a' + ')'.repeat(999),
+      '/'.repeat(1999) + 'a',
+      '1s/'.repeat(600) + 'a',
+      'x = ' + '-'.repeat(1990) + '1',
+    ])
+      expect(err(deep).code).toBe('tooDeep');
+  });
 });
 
 describe('assignments, outputs and forcing orders', () => {

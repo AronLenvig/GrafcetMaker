@@ -636,6 +636,8 @@ export const da: Messages = {
         'Lagrede aktioner på makrotrin {{step}} ignoreres af simuleringen: læg dem i dets ekspansion {{grafcet}}.',
       forcingCycle:
         'Tvangsstyringerne danner en cyklus ({{grafcets}}): en grafcet kan ikke tvangsstyre en grafcet, der tvangsstyrer den selv.',
+      hierarchyCycle:
+        'Makrotrin og omsluttende trin danner en cyklus ({{grafcets}}): en grafcet kan ikke indeholde sig selv.',
       forcingEmpty:
         '{{order}} tvangsstyrer {{grafcet}} til den tomme situation (intet trin aktivt), og intet aktiverer dens trin igen (ingen anden tvangsstyring som {{grafcet}}{INIT}, ingen kildetransition). Brug {{grafcet}}{INIT} for at aktivere dens initialtrin.',
       simTransientLoop:
@@ -1422,6 +1424,7 @@ export const da: Messages = {
       assignmentExpected: 'Her forventes en tildeling som C := C + 1.',
       identifierExpected: 'Her forventes navnet på en variabel.',
       forcingSyntax: 'Ugyldig tvangsstyring.',
+      tooDeep: 'Udtrykket er indlejret for dybt (mere end 100 niveauer).',
       unknownIdentifier: 'Ukendt variabel »{{name}}«.',
       notBoolean: '{{name}} er {{type}}, ikke boolesk.',
       notNumeric: 'En {{type}}-variabel skal have en numerisk værdi.',

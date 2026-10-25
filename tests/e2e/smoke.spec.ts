@@ -120,9 +120,11 @@ test('theme can be switched', async ({ page }) => {
   await page.getByRole('button', { name: 'Menu', exact: true }).click();
   await page.getByRole('menuitemradio', { name: 'Dark' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await page.getByRole('button', { name: 'Menu', exact: true }).click();
+  // The menu stays open, so the themes can be tried one after the other.
   await page.getByRole('menuitemradio', { name: 'Light' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('menu')).toHaveCount(0);
 });
 
 test.describe('phone', () => {

@@ -71,17 +71,37 @@ a:hover {
   border-bottom: 1px solid var(--border);
 }
 
+.brand,
+.brand:hover {
+  color: var(--text);
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  color: var(--text);
+  gap: 10px;
+  font-size: 18px;
   font-weight: 600;
+  letter-spacing: -0.01em;
   text-decoration: none;
 }
 
 .brand svg {
-  color: var(--accent);
+  flex: none;
+  color: var(--accent-fg);
+}
+
+.brand .tile {
+  fill: var(--accent);
+}
+
+.brand:hover .tile {
+  fill: var(--accent-hover);
+}
+
+.brand .maker {
+  color: var(--text-muted);
+  font-weight: 500;
 }
 
 .nav {

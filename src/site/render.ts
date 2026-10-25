@@ -53,7 +53,8 @@ const PALETTE: ExportPalette = {
   commentStroke: '#000004',
 };
 
-const LOGO = `<svg viewBox="0 0 64 64" width="28" height="28" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="4"><rect x="16" y="6" width="32" height="32"/><rect x="22" y="12" width="20" height="20"/><path d="M32 38v24"/></g><rect x="20" y="48" width="24" height="5" fill="currentColor"/></svg>`;
+/** The brand mark: an initial step and its transition on a tile, both colored by site.css. */
+const LOGO = `<svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect class="tile" width="32" height="32" rx="8"/><g fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="4" width="16" height="16"/><rect x="12" y="8" width="8" height="8"/><path d="M16 21v11"/></g><rect x="11" y="25" width="10" height="3" fill="currentColor"/></svg>`;
 
 // Published paths, from the site root. The root itself is the editor in the visitor's language.
 /** The editor in a language. */
@@ -244,7 +245,7 @@ function frame(f: Frame, input: SiteInput): string {
   <body>
     <a class="skip" href="#main">${esc(text.skip)}</a>
     <header class="top">
-      <a class="brand" href="${f.up}${appPath(f.lang)}">${LOGO}<span>GrafcetMaker</span></a>
+      <a class="brand" href="${f.up}${appPath(f.lang)}">${LOGO}<span>Grafcet<span class="maker">Maker</span></span></a>
       ${f.nav}
       <a class="button primary" href="${f.up}${appPath(f.lang)}">${esc(text.openEditor)}</a>
     </header>

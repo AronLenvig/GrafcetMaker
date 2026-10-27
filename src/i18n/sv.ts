@@ -714,6 +714,7 @@ export const sv: Messages = {
     hold: 'Håll ned för att sätta {{name}} (momentant)',
     momentary: 'Håll',
     numeric: '{{name}} ({{type}})',
+    editValue: 'Klicka för att ändra {{name}}',
     enabled: 'Möjliggjord: väntar på sitt övergångsvillkor',
   },
   chronogram: {

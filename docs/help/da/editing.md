@@ -136,8 +136,9 @@ Forgreninger og sammenføringer tegnes aldrig i hånden; de følger af forbindel
 
 ## Naviger {#navigate}
 
-- Rul for at panorere; <kbd>Ctrl</kbd>+rul eller knib for at zoome; <kbd>Space</kbd>+træk eller den
-  midterste museknap panorerer også.
+- Rul for at panorere; <kbd>Ctrl</kbd>+rul eller knib for at zoome; <kbd>Space</kbd>+træk, den
+  midterste museknap eller højre museknap holdt nede panorerer også (et højreklik uden at flytte
+  musen åbner stadig menuen).
 - <kbd>Shift+1</kbd> tilpasser hele grafcetten, <kbd>Shift+2</kbd> markeringen, <kbd>Shift+0</kbd>
   er 100 %.
 - <kbd>Ctrl+K</kbd> åbner kommandopaletten: skriv en hvilken som helst kommando eller et

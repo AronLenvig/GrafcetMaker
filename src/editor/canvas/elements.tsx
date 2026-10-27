@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ACTION_GAP,
   ACTION_PAD,
+  CHAR_WIDTH_EM,
   DOUBLE_BAR_GAP,
   FONT_SIZE,
   INITIAL_INSET,
@@ -108,11 +109,14 @@ export const StepView = memo(function StepView({
 export const TransitionView = memo(function TransitionView({
   transition,
   signals,
+  values,
   editing,
 }: {
   transition: Transition;
   /** Simulation: the signals of the receptivity that are true or inputs (see ExprText). */
   signals?: string;
+  /** Simulation: the values of the numeric variables it reads (see ExprText). */
+  values?: string;
   editing?: EditField;
 }) {
   const { t } = useTranslation();
@@ -136,7 +140,13 @@ export const TransitionView = memo(function TransitionView({
         </text>
       )}
       {editing === 'receptivity' ? null : transition.receptivity.trim() ? (
-        <ExprText source={transition.receptivity} x={text.x} y={text.y} signals={signals} />
+        <ExprText
+          source={transition.receptivity}
+          x={text.x}
+          y={text.y}
+          signals={signals}
+          values={values}
+        />
       ) : (
         // Not written yet: a quiet placeholder (the Problems list still reports it).
         <text className="gm-text gm-muted" x={text.x} y={baseline(text.y, FONT_SIZE)}>
@@ -156,7 +166,9 @@ export const ActionView = memo(function ActionView({
   first,
   on,
   live,
+  liveName,
   conditionSignals,
+  conditionValues,
   editing,
 }: {
   action: Action;
@@ -169,10 +181,15 @@ export const ActionView = memo(function ActionView({
   on?: boolean;
   /** Simulation: current value of the variable it writes. */
   live?: string;
+  /** Simulation: the numeric variable it writes (lower case), whose value a click changes. */
+  liveName?: string;
   /** Simulation: the signals of its condition or event that are true or inputs (see ExprText). */
   conditionSignals?: string;
+  /** Simulation: the values of the numeric variables its condition reads (see ExprText). */
+  conditionValues?: string;
   editing?: EditField;
 }) {
+  const { t } = useTranslation();
   const textX = x + ACTION_PAD + (action.kind === 'forcing' ? 3 : 0);
   const cy = y + height / 2;
   const decor = actionDecor(action, { x, y, width, height });
@@ -188,7 +205,22 @@ export const ActionView = memo(function ActionView({
       />
       {on && <path className="gm-on-mark" d={`M${x + width - 13} ${y + 9}l3 3l6 -6`} />}
       {live !== undefined && (
-        <text className="gm-label gm-live" x={x + width - 4} y={y + height + 11} textAnchor="end">
+        <text
+          className={liveName ? 'gm-label gm-live gm-live-edit' : 'gm-label gm-live'}
+          x={x + width - 4}
+          y={y + height + 11}
+          textAnchor="end"
+          data-value={liveName}
+          data-x={
+            liveName
+              ? x + width - 4 - (([...live].length + 2) * LABEL_FONT_SIZE * CHAR_WIDTH_EM) / 2
+              : undefined
+          }
+          data-y={liveName ? y + height + 7 : undefined}
+        >
+          {liveName && (
+            <title>{t('simulation.editValue', { name: action.text.split(':=')[0]!.trim() })}</title>
+          )}
           = {live}
         </text>
       )}
@@ -209,6 +241,7 @@ export const ActionView = memo(function ActionView({
           y={decor.text.y}
           anchor={decor.text.anchor}
           signals={conditionSignals}
+          values={conditionValues}
         />
       )}
     </g>

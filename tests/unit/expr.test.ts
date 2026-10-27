@@ -16,7 +16,7 @@ import {
   runsToPlainText,
   textbookSignalColumns,
 } from '@/core/expr/format';
-import { signalsOf, signalValue, stateValue, waitingTerms } from '@/core/expr/signals';
+import { signalsOf, signalValue, stateValue, variablesOf, waitingTerms } from '@/core/expr/signals';
 import { parseAssignment, parseBool, parseForcing } from '@/core/expr/parser';
 import { createGrafcet, createProject, createStep } from '@/core/model/factory';
 import type { Project } from '@/core/model/types';
@@ -357,6 +357,12 @@ describe('names written before they are declared', () => {
 });
 
 describe('signals shown while simulating', () => {
+  it('list the variables they read once each, also inside comparisons', () => {
+    const r = parseBool('(Count >= Limit + 1) * /(count = 0) + X3 + 5s/X2 + ↑start');
+    if (!r.ok) throw new Error('parse');
+    expect(variablesOf(r.value)).toEqual(['count', 'limit', 'start']);
+  });
+
   it('are found in reading order, located in typed and textbook text, and evaluated', () => {
     const source = '↑start * /(a + X2) * (level >= 80)';
     const r = parseBool(source);

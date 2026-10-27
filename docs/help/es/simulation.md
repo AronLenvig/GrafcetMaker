@@ -22,6 +22,13 @@ También puedes **hacer clic en una entrada BOOL donde está escrita** en una re
 condición del diagrama (o tocarla con el dedo): se activa o se desactiva. El grafcet evoluciona en
 cuanto cambia una entrada.
 
+Durante la simulación, cada variable **INT**, **REAL** o **TIME** escrita en una receptividad o una
+condición muestra su valor actual en un pequeño recuadro sobre su nombre, y una acción memorizada
+muestra bajo su recuadro el valor de la variable que escribe. **Haz clic en un valor** (o tócalo)
+para escribir uno nuevo y pulsa <kbd>Enter</kbd> (<kbd>Escape</kbd> cancela). Sirve para las
+entradas y también para las variables internas y las salidas, por ejemplo para probar un contador
+cerca de su límite.
+
 **Señala una transición** (o tócala) para ver qué espera: las etapas que deben estar activas antes,
 o los términos de su receptividad que aún son falsos, con el tiempo que le queda a una
 temporización como `10s/X0`. Un flanco como `↑start` siempre aparece en la lista: solo es verdadero

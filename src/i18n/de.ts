@@ -727,6 +727,7 @@ export const de: Messages = {
     hold: 'Gedrückt halten, um {{name}} zu setzen (Taster)',
     momentary: 'Halten',
     numeric: '{{name}} ({{type}})',
+    editValue: 'Klicken, um {{name}} zu ändern',
     enabled: 'Freigegeben: wartet auf ihre Transitionsbedingung',
   },
   chronogram: {

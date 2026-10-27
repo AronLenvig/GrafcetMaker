@@ -22,6 +22,13 @@ Du kan också **klicka på en BOOL-ingång där den står** i ett övergångsvil
 diagrammet (tryck på den med fingret): den slås på eller av. Grafceten utvecklas så snart en ingång
 ändras.
 
+Under simuleringen visar varje **INT**-, **REAL**- eller **TIME**-variabel som står i ett
+övergångsvillkor eller ett villkor sitt aktuella värde i en liten ruta ovanför namnet, och en
+lagrad aktion visar under sin ruta värdet på variabeln den skriver. **Klicka på ett värde** (eller
+tryck på det) för att skriva ett nytt och tryck på <kbd>Enter</kbd> (<kbd>Escape</kbd> avbryter).
+Det gäller både ingångar och interna variabler och utgångar, till exempel för att prova en räknare
+nära sin gräns.
+
 **Peka på en övergång** (eller tryck på den) för att se vad den väntar på: de steg som först måste
 vara aktiva, eller de termer i dess övergångsvillkor som fortfarande är falska, med den tid som
 återstår för en tidsfördröjning som `10s/X0`. En flank som `↑start` listas alltid: den är bara sann

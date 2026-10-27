@@ -22,6 +22,13 @@ Sie können auch **auf einen BOOL-Eingang klicken, wo er im Diagramm steht**, in
 Transitionsbedingung oder einer Bedingung (mit dem Finger antippen): Er schaltet ein oder aus. Der
 Grafcet entwickelt sich, sobald sich ein Eingang ändert.
 
+Während der Simulation zeigt jede **INT**-, **REAL**- oder **TIME**-Variable, die in einer
+Transitionsbedingung oder einer Bedingung steht, ihren aktuellen Wert in einem kleinen Kasten über
+ihrem Namen, und eine speichernd wirkende Aktion zeigt unter ihrem Kasten den Wert der Variable,
+die sie schreibt. **Klicken Sie auf einen Wert** (oder tippen Sie ihn an), um einen neuen
+einzugeben, und drücken Sie <kbd>Enter</kbd> (<kbd>Escape</kbd> bricht ab). Das gilt für Eingänge
+ebenso wie für interne Variablen und Ausgänge, etwa um einen Zähler nahe an seiner Grenze zu testen.
+
 **Zeigen Sie auf eine Transition** (oder tippen Sie sie an), um zu sehen, worauf sie wartet: die
 Schritte, die zuerst aktiv sein müssen, oder die Terme ihrer Transitionsbedingung, die noch falsch
 sind, mit der verbleibenden Zeit eines Zeitglieds wie `10s/X0`. Eine Flanke wie `↑start` wird

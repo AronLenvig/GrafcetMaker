@@ -321,6 +321,35 @@
   text-decoration: underline dotted;
 }
 
+/* Simulation: a numeric variable's value over its name, typed in place after a click. */
+.gm-value {
+  cursor: pointer;
+}
+
+.gm-value rect {
+  fill: var(--canvas);
+  stroke: var(--ink-muted);
+  stroke-width: 1;
+}
+
+.gm-canvas .gm-value text {
+  fill: var(--ink);
+}
+
+.gm-value:hover rect {
+  stroke: var(--selection);
+  stroke-width: 1.5;
+}
+
+.gm-canvas text.gm-live-edit {
+  cursor: pointer;
+}
+
+.gm-canvas text.gm-live-edit:hover {
+  fill: var(--selection);
+  text-decoration: underline dotted;
+}
+
 .gm-signal-line {
   fill: none;
   stroke: var(--token);

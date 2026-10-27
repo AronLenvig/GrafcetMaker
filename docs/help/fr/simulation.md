@@ -22,6 +22,13 @@ Vous pouvez aussi **cliquer sur une entrée BOOL là où elle est écrite** dans
 condition du diagramme (ou la toucher du doigt) : elle passe à 1 ou à 0. Le grafcet évolue dès
 qu'une entrée change.
 
+Pendant la simulation, chaque variable **INT**, **REAL** ou **TIME** écrite dans une réceptivité ou
+une condition affiche sa valeur courante dans un petit cadre au-dessus de son nom, et une action
+mémorisée affiche sous son cadre la valeur de la variable qu'elle écrit. **Cliquez sur une valeur**
+(ou touchez-la) pour en saisir une nouvelle, puis appuyez sur <kbd>Enter</kbd> (<kbd>Escape</kbd>
+annule). Cela vaut pour les entrées comme pour les variables internes et les sorties, par exemple
+pour essayer un compteur près de sa limite.
+
 **Pointez une transition** (ou touchez-la) pour voir ce qu'elle attend : les étapes qui doivent
 d'abord être actives, ou les termes de sa réceptivité encore faux, avec le temps restant d'une
 temporisation comme `10s/X0`. Un front comme `↑start` est toujours listé : il n'est vrai qu'à

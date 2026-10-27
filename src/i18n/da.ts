@@ -715,6 +715,7 @@ export const da: Messages = {
     hold: 'Hold for at sætte {{name}} (kortvarigt)',
     momentary: 'Hold',
     numeric: '{{name}} ({{type}})',
+    editValue: 'Klik for at ændre {{name}}',
     enabled: 'Frigivet: venter på sin transitionsbetingelse',
   },
   chronogram: {

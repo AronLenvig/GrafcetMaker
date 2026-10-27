@@ -124,8 +124,9 @@ Divergences and convergences are never drawn by hand; they follow from the links
 
 ## Navigate
 
-- Scroll to pan; <kbd>Ctrl</kbd>+scroll or pinch to zoom; <kbd>Space</kbd>+drag or the middle
-  mouse button pans too.
+- Scroll to pan; <kbd>Ctrl</kbd>+scroll or pinch to zoom; <kbd>Space</kbd>+drag, the middle
+  mouse button or the right mouse button held down pans too (a right-click without moving still
+  opens the menu).
 - <kbd>Shift+1</kbd> fits the whole grafcet, <kbd>Shift+2</kbd> the selection, <kbd>Shift+0</kbd>
   is 100 %.
 - <kbd>Ctrl+K</kbd> opens the command palette: type any command or a grafcet name.

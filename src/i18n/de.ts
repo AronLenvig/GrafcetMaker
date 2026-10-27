@@ -1057,6 +1057,15 @@ export const de: Messages = {
     guide: 'GRAFCET-Leitfaden',
     examples: 'Beispiele',
     showAtStart: 'Diesen Bildschirm beim Öffnen von GrafcetMaker anzeigen',
+    welcome: 'Willkommen bei GrafcetMaker',
+    pitch:
+      'Zeichnen, prüfen und simulieren Sie GRAFCET-Abläufe direkt im Browser. Kostenlos und quelloffen, funktioniert offline, und Ihre Projekte bleiben auf Ihrem Gerät.',
+    learn: 'Lernen',
+    highlights: {
+      draw: 'Schnelles Zeichnen mit der Tastatur',
+      simulate: 'Simulation mit Zeitgliedern und Eingängen',
+      export: 'Export als PDF, SVG und SPS-Code',
+    },
     exampleNames: {
       trafficLight: 'Ampel',
       drillingStation: 'Bohrstation',

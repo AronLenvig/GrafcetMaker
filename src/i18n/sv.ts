@@ -1036,6 +1036,15 @@ export const sv: Messages = {
     guide: 'GRAFCET-guide',
     examples: 'Exempel',
     showAtStart: 'Visa den här skärmen när GrafcetMaker öppnas',
+    welcome: 'Välkommen till GrafcetMaker',
+    pitch:
+      'Rita, kontrollera och simulera GRAFCET-sekvenser direkt i webbläsaren. Gratis och öppen källkod, fungerar offline och dina projekt stannar på din enhet.',
+    learn: 'Lär dig',
+    highlights: {
+      draw: 'Snabb ritning med tangentbordet',
+      simulate: 'Simulering med timrar och ingångar',
+      export: 'Export till PDF, SVG och PLC-kod',
+    },
     exampleNames: {
       trafficLight: 'Trafikljus',
       drillingStation: 'Borrstation',

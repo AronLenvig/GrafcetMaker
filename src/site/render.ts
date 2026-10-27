@@ -53,8 +53,11 @@ const PALETTE: ExportPalette = {
   commentStroke: '#000004',
 };
 
-/** The brand mark: an initial step and its transition on a tile, both colored by site.css. */
-const LOGO = `<svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect class="tile" width="32" height="32" rx="8"/><g fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="4" width="16" height="16"/><rect x="12" y="8" width="8" height="8"/><path d="M16 21v11"/></g><rect x="11" y="25" width="10" height="3" fill="currentColor"/></svg>`;
+/** The brand mark: an initial step and its transition in an outlined tile, colored by site.css. */
+const LOGO = `<svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><rect class="tile" x="1" y="1" width="30" height="30" rx="7"/><g fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="5" width="14" height="14"/><rect x="12.5" y="8.5" width="7" height="7"/><path d="M16 19v8"/></g><rect x="11.5" y="22" width="9" height="2.5" fill="currentColor"/></svg>`;
+
+/** The chevron of the language button. */
+const CHEVRON = `<svg class="chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" focusable="false"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 // Published paths, from the site root. The root itself is the editor in the visitor's language.
 /** The editor in a language. */
@@ -72,6 +75,20 @@ const hreflang = (siteUrl: string, path: (l: Lang) => string) => [
   ...LANGS.map((l) => `<link rel="alternate" hreflang="${l}" href="${esc(siteUrl + path(l))}" />`),
   `<link rel="alternate" hreflang="x-default" href="${esc(siteUrl + path(DEFAULT_LANG))}" />`,
 ];
+
+/**
+ * The language of the page as one flag button beside the brand, opening the list of languages
+ * (flag and name) for the same page. A <details> element: the pages have no JavaScript.
+ */
+function languageMenu(lang: Lang, up: string, path: (l: Lang) => string): string {
+  const text = SITE_TEXT[lang];
+  const items = LANGS.map(
+    (l) =>
+      `<li><a href="${up}${path(l)}" hreflang="${l}" lang="${l}"${l === lang ? ' aria-current="page"' : ''}>${flagSvg(l, 'flag')}<span>${esc(SITE_TEXT[l].language)}</span></a></li>`,
+  ).join('');
+  const label = `${text.languages}: ${text.language}`;
+  return `<details class="lang"><summary aria-label="${esc(label)}" title="${esc(label)}">${flagSvg(lang, 'flag')}${CHEVRON}</summary><ul>${items}</ul></details>`;
+}
 
 /** The same page in the other languages, as flags named on hover. */
 const languageLinks = (lang: Lang, up: string, path: (l: Lang) => string) =>
@@ -200,8 +217,8 @@ interface Frame {
   description: string;
   /** Language alternates of the page, if any. */
   alternates: string[];
-  /** Links of the header, between the brand and the editor button. */
-  nav: string;
+  /** The page in each language (the language menu beside the brand). */
+  path: (lang: Lang) => string;
   structured: unknown;
   /** Content of <main>. */
   main: string;
@@ -246,8 +263,8 @@ function frame(f: Frame, input: SiteInput): string {
     <a class="skip" href="#main">${esc(text.skip)}</a>
     <header class="top">
       <a class="brand" href="${f.up}${appPath(f.lang)}">${LOGO}<span>Grafcet<span class="maker">Maker</span></span></a>
-      ${f.nav}
-      <a class="button primary" href="${f.up}${appPath(f.lang)}">${esc(text.openEditor)}</a>
+      ${languageMenu(f.lang, f.up, f.path)}
+      <a class="button outline open" href="${f.up}${appPath(f.lang)}">${esc(text.openEditor)}</a>
     </header>
     <main id="main">
       ${f.main}
@@ -324,7 +341,7 @@ async function guidePage(lang: Lang, src: string, input: SiteInput): Promise<str
       title: text.title,
       description: text.description,
       alternates,
-      nav: `<nav class="nav" aria-label="${esc(text.languages)}">${languages}</nav>`,
+      path: guidePath,
       structured,
       main: `<article class="layout">
         <header class="intro">
@@ -407,7 +424,7 @@ async function helpPage(lang: Lang, page: HelpPage, input: SiteInput): Promise<s
       title,
       description,
       alternates,
-      nav: `<nav class="nav" aria-label="${esc(text.languages)}">${languages}</nav>`,
+      path: (l) => helpPath(l, page.id),
       structured,
       main: `<article class="layout">
         <header class="intro">

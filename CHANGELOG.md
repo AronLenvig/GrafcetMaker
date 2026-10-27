@@ -8,6 +8,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- A warmer **Welcome** screen: a banner greeting with what GrafcetMaker does, the start actions
+  as large tiles, then the tutorial, the guide, recent files and the examples (three per row on
+  wide screens).
 - While simulating, every INT, REAL or TIME variable in a receptivity or condition shows its live
   value in a small box above its name. Click the value, or the value under a stored action, to
   type a new one on the diagram.
@@ -112,6 +115,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- Website header: the languages are one flag button beside the logo that opens a list (flag and
+  name); the logo and the **Open the editor** button are outlined.
 - A clearer logo in the header of the website's pages: the initial step and its transition drawn
   bolder on a tile in the accent color, and the name with "Maker" in a lighter tone.
 - A roomier properties card: wider, the step, action and transition kinds as one row of symbols

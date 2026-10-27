@@ -62,10 +62,11 @@ a:hover {
 /* Header */
 
 .top {
+  position: relative;
+  z-index: 2;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 8px 16px;
+  gap: 12px;
   padding: 10px max(16px, calc((100% - 1200px) / 2));
   background: var(--surface);
   border-bottom: 1px solid var(--border);
@@ -88,15 +89,18 @@ a:hover {
 
 .brand svg {
   flex: none;
-  color: var(--accent-fg);
+  color: var(--accent);
 }
 
+/* The tile is an outline, its middle the header's background. */
 .brand .tile {
-  fill: var(--accent);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
 }
 
-.brand:hover .tile {
-  fill: var(--accent-hover);
+.brand:hover svg {
+  color: var(--accent-hover);
 }
 
 .brand .maker {
@@ -104,29 +108,86 @@ a:hover {
   font-weight: 500;
 }
 
-.nav {
-  display: flex;
-  gap: 2px;
-  margin-left: auto;
+/* Language: the page's flag as a button beside the brand, the languages in a list below it */
+.lang {
+  position: relative;
+  flex: none;
 }
 
-.nav a {
-  padding: 4px 8px;
+.lang summary {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 6px 7px 8px;
+  border: 1px solid var(--border);
   border-radius: 6px;
   color: var(--text-muted);
-  font-size: 14px;
-  font-weight: 500;
-  text-decoration: none;
+  cursor: pointer;
+  list-style: none;
 }
 
-.nav a:hover {
+.lang summary::-webkit-details-marker {
+  display: none;
+}
+
+.lang summary:hover,
+.lang[open] summary {
+  border-color: var(--border-strong);
   background: var(--surface-2);
   color: var(--text);
 }
 
-.nav a[aria-current='page'] {
-  background: var(--accent-soft);
+.lang .chevron {
+  transition: transform 0.15s;
+}
+
+.lang[open] .chevron {
+  transform: rotate(180deg);
+}
+
+.lang ul {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 3;
+  min-width: 180px;
+  margin: 0;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 8px 24px var(--shadow-color);
+  list-style: none;
+}
+
+.lang li + li {
+  margin-top: 0;
+}
+
+.lang ul a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 6px;
   color: var(--text);
+  font-size: 15px;
+  text-decoration: none;
+}
+
+.lang ul a:hover {
+  background: var(--surface-2);
+}
+
+.lang ul a[aria-current='page'] {
+  background: var(--accent-soft);
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lang .chevron {
+    transition: none;
+  }
 }
 
 /* Language flags (src/app/ui/flags.ts), named by their link's title on hover */
@@ -170,6 +231,46 @@ a:hover {
   border-color: var(--accent-hover);
   background: var(--accent-hover);
   color: var(--accent-fg);
+}
+
+/* Outlined: the accent border and text, the background showing through. */
+.button.outline {
+  border: 1.5px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.button.outline:hover {
+  border-color: var(--accent-hover);
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+}
+
+.top .open {
+  margin-left: auto;
+}
+
+/* Phones: brand, language and editor button stay on one line. */
+@media (max-width: 420px) {
+  .top {
+    gap: 8px;
+  }
+
+  .brand {
+    gap: 8px;
+    font-size: 17px;
+  }
+
+  .brand svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .top .open {
+    padding: 5px 10px;
+    font-size: 14px;
+  }
 }
 
 /* Layout: title, contents, text; the contents move beside them on wide screens */

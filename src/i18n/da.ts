@@ -1036,6 +1036,15 @@ export const da: Messages = {
     guide: 'GRAFCET-guide',
     examples: 'Eksempler',
     showAtStart: 'Vis denne skærm, når GrafcetMaker åbner',
+    welcome: 'Velkommen til GrafcetMaker',
+    pitch:
+      'Tegn, tjek og simulér GRAFCET-sekvenser direkte i din browser. Gratis og open source, virker offline, og dine projekter bliver på din enhed.',
+    learn: 'Lær',
+    highlights: {
+      draw: 'Hurtig tegning med tastaturet',
+      simulate: 'Simulering med timere og indgange',
+      export: 'Eksport til PDF, SVG og PLC-kode',
+    },
     exampleNames: {
       trafficLight: 'Trafiklys',
       drillingStation: 'Borestation',

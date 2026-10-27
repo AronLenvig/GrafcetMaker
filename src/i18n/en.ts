@@ -706,6 +706,7 @@ export const en = {
     hold: 'Hold to set {{name}} (momentary)',
     momentary: 'Hold',
     numeric: '{{name}} ({{type}})',
+    editValue: 'Click to change {{name}}',
     enabled: 'Enabled: waiting for its receptivity',
   },
   chronogram: {

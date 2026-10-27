@@ -714,6 +714,7 @@ export const es: Messages = {
     hold: 'Mantén pulsado para activar {{name}} (momentáneo)',
     momentary: 'Mantener',
     numeric: '{{name}} ({{type}})',
+    editValue: 'Haz clic para cambiar {{name}}',
     enabled: 'Validada: espera su receptividad',
   },
   chronogram: {

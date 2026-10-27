@@ -34,6 +34,11 @@ export interface InteractionState {
    * as it is typed; the document changes only when the edit is applied.
    */
   draft: string | null;
+  /**
+   * Simulation: the numeric variable (lower case) whose value is being typed in place, over the
+   * value shown at `at` (diagram units).
+   */
+  valueEdit: { name: string; at: Point } | null;
 }
 
 export const useInteraction = create<InteractionState>(() => ({
@@ -46,4 +51,5 @@ export const useInteraction = create<InteractionState>(() => ({
   cursor: null,
   menuAt: null,
   draft: null,
+  valueEdit: null,
 }));

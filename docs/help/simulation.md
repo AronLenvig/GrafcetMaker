@@ -22,6 +22,12 @@ You can also **click a BOOL input where it is written** in a receptivity or a co
 diagram (tap it with a finger): it switches on or off. The grafcet evolves as soon as an input
 changes.
 
+While simulating, every **INT**, **REAL** or **TIME** variable written in a receptivity or a
+condition shows its current value in a small box above its name, and a stored action shows the
+value of the variable it writes below its box. **Click a value** (or tap it) to type a new one,
+then press <kbd>Enter</kbd> (<kbd>Escape</kbd> cancels). This works for inputs and also for internal
+variables and outputs, for example to try a counter close to its limit.
+
 **Point at a transition** (or tap it) to see what it is waiting for: the steps that must be
 active first, or the terms of its receptivity that are still false, with the time left on a
 timer such as `10s/X0`. An edge such as `↑start` is always listed: it is only true at the moment

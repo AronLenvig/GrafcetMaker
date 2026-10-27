@@ -334,6 +334,10 @@ panel opens and the clock starts running.
 - **Inputs**: switch a BOOL input on/off, or hold its **Hold** button for a momentary press
   (keyboard: hold `Space` on the button). Type values for INT, REAL and TIME inputs. On the
   diagram, click a BOOL input where it is written in a receptivity or condition to switch it.
+- **Numbers on the diagram**: every INT, REAL or TIME variable in a receptivity or condition shows
+  its value in a small box above its name, and stored actions show the value they write below their
+  box. Click a value to type a new one (`Enter` applies, `Escape` cancels), also for internal
+  variables and outputs.
 - **What a transition waits for**: point at it (or tap it) for the steps that must be active
   first, or the terms of its receptivity still false, with the time left on step timers.
 - **Clock**: `F5` pauses and runs again; speed ×0.25 to ×10 or **Fast**, which jumps from one timer
@@ -414,8 +418,9 @@ for each row) before anything changes, and the import is one undo step.
   the tabs, the selection, the keyboard and the properties panel act on it. The other pane still
   pans, zooms and shows the simulation live, so you can watch two grafcets interact. `Ctrl+Alt+\`
   focuses the other pane; ⇄ swaps them; × closes one. Drag the bar between them to resize.
-- Scroll to pan, `Ctrl`+scroll (or pinch) to zoom around the pointer, `Space`+drag or the middle
-  mouse button to pan, or use the pan tool (`H`).
+- Scroll to pan, `Ctrl`+scroll (or pinch) to zoom around the pointer, `Space`+drag, the middle
+  mouse button or the right mouse button held down to pan (a right-click without moving opens the
+  menu), or use the pan tool (`H`).
 - `+` / `-` zoom, `Shift+1` fits everything, `Shift+2` fits the selection, `Shift+0` is 100 %.
 - `Ctrl+K` opens the command palette: type any command or grafcet name.
 - `?` lists all keyboard shortcuts; `F1` opens the help center.

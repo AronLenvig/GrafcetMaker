@@ -8,6 +8,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- While simulating, every INT, REAL or TIME variable in a receptivity or condition shows its live
+  value in a small box above its name. Click the value, or the value under a stored action, to
+  type a new one on the diagram.
+- Hold the **right mouse button** and drag to pan, like the middle button; a right-click without
+  moving still opens the menu.
 - An overview of a multiple selection in the properties card: how many steps, transitions, actions
   and comments (a click keeps only that kind) and the selection as a tree in reading order, each
   step with its selected actions and transitions; a line selects its element alone, Ctrl+click

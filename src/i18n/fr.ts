@@ -723,6 +723,7 @@ export const fr: Messages = {
     hold: 'Maintenir pour mettre {{name}} à 1 (fugitif)',
     momentary: 'Maintenir',
     numeric: '{{name}} ({{type}})',
+    editValue: 'Cliquer pour modifier {{name}}',
     enabled: 'Validée : en attente de sa réceptivité',
   },
   chronogram: {

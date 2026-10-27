@@ -45,6 +45,35 @@ export function signalsOf(n: BoolNode): readonly Signal[] {
   return out;
 }
 
+const VARIABLES = new WeakMap<BoolNode, string[]>();
+
+function collectArithVars(n: ArithNode, out: Set<string>): void {
+  if (n.type === 'avar') out.add(n.name.toLowerCase());
+  else if (n.type === 'neg') collectArithVars(n.operand, out);
+  else if (n.type === 'arith') {
+    collectArithVars(n.left, out);
+    collectArithVars(n.right, out);
+  }
+}
+
+/** The variables a condition reads (lower case, in reading order, each once). */
+export function variablesOf(n: BoolNode): readonly string[] {
+  let out = VARIABLES.get(n);
+  if (!out) {
+    const names = new Set<string>();
+    for (const s of signalsOf(n)) {
+      if (s.type === 'var') names.add(s.name.toLowerCase());
+      else if (s.type === 'cmp') {
+        collectArithVars(s.left, names);
+        collectArithVars(s.right, names);
+      }
+    }
+    out = [...names];
+    VARIABLES.set(n, out);
+  }
+  return out;
+}
+
 /** Value of arithmetic; BOOL reads as 0/1, division by zero gives 0. TIME is in milliseconds. */
 export function arithValue(n: ArithNode, read: ReadValue): number {
   switch (n.type) {

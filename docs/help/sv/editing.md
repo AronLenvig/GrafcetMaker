@@ -133,8 +133,9 @@ Förgreningar och sammanföringar ritas aldrig för hand; de följer av länkarn
 
 ## Navigera {#navigate}
 
-- Rulla för att panorera; <kbd>Ctrl</kbd>+rullning eller nyp för att zooma; <kbd>Space</kbd>+dra
-  eller musens mittknapp panorerar också.
+- Rulla för att panorera; <kbd>Ctrl</kbd>+rullning eller nyp för att zooma; <kbd>Space</kbd>+dra,
+  musens mittknapp eller höger musknapp nedhållen panorerar också (ett högerklick utan att flytta
+  musen öppnar fortfarande menyn).
 - <kbd>Shift+1</kbd> anpassar hela grafceten, <kbd>Shift+2</kbd> markeringen, <kbd>Shift+0</kbd>
   ger 100 %.
 - <kbd>Ctrl+K</kbd> öppnar kommandopaletten: skriv ett kommando eller ett grafcetnamn.

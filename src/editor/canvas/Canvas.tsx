@@ -14,8 +14,9 @@ import { usePrefs } from '@/app/prefs';
 import { useCoarsePointer, useCompact } from '@/app/ui/media';
 import { cachedBool } from '@/core/expr/cache';
 import { buildEnv } from '@/core/expr/check';
-import { signalsOf, signalValue } from '@/core/expr/signals';
-import type { Grafcet, Id } from '@/core/model/types';
+import { formatDuration } from '@/core/expr/format';
+import { signalsOf, signalValue, variablesOf } from '@/core/expr/signals';
+import type { Grafcet, Id, Variable } from '@/core/model/types';
 import type { Value } from '@/core/simulation/engine';
 import { stateAt, useSim } from '../simulation/simStore';
 import { getProject, useDoc } from '../store/document';
@@ -37,6 +38,7 @@ import { useInteraction } from './interactionStore';
 import { Overlay } from './Overlay';
 import { PeerLayer, useLiveCursor } from './PeerLayer';
 import { SimOverlay } from './SimOverlay';
+import { SimValueEditor } from './SimValueEditor';
 import { SimWhy } from './SimWhy';
 import { pointsToPath } from './svg';
 import { useCanvasInteraction } from './useCanvasInteraction';
@@ -107,6 +109,44 @@ function signalKeys(
       if (s.type === 'var' && inputs.has(s.name.toLowerCase())) switches.push(i);
     });
     return `${on.join(',')};${switches.join(',')}`;
+  };
+}
+
+/** A numeric value as the diagram shows it: TIME as a duration, REAL to 3 decimals at most. */
+function shownValue(v: Value, type: Variable['type']): string {
+  if (typeof v === 'boolean') return v ? '1' : '0';
+  if (type === 'TIME') return formatDuration(Math.round(v));
+  return Number.isInteger(v) ? String(v) : String(Number(v.toFixed(3)));
+}
+
+/** The numeric variables of the project by lower-case name. */
+function numericVariables(): Map<string, Variable> {
+  return new Map(
+    Object.values(getProject().variables)
+      .filter((v) => v.type !== 'BOOL')
+      .map((v) => [v.name.toLowerCase(), v]),
+  );
+}
+
+/**
+ * For the conditions of a grafcet while simulating: `name=shown` (comma separated) for each
+ * numeric variable a condition reads, drawn over its name (see ExprText); undefined for none.
+ */
+function valueKeys(
+  numeric: ReadonlyMap<string, Variable>,
+  values: Record<string, Value>,
+): (source: string) => string | undefined {
+  return (source) => {
+    if (!numeric.size) return undefined;
+    const r = source.trim() ? cachedBool(source) : null;
+    if (!r?.ok) return undefined;
+    const parts: string[] = [];
+    for (const name of variablesOf(r.value)) {
+      const v = numeric.get(name);
+      if (v && Object.hasOwn(values, name))
+        parts.push(`${name}=${shownValue(values[name]!, v.type)}`);
+    }
+    return parts.length ? parts.join(',') : undefined;
   };
 }
 
@@ -264,6 +304,8 @@ export function Canvas({
     // While simulating: which signals of a condition are true or inputs, as a key that changes
     // only when they do (so unchanged elements keep their memoized drawing).
     const signalKey = sim ? signalKeys(g, sim.values, sim.active) : () => undefined;
+    const numeric = sim ? numericVariables() : new Map<string, Variable>();
+    const valueKey = sim ? valueKeys(numeric, sim.values) : () => undefined;
     // The field typed in place: the editor (in the focused pane) shows it instead of the element.
     const editField = (id: Id) => (focused && editing?.id === id ? editing.field : undefined);
     return (
@@ -291,6 +333,7 @@ export function Canvas({
               key={tr.id}
               transition={tr}
               signals={signalKey(tr.receptivity)}
+              values={valueKey(tr.receptivity)}
               editing={editField(tr.id)}
             />
           ))}
@@ -323,6 +366,7 @@ export function Canvas({
             Object.hasOwn(sim.values, target)
               ? sim.values[target]
               : undefined;
+          const written = value === undefined ? undefined : numeric.get(target);
           return (
             <ActionView
               key={box.id}
@@ -335,15 +379,19 @@ export function Canvas({
               on={on}
               editing={editField(action.id)}
               conditionSignals={action.condition ? signalKey(action.condition) : undefined}
+              conditionValues={action.condition ? valueKey(action.condition) : undefined}
               live={
                 value === undefined
                   ? undefined
-                  : typeof value === 'boolean'
-                    ? value
-                      ? '1'
-                      : '0'
-                    : String(value)
+                  : written
+                    ? shownValue(value, written.type)
+                    : typeof value === 'boolean'
+                      ? value
+                        ? '1'
+                        : '0'
+                      : String(value)
               }
+              liveName={written ? target : undefined}
             />
           );
         })}
@@ -447,6 +495,7 @@ export function Canvas({
           {focused && g && geom && <Overlay g={g} geom={geom} readOnly={readOnly} />}
         </svg>
         {focused && g && geom && <InlineEditor g={g} geom={geom} viewport={viewport} />}
+        {focused && <SimValueEditor viewport={viewport} />}
         {g && sim && (
           <SimWhy
             g={g}

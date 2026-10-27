@@ -1,9 +1,10 @@
 import { memo, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { BoolNode } from '@/core/expr/ast';
 import { cachedBool } from '@/core/expr/cache';
 import { formatTextbook, textbookSignalColumns, type Columns, type Run } from '@/core/expr/format';
 import { signalsOf } from '@/core/expr/signals';
-import { CHAR_WIDTH_EM, FONT_SIZE } from '@/core/layout/geometry';
+import { CHAR_WIDTH_EM, FONT_SIZE, LABEL_FONT_SIZE } from '@/core/layout/geometry';
 import { usePrefs } from '@/app/prefs';
 import { cx } from '@/app/ui/primitives';
 import { baseline } from './svg';
@@ -12,6 +13,11 @@ const CW = FONT_SIZE * CHAR_WIDTH_EM;
 /** Height of the first overbar above the baseline, and spacing between stacked bars. */
 const BAR_RISE = FONT_SIZE * 0.86;
 const BAR_STEP = 2.5;
+/** Simulation: the box showing a variable's value over its name. */
+const VALUE_HEIGHT = LABEL_FONT_SIZE + 3;
+const VALUE_CW = LABEL_FONT_SIZE * CHAR_WIDTH_EM;
+/** An identifier of the drawn text (not the unit of a duration such as `5s`). */
+const IDENTIFIER = /(?<![A-Za-z0-9_])[A-Za-z_][A-Za-z0-9_]*/g;
 
 function bars(runs: Run[], x: number, by: number) {
   const out: { x1: number; x2: number; y: number }[] = [];
@@ -85,12 +91,57 @@ function withMarks(chars: string[], marks: Marked[]): ReactNode[] {
 }
 
 /**
+ * Simulation: the value of each numeric variable (`values`: `name=shown`, comma separated) in a
+ * box over each of its names in `text`, above any overbar; a click changes it (data-value, at the
+ * box's center data-x/data-y).
+ */
+function ValueBoxes({
+  text,
+  x,
+  by,
+  bars,
+  values,
+}: {
+  text: string;
+  x: number;
+  by: number;
+  bars: number;
+  values: string;
+}) {
+  const { t } = useTranslation();
+  const shown = new Map(
+    values.split(',').map((e) => [e.slice(0, e.indexOf('=')), e.slice(e.indexOf('=') + 1)]),
+  );
+  const bottom = (bars ? by - BAR_RISE - (bars - 1) * BAR_STEP : by - FONT_SIZE * 0.75) - 2;
+  const cy = bottom - VALUE_HEIGHT / 2;
+  const out: ReactNode[] = [];
+  for (const m of text.matchAll(IDENTIFIER)) {
+    const name = m[0].toLowerCase();
+    const value = shown.get(name);
+    if (value === undefined) continue;
+    const cx = x + (m.index + m[0].length / 2) * CW;
+    const w = [...value].length * VALUE_CW + 6;
+    out.push(
+      <g key={m.index} className="gm-value" data-value={name} data-x={cx} data-y={cy}>
+        <title>{t('simulation.editValue', { name: m[0] })}</title>
+        <rect x={cx - w / 2} y={bottom - VALUE_HEIGHT} width={w} height={VALUE_HEIGHT} rx={3} />
+        <text className="gm-label" x={cx} y={baseline(cy, LABEL_FONT_SIZE)} textAnchor="middle">
+          {value}
+        </text>
+      </g>,
+    );
+  }
+  return <>{out}</>;
+}
+
+/**
  * An expression (receptivity, condition) drawn as SVG text, vertically centered on y, starting at x
  * or, with anchor "end", ending at x. In textbook
  * notation NOT is an overbar; bars are drawn as lines from the monospace metrics so they match
  * exports exactly. Unparseable text is shown as typed, with a dashed underline. While simulating
  * (`signals`), the signals that are true (a variable on, a step active, a comparison holding) are
- * green and underlined, and BOOL inputs switch on a click.
+ * green and underlined, BOOL inputs switch on a click, and numeric variables show their value
+ * (`values`), changed by a click.
  */
 export const ExprText = memo(function ExprText({
   source,
@@ -98,6 +149,7 @@ export const ExprText = memo(function ExprText({
   y,
   anchor = 'start',
   signals,
+  values,
 }: {
   source: string;
   x: number;
@@ -108,6 +160,8 @@ export const ExprText = memo(function ExprText({
    * are true and of those that are BOOL inputs.
    */
   signals?: string;
+  /** Simulation: `name=shown` (comma separated) for each numeric variable it reads. */
+  values?: string;
 }) {
   const textbook = usePrefs((s) => s.textbookNotation);
   const by = baseline(y, FONT_SIZE);
@@ -148,6 +202,15 @@ export const ExprText = memo(function ExprText({
         bars(runs, x, by).map((b, i) => (
           <path key={i} className="gm-bar" d={`M${b.x1 + 0.5} ${b.y}H${b.x2 - 0.5}`} />
         ))}
+      {values && parsed?.ok && (
+        <ValueBoxes
+          text={shown}
+          x={x}
+          by={by}
+          bars={runs ? Math.max(0, ...runs.map((r) => r.bars)) : 0}
+          values={values}
+        />
+      )}
     </g>
   );
 });

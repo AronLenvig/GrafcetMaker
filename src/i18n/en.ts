@@ -62,6 +62,31 @@ export const en = {
       brokenLink:
         'The link is damaged or incomplete: it may have been cut off when it was copied. Ask for the link again, or for the project file.',
     },
+    text: {
+      title: 'Open from text',
+      intro:
+        'Paste a chart written as GRAFCET text, for example by an AI assistant such as ChatGPT or Claude. Ask the assistant to read {{url}} first: it explains the format.',
+      label: 'GRAFCET text',
+      open: 'Open',
+      opened: 'Opened “{{name}}” from text.',
+      copied: 'The chart is copied as text: paste it to your AI assistant to discuss or change it.',
+      line: 'Line {{line}}: {{message}}',
+      errors: {
+        empty: 'There is no step or grafcet in this text.',
+        tooLarge: 'This text is too long.',
+        unknownLine:
+          'This line is not GRAFCET text. Lines start with project, input, output, internal, grafcet, step, note, an action (do, on enter:, on exit:, on <event>:, force) or a transition such as 0 -> 1: start.',
+        name: '“{{name}}” is not a valid variable name: a letter or _, then letters, digits or _, and not a keyword or a step name such as X1.',
+        duplicateVariable: 'The variable {{name}} is declared twice.',
+        value: '“{{value}}” is not a {{type}} value.',
+        duplicateGrafcet: 'There are two grafcets named {{name}}.',
+        duplicateStep: 'Step {{number}} is declared twice in this grafcet.',
+        unknownStep: 'Step {{number}} is not declared in grafcet {{grafcet}}.',
+        transitionEnds: 'A transition needs a step above or below it.',
+        unknownGrafcet: 'There is no grafcet named {{name}}.',
+        invalid: 'The chart is not valid: {{details}}',
+      },
+    },
     share: {
       copied: 'Share link copied. Anyone who opens it gets their own copy of this project.',
       copiedLong:
@@ -222,6 +247,8 @@ export const en = {
       saveAs: 'Save as…',
       downloadCopy: 'Download a copy',
       copyLink: 'Copy share link',
+      openText: 'Open from text…',
+      copyText: 'Copy as text (for AI assistants)',
       live: 'Live collaboration…',
       localHistory: 'Local history…',
       export: 'Export…',

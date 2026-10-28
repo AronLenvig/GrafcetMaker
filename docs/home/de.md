@@ -7,6 +7,10 @@ Open Source (MIT-Lizenz), ohne Konto, und er funktioniert offline.
 GrafcetMaker ist eine Web-App: Sie läuft in jedem aktuellen Browser mit eingeschaltetem
 JavaScript. Ist GRAFCET neu für Sie? Lesen Sie den [GRAFCET-Leitfaden](de/guide/), auch auf [Englisch](en/guide/), [Französisch](fr/guide/), [Spanisch](es/guide/), [Dänisch](da/guide/) und [Schwedisch](sv/guide/).
 
+## Für KI-Assistenten
+
+KI-Assistenten wie ChatGPT und Claude können einen Grafcet für Sie erstellen und ihn Ihnen als Link geben, der ihn hier öffnet. Assistent, lies [ai.txt](ai.txt), um zu erfahren, wie. In GrafcetMaker öffnet **Datei › Aus Text öffnen…** einen Grafcet, den ein Assistent geschrieben hat, und **Datei › Als Text kopieren** gibt Ihren Grafcet an ihn zurück.
+
 ## Was Sie damit tun können
 
 - **Zeichnen** Sie Schritte, Transitionen, Transitionsbedingungen und Aktionen mit Maus oder

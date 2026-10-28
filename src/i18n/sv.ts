@@ -66,6 +66,32 @@ export const sv: Messages = {
       brokenLink:
         'Länken är skadad eller ofullständig: den kan ha klippts av när den kopierades. Be om länken igen, eller om projektfilen.',
     },
+    text: {
+      title: 'Öppna från text',
+      intro:
+        'Klistra in en grafcet skriven som GRAFCET-text, till exempel av en AI-assistent som ChatGPT eller Claude. Be först assistenten att läsa {{url}}: där förklaras formatet.',
+      label: 'GRAFCET-text',
+      open: 'Öppna',
+      opened: '”{{name}}” öppnad från text.',
+      copied:
+        'Grafcetet är kopierat som text: klistra in det hos din AI-assistent för att diskutera eller ändra det.',
+      line: 'Rad {{line}}: {{message}}',
+      errors: {
+        empty: 'Texten innehåller varken ett steg eller ett grafcet.',
+        tooLarge: 'Texten är för lång.',
+        unknownLine:
+          'Raden är inte GRAFCET-text. Rader börjar med project, input, output, internal, grafcet, step, note, en aktion (do, on enter:, on exit:, on <händelse>:, force) eller en övergång som 0 -> 1: start.',
+        name: '”{{name}}” är inte ett giltigt variabelnamn: en bokstav eller _, sedan bokstäver, siffror eller _, och varken ett nyckelord eller ett stegnamn som X1.',
+        duplicateVariable: 'Variabeln {{name}} är deklarerad två gånger.',
+        value: '”{{value}}” är inte ett {{type}}-värde.',
+        duplicateGrafcet: 'Två grafcet heter {{name}}.',
+        duplicateStep: 'Steg {{number}} är deklarerat två gånger i detta grafcet.',
+        unknownStep: 'Steg {{number}} är inte deklarerat i grafcetet {{grafcet}}.',
+        transitionEnds: 'En övergång behöver ett steg ovanför eller under sig.',
+        unknownGrafcet: 'Det finns inget grafcet som heter {{name}}.',
+        invalid: 'Grafcetet är inte giltigt: {{details}}',
+      },
+    },
     share: {
       copied: 'Delningslänken har kopierats. Alla som öppnar den får en egen kopia av projektet.',
       copiedLong:
@@ -227,6 +253,8 @@ export const sv: Messages = {
       saveAs: 'Spara som…',
       downloadCopy: 'Ladda ned en kopia',
       copyLink: 'Kopiera delningslänk',
+      openText: 'Öppna från text…',
+      copyText: 'Kopiera som text (för AI-assistenter)',
       live: 'Livesamarbete…',
       localHistory: 'Lokal historik…',
       export: 'Exportera…',

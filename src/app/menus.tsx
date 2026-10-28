@@ -67,6 +67,9 @@ const MAIN_MENU: (MenuSection | CommandNode)[] = [
       cmd('file.copyLink'),
       cmd('file.live'),
       SEP,
+      cmd('file.openText'),
+      cmd('file.copyText'),
+      SEP,
       cmd('file.export'),
       {
         sub: 'commands.file.exportAs',

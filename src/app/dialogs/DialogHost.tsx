@@ -9,6 +9,7 @@ import { FeedbackDialog } from '../feedback/FeedbackDialog';
 import { SettingsDialog } from '../settings/SettingsDialog';
 import { Button, Modal } from '../ui/primitives';
 import { closeDialog, useDialogs } from './dialogStore';
+import { TextDialog } from './TextDialog';
 
 // The export dialog (and the PDF/CSV code behind it) is loaded on first use.
 const ExportDialog = lazy(() => import('../export/ExportDialog'));
@@ -206,6 +207,7 @@ export function DialogHost() {
           <ExportDialog onClose={close} />
         </Suspense>
       )}
+      <TextDialog />
       <MessageDialogs />
     </>
   );

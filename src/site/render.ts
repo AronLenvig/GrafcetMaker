@@ -12,6 +12,7 @@ import { inlineText, parseMarkdown, type Block, type Inline } from '@/app/help/m
 import { helpPages, type HelpPage } from '@/app/help/pages';
 import { SOURCE_URL } from '@/app/source';
 import { flagSvg } from '@/app/ui/flags';
+import { encodeTextHash } from '@/core/io/grafcetText';
 import { encodeShareHash } from '@/core/io/shareLink';
 import {
   EXPORT_FONT_FAMILY,
@@ -30,6 +31,8 @@ export interface SiteInput {
   guides: Partial<Record<string, string>>;
   /** Markdown of the home page text by language (docs/home/<lang>.md). */
   homes: Partial<Record<string, string>>;
+  /** Markdown of the guide for AI assistants (docs/ai.md), published as ai.txt. */
+  ai: string;
   /** Body of the inline theme bootstrap of index.html, so pages open in the app's theme. */
   themeScript: string;
   /** Published path of the stylesheet, from the site root. */
@@ -530,8 +533,25 @@ export async function appPages(
 }
 
 /**
+ * ai.txt: how an AI assistant writes a chart as GRAFCET text and hands it over as a link
+ * (docs/ai.md), with the site's address, and the link of its last example made from that example.
+ */
+function aiTxt(input: SiteInput): string {
+  const blocks = [...input.ai.matchAll(/```grafcet\n([\s\S]*?)```/g)];
+  const example = blocks[blocks.length - 1]?.[1];
+  if (!example) throw new Error('docs/ai.md: no ```grafcet example');
+  return input.ai
+    .replaceAll('{{exampleLink}}', encodeTextHash(example))
+    .replaceAll('{{site}}', input.siteUrl);
+}
+
+/** What llms.txt says first: assistants can make charts for the people they help. */
+const AI_SECTION = (siteUrl: string) =>
+  `## For AI assistants\n\nYou can make a GRAFCET chart for the person you are helping and give it to them as a link that opens it in GrafcetMaker: read [ai.txt](${siteUrl}ai.txt) for the text format and the link.`;
+
+/**
  * llms.txt (llmstxt.org): the home page text as Markdown with absolute links, its first paragraph
- * as the summary, then every page of the site.
+ * as the summary, how assistants make charts (ai.txt), then every page of the site.
  */
 function llmsTxt(input: SiteInput): string {
   const abs = (target: string) => new URL(href(target, './', 'en'), input.siteUrl).href;
@@ -543,7 +563,14 @@ function llmsTxt(input: SiteInput): string {
     .map((d) => `- [${d.title}](${abs(d.path)}): ${d.description}`)
     .join('\n');
   const source = `- [GitHub](${SOURCE_URL}): the source code (MIT), issues and self-hosting.`;
-  const parts = [title, `> ${intro.replace(/\n/g, ' ')}`, ...rest, '## Documentation', docs];
+  const parts = [
+    title,
+    `> ${intro.replace(/\n/g, ' ')}`,
+    AI_SECTION(input.siteUrl),
+    ...rest,
+    '## Documentation',
+    docs,
+  ];
   return `${[...parts, '## Source code', source].join('\n\n')}\n`;
 }
 
@@ -605,5 +632,6 @@ export async function buildSite(input: SiteInput): Promise<SiteFile[]> {
   files.push({ fileName: 'sitemap.xml', source: sitemap(input.siteUrl) });
   files.push({ fileName: 'robots.txt', source: robots(input.siteUrl) });
   files.push({ fileName: 'llms.txt', source: llmsTxt(input) });
+  files.push({ fileName: 'ai.txt', source: aiTxt(input) });
   return files;
 }

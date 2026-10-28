@@ -15,7 +15,9 @@ import {
   saveProject,
   saveProjectAs,
   downloadCopy,
+  copyProjectText,
   copyShareLink,
+  openTextDialog,
 } from '@/app/persistence/session';
 import { setLanguage, type Language } from '@/i18n';
 import { useTheme } from '@/theme/theme';
@@ -156,6 +158,8 @@ export const COMMANDS: Command[] = [
     run: saveProjectAs,
   },
   { id: 'file.downloadCopy', label: 'file.downloadCopy', group: 'file', run: () => downloadCopy() },
+  { id: 'file.openText', label: 'file.openText', group: 'file', run: openTextDialog },
+  { id: 'file.copyText', label: 'file.copyText', group: 'file', run: copyProjectText },
   { id: 'file.copyLink', label: 'file.copyLink', group: 'file', run: copyShareLink },
   { id: 'file.live', label: 'file.live', group: 'file', run: () => openAppDialog('live') },
   {

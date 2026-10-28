@@ -7,6 +7,10 @@ et open source (licence MIT), sans compte, et il fonctionne hors ligne.
 GrafcetMaker est une application web : il fonctionne dans tout navigateur récent avec JavaScript
 activé. Le GRAFCET est nouveau pour vous ? Lisez le [cours GRAFCET](fr/guide/), aussi en [anglais](en/guide/), en [allemand](de/guide/), en [espagnol](es/guide/), en [danois](da/guide/) et en [suédois](sv/guide/).
 
+## Pour les assistants IA
+
+Les assistants IA comme ChatGPT et Claude peuvent dessiner un grafcet pour vous et vous le donner sous forme de lien qui l’ouvre ici. Assistant, lisez [ai.txt](ai.txt) pour savoir comment faire. Dans GrafcetMaker, **Fichier › Ouvrir depuis du texte…** ouvre un grafcet écrit par un assistant, et **Fichier › Copier en texte** le lui renvoie.
+
 ## Ce que vous pouvez faire
 
 - **Dessiner** des étapes, des transitions, des réceptivités et des actions à la souris ou au

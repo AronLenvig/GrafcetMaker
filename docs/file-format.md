@@ -42,6 +42,25 @@ with raw DEFLATE (`CompressionStream('deflate-raw')`) and encoded as base64url w
 server. On open, the data is inflated with the 10 MB file limit enforced while inflating, then
 loaded exactly like a file (migrations, validation, newer versions rejected).
 
+## GRAFCET text and `#text=` links
+
+A project can also be written as **GRAFCET text**, one statement per line (`step 1 Filling`,
+`do Valve`, `0 -> 1: start`), the form AI assistants write and read. The reference is
+[`docs/ai.md`](ai.md), published as `ai.txt` at the site root (with the site's address and a
+working example link) and announced in `llms.txt` and the home page text. Parser and writer:
+[`src/core/io/grafcetText.ts`](../src/core/io/grafcetText.ts).
+
+- `<app URL>#text=<text>` opens the text, percent-encoded as by `encodeURIComponent` (a `+` is
+  OR, never a space; a stray `%` that is not an escape stays as it is). Like a share link, it is
+  never sent to the server and is removed from the address bar once read. A text that cannot be
+  read opens **File › Open from text…** with the text and the line that is wrong.
+- Reading builds the project with the same builder as the examples (`core/io/buildProject.ts`),
+  lays it out automatically, declares names used but not declared from their use, then loads it
+  through `parseProjectFile` (limits, integrity). Texts over 1 MB are refused.
+- Not written (lost through text): positions, transition numbers, flow direction, loop routing,
+  scenarios and the project's metadata. Everything else round-trips: writing the text of a project
+  read from text gives the same text (tested on every example).
+
 ## Live sessions
 
 Live collaboration ([`src/core/collab/`](../src/core/collab/records.ts),

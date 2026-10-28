@@ -52,6 +52,22 @@ its grafcets and variables, and can change it without affecting yours.
 - Opening a link works like opening a file: if your project has unsaved changes you are asked
   first, and a damaged link is rejected with an explanation without touching your project.
 
+## Charts from AI assistants
+
+An AI assistant such as ChatGPT or Claude can draw a chart for you. Ask it to read
+[grafcet.org/ai.txt](https://grafcet.org/ai.txt) first: it explains GRAFCET text, a plain-text
+form of a chart, and how to make a link that opens the chart here.
+
+- **A link from the assistant** opens the chart, laid out automatically, in place of the open
+  project (you are asked first when it has unsaved changes).
+- **File › Open from text…** opens a chart the assistant wrote as text: paste it and click
+  **Open**. A line that cannot be read is named, with what is wrong; you can fix it or send the
+  message back to the assistant.
+- **File › Copy as text (for AI assistants)** copies your chart as GRAFCET text, to paste into
+  the chat and ask for changes, an explanation or a review.
+
+Positions are not part of the text: a chart opened from text is laid out automatically.
+
 ## Edit together live
 
 **File › Live collaboration…** (or the people button at the top right) lets several people edit

@@ -217,6 +217,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- A loop inside a parallel or alternative branch ran around the whole chart, crossing the other
+  branches; it now runs beside its own branch, and auto-layout leaves room for it there.
 - Live collaboration: a transition rotated to flow right to left showed top to bottom for the
   others. Every field of a project is now shared.
 - An address that does not exist (such as `/abc/x` or `/api/x`) showed the editor's page without its

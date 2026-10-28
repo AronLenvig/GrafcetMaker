@@ -10,7 +10,8 @@
  *    blocks are placed side by side and centered under the divergence, and the merge node
  *    continues in the divergence's column. Without a merge point (e.g. "continue or loop back"),
  *    the longest branch stays in the column and the others go to its right.
- * Loop links are then routed automatically along the left side (routing overrides are cleared).
+ * Loop links are then routed automatically along the left side (routing overrides are cleared):
+ * a branch holding a whole loop gets room on its left for the loop's lane.
  */
 import { indexGrafcet } from '../model/graph';
 import type { Grafcet, Id, Point } from '../model/types';
@@ -18,6 +19,8 @@ import {
   ACTION_GAP,
   GRID,
   LABEL_FONT_SIZE,
+  LOOP_LANE,
+  LOOP_MARGIN,
   ROW,
   STEP_HALF,
   TRANSITION_WIDTH,
@@ -142,20 +145,39 @@ export function autoLayout(g: Grafcet, only?: ReadonlySet<Id>): Map<Id, Point> {
     };
   };
 
-  const reachable = (start: Id): Set<Id> => {
+  const reachable = (start: Id, next = succ): Set<Id> => {
     const seen = new Set<Id>();
     const stack = [start];
     while (stack.length) {
       const n = stack.pop()!;
       if (seen.has(n)) continue;
       seen.add(n);
-      for (const m of succ.get(n) ?? []) stack.push(m);
+      for (const m of next.get(n) ?? []) stack.push(m);
     }
     return seen;
   };
 
+  // The body of each loop: what lies on the way down from its target to its source. Its lane runs
+  // just left of it, so a block holding whole loops needs room on its left: the lanes, nested ones
+  // side by side, and one lane width of air before the block next to it.
+  const loopBodies = [...back].map((edge) => {
+    const [source, target] = edge.split('>') as [Id, Id];
+    const above = reachable(source, pred);
+    const body = new Set([...reachable(target)].filter((id) => above.has(id)));
+    body.add(source);
+    body.add(target);
+    return body;
+  });
+  const lanePad = (b: Block): number => {
+    const ids = new Set(b.items.map((it) => it.id));
+    const inside = loopBodies.filter((body) => [...body].every((id) => ids.has(id)));
+    let depth = 0;
+    for (const id of ids) depth = Math.max(depth, inside.filter((body) => body.has(id)).length);
+    return depth ? LOOP_MARGIN + depth * LOOP_LANE : 0;
+  };
+
   const mergePoint = (branches: Id[]): Id | null => {
-    const sets = branches.map(reachable);
+    const sets = branches.map((b) => reachable(b));
     let best: Id | null = null;
     for (const n of sets[0]!) {
       if (!sets.every((s) => s.has(n))) continue;
@@ -189,6 +211,7 @@ export function autoLayout(g: Grafcet, only?: ReadonlySet<Id>): Map<Id, Point> {
       }
       const merge = mergePoint(next);
       const blocks = next.map((n) => walk(n, merge));
+      for (const b of blocks) b.left += lanePad(b);
       const offsets: number[] = [];
       if (merge === null) {
         // Keep the longest branch in this column, the others to its right.
@@ -226,6 +249,7 @@ export function autoLayout(g: Grafcet, only?: ReadonlySet<Id>): Map<Id, Point> {
   const blocks: Block[] = [];
   for (const r of roots) if (!placed.has(r)) blocks.push(walk(r, null));
   for (const id of [...ids].sort(topFirst)) if (!placed.has(id)) blocks.push(walk(id, null));
+  for (const b of blocks) b.left += lanePad(b);
 
   const originX = Math.min(...ids.map((id) => pos(id).x));
   const originY = Math.min(...ids.map((id) => pos(id).y));

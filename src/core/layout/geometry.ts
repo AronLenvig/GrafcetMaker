@@ -479,10 +479,14 @@ interface PendingUpward {
   junctionY: number;
   end: Point;
   target: Id;
+  /** Where the loop starts: the step under a transition it goes back up to, or the transition. */
+  source: Id;
   /** The transition whose routing applies (and whose sequence the loop belongs to). */
   owner: Id;
   override?: number;
   dropOverride?: number;
+  /** x of its side lane: first just left of its body, then clear of what is in the way. */
+  laneX: number;
 }
 
 /** Room kept between a loop's bottom line and what it passes under. */
@@ -528,25 +532,41 @@ function sequences(g: Grafcet): Map<Id, Id> {
   return out;
 }
 
-/** Leftmost x occupied by the elements of one sequence in a vertical band (labels included). */
-function leftExtent(
-  g: Grafcet,
-  inSequence: (id: Id) => boolean,
-  yMin: number,
-  yMax: number,
-  fallback: number,
-): number {
-  let min = fallback;
-  for (const s of Object.values(g.steps)) {
-    if (!inSequence(s.id)) continue;
-    if (s.position.y + STEP_HALF < yMin || s.position.y - STEP_HALF > yMax) continue;
-    const label = s.label ? textWidth(s.label, LABEL_FONT_SIZE) + 8 : 0;
-    min = Math.min(min, s.position.x - STEP_HALF - label);
-  }
-  for (const t of Object.values(g.transitions)) {
-    if (!inSequence(t.id)) continue;
-    if (t.position.y < yMin || t.position.y > yMax) continue;
-    min = Math.min(min, transitionBox(t).x);
+/**
+ * The body of a loop: what lies on the way down from its target to its source, following only the
+ * links that go down (other loops do not count). Its lane runs just left of it, so a loop inside a
+ * branch stays beside that branch.
+ */
+function loopBody(down: Map<Id, Id[]>, up: Map<Id, Id[]>, target: Id, source: Id): Set<Id> {
+  const reach = (from: Id, next: Map<Id, Id[]>) => {
+    const seen = new Set<Id>();
+    const stack = [from];
+    while (stack.length) {
+      const n = stack.pop()!;
+      if (seen.has(n)) continue;
+      seen.add(n);
+      for (const m of next.get(n) ?? []) stack.push(m);
+    }
+    return seen;
+  };
+  const above = reach(source, up);
+  const body = new Set([...reach(target, down)].filter((id) => above.has(id)));
+  body.add(target);
+  body.add(source);
+  return body;
+}
+
+/** Leftmost x of the elements of a loop's body (step labels and transition numbers included). */
+function bodyLeft(g: Grafcet, body: ReadonlySet<Id>): number {
+  let min = Infinity;
+  for (const id of body) {
+    const s = g.steps[id];
+    if (s) {
+      const label = s.label ? textWidth(s.label, LABEL_FONT_SIZE) + 8 : 0;
+      min = Math.min(min, s.position.x - STEP_HALF - label);
+    }
+    const t = g.transitions[id];
+    if (t) min = Math.min(min, transitionBox(t).x);
   }
   return min;
 }
@@ -609,12 +629,14 @@ function obstaclesBySequence(
 }
 
 /**
- * Where a loop's bottom line runs: the first y from `yStart` down at which a line going left
- * from x0 crosses nothing of its sequence. A loop from a branch on the right thus passes below
- * the elements and wires to its left instead of through them.
+ * Where a loop's bottom line runs: the first y from `yStart` down at which a line from x0 left to
+ * its lane at `laneX` crosses nothing of its sequence. A loop from a branch on the right thus
+ * passes below the elements and wires on its way instead of through them.
  */
-function freeDropY(boxes: readonly Box[], x0: number, yStart: number): number {
-  const left = boxes.filter((b) => b.x1 < x0 - 1).sort((a, b) => a.y1 - b.y1);
+function freeDropY(boxes: readonly Box[], x0: number, yStart: number, laneX: number): number {
+  const left = boxes
+    .filter((b) => b.x1 < x0 - 1 && b.x2 >= laneX - CLEARANCE)
+    .sort((a, b) => a.y1 - b.y1);
   let y = yStart;
   for (const b of left) {
     if (b.y1 - CLEARANCE > y) break;
@@ -647,6 +669,17 @@ export function computeGeometry(
   const bars: BarGeom[] = [];
   const stubs: StubGeom[] = [];
   const upward: PendingUpward[] = [];
+  // The links that go down (successors and predecessors), for the bodies of loops.
+  const down = new Map<Id, Id[]>();
+  const up = new Map<Id, Id[]>();
+  const goesDown = (from: Id, to: Id) => {
+    const d = down.get(from);
+    if (d) d.push(to);
+    else down.set(from, [to]);
+    const u = up.get(to);
+    if (u) u.push(from);
+    else up.set(to, [from]);
+  };
 
   // Step outputs: step → transition (upstream side of the transition).
   for (const s of Object.values(g.steps)) {
@@ -667,9 +700,7 @@ export function computeGeometry(
         points: [],
       };
       links.push(link);
-      if (flowOf(t) === 'left') {
-        Object.assign(link, leftwardIn(start, t, divY));
-      } else if (end.y <= divY) {
+      if (flowOf(t) !== 'left' && end.y <= divY) {
         upward.push({
           link,
           start,
@@ -677,10 +708,17 @@ export function computeGeometry(
           junctionY: end.y - OR_LINE_OFFSET,
           end,
           target: t.id,
+          source: s.id,
           owner: t.id,
           override: t.routing?.sideX,
           dropOverride: t.routing?.dropY,
+          laneX: 0,
         });
+        continue;
+      }
+      goesDown(s.id, t.id);
+      if (flowOf(t) === 'left') {
+        Object.assign(link, leftwardIn(start, t, divY));
       } else if (outs.length === 1 && end.x === start.x) {
         link.points = [start, end];
       } else {
@@ -708,21 +746,25 @@ export function computeGeometry(
         points: [],
       };
       links.push(link);
-      if (flowOf(t) === 'left') {
-        Object.assign(link, leftwardOut(t, end, convY));
-      } else if (start.y >= convY) {
-        const dropY = start.y + (t.to.length > 1 ? OR_LINE_OFFSET : LOOP_DROP);
+      if (flowOf(t) !== 'left' && start.y >= convY) {
         upward.push({
           link,
           start,
-          dropY,
+          dropY: start.y + (t.to.length > 1 ? OR_LINE_OFFSET : LOOP_DROP),
           junctionY: convY,
           end,
           target: s.id,
+          source: t.id,
           owner: t.id,
           override: t.routing?.sideX,
           dropOverride: t.routing?.dropY,
+          laneX: 0,
         });
+        continue;
+      }
+      goesDown(t.id, s.id);
+      if (flowOf(t) === 'left') {
+        Object.assign(link, leftwardOut(t, end, convY));
       } else if (ins.length === 1 && start.x === end.x) {
         link.points = [start, end];
       } else {
@@ -798,8 +840,8 @@ export function computeGeometry(
   }
 
   // Upward links (loops). 1. Bottom lines, sources from left to right: each drops below its source
-  // until its line to the left crosses nothing of its own sequence (wires, elements, the bottom
-  // lines of loops further left), or stays where it was dragged.
+  // until its line to its lane (just left of the loop's body) crosses nothing of its own sequence
+  // (wires, elements, the bottom lines of loops further left), or stays where it was dragged.
   const seq = upward.length ? sequences(g) : new Map<Id, Id>();
   const obstacles = upward.length
     ? obstaclesBySequence(g, index, seq, [
@@ -811,54 +853,75 @@ export function computeGeometry(
         ...stubs,
       ])
     : new Map<Id, Box[]>();
-  const boxesOf = (p: PendingUpward): Box[] => {
+  const listOf = (map: Map<Id, Box[]>, p: PendingUpward): Box[] => {
     const root = seq.get(p.owner);
     if (root === undefined) return [];
-    let list = obstacles.get(root);
-    if (!list) obstacles.set(root, (list = []));
+    let list = map.get(root);
+    if (!list) map.set(root, (list = []));
     return list;
   };
+  const loopLines = new Map<Id, Box[]>();
   for (const p of [...upward].sort((a, b) => a.start.x - b.start.x || b.start.y - a.start.y)) {
-    const boxes = boxesOf(p);
+    p.laneX = p.override ?? snap(bodyLeft(g, loopBody(down, up, p.target, p.source)) - LOOP_MARGIN);
+    const lines = listOf(loopLines, p);
     p.dropY =
       p.dropOverride !== undefined
         ? Math.max(p.dropOverride, p.start.y + OR_LINE_OFFSET)
-        : freeDropY(boxes, p.start.x, p.dropY);
-    boxes.push(segmentBox(p.start, { x: p.start.x, y: p.dropY }));
-    // Its bottom line runs to a lane somewhere on the left.
-    boxes.push({ x1: -Infinity, x2: p.start.x, y1: p.dropY, y2: p.dropY });
+        : freeDropY([...listOf(obstacles, p), ...lines], p.start.x, p.dropY, p.laneX);
+    lines.push(segmentBox(p.start, { x: p.start.x, y: p.dropY }));
+    lines.push({ x1: p.laneX, x2: p.start.x, y1: p.dropY, y2: p.dropY });
   }
 
-  // 2. Side lanes left of the loop's sequence: higher bottom lines inside, lower ones outside, so
-  // nested loops do not cross; links to the same target share a lane.
+  // 2. Side lanes, higher bottom lines first (inside) and lower ones outside, so nested loops do
+  // not cross. A lane moves left from beside its body past whatever is in its way: an element or
+  // a wire of its sequence, another loop's lane or the lines into it. Loops to one target share
+  // the leftmost of their lanes.
   upward.sort((a, b) => a.dropY - b.dropY || a.dropY - a.junctionY - (b.dropY - b.junctionY));
-  const lanes: { target: Id; yMin: number; yMax: number }[][] = [];
+  const lanes: {
+    root: Id | undefined;
+    target: Id;
+    x: number;
+    yMin: number;
+    yMax: number;
+    sourceX: number;
+    endX: number;
+  }[] = [];
   for (const p of upward) {
-    let sideX: number;
-    if (p.override !== undefined) {
-      sideX = p.override;
-    } else {
-      const yMin = p.junctionY;
-      const yMax = p.dropY;
-      let lane = 0;
-      for (; lane < lanes.length; lane++) {
-        const used = lanes[lane]!;
-        if (!used.some((u) => u.target !== p.target && u.yMin <= yMax && yMin <= u.yMax)) break;
+    const root = seq.get(p.owner);
+    const yMin = p.junctionY;
+    const yMax = p.dropY;
+    let x = p.laneX;
+    if (p.override === undefined) {
+      const boxes = listOf(obstacles, p);
+      const near = lanes.filter((l) => l.root === root && l.yMin <= yMax && yMin <= l.yMax);
+      // A line of another loop at height y from x1 to x2, crossed by this lane at `at`.
+      const crosses = (at: number, x1: number, x2: number, y: number) =>
+        y >= yMin &&
+        y <= yMax &&
+        at > Math.min(x1, x2) - CLEARANCE &&
+        at < Math.max(x1, x2) + CLEARANCE;
+      for (let moved = true; moved;) {
+        let next = x;
+        for (const l of near) {
+          if (l.target === p.target) next = Math.min(next, l.x);
+          else if (
+            Math.abs(l.x - next) < LOOP_LANE ||
+            crosses(next, l.x, l.sourceX, l.yMax) ||
+            crosses(next, l.x, l.endX, l.yMin)
+          )
+            next = Math.min(next, l.x - LOOP_LANE);
+        }
+        for (const b of boxes)
+          if (b.x1 - CLEARANCE <= next && next <= b.x2 + CLEARANCE && b.y1 <= yMax && yMin <= b.y2)
+            next = Math.min(next, snap(b.x1 - LOOP_MARGIN));
+        moved = next !== x;
+        x = next;
       }
-      (lanes[lane] ??= []).push({ target: p.target, yMin, yMax });
-      const root = seq.get(p.owner);
-      const left = leftExtent(
-        g,
-        (id) => seq.get(id) === root,
-        yMin,
-        yMax,
-        Math.min(p.start.x, p.end.x) - STEP_HALF,
-      );
-      sideX = snap(left - LOOP_MARGIN) - lane * LOOP_LANE;
     }
-    p.link.points = upwardPoints(p, sideX);
-    p.link.loop = { sideX };
-    p.link.arrow = { x: sideX, y: (p.dropY + p.junctionY) / 2 };
+    lanes.push({ root, target: p.target, x, yMin, yMax, sourceX: p.start.x, endX: p.end.x });
+    p.link.points = upwardPoints(p, x);
+    p.link.loop = { sideX: x };
+    p.link.arrow = { x, y: (p.dropY + p.junctionY) / 2 };
   }
   // Loops to one target sharing a lane draw one line: one arrow, on the longest of them.
   const shared = new Map<string, PendingUpward>();

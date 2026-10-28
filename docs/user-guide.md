@@ -157,7 +157,10 @@ transition with parallel (AND) links is always drawn top to bottom. Click a tran
 its bar, number or receptivity to select it.
 
 Upward links (loops) are routed along the left side and drawn with an arrow, as IEC 60848
-requires. A loop drops below its source far enough not to cross its own sequence: a loop from a
+requires. A loop's lane runs just left of the steps it loops over, so a loop inside a parallel or
+alternative branch stays beside that branch; it moves further left only where an element, a wire
+or another loop is in the way, and **Auto-layout** leaves room for it. A loop drops below its
+source far enough not to cross its own sequence: a loop from a
 branch on the right passes below the steps and wires to its left instead of through them. Only
 the loop's own sequence is avoided, so a separate sequence drawn beside it does not push it
 aside. Loops returning to the same step share their lane (one arrow). Drag a loop link sideways

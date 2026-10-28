@@ -1,12 +1,14 @@
 /** Routing of loop (upward) links: bottom lines clear of their own sequence, lanes, overrides. */
 import { describe, expect, it } from 'vitest';
 import { EXAMPLE_IDS, EXAMPLES } from '@/app/examples/examples';
+import { autoLayout } from '@/core/layout/autoLayout';
 import {
   computeGeometry,
   flowOf,
   nextStepPosition,
   portPosition,
   ROW,
+  STEP_HALF,
   stepRect,
   STUB,
   transitionBar,
@@ -14,9 +16,15 @@ import {
   transitionTextAnchor,
   type LinkGeom,
 } from '@/core/layout/geometry';
-import { createProject } from '@/core/model/factory';
-import { addStep, appendAfterTransition, moveElements, setTransitionFlow } from '@/core/model/ops';
-import type { Grafcet, Point } from '@/core/model/types';
+import { createGrafcet, createProject, createStep } from '@/core/model/factory';
+import {
+  addStep,
+  addTransition,
+  appendAfterTransition,
+  moveElements,
+  setTransitionFlow,
+} from '@/core/model/ops';
+import type { Grafcet, Id, Point, StepKind } from '@/core/model/types';
 
 const drill = (): Grafcet => {
   const p = EXAMPLES.drillingStation();
@@ -98,6 +106,51 @@ describe('loop routing', () => {
     moveElements(g, [tid], 20, 40);
     expect(t.routing).toEqual({ sideX: -80, dropY: t.position.y + 300 });
     expect(loopFrom(g, '< 100').loop!.sideX).toBe(-80);
+  });
+});
+
+describe('loops inside parallel branches', () => {
+  /** 1 → 2 → AND divergence to three branches, each looping back to its own first step. */
+  const branches = (): Grafcet => {
+    const g = createGrafcet('G1');
+    const at = (x: number) => ({ x, y: 0 });
+    const step = (n: number, x: number, kind: StepKind = 'normal'): Id => {
+      const s = createStep(n, at(x), kind);
+      g.steps[s.id] = s;
+      return s.id;
+    };
+    const s1 = step(1, 0, 'initial');
+    const s2 = step(2, 0);
+    addTransition(g, at(0), [s1], [s2], 'RunningMode * /CycleStop');
+    const heads = (
+      [
+        [33, 11, 'B10', 'B11'],
+        [34, 21, 'B20', 'B21'],
+        [35, 36, 'B30 * B20', 'B31'],
+      ] as const
+    ).map(([head, tail, down, back], i) => {
+      const a = step(head, i * 100);
+      const b = step(tail, i * 100);
+      addTransition(g, at(i * 100), [a], [b], down);
+      addTransition(g, at(i * 100), [b], [a], back);
+      return a;
+    });
+    addTransition(g, at(0), [s2], heads, '1');
+    for (const [id, p] of autoLayout(g)) (g.steps[id] ?? g.transitions[id])!.position = p;
+    return g;
+  };
+
+  it('auto-layout keeps each loop beside its own branch, not around the others', () => {
+    const g = branches();
+    const lanes = loops(g)
+      .map((l) => ({ x: l.loop!.sideX, head: g.steps[l.stepId]!.position.x }))
+      .sort((a, b) => a.head - b.head);
+    expect(lanes).toHaveLength(3);
+    lanes.forEach((l, i) => {
+      expect(l.x).toBeLessThan(l.head - STEP_HALF);
+      if (i > 0) expect(l.x).toBeGreaterThan(lanes[i - 1]!.head + STEP_HALF);
+    });
+    expect(crossings(g)).toEqual([]);
   });
 });
 

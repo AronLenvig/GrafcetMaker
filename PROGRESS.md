@@ -349,6 +349,11 @@ Autonomous build log. Read this first in every session and resume from **Current
   e.g. `Hoejre`, `Upp`/`Ned`.
 - The main menu no longer lists the languages (owner request): the flag button at the bottom
   right and the palette on desktop, the flags in the menu drawer on phones.
+- Loop lanes beside their body (`geometry.ts` `loopBody`: what lies on the way down from the
+  target to the source, following downward links only): a lane starts just left of its body and
+  moves left past elements, wires and other loops' lanes and lines in its way; loops to one target
+  share the leftmost lane. Bottom lines are cleared only between the source and the lane.
+  Auto-layout pads a block holding whole loops (`lanePad`: margin + one lane per nesting level).
 - F1 is contextual (`src/app/help/contextHelp.ts`, targets in `helpTargets.ts`): the expression
   being typed (inputs carry `data-expression`; the inline editor and expression input let F1
   through), the simulation, the variable shown, a link, a multiple selection or the selected

@@ -993,7 +993,7 @@ export const es: Messages = {
     snapHelp: 'Los elementos se ajustan a la cuadrícula de 10 unidades mientras los arrastras.',
     welcome: 'Pantalla de bienvenida al iniciar',
     welcomeHelp:
-      'Muestra ejemplos, proyectos recientes y la visita guiada al abrir GrafcetMaker. Siempre disponible en Ayuda › Pantalla de inicio y ejemplos.',
+      'Muestra ejemplos, proyectos recientes y la visita guiada al abrir GrafcetMaker. Siempre disponible en ☰ › Pantalla de inicio y ejemplos.',
     hintsHelp:
       'Muestra en la parte superior del lienzo lo que puedes hacer con la selección, la herramienta o el gesto.',
     autosave: 'Guardado automático',
@@ -1102,7 +1102,7 @@ export const es: Messages = {
       },
       project: {
         title: 'Menú y proyecto',
-        text: '☰ reúne todos los comandos (Archivo, Editar, Ver, Simular, Ayuda) y el tema. Haz doble clic en el nombre para renombrar el proyecto; un punto indica cambios sin guardar. Tu trabajo se guarda en el navegador sobre la marcha, y Ctrl+S lo guarda en un archivo. El último botón muestra las propiedades de la selección.',
+        text: '☰ reúne todos los comandos (Archivo, Editar, Ver, Simular, Ayuda), la pantalla de inicio con los ejemplos y el tema. Haz doble clic en el nombre para renombrar el proyecto; un punto indica cambios sin guardar. Tu trabajo se guarda en el navegador sobre la marcha, y Ctrl+S lo guarda en un archivo. El último botón muestra las propiedades de la selección.',
       },
       share: {
         title: 'Problemas, exportación y compartir',

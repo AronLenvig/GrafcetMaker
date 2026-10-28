@@ -120,6 +120,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- **Start screen and examples** has its own place in the main menu ☰, just before Help (it was
+  inside Help), so the examples are easy to find.
 - Website header: the languages are one flag button beside the logo that opens a list (flag and
   name); the logo and the **Open the editor** button are outlined.
 - A clearer logo in the header of the website's pages: the initial step and its transition drawn

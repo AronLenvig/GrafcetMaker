@@ -6,7 +6,7 @@ fortgeschrittenen Funktionen.
 
 ## Neu bei GrafcetMaker? {#new-to-grafcetmaker}
 
-- Öffnen Sie ein Beispiel auf dem Startbildschirm (**Hilfe › Startbildschirm und Beispiele**) und
+- Öffnen Sie ein Beispiel auf dem Startbildschirm (**☰ › Startbildschirm und Beispiele**) und
   drücken Sie <kbd>F5</kbd>, um es laufen zu sehen.
 - Machen Sie den Rundgang in zehn Schritten (**Hilfe › Rundgang starten**), um zu erfahren, wo sich
   was befindet.

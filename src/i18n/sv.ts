@@ -992,7 +992,7 @@ export const sv: Messages = {
     snapHelp: 'Elementen fästs vid rutnätet med 10 enheter medan du drar dem.',
     welcome: 'Välkomstskärm vid start',
     welcomeHelp:
-      'Visar exempel, senaste projekt och rundturen när GrafcetMaker öppnas. Finns alltid under Hjälp › Startskärm och exempel.',
+      'Visar exempel, senaste projekt och rundturen när GrafcetMaker öppnas. Finns alltid under ☰ › Startskärm och exempel.',
     hintsHelp: 'Visar på ritytan vad du kan göra med markeringen, verktyget eller gesten.',
     autosave: 'Automatisk sparning',
     autosaveHelp:
@@ -1096,7 +1096,7 @@ export const sv: Messages = {
       },
       project: {
         title: 'Meny och projekt',
-        text: '☰ innehåller alla kommandon (Arkiv, Redigera, Visa, Simulera, Hjälp) och temat. Dubbelklicka på namnet för att byta namn på projektet; en punkt betyder osparade ändringar. Ditt arbete sparas i webbläsaren medan du arbetar, och Ctrl+S sparar det i en fil. Den sista knappen visar egenskaperna för markeringen.',
+        text: '☰ innehåller alla kommandon (Arkiv, Redigera, Visa, Simulera, Hjälp), startskärmen med exemplen och temat. Dubbelklicka på namnet för att byta namn på projektet; en punkt betyder osparade ändringar. Ditt arbete sparas i webbläsaren medan du arbetar, och Ctrl+S sparar det i en fil. Den sista knappen visar egenskaperna för markeringen.',
       },
       share: {
         title: 'Problem, export och delning',

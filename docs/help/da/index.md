@@ -6,7 +6,7 @@ funktioner.
 
 ## Ny i GrafcetMaker? {#new-to-grafcetmaker}
 
-- Åbn et eksempel fra startskærmen (**Hjælp › Startskærm og eksempler**), og tryk på
+- Åbn et eksempel fra startskærmen (**☰ › Startskærm og eksempler**), og tryk på
   <kbd>F5</kbd> for at se det køre.
 - Tag rundvisningen i ti trin (**Hjælp › Tag rundvisningen**) for at lære, hvor alting er.
 - Vælg dit sprog med flaget nederst til højre.

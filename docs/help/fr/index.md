@@ -6,7 +6,7 @@ grafcet jusqu'aux fonctions avancées.
 
 ## Vous découvrez GrafcetMaker ? {#new-to-grafcetmaker}
 
-- Ouvrez un exemple depuis l'écran d'accueil (**Aide › Écran d'accueil et exemples**) et appuyez
+- Ouvrez un exemple depuis l'écran d'accueil (**☰ › Écran d'accueil et exemples**) et appuyez
   sur <kbd>F5</kbd> pour le voir évoluer.
 - Suivez la visite guidée en dix écrans (**Aide › Visite guidée**) pour savoir où se trouve
   chaque chose.

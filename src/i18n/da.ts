@@ -991,7 +991,7 @@ export const da: Messages = {
     snapHelp: 'Elementer fastgøres til gitteret på 10 enheder, mens du trækker dem.',
     welcome: 'Velkomstskærm ved start',
     welcomeHelp:
-      'Viser eksempler, seneste projekter og rundvisningen, når GrafcetMaker åbner. Altid tilgængelig under Hjælp › Startskærm og eksempler.',
+      'Viser eksempler, seneste projekter og rundvisningen, når GrafcetMaker åbner. Altid tilgængelig under ☰ › Startskærm og eksempler.',
     hintsHelp:
       'Viser øverst på lærredet, hvad du kan gøre med markeringen, værktøjet eller bevægelsen.',
     autosave: 'Automatisk lagring',
@@ -1097,7 +1097,7 @@ export const da: Messages = {
       },
       project: {
         title: 'Menu og projekt',
-        text: '☰ rummer alle kommandoer (Filer, Rediger, Vis, Simuler, Hjælp) og temaet. Dobbeltklik på navnet for at omdøbe projektet; en prik betyder ikke-gemte ændringer. Dit arbejde gemmes løbende i browseren, og Ctrl+S gemmer det i en fil. Den sidste knap viser markeringens egenskaber.',
+        text: '☰ rummer alle kommandoer (Filer, Rediger, Vis, Simuler, Hjælp), startskærmen med eksemplerne og temaet. Dobbeltklik på navnet for at omdøbe projektet; en prik betyder ikke-gemte ændringer. Dit arbejde gemmes løbende i browseren, og Ctrl+S gemmer det i en fil. Den sidste knap viser markeringens egenskaber.',
       },
       share: {
         title: 'Problemer, eksport og deling',

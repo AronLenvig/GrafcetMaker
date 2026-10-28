@@ -15,7 +15,7 @@ start a new one, open a file or a recent project, take the ten-step **tour**, op
 parallel conveyor, and two larger ones: a **bottling line** with a macro-step, three parallel
 stations and an inspection, and **operating modes** with an enclosing step, a pause that freezes
 the cycle and an emergency stop that forces the modes). Untick "Show this screen when GrafcetMaker opens" to go straight to your
-project; **Help › Start screen and examples** brings it back.
+project; **Start screen and examples** in the main menu ☰ brings it back.
 
 GrafcetMaker can be installed as an app (the install button of the browser's address bar) and works
 offline: after the first visit everything it needs is stored in the browser. When a new version is
@@ -27,9 +27,10 @@ The diagram fills the window. Everything else floats over it in small "islands" 
 when it is needed. The toolbars rest slightly faded so the diagram stays in front; they come back
 fully when you point at them or reach them with the keyboard:
 
-- **Top left**: the main menu ☰ (File, Edit, View, Simulate and Help as submenus, the System /
-  Light / Dark theme and the language), the project name (a dot `●` means unsaved changes; double-click it to
-  rename the project) and the **properties** button.
+- **Top left**: the main menu ☰ (File, Edit, View, Simulate and Help as submenus, **Start screen
+  and examples** just before Help, the System / Light / Dark theme and the language), the project
+  name (a dot `●` means unsaved changes; double-click it to rename the project) and the
+  **properties** button.
 - **Top centre**: the tools: select (`V`), pan (`H`), step (`S`), transition (`T`), comment (`C`)
   and action (`Shift+A`); the letter in each button is its key. ▶ **Simulate** (`F5`) ends the
   bar. While simulating, the simulation controls take its place. Under them, the **hints** list the keys and gestures available for
@@ -73,9 +74,10 @@ fully when you point at them or reach them with the keyboard:
 On a phone (narrower than 640 px, or lower than 480 px in landscape) the diagram gets the whole
 screen:
 
-- **Top bar**: the menu ☰ (File, Edit, View, Simulate, Help and the theme, as a drawer), the
-  project name, the problem counters and ▶ **Simulate**. While simulating, the simulation bar keeps
-  reset, run / pause, next step, the clock and **Stop**; speed and recording are in its ⋯ menu.
+- **Top bar**: the menu ☰ (File, Edit, View, Simulate, Start screen and examples, Help and the
+  theme, as a drawer), the project name, the problem counters and ▶ **Simulate**. While
+  simulating, the simulation bar keeps reset, run / pause, next step, the clock and **Stop**; speed
+  and recording are in its ⋯ menu.
 - **Bottom toolbar**: select, place step, transition, comment and action, undo, redo, and the
   **panels** button.
 - **Panels sheet**: Properties (not while simulating), Variables, Problems, Simulation,

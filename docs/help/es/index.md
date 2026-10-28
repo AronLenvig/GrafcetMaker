@@ -6,7 +6,7 @@ funciones avanzadas.
 
 ## ¿Primera vez en GrafcetMaker? {#new-to-grafcetmaker}
 
-- Abre un ejemplo desde la pantalla de inicio (**Ayuda › Pantalla de inicio y ejemplos**) y pulsa
+- Abre un ejemplo desde la pantalla de inicio (**☰ › Pantalla de inicio y ejemplos**) y pulsa
   <kbd>F5</kbd> para verlo funcionar.
 - Haz la visita guiada de diez pasos (**Ayuda › Hacer la visita guiada**) para saber dónde está
   cada cosa.

@@ -1006,7 +1006,7 @@ export const fr: Messages = {
       "Les éléments s'aimantent à la grille de 10 unités pendant que vous les faites glisser.",
     welcome: "Écran d'accueil au démarrage",
     welcomeHelp:
-      "Affiche les exemples, les projets récents et la visite guidée à l'ouverture de GrafcetMaker. Toujours disponible depuis Aide › Écran d'accueil et exemples.",
+      "Affiche les exemples, les projets récents et la visite guidée à l'ouverture de GrafcetMaker. Toujours disponible depuis ☰ › Écran d'accueil et exemples.",
     hintsHelp:
       "Affiche en haut du canevas ce que vous pouvez faire avec la sélection, l'outil ou le geste.",
     autosave: 'Enregistrement automatique',
@@ -1116,7 +1116,7 @@ export const fr: Messages = {
       },
       project: {
         title: 'Menu et projet',
-        text: "☰ réunit toutes les commandes (Fichier, Édition, Affichage, Simulation, Aide) et le thème. Double-cliquez sur le nom pour renommer le projet ; un point signale des modifications non enregistrées. Votre travail est conservé dans le navigateur au fil de l'eau, et Ctrl+S l'enregistre dans un fichier. Le dernier bouton affiche les propriétés de la sélection.",
+        text: "☰ réunit toutes les commandes (Fichier, Édition, Affichage, Simulation, Aide), l'écran d'accueil avec les exemples et le thème. Double-cliquez sur le nom pour renommer le projet ; un point signale des modifications non enregistrées. Votre travail est conservé dans le navigateur au fil de l'eau, et Ctrl+S l'enregistre dans un fichier. Le dernier bouton affiche les propriétés de la sélection.",
       },
       share: {
         title: 'Problèmes, export et partage',

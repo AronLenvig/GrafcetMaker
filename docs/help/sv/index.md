@@ -5,7 +5,7 @@ direkt i webbläsaren. Sidorna här tar dig från ditt första diagram till de a
 
 ## Ny i GrafcetMaker? {#new-to-grafcetmaker}
 
-- Öppna ett exempel från startskärmen (**Hjälp › Startskärm och exempel**) och tryck på
+- Öppna ett exempel från startskärmen (**☰ › Startskärm och exempel**) och tryck på
   <kbd>F5</kbd> för att se det köras.
 - Ta rundturen i tio steg (**Hjälp › Ta rundturen**) för att lära dig var allt finns.
 - Välj språk med flaggan nere till höger.

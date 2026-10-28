@@ -36,19 +36,24 @@ type MenuNode =
   | { pref: BoolPref; label: string; desktopOnly?: boolean }
   | { special: 'recent' | 'undoRedo' };
 
+type CommandNode = Extract<MenuNode, { command: string }>;
+
 interface MenuSection {
   label: 'file' | 'edit' | 'view' | 'simulate' | 'help';
   items: MenuNode[];
 }
 
 const SEP: MenuNode = { separator: true };
-const cmd = (command: string, extra: Partial<Extract<MenuNode, { command: string }>> = {}) => ({
+const cmd = (command: string, extra: Partial<CommandNode> = {}): CommandNode => ({
   command,
   ...extra,
 });
 
-/** The main menu: rendered as the menu bar on desktops and tablets, as a drawer on phones. */
-const MAIN_MENU: MenuSection[] = [
+/**
+ * The main menu: submenus, and a command of its own between them. Rendered as the menu bar on
+ * desktops and tablets, as a drawer on phones.
+ */
+const MAIN_MENU: (MenuSection | CommandNode)[] = [
   {
     label: 'file',
     items: [
@@ -165,11 +170,12 @@ const MAIN_MENU: MenuSection[] = [
       cmd('view.showChronogram'),
     ],
   },
+  // In plain sight rather than inside Help, so beginners find the examples (owner decision).
+  cmd('help.startScreen'),
   {
     label: 'help',
     items: [
       cmd('help.open'),
-      cmd('help.startScreen'),
       cmd('help.tour', { desktopOnly: true }),
       cmd('help.gettingStarted'),
       cmd('help.basics'),
@@ -217,7 +223,7 @@ function useRecent(): RecentEntry[] {
 
 // ---- Menu bar (desktops and tablets) ----
 
-function BarCommand({ node }: { node: Extract<MenuNode, { command: string }> }) {
+function BarCommand({ node }: { node: CommandNode }) {
   const label = useCommandLabel();
   const keys = node.keys ?? getCommand(node.command).keys?.[0];
   return (
@@ -301,7 +307,8 @@ function BarNode({ node }: { node: MenuNode }) {
 
 /**
  * Desktops and tablets: the main menu behind one button (File, Edit, View, Simulate and Help as
- * submenus) with the theme as one row of icons at the bottom, so the canvas keeps the screen.
+ * submenus, the start screen before Help) with the theme as one row of icons at the bottom, so the
+ * canvas keeps the screen.
  */
 export function MainMenuButton() {
   const { t } = useTranslation();
@@ -326,13 +333,17 @@ export function MainMenuButton() {
           sideOffset={8}
           collisionPadding={8}
         >
-          {MAIN_MENU.map((s) => (
-            <SubMenu key={s.label} label={t(`menu.${s.label}`)}>
-              {s.items.map((n, i) => (
-                <BarNode key={i} node={n} />
-              ))}
-            </SubMenu>
-          ))}
+          {MAIN_MENU.map((s) =>
+            'command' in s ? (
+              <BarCommand key={s.command} node={s} />
+            ) : (
+              <SubMenu key={s.label} label={t(`menu.${s.label}`)}>
+                {s.items.map((n, i) => (
+                  <BarNode key={i} node={n} />
+                ))}
+              </SubMenu>
+            ),
+          )}
           <MenuSeparator />
           <div className="flex items-center gap-2 px-2 py-1">
             <span className="flex-1 text-[11px] font-semibold tracking-wider text-muted uppercase">
@@ -508,7 +519,7 @@ function DrawerNodes({ items, depth, run }: { items: MenuNode[]; depth: number; 
           <button
             key={i}
             type="button"
-            className={row}
+            className={cx(row, depth === 0 && 'font-semibold')}
             style={pad}
             disabled={!isEnabled(n.command)}
             onClick={() => run(() => runCommand(n.command))}
@@ -554,11 +565,15 @@ export function MenuDrawer({
             </Dialog.Close>
           </div>
           <nav aria-label={t('menu.label')} className="min-h-0 flex-1 overflow-y-auto py-1">
-            {MAIN_MENU.map((s, i) => (
-              <Group key={s.label} label={t(`menu.${s.label}`)} depth={0} defaultOpen={i === 0}>
-                <DrawerNodes items={forPhone(s.items)} depth={1} run={run} />
-              </Group>
-            ))}
+            {MAIN_MENU.map((s, i) =>
+              'command' in s ? (
+                <DrawerNodes key={s.command} items={[s]} depth={0} run={run} />
+              ) : (
+                <Group key={s.label} label={t(`menu.${s.label}`)} depth={0} defaultOpen={i === 0}>
+                  <DrawerNodes items={forPhone(s.items)} depth={1} run={run} />
+                </Group>
+              ),
+            )}
           </nav>
           <div className="flex shrink-0 items-center justify-between gap-2 border-t border-border px-4 py-3">
             <span className="text-sm text-muted">{t('theme.label')}</span>

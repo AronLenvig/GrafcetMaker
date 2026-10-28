@@ -1012,7 +1012,7 @@ export const de: Messages = {
     snapHelp: 'Elemente rasten beim Ziehen am 10er-Raster ein.',
     welcome: 'Startbildschirm beim Öffnen',
     welcomeHelp:
-      'Zeigt Beispiele, zuletzt geöffnete Projekte und den Rundgang, wenn GrafcetMaker startet. Jederzeit erreichbar über Hilfe › Startbildschirm und Beispiele.',
+      'Zeigt Beispiele, zuletzt geöffnete Projekte und den Rundgang, wenn GrafcetMaker startet. Jederzeit erreichbar über ☰ › Startbildschirm und Beispiele.',
     hintsHelp:
       'Zeigt oben auf der Zeichenfläche, was Sie mit der Auswahl, dem Werkzeug oder der Geste tun können.',
     autosave: 'Automatisch speichern',
@@ -1120,7 +1120,7 @@ export const de: Messages = {
       },
       project: {
         title: 'Menü und Projekt',
-        text: '☰ enthält alle Befehle (Datei, Bearbeiten, Ansicht, Simulieren, Hilfe) und das Farbschema. Doppelklicken Sie auf den Namen, um das Projekt umzubenennen; ein Punkt zeigt ungespeicherte Änderungen. Ihre Arbeit wird laufend im Browser gesichert, und Ctrl+S speichert sie in eine Datei. Die letzte Schaltfläche zeigt die Eigenschaften der Auswahl.',
+        text: '☰ enthält alle Befehle (Datei, Bearbeiten, Ansicht, Simulieren, Hilfe), den Startbildschirm mit den Beispielen und das Farbschema. Doppelklicken Sie auf den Namen, um das Projekt umzubenennen; ein Punkt zeigt ungespeicherte Änderungen. Ihre Arbeit wird laufend im Browser gesichert, und Ctrl+S speichert sie in eine Datei. Die letzte Schaltfläche zeigt die Eigenschaften der Auswahl.',
       },
       share: {
         title: 'Probleme, Export und Teilen',

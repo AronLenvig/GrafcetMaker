@@ -67,6 +67,7 @@ interface SiteModule {
     siteUrl: string;
     guides: Record<string, string>;
     homes: Record<string, string>;
+    ai: string;
     themeScript: string;
     css: string;
   }): Promise<SiteFile[]>;
@@ -84,7 +85,7 @@ const markdownIn = (dir: string) =>
  * The public website around the app: SITE_URL in index.html, and at build time the home page text
  * for readers without JavaScript (docs/home/<lang>.md, in the root element of index.html), the
  * editor's page in each language, the static GRAFCET guide (docs/guide/<lang>.md), the help pages
- * (docs/help), sitemap.xml, robots.txt and llms.txt, all rendered by src/site.
+ * (docs/help), sitemap.xml, robots.txt, llms.txt and ai.txt (docs/ai.md), all rendered by src/site.
  */
 function website(): Plugin[] {
   let site: Promise<SiteModule> | undefined;
@@ -124,6 +125,7 @@ function website(): Plugin[] {
         siteUrl: SITE_URL,
         guides: markdownIn('guide'),
         homes: markdownIn('home'),
+        ai: read('./docs/ai.md'),
         themeScript: /<script>([\s\S]*?)<\/script>/.exec(read('./index.html'))?.[1] ?? '',
         css: this.getFileName(css),
       });

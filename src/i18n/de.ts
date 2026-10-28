@@ -66,6 +66,32 @@ export const de: Messages = {
       brokenLink:
         'Der Link ist beschädigt oder unvollständig: Vielleicht wurde er beim Kopieren abgeschnitten. Bitten Sie erneut um den Link oder um die Projektdatei.',
     },
+    text: {
+      title: 'Aus Text öffnen',
+      intro:
+        'Fügen Sie einen als GRAFCET-Text geschriebenen Grafcet ein, zum Beispiel von einem KI-Assistenten wie ChatGPT oder Claude. Bitten Sie den Assistenten zuerst, {{url}} zu lesen: Dort ist das Format erklärt.',
+      label: 'GRAFCET-Text',
+      open: 'Öffnen',
+      opened: '„{{name}}“ aus Text geöffnet.',
+      copied:
+        'Der Grafcet ist als Text kopiert: Fügen Sie ihn bei Ihrem KI-Assistenten ein, um ihn zu besprechen oder zu ändern.',
+      line: 'Zeile {{line}}: {{message}}',
+      errors: {
+        empty: 'Dieser Text enthält keinen Schritt und keinen Grafcet.',
+        tooLarge: 'Dieser Text ist zu lang.',
+        unknownLine:
+          'Diese Zeile ist kein GRAFCET-Text. Zeilen beginnen mit project, input, output, internal, grafcet, step, note, einer Aktion (do, on enter:, on exit:, on <Ereignis>:, force) oder einer Transition wie 0 -> 1: start.',
+        name: '„{{name}}“ ist kein gültiger Variablenname: ein Buchstabe oder _, dann Buchstaben, Ziffern oder _, kein Schlüsselwort und kein Schrittname wie X1.',
+        duplicateVariable: 'Die Variable {{name}} ist zweimal deklariert.',
+        value: '„{{value}}“ ist kein {{type}}-Wert.',
+        duplicateGrafcet: 'Zwei Grafcets heißen {{name}}.',
+        duplicateStep: 'Schritt {{number}} ist in diesem Grafcet zweimal deklariert.',
+        unknownStep: 'Schritt {{number}} ist im Grafcet {{grafcet}} nicht deklariert.',
+        transitionEnds: 'Eine Transition braucht einen Schritt darüber oder darunter.',
+        unknownGrafcet: 'Es gibt keinen Grafcet namens {{name}}.',
+        invalid: 'Der Grafcet ist ungültig: {{details}}',
+      },
+    },
     share: {
       copied: 'Link zum Teilen kopiert. Wer ihn öffnet, erhält eine eigene Kopie dieses Projekts.',
       copiedLong:
@@ -230,6 +256,8 @@ export const de: Messages = {
       saveAs: 'Speichern unter…',
       downloadCopy: 'Kopie herunterladen',
       copyLink: 'Link zum Teilen kopieren',
+      openText: 'Aus Text öffnen…',
+      copyText: 'Als Text kopieren (für KI-Assistenten)',
       live: 'Live-Zusammenarbeit…',
       localHistory: 'Lokaler Verlauf…',
       export: 'Exportieren…',

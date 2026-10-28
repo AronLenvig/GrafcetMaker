@@ -8,6 +8,10 @@ GrafcetMaker er en webapp: den kører i enhver moderne browser med JavaScript sl
 nyt for dig? Læs [GRAFCET-guiden](da/guide/), som også findes på [engelsk](en/guide/),
 [fransk](fr/guide/), [tysk](de/guide/), [spansk](es/guide/) og [svensk](sv/guide/).
 
+## Til AI-assistenter
+
+AI-assistenter som ChatGPT og Claude kan lave en grafcet til dig og give dig den som et link, der åbner den her. Assistent, læs [ai.txt](ai.txt) for at se hvordan. I GrafcetMaker åbner **Filer › Åbn fra tekst…** en grafcet, som en assistent har skrevet, og **Filer › Kopiér som tekst** giver din grafcet tilbage til den.
+
 ## Det kan du gøre med den
 
 - **Tegn** trin, transitioner, transitionsbetingelser og aktioner med musen eller tastaturet

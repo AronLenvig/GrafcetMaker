@@ -461,6 +461,12 @@ for each row) before anything changes, and the import is one undo step.
   then removed from the address bar, so a reload keeps their edits. A damaged or cut-off link is
   rejected with an explanation. Links over 8000 characters trigger a warning, since some apps cut
   long links.
+- **AI assistants** (ChatGPT, Claude…) can make charts: ask the assistant to read
+  `grafcet.org/ai.txt`, which explains **GRAFCET text** (a chart as plain lines such as
+  `step 1 Filling`, `do Valve`, `0 -> 1: start`) and how to make a `#text=` link that opens the
+  chart here, laid out automatically. **File › Open from text…** opens a chart pasted as text (a
+  line that cannot be read is named with what is wrong), and **File › Copy as text (for AI
+  assistants)** copies the open project as GRAFCET text to paste back into the chat.
 
 ## Live collaboration
 

@@ -55,6 +55,22 @@ påverka din.
 - Att öppna en länk fungerar som att öppna en fil: om ditt projekt har osparade ändringar får du en
   fråga först, och en skadad länk avvisas med en förklaring utan att ditt projekt påverkas.
 
+## Grafcet från en AI-assistent {#charts-from-ai-assistants}
+
+En AI-assistent som ChatGPT eller Claude kan rita ett grafcet åt dig. Be den först läsa
+[grafcet.org/ai.txt](https://grafcet.org/ai.txt): där lär den sig GRAFCET-text, en textform av
+grafcetet, och hur den gör en länk som öppnar det här.
+
+- **En länk från assistenten** öppnar grafcetet, automatiskt placerat, i stället för det öppna
+  projektet (du får frågan först om det har osparade ändringar).
+- **Arkiv › Öppna från text…** öppnar ett grafcet som assistenten skrivit som text: klistra in det
+  och klicka på **Öppna**. En rad som inte kan läsas anges med problemet; du kan rätta den eller
+  skicka meddelandet tillbaka till assistenten.
+- **Arkiv › Kopiera som text (för AI-assistenter)** kopierar ditt grafcet som GRAFCET-text, så att
+  du kan klistra in det i chatten och be om ändringar, en förklaring eller en granskning.
+
+Positioner ingår inte i texten: ett grafcet som öppnas från text placeras automatiskt.
+
 ## Redigera tillsammans live {#edit-together-live}
 
 **Arkiv › Livesamarbete…** (eller personknappen uppe till höger) låter flera personer redigera

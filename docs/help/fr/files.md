@@ -66,6 +66,23 @@ toucher à la vôtre.
   enregistrées, la question vous est d'abord posée, et un lien endommagé est refusé avec une
   explication, sans toucher à votre projet.
 
+## Grafcets d’un assistant IA {#charts-from-ai-assistants}
+
+Un assistant IA comme ChatGPT ou Claude peut dessiner un grafcet pour vous. Demandez-lui d’abord
+de lire [grafcet.org/ai.txt](https://grafcet.org/ai.txt) : il y apprend le texte GRAFCET, une
+forme texte du grafcet, et comment faire un lien qui l’ouvre ici.
+
+- **Un lien de l’assistant** ouvre le grafcet, disposé automatiquement, à la place du projet
+  ouvert (après confirmation s’il a des modifications non enregistrées).
+- **Fichier › Ouvrir depuis du texte…** ouvre un grafcet que l’assistant a écrit en texte :
+  collez-le et cliquez sur **Ouvrir**. Une ligne illisible est indiquée avec le problème ; vous
+  pouvez la corriger ou renvoyer le message à l’assistant.
+- **Fichier › Copier en texte (pour les assistants IA)** copie votre grafcet en texte GRAFCET,
+  à coller dans la conversation pour demander des modifications, une explication ou une relecture.
+
+Les positions ne font pas partie du texte : un grafcet ouvert depuis du texte est disposé
+automatiquement.
+
 ## Modifier ensemble en direct {#edit-together-live}
 
 **Fichier › Collaboration en direct…** (ou le bouton des personnes en haut à droite) permet à

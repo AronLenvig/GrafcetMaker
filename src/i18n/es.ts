@@ -66,6 +66,32 @@ export const es: Messages = {
       brokenLink:
         'El enlace está dañado o incompleto: puede que se cortara al copiarlo. Vuelve a pedir el enlace, o el archivo del proyecto.',
     },
+    text: {
+      title: 'Abrir desde texto',
+      intro:
+        'Pega un grafcet escrito como texto GRAFCET, por ejemplo por un asistente de IA como ChatGPT o Claude. Pide antes al asistente que lea {{url}}: ahí se explica el formato.',
+      label: 'Texto GRAFCET',
+      open: 'Abrir',
+      opened: '«{{name}}» abierto desde texto.',
+      copied:
+        'El grafcet se ha copiado como texto: pégalo a tu asistente de IA para comentarlo o cambiarlo.',
+      line: 'Línea {{line}}: {{message}}',
+      errors: {
+        empty: 'Este texto no tiene ninguna etapa ni ningún grafcet.',
+        tooLarge: 'Este texto es demasiado largo.',
+        unknownLine:
+          'Esta línea no es texto GRAFCET. Las líneas empiezan por project, input, output, internal, grafcet, step, note, una acción (do, on enter:, on exit:, on <evento>:, force) o una transición como 0 -> 1: start.',
+        name: '«{{name}}» no es un nombre de variable válido: una letra o _, después letras, dígitos o _, y no una palabra clave ni un nombre de etapa como X1.',
+        duplicateVariable: 'La variable {{name}} está declarada dos veces.',
+        value: '«{{value}}» no es un valor {{type}}.',
+        duplicateGrafcet: 'Hay dos grafcets llamados {{name}}.',
+        duplicateStep: 'La etapa {{number}} está declarada dos veces en este grafcet.',
+        unknownStep: 'La etapa {{number}} no está declarada en el grafcet {{grafcet}}.',
+        transitionEnds: 'Una transición necesita una etapa encima o debajo.',
+        unknownGrafcet: 'No hay ningún grafcet llamado {{name}}.',
+        invalid: 'El grafcet no es válido: {{details}}',
+      },
+    },
     share: {
       copied:
         'Enlace para compartir copiado. Quien lo abra obtiene su propia copia de este proyecto.',
@@ -227,6 +253,8 @@ export const es: Messages = {
       saveAs: 'Guardar como…',
       downloadCopy: 'Descargar una copia',
       copyLink: 'Copiar enlace para compartir',
+      openText: 'Abrir desde texto…',
+      copyText: 'Copiar como texto (para asistentes de IA)',
       live: 'Colaboración en tiempo real…',
       localHistory: 'Historial local…',
       export: 'Exportar…',

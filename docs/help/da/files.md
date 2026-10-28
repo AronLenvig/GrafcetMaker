@@ -54,6 +54,22 @@ med alle dets grafcets og variabler, og kan ændre den uden at påvirke din.
 - At åbne et link virker som at åbne en fil: har dit projekt ikke-gemte ændringer, bliver du spurgt
   først, og et beskadiget link afvises med en forklaring, uden at dit projekt berøres.
 
+## Grafcets fra en AI-assistent {#charts-from-ai-assistants}
+
+En AI-assistent som ChatGPT eller Claude kan tegne en grafcet til dig. Bed den først om at læse
+[grafcet.org/ai.txt](https://grafcet.org/ai.txt): der lærer den GRAFCET-tekst, en tekstform af
+grafcetten, og hvordan den laver et link, der åbner den her.
+
+- **Et link fra assistenten** åbner grafcetten, placeret automatisk, i stedet for det åbne projekt
+  (du bliver spurgt først, hvis det har ændringer, der ikke er gemt).
+- **Filer › Åbn fra tekst…** åbner en grafcet, som assistenten har skrevet som tekst: indsæt den,
+  og klik på **Åbn**. En linje, der ikke kan læses, bliver nævnt med problemet; du kan rette den
+  eller sende beskeden tilbage til assistenten.
+- **Filer › Kopiér som tekst (til AI-assistenter)** kopierer din grafcet som GRAFCET-tekst, så du
+  kan indsætte den i chatten og bede om ændringer, en forklaring eller en gennemgang.
+
+Placeringer er ikke en del af teksten: en grafcet åbnet fra tekst placeres automatisk.
+
 ## Rediger sammen live {#edit-together-live}
 
 **Filer › Livesamarbejde…** (eller personknappen øverst til højre) lader flere personer redigere det

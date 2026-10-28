@@ -34,5 +34,6 @@ direkt i webbläsaren. Sidorna här tar dig från ditt första diagram till de a
 - [Felsökning](troubleshooting.md): vad varje problemmeddelande betyder och hur du åtgärdar det.
 
 > **Tips:** tipsen under verktygsfältet visar alltid vad du kan göra med den aktuella markeringen
-> eller det aktuella verktyget. Tryck på <kbd>F1</kbd> för att öppna eller stänga den här hjälpen,
-> och på <kbd>?</kbd> för alla kortkommandon.
+> eller det aktuella verktyget. Tryck på <kbd>F1</kbd> för att öppna hjälpen om det markerade
+> elementet (eller det du skriver), igen för att stänga den, och på <kbd>?</kbd> för alla
+> kortkommandon.

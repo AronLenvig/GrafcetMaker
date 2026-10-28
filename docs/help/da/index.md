@@ -36,5 +36,5 @@ funktioner.
 - [Fejlfinding](troubleshooting.md): hvad hver problemmeddelelse betyder, og hvordan du løser den.
 
 > **Tip:** tipsene under værktøjslinjen viser altid, hvad du kan gøre med den aktuelle markering
-> eller det aktuelle værktøj. Tryk på <kbd>F1</kbd> for at åbne eller lukke denne hjælp, og på
-> <kbd>?</kbd> for alle tastaturgenveje.
+> eller det aktuelle værktøj. Tryk på <kbd>F1</kbd> for at åbne hjælpen om det markerede element
+> (eller det, du skriver), igen for at lukke den, og på <kbd>?</kbd> for alle tastaturgenveje.

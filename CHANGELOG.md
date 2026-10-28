@@ -8,6 +8,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- F1 opens the help on what you are working on: the section about the selected step,
+  transition, branch, action, comment or link, a multiple selection, the variable shown, the
+  simulation, or the receptivity or assignment being typed; F1 again closes it.
 - **Double lines** (AND divergence and convergence) can be clicked: the line is selected with the
   links it joins. Drag it, or use the arrow keys, to move it with its transition; `Del` removes
   those links and keeps the transition and the steps.

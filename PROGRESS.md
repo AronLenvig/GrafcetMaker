@@ -346,6 +346,12 @@ Autonomous build log. Read this first in every session and resume from **Current
   e.g. `Hoejre`, `Upp`/`Ned`.
 - The main menu no longer lists the languages (owner request): the flag button at the bottom
   right and the palette on desktop, the flags in the menu drawer on phones.
+- F1 is contextual (`src/app/help/contextHelp.ts`, targets in `helpTargets.ts`): the expression
+  being typed (inputs carry `data-expression`; the inline editor and expression input let F1
+  through), the simulation, the variable shown, a link, a multiple selection or the selected
+  element (OR/AND branch for a transition in one) open their section; F1 on the same section
+  closes it, and with nothing selected it toggles as before. A test checks every target's page and
+  anchor exist in all six languages.
 - Unknown addresses: `public/404.html` (status 404, meta refresh to `/`, noindex) instead of the
   editor's page, whose relative paths load nothing away from its own addresses. Cloudflare
   `not_found_handling: "404-page"` (also for unknown `/api/*`, through the assets binding), nginx

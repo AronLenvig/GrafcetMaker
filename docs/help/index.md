@@ -33,6 +33,6 @@ right in your browser. These pages take you from your first chart to the advance
 - [Glossary](glossary.md): the standard GRAFCET terms used in the app.
 - [Troubleshooting](troubleshooting.md): what each problem message means and how to fix it.
 
-> **Tip:** the hints under the toolbar always show what you can do with the current
-> selection or tool. Press <kbd>F1</kbd> to open or close this help, and <kbd>?</kbd> for all
-> keyboard shortcuts.
+> **Tip:** the hints under the toolbar always show what you can do with the current selection or
+> tool. Press <kbd>F1</kbd> to open the help on the selected element (or on what you are typing),
+> again to close it, and <kbd>?</kbd> for all keyboard shortcuts.

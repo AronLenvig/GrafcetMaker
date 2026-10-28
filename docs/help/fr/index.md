@@ -39,5 +39,6 @@ grafcet jusqu'aux fonctions avancées.
   le corriger.
 
 > **Astuce :** les indications sous la barre d'outils montrent toujours ce que vous pouvez faire
-> avec la sélection ou l'outil en cours. Appuyez sur <kbd>F1</kbd> pour ouvrir ou fermer cette
-> aide, et sur <kbd>?</kbd> pour tous les raccourcis clavier.
+> avec la sélection ou l'outil en cours. Appuyez sur <kbd>F1</kbd> pour ouvrir l'aide sur l'élément
+> sélectionné (ou sur ce que vous tapez), à nouveau pour la fermer, et sur <kbd>?</kbd> pour tous
+> les raccourcis clavier.

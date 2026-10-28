@@ -322,6 +322,8 @@ export const ExpressionInput = forwardRef<
         aria-describedby={first || newNames.length ? errId : undefined}
         role="combobox"
         aria-autocomplete="list"
+        // F1 opens the help on this kind of expression (contextHelp).
+        data-expression={kind}
         aria-expanded={open}
         aria-controls={open ? listId : undefined}
         aria-activedescendant={open ? `${listId}-${active}` : undefined}
@@ -357,6 +359,8 @@ export const ExpressionInput = forwardRef<
           onFocus?.();
         }}
         onKeyDown={(e) => {
+          // Keys are the expression's own, except F1: the help on this kind of expression.
+          if (e.key === 'F1') return;
           e.stopPropagation();
           if (e.key === 'Enter' && e.shiftKey && onCommitNext) {
             e.preventDefault();

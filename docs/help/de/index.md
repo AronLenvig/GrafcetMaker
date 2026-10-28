@@ -39,5 +39,6 @@ fortgeschrittenen Funktionen.
 - [Problembehebung](troubleshooting.md): was jede Problemmeldung bedeutet und wie Sie sie beheben.
 
 > **Tipp:** Die Hinweise unter der Werkzeugleiste zeigen immer, was Sie mit der aktuellen Auswahl
-> oder dem aktuellen Werkzeug tun können. Drücken Sie <kbd>F1</kbd>, um diese Hilfe zu öffnen oder
-> zu schließen, und <kbd>?</kbd> für alle Tastenkürzel.
+> oder dem aktuellen Werkzeug tun können. Drücken Sie <kbd>F1</kbd>, um die Hilfe zum ausgewählten
+> Element (oder zu dem, was Sie gerade eingeben) zu öffnen, noch einmal, um sie zu schließen, und
+> <kbd>?</kbd> für alle Tastenkürzel.

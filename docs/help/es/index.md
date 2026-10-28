@@ -39,5 +39,6 @@ funciones avanzadas.
   corregirlo.
 
 > **Consejo:** las sugerencias bajo la barra de herramientas siempre muestran lo que puedes hacer
-> con la selección o la herramienta actual. Pulsa <kbd>F1</kbd> para abrir o cerrar esta ayuda, y
-> <kbd>?</kbd> para ver todos los atajos de teclado.
+> con la selección o la herramienta actual. Pulsa <kbd>F1</kbd> para abrir la ayuda sobre el
+> elemento seleccionado (o sobre lo que estás escribiendo), otra vez para cerrarla, y <kbd>?</kbd>
+> para ver todos los atajos de teclado.

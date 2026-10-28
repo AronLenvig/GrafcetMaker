@@ -409,6 +409,8 @@ function EditorField({
       setError(null);
     },
     onKeyDown: (e: React.KeyboardEvent) => {
+      // Keys are the text's own, except F1: the help on what is being typed.
+      if (e.key === 'F1') return;
       e.stopPropagation();
       if (e.key === 'Escape') {
         e.preventDefault();

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { HELP_TARGETS } from '@/app/help/helpTargets';
 import { parseMarkdown, type Block, type Inline } from '@/app/help/markdown';
 import i18next, { languageOfPath, rootOfPath } from '@/i18n';
 import { en } from '@/i18n/en';
@@ -98,4 +99,19 @@ describe.each(LANGS)('%s', (lang) => {
     expect(src, `docs/help/${lang}/${id}.md`).toBeDefined();
     expect(skeleton(src!)).toEqual(skeleton(help[`/docs/help/${id}.md`]!));
   });
+});
+
+describe('F1 help targets', () => {
+  it.each(Object.entries(HELP_TARGETS))(
+    '%s leads to a page and section that exist',
+    (_, target) => {
+      for (const lang of ['', ...LANGS.map((l) => `${l}/`)]) {
+        const src = help[`/docs/help/${lang}${target.page}.md`];
+        expect(src, `docs/help/${lang}${target.page}.md`).toBeDefined();
+        if (!target.anchor) continue;
+        const ids = parseMarkdown(src!).flatMap((b) => (b.t === 'h' ? [b.id] : []));
+        expect(ids, `${lang}${target.page}#${target.anchor}`).toContain(target.anchor);
+      }
+    },
+  );
 });

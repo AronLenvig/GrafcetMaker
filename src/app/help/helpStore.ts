@@ -29,11 +29,6 @@ export function closeHelp(): void {
   writeHash(useHelp.getState());
 }
 
-export function toggleHelp(): void {
-  if (useHelp.getState().open) closeHelp();
-  else openHelp(useHelp.getState().page);
-}
-
 /** The website's GRAFCET guide (src/site), bundled with the app, in the language of the app. */
 export function guideUrl(): string {
   return `./${useLanguage.getState().language}/guide/`;

@@ -61,7 +61,10 @@ fully when you point at them or reach them with the keyboard:
 - **Glossary**: the small `?` next to standard terms (step, transition, receptivity, stored action,
   macro-step…) in the properties card explains them and links to the help.
 - **Help center** (`F1`): a card on the right, so you can read and draw at the same time; search,
-  contents, previous / next. Links like `#help/expressions` open a page directly.
+  contents, previous / next. Links like `#help/expressions` open a page directly. With something
+  selected, `F1` opens the section about it: a step, transition, branch, action, comment or link,
+  a multiple selection, the variable shown, the simulation, or the receptivity or assignment
+  being typed. `F1` again closes it.
 - **Command palette** (`Ctrl+K`) runs any command by name; **Settings** is `Ctrl+,`.
 - **GRAFCET guide** (**Help › GRAFCET guide**, or the start screen): a web page that explains the
   language itself (elements, the five evolution rules, actions, branches, hierarchy, GRAFCET and
@@ -428,7 +431,7 @@ for each row) before anything changes, and the import is one undo step.
   menu), or use the pan tool (`H`).
 - `+` / `-` zoom, `Shift+1` fits everything, `Shift+2` fits the selection, `Shift+0` is 100 %.
 - `Ctrl+K` opens the command palette: type any command or grafcet name.
-- `?` lists all keyboard shortcuts; `F1` opens the help center.
+- `?` lists all keyboard shortcuts; `F1` opens the help on the selection (or the help center).
 
 ## Saving and opening
 

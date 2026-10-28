@@ -112,6 +112,20 @@ describe('live collaboration records', () => {
     expect(G(a.doc).steps[sid]).toMatchObject({ label: 'Ready', position: { x: 250 } });
   });
 
+  it('carry every field of the file format, such as a rotated transition', () => {
+    const p = createProject('P');
+    const tid = appendAfterStep(G(p), firstStep(p).id)!.transitionId;
+    const a = Replica.first(p);
+    const b = Replica.join(a.store.all(), p.id);
+    b.receive(
+      a.edit((d) => {
+        G(d).transitions[tid]!.flow = 'left';
+      }),
+    );
+    expect(G(b.doc).transitions[tid]!.flow).toBe('left');
+    expectSame(Replica.join(a.store.all(), p.id).doc, a.doc);
+  });
+
   it('pick the same winner everywhere when the same field changes at once', () => {
     const a = Replica.first(createProject('P'));
     const b = Replica.join(a.store.all(), a.doc.id);

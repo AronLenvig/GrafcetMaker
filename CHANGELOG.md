@@ -209,6 +209,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- Live collaboration: a transition rotated to flow right to left showed top to bottom for the
+  others. Every field of a project is now shared.
 - An address that does not exist (such as `/abc/x` or `/api/x`) showed the editor's page without its
   styles and scripts; it now answers "not found" (status 404) and leads straight to the editor, on
   grafcet.org, in the installed app and in the Docker image.

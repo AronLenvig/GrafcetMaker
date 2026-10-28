@@ -68,18 +68,6 @@ const NONCES = 2 ** 32;
 /** Records one replica keeps (tombstones included): twice what a project file may hold. */
 const MAX_RECORDS = 2 * LIMITS.elements;
 
-const FIELDS: Record<RecordKind, readonly string[]> = {
-  p: ['name', 'meta'],
-  o: ['order'],
-  v: ['name', 'type', 'direction', 'initialValue', 'address', 'comment'],
-  x: ['name', 'events'],
-  g: ['name', 'kind'],
-  s: ['number', 'kind', 'label', 'position', 'refGrafcetId'],
-  t: ['number', 'from', 'to', 'receptivity', 'position', 'routing'],
-  a: ['stepId', 'position', 'order', 'kind', 'text', 'condition'],
-  c: ['text', 'position'],
-};
-
 /** How many ids follow the kind in a key. */
 const ARITY: Record<RecordKind, number> = { p: 0, o: 0, v: 1, x: 1, g: 1, s: 2, t: 2, a: 2, c: 2 };
 
@@ -94,6 +82,11 @@ const SCHEMAS: Record<RecordKind, z.ZodObject> = {
   a: actionSchema,
   c: commentSchema,
 };
+
+/** The fields of each kind of record: every field of its schema but the id (which is in its key). */
+const FIELDS = {} as Record<RecordKind, readonly string[]>;
+for (const kind of Object.keys(SCHEMAS) as RecordKind[])
+  FIELDS[kind] = Object.keys(SCHEMAS[kind].shape).filter((f) => f !== 'id');
 
 const keyString = (key: RecordKey): string => JSON.stringify(key);
 

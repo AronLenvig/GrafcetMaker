@@ -723,6 +723,7 @@ export const fr: Messages = {
     hold: 'Maintenir pour mettre {{name}} à 1 (fugitif)',
     momentary: 'Maintenir',
     numeric: '{{name}} ({{type}})',
+    editValue: 'Cliquer pour modifier {{name}}',
     enabled: 'Validée : en attente de sa réceptivité',
   },
   chronogram: {
@@ -1051,6 +1052,15 @@ export const fr: Messages = {
     guide: 'Cours sur le GRAFCET',
     examples: 'Exemples',
     showAtStart: "Afficher cet écran à l'ouverture de GrafcetMaker",
+    welcome: 'Bienvenue dans GrafcetMaker',
+    pitch:
+      'Dessinez, vérifiez et simulez des GRAFCET directement dans votre navigateur. Libre et gratuit, il fonctionne hors ligne et vos projets restent sur votre appareil.',
+    learn: 'Apprendre',
+    highlights: {
+      draw: 'Dessin rapide au clavier',
+      simulate: 'Simulation avec temporisations et entrées',
+      export: 'Export PDF, SVG et code automate',
+    },
     exampleNames: {
       trafficLight: 'Feu tricolore',
       drillingStation: 'Poste de perçage',

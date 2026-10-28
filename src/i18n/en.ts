@@ -706,6 +706,7 @@ export const en = {
     hold: 'Hold to set {{name}} (momentary)',
     momentary: 'Hold',
     numeric: '{{name}} ({{type}})',
+    editValue: 'Click to change {{name}}',
     enabled: 'Enabled: waiting for its receptivity',
   },
   chronogram: {
@@ -1025,6 +1026,15 @@ export const en = {
     guide: 'GRAFCET guide',
     examples: 'Examples',
     showAtStart: 'Show this screen when GrafcetMaker opens',
+    welcome: 'Welcome to GrafcetMaker',
+    pitch:
+      'Draw, check and simulate GRAFCET sequences right in your browser. Free and open source, it works offline and your projects stay on your device.',
+    learn: 'Learn',
+    highlights: {
+      draw: 'Quick drawing with the keyboard',
+      simulate: 'Simulation with timers and inputs',
+      export: 'PDF, SVG and PLC code export',
+    },
     exampleNames: {
       trafficLight: 'Traffic light',
       drillingStation: 'Drilling station',

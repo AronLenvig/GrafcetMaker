@@ -153,7 +153,8 @@ Verbindungen.
 ## Navigieren {#navigate}
 
 - Scrollen verschiebt die Ansicht; <kbd>Ctrl</kbd>+Scrollen oder zwei Finger zusammenziehen zoomt;
-  <kbd>Space</kbd>+Ziehen oder die mittlere Maustaste verschieben die Ansicht ebenfalls.
+  <kbd>Space</kbd>+Ziehen, die mittlere Maustaste oder die gedrückt gehaltene rechte Maustaste
+  verschieben die Ansicht ebenfalls (ein Rechtsklick ohne Bewegung öffnet weiterhin das Menü).
 - <kbd>Shift+1</kbd> passt den ganzen Grafcet ein, <kbd>Shift+2</kbd> die Auswahl,
   <kbd>Shift+0</kbd> stellt 100 % ein.
 - <kbd>Ctrl+K</kbd> öffnet die Befehlspalette: Geben Sie einen beliebigen Befehl oder einen

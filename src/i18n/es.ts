@@ -714,6 +714,7 @@ export const es: Messages = {
     hold: 'Mantén pulsado para activar {{name}} (momentáneo)',
     momentary: 'Mantener',
     numeric: '{{name}} ({{type}})',
+    editValue: 'Haz clic para cambiar {{name}}',
     enabled: 'Validada: espera su receptividad',
   },
   chronogram: {
@@ -1038,6 +1039,15 @@ export const es: Messages = {
     guide: 'Guía de GRAFCET',
     examples: 'Ejemplos',
     showAtStart: 'Mostrar esta pantalla al abrir GrafcetMaker',
+    welcome: 'Bienvenido a GrafcetMaker',
+    pitch:
+      'Dibuja, comprueba y simula secuencias GRAFCET directamente en tu navegador. Gratuito y de código abierto, funciona sin conexión y tus proyectos se quedan en tu dispositivo.',
+    learn: 'Aprender',
+    highlights: {
+      draw: 'Dibujo rápido con el teclado',
+      simulate: 'Simulación con temporizadores y entradas',
+      export: 'Exportación a PDF, SVG y código de PLC',
+    },
     exampleNames: {
       trafficLight: 'Semáforo',
       drillingStation: 'Estación de taladrado',

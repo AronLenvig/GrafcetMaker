@@ -22,6 +22,13 @@ Du kan også **klikke på en BOOL-indgang, der hvor den står** i en transitions
 betingelse på diagrammet (tryk på den med en finger): den slås til eller fra. Grafcetten udvikler
 sig, så snart en indgang ændres.
 
+Under simuleringen viser hver **INT**-, **REAL**- eller **TIME**-variabel, der står i en
+transitionsbetingelse eller en betingelse, sin aktuelle værdi i en lille boks over navnet, og en
+lagret aktion viser under sin boks værdien af den variabel, den skriver. **Klik på en værdi** (eller
+tryk på den) for at skrive en ny, og tryk på <kbd>Enter</kbd> (<kbd>Escape</kbd> annullerer). Det
+gælder både indgange og interne variabler og udgange, for eksempel for at prøve en tæller tæt på
+sin grænse.
+
 **Peg på en transition** (eller tryk på den) for at se, hvad den venter på: de trin, der først skal
 være aktive, eller de led i dens transitionsbetingelse, der stadig er falske, med den resterende tid
 på en timer som `10s/X0`. En flanke som `↑start` vises altid: den er kun sand i det øjeblik, dens

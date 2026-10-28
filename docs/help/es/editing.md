@@ -143,7 +143,8 @@ Las divergencias y las convergencias nunca se dibujan a mano; se deducen de los 
 ## Navegar {#navigate}
 
 - Gira la rueda para desplazarte; <kbd>Ctrl</kbd>+rueda o pellizcar para hacer zoom;
-  <kbd>Space</kbd>+arrastrar o el botón central del ratón también desplazan la vista.
+  <kbd>Space</kbd>+arrastrar, el botón central del ratón o el botón derecho mantenido pulsado
+  también desplazan la vista (un clic derecho sin mover sigue abriendo el menú).
 - <kbd>Shift+1</kbd> ajusta todo el grafcet, <kbd>Shift+2</kbd> la selección, <kbd>Shift+0</kbd>
   vuelve al 100 %.
 - <kbd>Ctrl+K</kbd> abre la paleta de comandos: escribe cualquier comando o el nombre de un grafcet.

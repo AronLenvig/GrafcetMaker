@@ -173,6 +173,11 @@ hand-verified charts (`tests/unit/simulation.test.ts`).
 - Stored actions keep their value until the next assignment. INT and TIME results are truncated to
   integers; division by zero gives 0. BOOL values count as 0/1 in arithmetic and comparisons.
 - Undeclared variables read as false / 0. A receptivity that does not parse never clears.
+- A value typed while simulating (on the diagram, or an input in the Simulation panel) takes
+  effect at the current virtual time and runs a cycle, as an input change does. An internal
+  variable or output can be typed too (like a PLC's online modify): it keeps the value until an
+  action writes it again, and a value computed by a continuous action is recomputed in that cycle.
+  INT values are truncated. A scenario being recorded records it like an input change.
 
 ### Forcing
 

@@ -146,7 +146,8 @@ liaisons.
 ## Naviguer {#navigate}
 
 - Faites défiler pour déplacer la vue ; <kbd>Ctrl</kbd>+molette ou le pincement pour zoomer ;
-  <kbd>Space</kbd>+glisser ou le bouton du milieu de la souris déplacent aussi la vue.
+  <kbd>Space</kbd>+glisser, le bouton du milieu de la souris ou le bouton droit maintenu enfoncé
+  déplacent aussi la vue (un clic droit sans bouger ouvre toujours le menu).
 - <kbd>Shift+1</kbd> ajuste à tout le grafcet, <kbd>Shift+2</kbd> à la sélection,
   <kbd>Shift+0</kbd> revient à 100 %.
 - <kbd>Ctrl+K</kbd> ouvre la palette de commandes : tapez n'importe quelle commande ou un nom de

@@ -35,13 +35,23 @@ import { ui, useUi } from '../store/uiStore';
 import { useInteraction, type LinkDrag } from './interactionStore';
 import { openChild } from '../commands/hierarchy';
 import { cancelPending, completeLoop } from '../commands/structure';
-import { toggleInput } from '../simulation/simStore';
+import { toggleInput, useSim } from '../simulation/simStore';
 import { getViewport, panBy, screenToDiagram, zoomAt } from './viewport';
 
 type Gesture =
   | { kind: 'idle' }
-  /** A finger that is a tap (double-tap; on the empty canvas also deselect) unless it moves. */
-  | { kind: 'pan'; last: Point; start?: Point; tap?: 'empty' | 'element'; moved?: boolean }
+  /**
+   * A finger that is a tap (double-tap; on the empty canvas also deselect) unless it moves, or the
+   * right button (`menu`), a click opening the context menu unless it moves.
+   */
+  | {
+      kind: 'pan';
+      last: Point;
+      start?: Point;
+      tap?: 'empty' | 'element';
+      menu?: true;
+      moved?: boolean;
+    }
   /** Two fingers: zoom by their distance, pan by their midpoint. */
   | { kind: 'pinch'; dist: number; mid: Point }
   /** A finger with a placing tool: places on release, pans if it moves. */
@@ -80,6 +90,8 @@ const DOUBLE_TAP_MS = 350;
 const DOUBLE_TAP_DISTANCE = 24;
 /** Holding a finger still this long on the empty canvas starts a selection rectangle. */
 const LONG_PRESS_MS = 450;
+/** The browser's context menu event this soon after the right button is released belongs to it. */
+const MENU_AFTER_RELEASE_MS = 500;
 
 function pinchOf(points: Map<number, Point>): { kind: 'pinch'; dist: number; mid: Point } {
   const [a, b] = [...points.values()];
@@ -128,6 +140,9 @@ export function useCanvasInteraction(
   const lastTap = useRef<{ time: number; p: Point } | null>(null);
   const lastPointer = useRef('mouse');
   const longPress = useRef<number | undefined>(undefined);
+  // The right button: held down, or when it was released; and the menu being opened by openMenu.
+  const rightButton = useRef({ down: false, upAt: -Infinity });
+  const replaying = useRef(false);
 
   const local = useCallback(
     (e: { clientX: number; clientY: number }): Point => {
@@ -176,6 +191,43 @@ export function useCanvasInteraction(
     return () => el.removeEventListener('wheel', onWheel);
   }, [containerRef, gid, local]);
 
+  // The browser's own context menu event for the right button (on press, or on release on
+  // Windows) is not the menu: the menu opens on release, unless the button panned (openMenu).
+  useEffect(() => {
+    const swallow = (e: MouseEvent) => {
+      const right = rightButton.current;
+      if (replaying.current) return;
+      if (!right.down && e.timeStamp - right.upAt >= MENU_AFTER_RELEASE_MS) return;
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    window.addEventListener('contextmenu', swallow, true);
+    return () => window.removeEventListener('contextmenu', swallow, true);
+  }, []);
+
+  /** Opens the context menu under the pointer, as the browser would: a right-click released. */
+  const openMenu = (clientX: number, clientY: number) => {
+    const container = containerRef.current;
+    const under = document.elementFromPoint(clientX, clientY);
+    const target = under && container?.contains(under) ? under : container;
+    if (!target) return;
+    replaying.current = true;
+    try {
+      target.dispatchEvent(
+        new MouseEvent('contextmenu', {
+          bubbles: true,
+          cancelable: true,
+          clientX,
+          clientY,
+          button: 2,
+          view: window,
+        }),
+      );
+    } finally {
+      replaying.current = false;
+    }
+  };
+
   const onPointerDown = (e: ReactPointerEvent<SVGSVGElement>) => {
     if (!gid) return;
     containerRef.current?.focus({ preventScroll: true });
@@ -198,6 +250,13 @@ export function useCanvasInteraction(
       }
     }
 
+    if (e.button === 2 && !touch) {
+      // Right button: held and dragged it pans, clicked it opens the context menu on release.
+      rightButton.current = { down: true, upAt: -Infinity };
+      gesture.current = { kind: 'pan', last: p, start: p, menu: true };
+      capture();
+      return;
+    }
     if (e.button === 1 || (e.button === 0 && (spaceDown.current || tool === 'hand'))) {
       e.preventDefault();
       gesture.current = { kind: 'pan', last: p };
@@ -252,6 +311,21 @@ export function useCanvasInteraction(
     const input = readOnly ? target.closest('[data-input]')?.getAttribute('data-input') : null;
     if (input) {
       placeOrWait(() => toggleInput(input));
+      return;
+    }
+    // Simulating: the value of a numeric variable shown on the diagram is typed in place.
+    const value = readOnly ? target.closest('[data-value]') : null;
+    if (value) {
+      const name = value.getAttribute('data-value')!;
+      const at = {
+        x: Number(value.getAttribute('data-x')),
+        y: Number(value.getAttribute('data-y')),
+      };
+      placeOrWait(() => {
+        const sim = useSim.getState();
+        if (sim.on && !sim.replay && !sim.snapshot?.error)
+          useInteraction.setState({ valueEdit: { name, at } });
+      });
       return;
     }
     // A ghost of the selection: add the action (and type its text), the transition alone, or the
@@ -434,7 +508,8 @@ export function useCanvasInteraction(
       }
       case 'pan':
         if (g0.start && !g0.moved) {
-          if (Math.hypot(p.x - g0.start.x, p.y - g0.start.y) < TOUCH_SLOP) return;
+          const slop = g0.menu ? DRAG_THRESHOLD : TOUCH_SLOP;
+          if (Math.hypot(p.x - g0.start.x, p.y - g0.start.y) < slop) return;
           g0.moved = true;
           window.clearTimeout(longPress.current);
           useInteraction.setState({ panning: true });
@@ -594,6 +669,7 @@ export function useCanvasInteraction(
     const g0 = gesture.current;
     const touch = e.pointerType === 'touch';
     if (touch) touches.current.delete(e.pointerId);
+    if (e.button === 2) rightButton.current = { down: false, upAt: e.timeStamp };
     window.clearTimeout(longPress.current);
     if (e.currentTarget.hasPointerCapture(e.pointerId))
       e.currentTarget.releasePointerCapture(e.pointerId);
@@ -664,6 +740,7 @@ export function useCanvasInteraction(
           if (g0.tap === 'empty') ui.clearSelection();
           tapped(e);
         }
+        if (g0.menu && !g0.moved) openMenu(e.clientX, e.clientY);
         break;
       case 'route':
         if (g0.moved) doc.commit();
@@ -706,9 +783,9 @@ export function useCanvasInteraction(
   };
 
   /**
-   * Right-click (before the context menu opens): select what is under the pointer, as a click
-   * would (keeping a selection it is part of), and remember where for "Add step here". The menu
-   * key opens it on the canvas itself: the selection stays.
+   * Right-click (released without panning; before the context menu opens): select what is under
+   * the pointer, as a click would (keeping a selection it is part of), and remember where for "Add
+   * step here". The menu key opens it on the canvas itself: the selection stays.
    */
   const onContextMenu = (e: React.MouseEvent) => {
     if (!gid || readOnly) return;
@@ -726,6 +803,7 @@ export function useCanvasInteraction(
 
   const onPointerCancel = (e: ReactPointerEvent<SVGSVGElement>) => {
     touches.current.delete(e.pointerId);
+    rightButton.current = { down: false, upAt: e.timeStamp };
     cancelGesture();
   };
 

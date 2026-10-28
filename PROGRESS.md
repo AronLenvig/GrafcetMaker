@@ -374,6 +374,15 @@ Autonomous build log. Read this first in every session and resume from **Current
   (`tooDeep`). Hosted site: security headers (`public/_headers`, `worker/headers.ts`), Origin
   check on relay WebSockets (loopback allowed for development) and on feedback POSTs. Node relay:
   malformed request paths no longer throw.
+- Numbers on the diagram while simulating (owner request): each INT/REAL/TIME variable read by a
+  receptivity or condition shows its value in a box over its name (`ExprText` `values`, from
+  `variablesOf`), above any overbar; a click on it, or on the `= n` under a stored action writing a
+  numeric variable, types a new value in place (`SimValueEditor`, `setInput`), inputs and
+  internal variables/outputs alike (docs/semantics.md).
+- Right mouse button pans (owner request): held and dragged it pans like the middle button; the
+  browser's context menu event is swallowed and the menu opens on release when it did not move
+  (a synthetic `contextmenu` at the pointer), so it behaves the same on Windows (menu on release)
+  and macOS/Linux (menu on press).
 
 ## Decisions
 

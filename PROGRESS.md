@@ -335,9 +335,12 @@ Autonomous build log. Read this first in every session and resume from **Current
   /<lang>/ the `../` base too, like the build. Guide at `<lang>/guide/`, help at `<lang>/help/` (Cloudflare
   `_redirects` for the former `help/`); hreflang on every page with the root as x-default.
   Flags (`src/app/ui/flags.ts`, SVG data shared by the app and the site) with hover hints.
-- Tour of ten stops around the screen (owner request; `Tour.tsx` `STEPS`, `data-tour` on the
-  canvas, tools, Simulate, hints, project, share, view, tabs, panels and help islands; a stop whose
-  element is hidden keeps its card centred), texts in the four languages with each one's labels.
+- Tour (owner request: direct and useful for beginners): five steps done on the diagram, not read
+  (`Tour.tsx` `STEPS`): select the initial step, add a transition and step with a receptivity, give
+  it an action, simulate until a non-initial step is active, then where help is. Each step moves on
+  by itself (`isDone`; new transitions and actions are those not `known` when the tour began) after
+  "Well done", Next skips ahead. Nothing is dimmed or captured: an outline follows the target every
+  frame and the card keeps to the top-right corner over the canvas.
 - Danish and Swedish (`src/i18n/{da,sv}.ts`, `docs/help/{da,sv}/`, `docs/guide/{da,sv}.md`,
   `docs/home/{da,sv}.md`, `SITE_TEXT` and figure `WORDS`): first visits from DK/GL/FO start in
   Danish, SE/AX in Swedish. No official Danish or Swedish GRAFCET vocabulary was found; the terms

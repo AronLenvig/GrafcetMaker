@@ -37,17 +37,21 @@ export function FloatingCard({
   title,
   width,
   action,
+  tour,
   children,
 }: {
   title: string;
   width: number;
   action: ReactNode;
+  /** Its name for the tour (`data-tour`). */
+  tour?: string;
   /** Nothing: the card is folded to its title. */
   children?: ReactNode;
 }) {
   return (
     <section
       aria-label={title}
+      data-tour={tour}
       className="gm-island gm-card absolute top-[60px] left-3 z-20 flex max-h-[calc(100%-132px)] flex-col overflow-hidden"
       style={{ width }}
     >

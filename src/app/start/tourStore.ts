@@ -1,11 +1,22 @@
 import { create } from 'zustand';
+import type { Id } from '@/core/model/types';
+import { getProject } from '@/editor/store/document';
 import { setPrefs } from '../prefs';
 
-/** The guided tour: index of the step shown, or null when it is not running. */
-export const useTour = create<{ step: number | null }>(() => ({ step: null }));
+interface TourState {
+  /** Index of the step shown, or null when the tour is not running. */
+  step: number | null;
+  /** Transitions and actions that existed when the tour began: it moves on when new ones appear. */
+  known: ReadonlySet<Id>;
+}
+
+export const useTour = create<TourState>(() => ({ step: null, known: new Set() }));
 
 export function startTour(): void {
-  useTour.setState({ step: 0 });
+  const known = new Set<Id>();
+  for (const g of Object.values(getProject().grafcets))
+    for (const id of [...Object.keys(g.transitions), ...Object.keys(g.actions)]) known.add(id);
+  useTour.setState({ step: 0, known });
 }
 
 export function endTour(): void {

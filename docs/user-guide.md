@@ -10,7 +10,8 @@ pages are the Markdown files in [`docs/help/`](help/index.md).
 ## Starting
 
 When GrafcetMaker opens it shows the **start screen**: continue with the project you had open,
-start a new one, open a file or a recent project, take the ten-step **tour**, open the
+start a new one, open a file or a recent project, take the five-step **tour** (draw a first sequence, give it an action and simulate it, with the
+tour moving on as you do each step), open the
 **getting started** tutorial, or open an **example** (traffic light, drilling station, tank filling,
 parallel conveyor, and two larger ones: a **bottling line** with a macro-step, three parallel
 stations and an inspection, and **operating modes** with an enclosing step, a pause that freezes

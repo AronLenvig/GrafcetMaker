@@ -8,8 +8,8 @@ fortgeschrittenen Funktionen.
 
 - Öffnen Sie ein Beispiel auf dem Startbildschirm (**☰ › Startbildschirm und Beispiele**) und
   drücken Sie <kbd>F5</kbd>, um es laufen zu sehen.
-- Machen Sie den Rundgang in zehn Schritten (**Hilfe › Rundgang starten**), um zu erfahren, wo sich
-  was befindet.
+- Machen Sie den Rundgang (**Hilfe › Rundgang starten**): In fünf Schritten zeichnen Sie eine erste
+  Sequenz, geben ihr eine Aktion und simulieren sie.
 - Wählen Sie Ihre Sprache mit der Flagge unten rechts.
 - [Erste Schritte](getting-started.md): Zeichnen, prüfen und simulieren Sie in etwa zehn Minuten
   einen kleinen Plan für eine Tankbefüllung. Beginnen Sie hier.

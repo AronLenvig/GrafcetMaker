@@ -1030,7 +1030,7 @@ export const en = {
     continue: 'Continue “{{name}}”',
     continueShort: 'Continue',
     startDrawing: 'Start drawing',
-    tour: 'Take the tour (10 steps)',
+    tour: 'Take the tour (5 steps)',
     tourAgain: 'Take the tour again',
     gettingStarted: 'Getting started tutorial',
     guide: 'GRAFCET guide',
@@ -1067,46 +1067,28 @@ export const en = {
     back: 'Back',
     next: 'Next',
     done: 'Done',
+    auto: 'Do it on the diagram: the tour moves on by itself.',
+    wellDone: 'Well done!',
     steps: {
-      canvas: {
-        title: 'Your diagram',
-        text: 'The diagram has the whole window. Double-click the empty canvas to add a step; select a step and press Enter for a transition and the next step, then type the receptivity. Space+drag pans, Ctrl+wheel zooms, and a right-click offers the commands for what is under the pointer.',
+      initialStep: {
+        title: 'Your first step',
+        text: 'A grafcet starts at its initial step, the double square: it is active when the machine starts. Click it to select it.',
       },
-      tools: {
-        title: 'Tools',
-        text: "Select (V), pan (H), or place steps (S), transitions (T), comments (C) and actions (Shift+A): each key is in its button's corner. With a step selected, A adds an action, P a parallel branch, O an alternative branch and L a loop back to an earlier step.",
+      sequence: {
+        title: 'Add a transition and a step',
+        text: "Press Enter (or click the dashed transition under the step). A transition and the next step appear: type the transition's receptivity, for example start, and press Enter.",
+      },
+      action: {
+        title: 'Give the step an action',
+        text: 'With the new step selected, press A, type an output such as Motor and press Enter. Motor is on while the step is active.',
       },
       simulate: {
-        title: 'Simulate',
-        text: 'This button (F5) runs your grafcet by the IEC 60848 rules. The simulation controls take the place of the tools, and a card on the left lists the inputs to switch and the outputs to watch. Shift+F5 returns to editing.',
+        title: 'Try it',
+        text: 'Press F5 (▶ in the toolbar) to simulate. In the card on the left, switch start on: the step becomes active and Motor turns on. Shift+F5 goes back to editing.',
       },
-      hints: {
-        title: 'Hints',
-        text: 'This bar always shows what you can do with the current selection, tool or drag. Learn more opens the matching help page; × hides the bar, and View › Hints brings it back.',
-      },
-      project: {
-        title: 'Menu and project',
-        text: '☰ holds every command (File, Edit, View, Simulate, Help), the start screen with the examples, and the theme. Double-click the name to rename the project; a dot means unsaved changes. Your work is kept in the browser as you go, and Ctrl+S saves it to a file. The last button shows the properties of the selection.',
-      },
-      share: {
-        title: 'Problems, export and sharing',
-        text: 'The counters show errors and warnings while you draw: click them to list each problem, jump to it and fix it, often in one click. Export (Ctrl+E) makes PDF, SVG, PNG, Structured Text or PLCopen XML. The last button shares the project or opens a live session with others.',
-      },
-      view: {
-        title: 'Zoom and undo',
-        text: 'Zoom out and in, click the percentage for 100 %, or fit the whole grafcet in the window. Undo and redo (Ctrl+Z, Ctrl+Y) take back any change; a whole drag counts as one.',
-      },
-      tabs: {
-        title: 'Grafcets',
-        text: 'A project can hold several partial grafcets that run side by side, one tab each; + adds one. Macro-step expansions have their own tabs.',
-      },
-      panels: {
-        title: 'Panels',
-        text: 'Variables, Problems, Chronogram and Outline each open in a card on the right; drag its left edge to make it wider. The chronogram records every variable while you simulate.',
-      },
-      help: {
-        title: 'Help and more',
-        text: 'Here are the help center (F1), anonymous feedback and the language. Ctrl+K finds any command by name, and ? lists every keyboard shortcut. Enjoy drawing!',
+      done: {
+        title: 'You are ready',
+        text: 'F1 explains whatever is selected, and the hints under the toolbar show the next keys. ☰ holds the rest: save (Ctrl+S), export and the examples. Ctrl+K finds any command.',
       },
     },
   },

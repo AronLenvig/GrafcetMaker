@@ -8,8 +8,8 @@ grafcet jusqu'aux fonctions avancées.
 
 - Ouvrez un exemple depuis l'écran d'accueil (**☰ › Écran d'accueil et exemples**) et appuyez
   sur <kbd>F5</kbd> pour le voir évoluer.
-- Suivez la visite guidée en dix écrans (**Aide › Visite guidée**) pour savoir où se trouve
-  chaque chose.
+- Suivez la visite guidée (**Aide › Visite guidée**) : en cinq écrans, vous dessinez une première
+  séquence, lui donnez une action et la simulez.
 - Choisissez votre langue avec le drapeau en bas à droite.
 - [Premiers pas](getting-started.md) : dessinez, vérifiez et simulez un petit grafcet de
   remplissage de cuve en une dizaine de minutes. Commencez ici.

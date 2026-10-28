@@ -8,7 +8,8 @@ funktioner.
 
 - Åbn et eksempel fra startskærmen (**☰ › Startskærm og eksempler**), og tryk på
   <kbd>F5</kbd> for at se det køre.
-- Tag rundvisningen i ti trin (**Hjælp › Tag rundvisningen**) for at lære, hvor alting er.
+- Tag rundvisningen (**Hjælp › Tag rundvisningen**): i fem trin tegner du en første sekvens, giver
+  den en aktion og simulerer den.
 - Vælg dit sprog med flaget nederst til højre.
 - [Kom godt i gang](getting-started.md): tegn, kontroller og simuler et lille diagram for en
   tankpåfyldning på omkring ti minutter. Begynd her.

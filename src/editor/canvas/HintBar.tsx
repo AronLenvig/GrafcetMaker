@@ -208,7 +208,6 @@ function HintBarView() {
   return (
     <div
       role="note"
-      data-tour="hints"
       aria-label={t('hints.label')}
       className={
         compact

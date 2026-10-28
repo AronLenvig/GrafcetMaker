@@ -8,8 +8,8 @@ funciones avanzadas.
 
 - Abre un ejemplo desde la pantalla de inicio (**☰ › Pantalla de inicio y ejemplos**) y pulsa
   <kbd>F5</kbd> para verlo funcionar.
-- Haz la visita guiada de diez pasos (**Ayuda › Hacer la visita guiada**) para saber dónde está
-  cada cosa.
+- Haz la visita guiada (**Ayuda › Hacer la visita guiada**): en cinco pasos dibujas una primera
+  secuencia, le das una acción y la simulas.
 - Elige tu idioma con la bandera de abajo a la derecha.
 - [Primeros pasos](getting-started.md): dibuja, comprueba y simula un pequeño diagrama de llenado
   de depósito en unos diez minutos. Empieza por aquí.

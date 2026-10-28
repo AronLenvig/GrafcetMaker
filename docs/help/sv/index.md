@@ -7,7 +7,8 @@ direkt i webbläsaren. Sidorna här tar dig från ditt första diagram till de a
 
 - Öppna ett exempel från startskärmen (**☰ › Startskärm och exempel**) och tryck på
   <kbd>F5</kbd> för att se det köras.
-- Ta rundturen i tio steg (**Hjälp › Ta rundturen**) för att lära dig var allt finns.
+- Ta rundturen (**Hjälp › Ta rundturen**): i fem steg ritar du en första sekvens, ger den en aktion
+  och simulerar den.
 - Välj språk med flaggan nere till höger.
 - [Kom igång](getting-started.md): rita, kontrollera och simulera ett litet diagram för
   tankfyllning på ungefär tio minuter. Börja här.

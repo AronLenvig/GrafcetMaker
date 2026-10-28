@@ -95,7 +95,7 @@ toolbar.
 ## Try it
 
 - **Online:** open [grafcet.org](https://grafcet.org). The start screen has six examples, from a
-  traffic light to a bottling line with a macro-step, and a ten-step tour.
+  traffic light to a bottling line with a macro-step, and a five-step hands-on tour.
 - **As an app:** install it from the browser; it then starts like a desktop program and works
   offline.
 - **On your own server:** `docker build -t grafcetmaker . && docker run -p 8080:8080 grafcetmaker`,

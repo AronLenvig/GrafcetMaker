@@ -40,7 +40,7 @@ function ProjectIsland() {
   const { t } = useTranslation();
   const properties = usePropertiesVisible();
   return (
-    <div data-tour="project" className="gm-island flex items-center gap-0.5 p-1">
+    <div className="gm-island flex items-center gap-0.5 p-1">
       <MainMenuButton />
       <div className="flex max-w-[min(260px,calc(50vw-260px))] min-w-0">
         <Title />
@@ -80,7 +80,7 @@ function ShareIsland() {
     </div>
   );
   return (
-    <div data-tour="share" className="flex items-center gap-2">
+    <div className="flex items-center gap-2">
       <div className="gm-island p-1">
         <ProblemsIndicator />
       </div>
@@ -117,11 +117,7 @@ function PanelsIsland() {
   const panelLabel = usePanelLabel();
   return (
     <div className="flex items-center gap-2">
-      <nav
-        aria-label={t('panels.label')}
-        data-tour="panels"
-        className="gm-island flex items-center gap-0.5 p-1"
-      >
+      <nav aria-label={t('panels.label')} className="gm-island flex items-center gap-0.5 p-1">
         {PANEL_TABS.map((x) => {
           const Icon = PANEL_ICONS[x];
           const label = panelLabel(x);
@@ -209,12 +205,12 @@ export function Islands() {
         </div>
       </header>
       <footer className="pointer-events-none absolute inset-x-3 bottom-3 z-30 flex items-end gap-2">
-        <div data-tour="view" className="pointer-events-auto flex shrink-0 items-center gap-2">
+        <div className="pointer-events-auto flex shrink-0 items-center gap-2">
           <ZoomIsland />
           {!simulating && <UndoRedoIsland />}
         </div>
         <div className="flex min-w-0 flex-1 justify-center">
-          <div data-tour="tabs" className="pointer-events-auto min-w-0">
+          <div className="pointer-events-auto min-w-0">
             <GrafcetTabs floating />
           </div>
         </div>

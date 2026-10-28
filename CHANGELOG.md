@@ -138,9 +138,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   diagram's own font and size, with only the caret showing (no box around it), and the box around
   it (an action, a comment, the selection) grows as you type. Phones keep a field across the
   canvas.
-- The tour has ten steps and covers today's screen: the diagram, tools, Simulate, hints, menu and
-  project, problems / export / sharing, zoom and undo, grafcet tabs, panels, and help with the
-  language and the command palette.
+- The tour is five hands-on steps for beginners: select the initial step, add a transition and a
+  step, give it an action, simulate it, then where help is. Each step moves on by itself once done;
+  the page stays usable throughout.
 - The canvas comes first: the toolbars rest slightly faded until you point at them, and
   **Simulate** is a compact play button.
 - Each language has its own address: `/en/`, `/fr/`, `/de/` and `/es/` open the editor in that

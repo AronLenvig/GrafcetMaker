@@ -1040,7 +1040,7 @@ export const sv: Messages = {
     continue: 'Fortsätt med ”{{name}}”',
     continueShort: 'Fortsätt',
     startDrawing: 'Börja rita',
-    tour: 'Ta rundturen (10 steg)',
+    tour: 'Ta rundturen (5 steg)',
     tourAgain: 'Ta rundturen igen',
     gettingStarted: 'Handledning: kom igång',
     guide: 'GRAFCET-guide',
@@ -1077,46 +1077,28 @@ export const sv: Messages = {
     back: 'Tillbaka',
     next: 'Nästa',
     done: 'Klar',
+    auto: 'Gör det i diagrammet: rundturen går vidare av sig själv.',
+    wellDone: 'Bra jobbat!',
     steps: {
-      canvas: {
-        title: 'Ditt diagram',
-        text: 'Diagrammet har hela fönstret. Dubbelklicka på den tomma ritytan för att lägga till ett steg; markera ett steg och tryck på Enter för en övergång och nästa steg, och skriv sedan övergångsvillkoret. Space+dra panorerar, Ctrl+mushjul zoomar och ett högerklick visar kommandona för det som finns under pekaren.',
+      initialStep: {
+        title: 'Ditt första steg',
+        text: 'En grafcet börjar i sitt initialsteg, den dubbla kvadraten: det är aktivt när maskinen startar. Klicka på det för att markera det.',
       },
-      tools: {
-        title: 'Verktyg',
-        text: 'Markera (V), panorera (H) eller placera steg (S), övergångar (T), kommentarer (C) och aktioner (Shift+A): varje tangent står i hörnet av sin knapp. När ett steg är markerat lägger A till en aktion, P en parallell gren, O en alternativ gren och L en återgång till ett tidigare steg.',
+      sequence: {
+        title: 'Lägg till en övergång och ett steg',
+        text: 'Tryck på Enter (eller klicka på den streckade övergången under steget). En övergång och nästa steg dyker upp: skriv övergångsvillkoret, till exempel start, och tryck på Enter.',
+      },
+      action: {
+        title: 'Ge steget en aktion',
+        text: 'Med det nya steget markerat trycker du på A, skriver en utgång som Motor och trycker på Enter. Motor är på så länge steget är aktivt.',
       },
       simulate: {
-        title: 'Simulera',
-        text: 'Den här knappen (F5) kör din grafcet enligt reglerna i IEC 60848. Simuleringskontrollerna tar verktygens plats, och ett kort till vänster listar ingångarna du kan växla och utgångarna du kan följa. Shift+F5 tar dig tillbaka till redigeringen.',
+        title: 'Prova',
+        text: 'Tryck på F5 (▶ i verktygsfältet) för att simulera. Slå på start i kortet till vänster: steget blir aktivt och Motor slås på. Shift+F5 går tillbaka till redigering.',
       },
-      hints: {
-        title: 'Tips',
-        text: 'Det här fältet visar alltid vad du kan göra med den aktuella markeringen, verktyget eller dragningen. Läs mer öppnar motsvarande hjälpsida; × döljer fältet, och Visa › Tips tar fram det igen.',
-      },
-      project: {
-        title: 'Meny och projekt',
-        text: '☰ innehåller alla kommandon (Arkiv, Redigera, Visa, Simulera, Hjälp), startskärmen med exemplen och temat. Dubbelklicka på namnet för att byta namn på projektet; en punkt betyder osparade ändringar. Ditt arbete sparas i webbläsaren medan du arbetar, och Ctrl+S sparar det i en fil. Den sista knappen visar egenskaperna för markeringen.',
-      },
-      share: {
-        title: 'Problem, export och delning',
-        text: 'Räknarna visar fel och varningar medan du ritar: klicka på dem för att lista varje problem, hoppa till det och åtgärda det, ofta med ett klick. Exportera (Ctrl+E) skapar PDF, SVG, PNG, Structured Text eller PLCopen XML. Den sista knappen delar projektet eller öppnar en livesession med andra.',
-      },
-      view: {
-        title: 'Zoom och ångra',
-        text: 'Zooma ut och in, klicka på procentsatsen för 100 %, eller anpassa hela grafceten till fönstret. Ångra och Gör om (Ctrl+Z, Ctrl+Y) tar tillbaka alla ändringar; en hel dragning räknas som en.',
-      },
-      tabs: {
-        title: 'Grafcetar',
-        text: 'Ett projekt kan innehålla flera delgrafcetar som körs sida vid sida, en flik för varje; + lägger till en. Makrostegens expansioner har egna flikar.',
-      },
-      panels: {
-        title: 'Paneler',
-        text: 'Variabler, Problem, Tidsdiagram och Översikt öppnas var och en i ett kort till höger; dra i dess vänstra kant för att göra det bredare. Tidsdiagrammet registrerar varje variabel medan du simulerar.',
-      },
-      help: {
-        title: 'Hjälp med mera',
-        text: 'Här finns hjälpcentret (F1), anonym feedback och språket. Ctrl+K hittar alla kommandon efter namn, och ? listar alla kortkommandon. Mycket nöje med ritandet!',
+      done: {
+        title: 'Du är redo',
+        text: 'F1 förklarar det som är markerat, och tipsen under verktygsfältet visar nästa tangenter. ☰ innehåller resten: spara (Ctrl+S), exportera och exemplen. Ctrl+K hittar alla kommandon.',
       },
     },
   },

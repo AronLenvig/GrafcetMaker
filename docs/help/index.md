@@ -7,7 +7,8 @@ right in your browser. These pages take you from your first chart to the advance
 
 - Open an example from the start screen (**☰ › Start screen and examples**) and press
   <kbd>F5</kbd> to watch it run.
-- Take the ten-step tour (**Help › Take the tour**) to learn where everything is.
+- Take the tour (**Help › Take the tour**): in five steps you draw a first sequence, give it an
+  action and simulate it.
 - Choose your language with the flag at the bottom right.
 - [Getting started](getting-started.md): draw, check and simulate a small tank-filling chart in
   about ten minutes. Start here.

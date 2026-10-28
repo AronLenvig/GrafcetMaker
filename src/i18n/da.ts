@@ -1040,7 +1040,7 @@ export const da: Messages = {
     continue: 'Fortsæt »{{name}}«',
     continueShort: 'Fortsæt',
     startDrawing: 'Begynd at tegne',
-    tour: 'Tag rundvisningen (10 trin)',
+    tour: 'Tag rundvisningen (5 trin)',
     tourAgain: 'Tag rundvisningen igen',
     gettingStarted: 'Vejledning: kom godt i gang',
     guide: 'GRAFCET-guide',
@@ -1078,46 +1078,28 @@ export const da: Messages = {
     back: 'Tilbage',
     next: 'Næste',
     done: 'Færdig',
+    auto: 'Gør det på diagrammet: rundvisningen går selv videre.',
+    wellDone: 'Godt gået!',
     steps: {
-      canvas: {
-        title: 'Dit diagram',
-        text: 'Diagrammet har hele vinduet. Dobbeltklik på det tomme lærred for at tilføje et trin; vælg et trin, og tryk på Enter for at få en transition og det næste trin, og skriv så transitionsbetingelsen. Space+træk panorerer, Ctrl+hjul zoomer, og et højreklik viser kommandoerne for det, der er under markøren.',
+      initialStep: {
+        title: 'Dit første trin',
+        text: 'En grafcet starter i sit initialtrin, den dobbelte firkant: det er aktivt, når maskinen starter. Klik på det for at vælge det.',
       },
-      tools: {
-        title: 'Værktøjer',
-        text: 'Vælg (V), panorer (H), eller placer trin (S), transitioner (T), kommentarer (C) og aktioner (Shift+A): hver tast står i hjørnet af sin knap. Når et trin er valgt, tilføjer A en aktion, P en parallel gren, O en alternativ gren og L en tilbageføring til et tidligere trin.',
+      sequence: {
+        title: 'Tilføj en transition og et trin',
+        text: 'Tryk på Enter (eller klik på den stiplede transition under trinnet). En transition og det næste trin dukker op: skriv transitionsbetingelsen, f.eks. start, og tryk på Enter.',
+      },
+      action: {
+        title: 'Giv trinnet en aktion',
+        text: 'Med det nye trin valgt trykker du på A, skriver en udgang som Motor og trykker på Enter. Motor er tændt, så længe trinnet er aktivt.',
       },
       simulate: {
-        title: 'Simuler',
-        text: 'Denne knap (F5) kører din grafcet efter reglerne i IEC 60848. Simuleringsknapperne overtager værktøjernes plads, og et kort til venstre viser de indgange, du kan skifte, og de udgange, du kan følge. Shift+F5 vender tilbage til redigering.',
+        title: 'Prøv det',
+        text: 'Tryk på F5 (▶ i værktøjslinjen) for at simulere. Slå start til i kortet til venstre: trinnet bliver aktivt, og Motor tændes. Shift+F5 går tilbage til redigering.',
       },
-      hints: {
-        title: 'Tips',
-        text: 'Denne linje viser altid, hvad du kan gøre med den aktuelle markering, værktøjet eller trækket. Læs mere åbner den tilsvarende hjælpeside; × skjuler linjen, og Vis › Tips henter den frem igen.',
-      },
-      project: {
-        title: 'Menu og projekt',
-        text: '☰ rummer alle kommandoer (Filer, Rediger, Vis, Simuler, Hjælp), startskærmen med eksemplerne og temaet. Dobbeltklik på navnet for at omdøbe projektet; en prik betyder ikke-gemte ændringer. Dit arbejde gemmes løbende i browseren, og Ctrl+S gemmer det i en fil. Den sidste knap viser markeringens egenskaber.',
-      },
-      share: {
-        title: 'Problemer, eksport og deling',
-        text: 'Tællerne viser fejl og advarsler, mens du tegner: klik på dem for at se hvert problem, springe til det og rette det, ofte med ét klik. Eksport (Ctrl+E) laver PDF, SVG, PNG, Structured Text eller PLCopen XML. Den sidste knap deler projektet eller åbner en livesession med andre.',
-      },
-      view: {
-        title: 'Zoom og fortryd',
-        text: 'Zoom ud og ind, klik på procenttallet for 100 %, eller tilpas hele grafcetten til vinduet. Fortryd og gentag (Ctrl+Z, Ctrl+Y) tager enhver ændring tilbage; et helt træk tæller som én.',
-      },
-      tabs: {
-        title: 'Grafcets',
-        text: 'Et projekt kan indeholde flere delgrafcets, der kører side om side, med hver sin fane; + tilføjer en. Ekspansioner af makrotrin har deres egne faner.',
-      },
-      panels: {
-        title: 'Paneler',
-        text: 'Variabler, Problemer, Tidsdiagram og Oversigt åbner hver i et kort til højre; træk i kortets venstre kant for at gøre det bredere. Tidsdiagrammet registrerer alle variabler, mens du simulerer.',
-      },
-      help: {
-        title: 'Hjælp og mere',
-        text: 'Her finder du hjælpecentret (F1), anonym feedback og sproget. Ctrl+K finder enhver kommando ud fra navnet, og ? viser alle tastaturgenveje. God fornøjelse med at tegne!',
+      done: {
+        title: 'Du er klar',
+        text: 'F1 forklarer det valgte, og tipsene under værktøjslinjen viser de næste taster. ☰ rummer resten: gem (Ctrl+S), eksport og eksemplerne. Ctrl+K finder enhver kommando.',
       },
     },
   },

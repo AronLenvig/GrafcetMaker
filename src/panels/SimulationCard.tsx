@@ -21,6 +21,7 @@ export function SimulationCard() {
     <FloatingCard
       title={t('panels.simulation')}
       width={SIMULATION_CARD_WIDTH}
+      tour="sim-card"
       action={
         <IconButton
           label={toggle}

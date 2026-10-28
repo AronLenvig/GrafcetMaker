@@ -54,7 +54,7 @@ export function ToolIsland() {
   const { t } = useTranslation();
   const tool = useUi((s) => s.tool);
   return (
-    <div data-tour="tools" className="gm-island flex items-center gap-0.5 p-1">
+    <div className="gm-island flex items-center gap-0.5 p-1">
       <div role="radiogroup" aria-label={t('tools.label')} className="flex items-center gap-0.5">
         {TOOLS.map(({ id, Icon }) => {
           const keys = keysOf(`tools.${id}`);

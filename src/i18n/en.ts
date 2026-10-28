@@ -1160,9 +1160,13 @@ export const en = {
     },
     contact: 'Email for a reply (optional)',
     contactPlaceholder: 'Leave empty to stay anonymous',
+    includeProject: 'Include a link to the open project',
+    projectHint:
+      'The developers can open a copy of “{{name}}” to see exactly what you mean. Untick this if the project is confidential.',
+    projectTooLarge: '“{{name}}” is too large to send as a link.',
     includeDetails: 'Include app and browser details (no project data):',
     privacyAnonymous:
-      'Sent anonymously to the GrafcetMaker developers: no account needed, and only what you see here is sent, never your project.',
+      'Sent anonymously to the GrafcetMaker developers: no account needed, and only what you see here is sent.',
     privacyEmail:
       'Nothing is sent by GrafcetMaker itself: your email app opens with the message to {{email}}, and you send it from there.',
     privacyCopy:

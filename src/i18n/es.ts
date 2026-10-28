@@ -1175,9 +1175,13 @@ export const es: Messages = {
     },
     contact: 'Correo electrónico para responderte (opcional)',
     contactPlaceholder: 'Déjalo vacío para seguir en el anonimato',
+    includeProject: 'Incluir un enlace al proyecto abierto',
+    projectHint:
+      'Los desarrolladores pueden abrir una copia de «{{name}}» para ver exactamente a qué te refieres. Desmarca la casilla si el proyecto es confidencial.',
+    projectTooLarge: '«{{name}}» es demasiado grande para enviarlo como enlace.',
     includeDetails: 'Incluir datos de la aplicación y del navegador (ningún dato del proyecto):',
     privacyAnonymous:
-      'Se envía de forma anónima a los desarrolladores de GrafcetMaker: no necesitas cuenta, y solo se envía lo que ves aquí, nunca tu proyecto.',
+      'Se envía de forma anónima a los desarrolladores de GrafcetMaker: no necesitas cuenta, y solo se envía lo que ves aquí.',
     privacyEmail:
       'GrafcetMaker no envía nada por sí mismo: tu aplicación de correo se abre con el mensaje para {{email}} y lo envías desde ahí.',
     privacyCopy:

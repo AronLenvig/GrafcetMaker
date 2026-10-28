@@ -163,7 +163,9 @@ Serve `index.html`, `sw.js` and `manifest.webmanifest` with `Cache-Control: no-c
 
 1. **Anonymous endpoint** (the public site): the message is posted to `api/feedback` on the same
    origin and filed as an issue in a private GitHub repository. Senders need no account and may
-   leave a contact for a reply; no email address appears in the app.
+   leave a contact for a reply; no email address appears in the app. By default the message
+   carries a share link of the open project (the sender can untick it); the Worker accepts only
+   share links of its own site.
 2. **Email**: with `VITE_FEEDBACK_EMAIL=plc-team@example.com npm run build`, the user's email app
    opens with the message to that address.
 3. **Copy** only, when neither is set up (the default for on-premise installs).

@@ -1193,9 +1193,13 @@ export const de: Messages = {
     },
     contact: 'E-Mail für eine Antwort (optional)',
     contactPlaceholder: 'Leer lassen, um anonym zu bleiben',
+    includeProject: 'Link zum geöffneten Projekt mitsenden',
+    projectHint:
+      'Die Entwickler können eine Kopie von „{{name}}“ öffnen und genau sehen, was Sie meinen. Entfernen Sie das Häkchen, wenn das Projekt vertraulich ist.',
+    projectTooLarge: '„{{name}}“ ist zu groß, um als Link gesendet zu werden.',
     includeDetails: 'App- und Browserdetails mitsenden (keine Projektdaten):',
     privacyAnonymous:
-      'Wird anonym an die Entwickler von GrafcetMaker gesendet: kein Konto nötig, und es wird nur gesendet, was Sie hier sehen, nie Ihr Projekt.',
+      'Wird anonym an die Entwickler von GrafcetMaker gesendet: kein Konto nötig, und es wird nur gesendet, was Sie hier sehen.',
     privacyEmail:
       'GrafcetMaker selbst sendet nichts: Ihr E-Mail-Programm öffnet sich mit der Nachricht an {{email}}, und Sie senden sie von dort.',
     privacyCopy:

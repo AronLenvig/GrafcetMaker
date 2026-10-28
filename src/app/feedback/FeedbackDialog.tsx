@@ -1,6 +1,9 @@
 import { useEffect, useId, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { getProject } from '@/editor/store/document';
+import { LIMITS } from '../../../worker/feedback';
 import { FEEDBACK_EMAIL, FEEDBACK_ENDPOINT } from '../config';
+import { shareLink } from '../persistence/session';
 import { toast } from '../toasts';
 import { Button, cx, Modal } from '../ui/primitives';
 
@@ -50,7 +53,8 @@ function appDetails(): string {
 /**
  * Feedback form. On the hosted site it is sent anonymously to the feedback endpoint (no account;
  * a contact is optional). Elsewhere it opens in the user's email app (VITE_FEEDBACK_EMAIL) or can
- * be copied. Only the text shown in the dialog is ever sent, never project data.
+ * be copied. Only what the dialog shows is sent: the message, and if ticked the app details and a
+ * share link of the open project (ticked by default, so the developers can open a copy of it).
  */
 export function FeedbackDialog({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation();
@@ -58,6 +62,12 @@ export function FeedbackDialog({ onClose }: { onClose: () => void }) {
   const [message, setMessage] = useState('');
   const [contact, setContact] = useState('');
   const [details, setDetails] = useState(true);
+  const [withLink, setWithLink] = useState(true);
+  const [project] = useState(getProject);
+  // undefined while the project is compressed; null when there is nothing worth linking.
+  const [link, setLink] = useState<string | null | undefined>(() =>
+    Object.values(project.grafcets).some((g) => Object.keys(g.steps).length > 0) ? undefined : null,
+  );
   const [endpoint, setEndpoint] = useState<boolean | null>(null);
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -73,14 +83,31 @@ export function FeedbackDialog({ onClose }: { onClose: () => void }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (link !== undefined) return;
+    let live = true;
+    void shareLink(project).then(
+      (l) => live && setLink(l),
+      () => live && setLink(null),
+    );
+    return () => {
+      live = false;
+    };
+  }, [project, link]);
+
   const channel: Channel =
     endpoint === null ? 'checking' : endpoint ? 'endpoint' : FEEDBACK_EMAIL ? 'email' : 'copy';
+  // The endpoint files an issue, whose size GitHub caps; email and copy take any length.
+  const tooLarge = channel === 'endpoint' && !!link && link.length > LIMITS.link;
+  const sentLink = withLink && link && !tooLarge ? link : '';
   const subject = `[GrafcetMaker] ${t(`feedback.kinds.${kind}`)}${
     message.trim() ? `: ${message.trim().split('\n')[0]!.slice(0, 60)}` : ''
   }`;
-  const body = `${message.trim()}${details ? `\n\n---\n${detailsText}` : ''}`;
+  const extra = [sentLink && `Project: ${sentLink}`, details && detailsText].filter(Boolean);
+  const body = `${message.trim()}${extra.length ? `\n\n---\n${extra.join('\n\n')}` : ''}`;
   const href = `mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  const empty = !message.trim();
+  // Nothing leaves before the link is ready, so a ticked box is never silently dropped.
+  const blocked = !message.trim() || link === undefined;
 
   const copy = async () => {
     const text = `${channel === 'email' ? `To: ${FEEDBACK_EMAIL}\n` : ''}Subject: ${subject}\n\n${body}`;
@@ -102,6 +129,7 @@ export function FeedbackDialog({ onClose }: { onClose: () => void }) {
         message: message.trim(),
         contact: contact.trim(),
         details: details ? detailsText : '',
+        link: sentLink,
       }),
     }).then(
       (r) => r.ok,
@@ -175,6 +203,25 @@ export function FeedbackDialog({ onClose }: { onClose: () => void }) {
             />
           </div>
         )}
+        {link && (
+          <label className="flex items-start gap-2">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={!tooLarge && withLink}
+              disabled={tooLarge}
+              onChange={(e) => setWithLink(e.target.checked)}
+            />
+            <span>
+              {t('feedback.includeProject')}
+              <span className="mt-0.5 block text-xs text-muted">
+                {t(tooLarge ? 'feedback.projectTooLarge' : 'feedback.projectHint', {
+                  name: project.name,
+                })}
+              </span>
+            </span>
+          </label>
+        )}
         <label className="flex items-start gap-2">
           <input
             type="checkbox"
@@ -202,7 +249,7 @@ export function FeedbackDialog({ onClose }: { onClose: () => void }) {
           <Button onClick={onClose}>{t('common.cancel')}</Button>
           <Button
             variant={channel === 'copy' ? 'primary' : 'default'}
-            disabled={empty}
+            disabled={blocked}
             onClick={() => void copy()}
           >
             {t('feedback.copy')}
@@ -210,15 +257,15 @@ export function FeedbackDialog({ onClose }: { onClose: () => void }) {
           {channel === 'email' ? (
             // A link, not location.href: opening the email app must not look like leaving the page.
             <a
-              href={empty ? undefined : href}
-              aria-disabled={empty}
+              href={blocked ? undefined : href}
+              aria-disabled={blocked}
               onClick={(e) => {
-                if (empty) e.preventDefault();
+                if (blocked) e.preventDefault();
                 else setTimeout(onClose, 300);
               }}
               className={cx(
                 'inline-flex h-8 items-center justify-center rounded-md border border-transparent bg-accent px-3 font-medium text-accent-fg hover:bg-accent-hover',
-                empty && 'pointer-events-none opacity-50',
+                blocked && 'pointer-events-none opacity-50',
               )}
             >
               {t('feedback.openEmail')}
@@ -227,7 +274,7 @@ export function FeedbackDialog({ onClose }: { onClose: () => void }) {
             channel !== 'copy' && (
               <Button
                 variant="primary"
-                disabled={empty || sending || channel === 'checking'}
+                disabled={blocked || sending || channel === 'checking'}
                 onClick={() => void send()}
               >
                 {sending ? t('feedback.sending') : t('feedback.send')}

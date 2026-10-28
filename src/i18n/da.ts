@@ -1171,9 +1171,13 @@ export const da: Messages = {
     },
     contact: 'E-mail til svar (valgfrit)',
     contactPlaceholder: 'Lad feltet være tomt for at forblive anonym',
+    includeProject: 'Medtag et link til det åbne projekt',
+    projectHint:
+      'Udviklerne kan åbne en kopi af »{{name}}« og se præcis, hvad du mener. Fjern fluebenet, hvis projektet er fortroligt.',
+    projectTooLarge: '»{{name}}« er for stort til at blive sendt som link.',
     includeDetails: 'Medtag oplysninger om app og browser (ingen projektdata):',
     privacyAnonymous:
-      'Sendes anonymt til udviklerne af GrafcetMaker: du behøver ingen konto, og kun det, du ser her, sendes, aldrig dit projekt.',
+      'Sendes anonymt til udviklerne af GrafcetMaker: du behøver ingen konto, og kun det, du ser her, sendes.',
     privacyEmail:
       'GrafcetMaker sender ikke selv noget: dit mailprogram åbner med beskeden til {{email}}, og du sender den derfra.',
     privacyCopy:

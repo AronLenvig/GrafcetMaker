@@ -208,11 +208,14 @@ export async function openLiveProject(project: Project, rejoin: boolean): Promis
 /** Links longer than this may be cut by some chat and email apps; the user is told so. */
 const LONG_LINK = 8000;
 
-/** File › Copy share link: a URL holding the whole project (see core/io/shareLink). */
+/** A URL of this page holding the whole project (see core/io/shareLink). */
+export async function shareLink(project: Project = getProject()): Promise<string> {
+  return location.href.replace(/#.*$/, '') + (await encodeShareHash(project));
+}
+
+/** File › Copy share link. */
 export async function copyShareLink(): Promise<void> {
-  const link = encodeShareHash(getProject()).then(
-    (hash) => location.href.replace(/#.*$/, '') + hash,
-  );
+  const link = shareLink();
   let ok = true;
   try {
     // A pending clipboard item keeps the click's permission while the project is compressed

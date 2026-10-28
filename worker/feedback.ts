@@ -3,7 +3,8 @@
  * at /api/feedback next to the static app (same origin, so the app's CSP stays
  * `connect-src 'self'`). Each message becomes an issue in a private GitHub repository: no email
  * address is published and senders need no account. Nothing is stored here and the sender's IP
- * address is not forwarded.
+ * address is not forwarded. A message may carry a share link to the sender's project (their choice
+ * in the dialog), so the developers can open a copy of it.
  *
  * Settings:
  *   GITHUB_REPO   owner/name of the private repository that receives the issues (wrangler.jsonc)
@@ -28,7 +29,8 @@ const TITLES: Record<(typeof FEEDBACK_KINDS)[number], string> = {
   praise: 'Praise',
 };
 
-const LIMITS = { request: 16_000, message: 5000, contact: 200, details: 1000 };
+/** GitHub refuses issue bodies over 65 536 characters: the fields together stay below. */
+export const LIMITS = { request: 96_000, message: 5000, contact: 200, details: 1000, link: 56_000 };
 
 export interface Feedback {
   kind: (typeof FEEDBACK_KINDS)[number];
@@ -37,10 +39,27 @@ export interface Feedback {
   contact: string;
   /** App version and browser, when the sender ticked "include details". */
   details: string;
+  /** Share link of the sender's project on this site (`#share=…`); empty = none. */
+  link: string;
 }
 
-/** Validates an untrusted request body; returns the feedback, or why it was refused. */
-export function parseFeedback(raw: unknown): Feedback | string {
+/** The share link as one URL of this site (no user info or query), or null if it is not one. */
+function shareLinkOf(link: string, origin: string): string | null {
+  let url: URL;
+  try {
+    url = new URL(link);
+  } catch {
+    return null;
+  }
+  if (url.origin !== origin || !/^#share=[\w-]+$/.test(url.hash)) return null;
+  return url.origin + url.pathname + url.hash;
+}
+
+/**
+ * Validates an untrusted request body sent from `origin`; returns the feedback, or why it was
+ * refused.
+ */
+export function parseFeedback(raw: unknown, origin: string): Feedback | string {
   if (typeof raw !== 'object' || raw === null) return 'expected an object';
   const r = raw as Record<string, unknown>;
   const text = (v: unknown, max: number): string | null =>
@@ -50,9 +69,12 @@ export function parseFeedback(raw: unknown): Feedback | string {
   const message = text(r.message, LIMITS.message);
   const contact = text(r.contact, LIMITS.contact);
   const details = text(r.details, LIMITS.details);
+  const link = text(r.link, LIMITS.link);
   if (!message) return 'message missing or too long';
-  if (contact === null || details === null) return 'field too long';
-  return { kind, message, contact, details };
+  if (contact === null || details === null || link === null) return 'field too long';
+  const project = link && shareLinkOf(link, origin);
+  if (project === null) return 'not a share link of this site';
+  return { kind, message, contact, details, link: project };
 }
 
 /** The GitHub issue for a message: kind and first line as title, the rest as plain Markdown. */
@@ -63,6 +85,7 @@ export function issueFor(fb: Feedback): { title: string; body: string; labels: s
     '',
     '---',
     `**Reply to:** ${fb.contact ? fb.contact.replaceAll('`', "'") : '_anonymous_'}`,
+    ...(fb.link ? ['', `**Project:** [open a copy in GrafcetMaker](<${fb.link}>)`] : []),
     ...(fb.details ? ['', '```', fb.details.replaceAll('```', "'''"), '```'] : []),
   ].join('\n');
   return { title: `[${TITLES[fb.kind]}] ${firstLine}`, body, labels: ['feedback', fb.kind] };
@@ -84,8 +107,8 @@ export async function handleFeedback(request: Request, env: FeedbackEnv): Promis
 
 async function post(request: Request, env: FeedbackEnv): Promise<Response> {
   // Browsers name the page of every POST: only the app's own pages may send.
-  if (request.headers.get('Origin') !== new URL(request.url).origin)
-    return json({ error: 'forbidden' }, 403);
+  const origin = new URL(request.url).origin;
+  if (request.headers.get('Origin') !== origin) return json({ error: 'forbidden' }, 403);
   if (!env.GITHUB_REPO || !env.GITHUB_TOKEN) return json({ error: 'not configured' }, 503);
   if (Number(request.headers.get('Content-Length') ?? 0) > LIMITS.request) {
     return json({ error: 'too large' }, 413);
@@ -98,7 +121,7 @@ async function post(request: Request, env: FeedbackEnv): Promise<Response> {
   } catch {
     return json({ error: 'invalid JSON' }, 400);
   }
-  const feedback = parseFeedback(raw);
+  const feedback = parseFeedback(raw, origin);
   if (typeof feedback === 'string') return json({ error: feedback }, 400);
 
   const res = await fetch(`https://api.github.com/repos/${env.GITHUB_REPO}/issues`, {

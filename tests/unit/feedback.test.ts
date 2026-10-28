@@ -1,10 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import worker from '../../worker';
-import { handleFeedback, parseFeedback } from '../../worker/feedback';
+import { handleFeedback, LIMITS, parseFeedback } from '../../worker/feedback';
 import { SECURITY_HEADERS } from '../../worker/headers';
 
 const env = { GITHUB_REPO: 'owner/feedback', GITHUB_TOKEN: 'secret' };
-const URL_ = 'https://grafcet.example/api/feedback';
+const SITE = 'https://grafcet.example';
+const URL_ = `${SITE}/api/feedback`;
 
 function post(body: unknown, origin = 'https://grafcet.example') {
   return new Request(URL_, {
@@ -18,19 +19,35 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe('feedback endpoint', () => {
   it('validates untrusted input', () => {
-    expect(parseFeedback({ kind: 'idea', message: '  More colours  ' })).toEqual({
+    const parse = (raw: unknown) => parseFeedback(raw, SITE);
+    expect(parse({ kind: 'idea', message: '  More colours  ' })).toEqual({
       kind: 'idea',
       message: 'More colours',
       contact: '',
       details: '',
+      link: '',
     });
-    expect(parseFeedback(null)).toBe('expected an object');
-    expect(parseFeedback({ kind: 'spam', message: 'x' })).toBe('unknown kind');
-    expect(parseFeedback({ kind: 'idea', message: '   ' })).toBe('message missing or too long');
-    expect(parseFeedback({ kind: 'idea', message: 'x'.repeat(5001) })).toBe(
-      'message missing or too long',
-    );
-    expect(parseFeedback({ kind: 'idea', message: 'x', contact: 42 })).toBe('field too long');
+    expect(parse(null)).toBe('expected an object');
+    expect(parse({ kind: 'spam', message: 'x' })).toBe('unknown kind');
+    expect(parse({ kind: 'idea', message: '   ' })).toBe('message missing or too long');
+    expect(parse({ kind: 'idea', message: 'x'.repeat(5001) })).toBe('message missing or too long');
+    expect(parse({ kind: 'idea', message: 'x', contact: 42 })).toBe('field too long');
+  });
+
+  it('accepts a project link only as a share link of this site', () => {
+    const link = (l: unknown) => parseFeedback({ kind: 'problem', message: 'x', link: l }, SITE);
+    expect(link(`${SITE}/fr/#share=q1_-Z`)).toMatchObject({ link: `${SITE}/fr/#share=q1_-Z` });
+    // User info and query are dropped, so the issue links exactly the site's page.
+    expect(link('https://me:pw@grafcet.example/en/?x=1#share=abc')).toMatchObject({
+      link: `${SITE}/en/#share=abc`,
+    });
+    const refused = 'not a share link of this site';
+    expect(link('https://evil.example/en/#share=abc')).toBe(refused);
+    expect(link(`${SITE}/en/#live=abc`)).toBe(refused);
+    expect(link(`${SITE}/en/#share=a)b`)).toBe(refused);
+    expect(link('javascript:alert(1)//#share=abc')).toBe(refused);
+    expect(link('not a url')).toBe(refused);
+    expect(link(`${SITE}/#share=${'a'.repeat(LIMITS.link)}`)).toBe('field too long');
   });
 
   it('tells the app whether sending is available', async () => {
@@ -54,6 +71,31 @@ describe('feedback endpoint', () => {
     const issue = JSON.parse(init.body as string) as { title: string; body: string };
     expect(issue.title).toBe('[Problem] Undo lost');
     expect(issue.body).toContain('**Reply to:** a@b.c');
+    expect(issue.body).not.toContain('**Project:**');
+  });
+
+  it('links the project in the issue, within the size GitHub accepts', async () => {
+    const fetchMock = vi.fn(async () => new Response('{}', { status: 201 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const prefix = `${SITE}/de/#share=`;
+    const link = prefix + 'Ab9_-'.repeat(LIMITS.link).slice(0, LIMITS.link - prefix.length);
+    const full = (n: keyof typeof LIMITS) => 'x'.repeat(LIMITS[n]);
+    const res = await handleFeedback(
+      post({
+        kind: 'problem',
+        message: full('message'),
+        contact: full('contact'),
+        details: full('details'),
+        link,
+      }),
+      env,
+    );
+    expect(res.status).toBe(200);
+    const { body } = JSON.parse(
+      (fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body as string,
+    ) as { body: string };
+    expect(body).toContain(`**Project:** [open a copy in GrafcetMaker](<${link}>)`);
+    expect(body.length).toBeLessThanOrEqual(65_536);
   });
 
   it('refuses other sites, bad bodies and an unconfigured endpoint without calling GitHub', async () => {
@@ -62,7 +104,7 @@ describe('feedback endpoint', () => {
     const ok = { kind: 'idea', message: 'x' };
     expect((await handleFeedback(post(ok, 'https://evil.example'), env)).status).toBe(403);
     expect((await handleFeedback(post('{nope'), env)).status).toBe(400);
-    expect((await handleFeedback(post('x'.repeat(20_000)), env)).status).toBe(413);
+    expect((await handleFeedback(post('x'.repeat(LIMITS.request + 1)), env)).status).toBe(413);
     expect((await handleFeedback(post(ok), {})).status).toBe(503);
     expect(fetchMock).not.toHaveBeenCalled();
   });

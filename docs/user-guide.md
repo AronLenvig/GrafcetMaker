@@ -485,7 +485,9 @@ it as described in the README. Elsewhere the menu entry is unavailable.
 **Help › Send feedback…** (or the speech-bubble button at the bottom right) composes a message —
 idea, problem, question or praise. On the public site **Send** delivers it anonymously to the
 developers: no account is needed, and you can leave an email address if you would like a reply.
-Optionally it adds the app version and browser details; it never includes project data.
+By default it includes a share link of the open project, so the developers can open a copy of it
+and see exactly what you mean; untick **Include a link to the open project** if the project is
+confidential. Optionally it adds the app version and browser details. Nothing else is sent.
 
 Installations without the feedback service open the message in your email app instead (when an
 address was set with `VITE_FEEDBACK_EMAIL` at build time), or offer **Copy** so you can pass it on

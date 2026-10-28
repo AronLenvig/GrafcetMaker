@@ -1170,9 +1170,13 @@ export const sv: Messages = {
     },
     contact: 'E-post för svar (valfritt)',
     contactPlaceholder: 'Lämna tomt för att vara anonym',
+    includeProject: 'Inkludera en länk till det öppna projektet',
+    projectHint:
+      'Utvecklarna kan öppna en kopia av ”{{name}}” och se exakt vad du menar. Avmarkera rutan om projektet är konfidentiellt.',
+    projectTooLarge: '”{{name}}” är för stort för att skickas som länk.',
     includeDetails: 'Inkludera uppgifter om appen och webbläsaren (inga projektdata):',
     privacyAnonymous:
-      'Skickas anonymt till utvecklarna av GrafcetMaker: inget konto behövs, och bara det du ser här skickas, aldrig ditt projekt.',
+      'Skickas anonymt till utvecklarna av GrafcetMaker: inget konto behövs, och bara det du ser här skickas.',
     privacyEmail:
       'GrafcetMaker skickar inget själv: din e-postapp öppnas med meddelandet till {{email}}, och du skickar det därifrån.',
     privacyCopy:

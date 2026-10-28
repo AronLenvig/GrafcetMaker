@@ -8,6 +8,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- **Send feedback** can include a link to the open project, ticked by default, so the developers
+  can open a copy of it and see exactly what you mean. Untick it for a confidential project.
 - An overview of a multiple selection in the properties card: how many steps, transitions, actions
   and comments (a click keeps only that kind) and the selection as a tree in reading order, each
   step with its selected actions and transitions; a line selects its element alone, Ctrl+click

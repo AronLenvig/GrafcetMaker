@@ -290,12 +290,15 @@ export const LinkView = memo(function LinkView({
   );
 });
 
+/** An AND double bar with the stem to its transition: selected, moved and deleted as one. */
 export const BarView = memo(function BarView({
+  barKey,
   x1,
   x2,
   y,
   stem,
 }: {
+  barKey: string;
   x1: number;
   x2: number;
   y: number;
@@ -303,7 +306,8 @@ export const BarView = memo(function BarView({
 }) {
   const h = DOUBLE_BAR_GAP / 2;
   return (
-    <g>
+    <g data-el="bar" data-key={barKey}>
+      <path className="gm-hit-line" d={`${stem}M${x1} ${y}H${x2}`} />
       <path className="gm-line" d={stem} />
       <path className="gm-line" d={`M${x1} ${y - h}H${x2}M${x1} ${y + h}H${x2}`} />
     </g>

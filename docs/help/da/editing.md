@@ -75,6 +75,10 @@ placeringsværktøj viser en pladsholder under markøren, hvad et klik vil place
   nederste linje op eller ned; dobbeltklik på den for at vende tilbage til den automatiske rute.
   Automatisk går en tilbageføring under trinnene og ledningerne i sin egen sekvens i stedet for at
   krydse dem.
+- Klik på en **dobbeltlinje** (OG-forgrening eller OG-sammenføring) for at vælge den: den
+  fremhæves sammen med de forbindelser, den samler. Træk den, eller brug piletasterne, for at
+  flytte den sammen med dens transition; <kbd>Del</kbd> fjerner de forbindelser og beholder
+  transitionen og trinnene.
 
 ## Berøring: telefoner og tablets {#touch-phones-and-tablets}
 

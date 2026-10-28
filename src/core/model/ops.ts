@@ -227,6 +227,17 @@ export function disconnect(g: Grafcet, transitionId: Id, side: 'in' | 'out', ste
   else t.to = t.to.filter((id) => id !== stepId);
 }
 
+/**
+ * Removes the links of an AND bar, leaving the transition and the steps: a join's links from its
+ * steps (the transition becomes a source), a split's links to them (it becomes a sink).
+ */
+export function disconnectBar(g: Grafcet, transitionId: Id, bar: 'join' | 'split'): void {
+  const t = g.transitions[transitionId];
+  if (!t) return;
+  if (bar === 'join') t.from = [];
+  else t.to = [];
+}
+
 function removeStep(g: Grafcet, id: Id): void {
   delete g.steps[id];
   for (const a of Object.values(g.actions)) if (a.stepId === id) delete g.actions[a.id];

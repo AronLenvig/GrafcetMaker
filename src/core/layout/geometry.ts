@@ -452,6 +452,23 @@ export interface GrafcetGeometry {
 export const linkKey = (transitionId: Id, side: 'in' | 'out', stepId: Id) =>
   `${transitionId}:${side}:${stepId}`;
 
+export const barKey = (transitionId: Id, kind: BarGeom['kind']) => `${transitionId}:${kind}`;
+
+/** What a link key names (see linkKey, barKey): one link, or an AND bar and the links it joins. */
+export type LinkRef =
+  | { kind: 'link'; transitionId: Id; side: 'in' | 'out'; stepId: Id }
+  | { kind: 'bar'; transitionId: Id; bar: BarGeom['kind'] };
+
+export function parseLinkKey(key: string): LinkRef | null {
+  const [transitionId, part, stepId, rest] = key.split(':');
+  if (!transitionId || rest !== undefined) return null;
+  if ((part === 'join' || part === 'split') && stepId === undefined)
+    return { kind: 'bar', transitionId, bar: part };
+  if ((part === 'in' || part === 'out') && stepId)
+    return { kind: 'link', transitionId, side: part, stepId };
+  return null;
+}
+
 const joinY = (t: Transition) => t.position.y - BAR_OFFSET;
 const splitY = (t: Transition) => t.position.y + BAR_OFFSET;
 
@@ -739,7 +756,7 @@ export function computeGeometry(
       const xs = [tp.x, ...t.from.map((id) => g.steps[id]?.position.x ?? tp.x)];
       const y = joinY(t);
       bars.push({
-        key: `${t.id}:join`,
+        key: barKey(t.id, 'join'),
         transitionId: t.id,
         kind: 'join',
         x1: Math.min(...xs) - BAR_OVERHANG,
@@ -762,7 +779,7 @@ export function computeGeometry(
       const xs = [tp.x, ...t.to.map((id) => g.steps[id]?.position.x ?? tp.x)];
       const y = splitY(t);
       bars.push({
-        key: `${t.id}:split`,
+        key: barKey(t.id, 'split'),
         transitionId: t.id,
         kind: 'split',
         x1: Math.min(...xs) - BAR_OVERHANG,

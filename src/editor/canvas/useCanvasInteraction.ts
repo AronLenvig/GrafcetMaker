@@ -14,6 +14,7 @@ import {
   snap,
   type Rect,
   portPosition,
+  parseLinkKey,
 } from '@/core/layout/geometry';
 import { indexGrafcet } from '@/core/model/graph';
 import * as ops from '@/core/model/ops';
@@ -56,7 +57,19 @@ type Gesture =
   | { kind: 'pinch'; dist: number; mid: Point }
   /** A finger with a placing tool: places on release, pans if it moves. */
   | { kind: 'place'; start: Point; place: () => void }
-  | { kind: 'press'; id: Id; start: Point; startD: Point; reselect: boolean; slop: number }
+  /**
+   * A button or finger down on an element: a click unless it moves, then a drag of the selection,
+   * or of `moves` instead (an AND bar moves its transition).
+   */
+  | {
+      kind: 'press';
+      id: Id;
+      start: Point;
+      startD: Point;
+      reselect: boolean;
+      slop: number;
+      moves?: Id[];
+    }
   /**
    * Dragging the selection. An action is dragged alone (`action`: it and where it was, its step
    * and place): unattached while dragged, attached to the step it is dropped on.
@@ -411,6 +424,27 @@ export function useCanvasInteraction(
       }
       return;
     }
+    // An AND bar: selected like a link (Del removes its links); dragged, it moves its transition.
+    const bar = hit?.kind === 'bar' && hit.key ? parseLinkKey(hit.key) : null;
+    if (bar?.kind === 'bar') {
+      ui.set({ selection: {}, selectedLink: hit?.key ?? null });
+      if (!readOnly) {
+        gesture.current = {
+          kind: 'press',
+          id: bar.transitionId,
+          start: p,
+          startD: d,
+          reselect: false,
+          slop: touch ? TOUCH_SLOP : DRAG_THRESHOLD,
+          moves: [bar.transitionId],
+        };
+        capture();
+      } else if (touch) {
+        gesture.current = { kind: 'pan', last: p, start: p, tap: 'element' };
+        capture();
+      }
+      return;
+    }
     if (hit?.id) {
       const wasSelected = !!useUi.getState().selection[hit.id];
       if (additive) ui.select([hit.id], 'toggle');
@@ -520,7 +554,7 @@ export function useCanvasInteraction(
       case 'press': {
         if (Math.hypot(p.x - g0.start.x, p.y - g0.start.y) < g0.slop) return;
         const g = getProject().grafcets[gid];
-        const selected = ui.selectedIds();
+        const selected = g0.moves ?? ui.selectedIds();
         // An action dragged on its own can be dropped on a step; dragged with other selected
         // elements, a free action moves with them, and so does an attached one whose step is in
         // the selection.
@@ -793,7 +827,8 @@ export function useCanvasInteraction(
     const target = e.target as Element;
     if (target !== containerRef.current) {
       const hit = elementAt(target);
-      if (hit?.kind === 'link' && hit.key) ui.set({ selection: {}, selectedLink: hit.key });
+      if ((hit?.kind === 'link' || hit?.kind === 'bar') && hit.key)
+        ui.set({ selection: {}, selectedLink: hit.key });
       else if (hit?.id && hit.kind !== 'link') {
         if (!useUi.getState().selection[hit.id]) ui.select([hit.id]);
       } else ui.clearSelection();

@@ -130,8 +130,11 @@ A new project contains grafcet `G1` with initial step 0.
   diagram is a straight sequence. The transition leading to a step is never deleted with it: after
   the last step it stays as a sink transition (press `Enter` on it to add a new step).
   `Shift+Del` deletes without healing. Click a link to select it, then `Del` removes just that
-  link.
-- **Move**: drag (snaps to the 10-unit grid) or use the arrow keys (`Shift` moves 5× further).
+  link. Click a double line (AND divergence or convergence) to select it with the links it joins:
+  `Del` removes those links and keeps the steps and the transition, which becomes a sink or a
+  source transition.
+- **Move**: drag (snaps to the 10-unit grid) or use the arrow keys (`Shift` moves 5× further). A
+  double line moves with its transition: drag it or use the arrow keys.
 - **Select several**: drag a rectangle on empty space (a step brings all its actions),
   `Shift`/`Ctrl`-click, or `Ctrl+A`. The links between selected elements are highlighted, and
   dragging any selected element moves the whole selection.

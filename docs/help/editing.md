@@ -67,6 +67,9 @@ one as you go. With a placing tool, a ghost under the pointer shows what a click
   (a loop) sideways to move its side line, or drag its bottom line up or down; double-click it
   to return to the automatic route. Automatically, a loop passes below the steps and wires of its
   own sequence rather than crossing them.
+- Click a **double line** (AND divergence or convergence) to select it: it is highlighted with the
+  links it joins. Drag it, or press the arrow keys, to move it with its transition; <kbd>Del</kbd>
+  removes those links and keeps the transition and the steps.
 
 ## Touch: phones and tablets
 

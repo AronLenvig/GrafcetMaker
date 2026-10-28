@@ -4,6 +4,7 @@ import { openHelp } from '@/app/help/helpStore';
 import { setPrefs, usePrefs } from '@/app/prefs';
 import { CloseIcon } from '@/app/ui/icons';
 import { useCoarsePointer, useCompact } from '@/app/ui/media';
+import { parseLinkKey } from '@/core/layout/geometry';
 import type { Grafcet } from '@/core/model/types';
 import { tDynamic } from '@/i18n/dynamic';
 import { formatKeys } from '../commands/registry';
@@ -76,6 +77,13 @@ const LINK: Hint[] = [
   ['@dragBottom', 'routeDown'],
   ['@dblclick', 'routeAuto'],
   ['Delete', 'deleteLink'],
+];
+
+/** An AND double line: it moves with its transition; Del removes its links. */
+const BAR: Hint[] = [
+  ['@drag', 'moveBar'],
+  ['@arrows', 'nudge'],
+  ['Delete', 'deleteBar'],
 ];
 
 /** Touch screens: gestures instead of keys and clicks (the selection toolbar covers selections). */
@@ -191,7 +199,7 @@ function HintBarView() {
       ['@drag', 'pan'],
       ['V', 'backToSelect'],
     ];
-  else if (selectedLink) hints = LINK;
+  else if (selectedLink) hints = parseLinkKey(selectedLink)?.kind === 'bar' ? BAR : LINK;
   else {
     const ids = Object.keys(selection);
     hints = ids.length ? selectionHints(g, ids) : Object.keys(g.steps).length ? IDLE : EMPTY;

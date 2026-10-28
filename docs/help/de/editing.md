@@ -82,6 +82,10 @@ platzieren wird.
   Linie zu verschieben, oder ziehen Sie ihre untere Linie nach oben oder unten; ein Doppelklick
   stellt den automatischen Verlauf wieder her. Automatisch verläuft eine Rückführung unterhalb der
   Schritte und Leitungen ihres eigenen Ablaufs, statt sie zu kreuzen.
+- Klicken Sie auf eine **Doppellinie** (UND-Verzweigung oder UND-Zusammenführung), um sie
+  auszuwählen: Sie wird mit den Verbindungen hervorgehoben, die sie zusammenfasst. Ziehen Sie sie
+  oder nutzen Sie die Pfeiltasten, um sie mit ihrer Transition zu verschieben; <kbd>Del</kbd>
+  entfernt diese Verbindungen und behält die Transition und die Schritte.
 
 ## Touch: Smartphones und Tablets {#touch-phones-and-tablets}
 

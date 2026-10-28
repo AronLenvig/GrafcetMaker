@@ -6,8 +6,10 @@ import {
   appendAfterTransition,
   connect,
   deleteElements,
+  disconnectBar,
   moveElements,
 } from '@/core/model/ops';
+import { addParallelBranch } from '@/core/model/structure';
 import {
   copyElements,
   parseClipboard,
@@ -16,7 +18,7 @@ import {
 } from '@/core/model/clipboard';
 import type { Grafcet, Project } from '@/core/model/types';
 import { createDocumentStore, isDirty } from '@/editor/store/documentStore';
-import { PITCH } from '@/core/layout/geometry';
+import { computeGeometry, parseLinkKey, PITCH } from '@/core/layout/geometry';
 
 const G = (p: Project): Grafcet => p.grafcets[p.grafcetOrder[0]!]!;
 const stepByNumber = (g: Grafcet, n: number) => Object.values(g.steps).find((s) => s.number === n)!;
@@ -194,6 +196,63 @@ describe('delete with heal', () => {
     ).toHaveLength(2);
     doc.undo();
     expect(doc.store.getState().project).toEqual(before);
+  });
+});
+
+describe('AND double lines', () => {
+  it('deleting one removes only the links it joins, and undo restores them', () => {
+    // 0 → T1 ⇉ (1 ∥ new step) ⇉ T2 → 2
+    const p = createProject('P');
+    const g = G(p);
+    const s0 = stepByNumber(g, 0).id;
+    const s1 = appendAfterStep(g, s0)!.stepId;
+    appendAfterStep(g, s1);
+    const s2 = addParallelBranch(g, s1)!;
+    const idx = indexGrafcet(g);
+    const t1 = idx.incoming.get(s1)![0]!.id;
+    const t2 = idx.outgoing.get(s1)![0]!.id;
+    const doc = createDocumentStore(p);
+    const before = doc.store.getState().project;
+    const gid = before.grafcetOrder[0]!;
+    const now = () => G(doc.store.getState().project);
+
+    // The canvas names each double line by a key that Del reads back.
+    const refs = computeGeometry(now()).bars.map((b) => parseLinkKey(b.key));
+    expect(refs).toEqual(
+      expect.arrayContaining([
+        { kind: 'bar', transitionId: t1, bar: 'split' },
+        { kind: 'bar', transitionId: t2, bar: 'join' },
+      ]),
+    );
+
+    doc.execute('Delete double line', (d) => disconnectBar(d.grafcets[gid]!, t1, 'split'));
+    expect(now().transitions[t1]).toMatchObject({ from: [s0], to: [] });
+    expect(now().transitions[t2]!.from).toEqual([s1, s2]);
+    doc.execute('Delete double line', (d) => disconnectBar(d.grafcets[gid]!, t2, 'join'));
+    expect(now().transitions[t2]!.from).toEqual([]);
+    expect(now().transitions[t2]!.to).toHaveLength(1);
+    // Every step and transition stays; the lines become a sink and a source.
+    expect(Object.keys(now().steps)).toHaveLength(4);
+    expect(Object.keys(now().transitions)).toHaveLength(2);
+    const geom = computeGeometry(now());
+    expect(geom.bars).toEqual([]);
+    expect(geom.stubs.map((s) => s.kind).sort()).toEqual(['sink', 'source']);
+
+    doc.undo();
+    doc.undo();
+    expect(doc.store.getState().project).toEqual(before);
+  });
+
+  it('parses only the keys the canvas makes', () => {
+    expect(parseLinkKey('t:in:s')).toEqual({
+      kind: 'link',
+      transitionId: 't',
+      side: 'in',
+      stepId: 's',
+    });
+    for (const bad of ['', 't', 't:split:s', 't:in', 't:out:s:x', 't:sink']) {
+      expect(parseLinkKey(bad)).toBeNull();
+    }
   });
 });
 

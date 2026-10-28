@@ -78,6 +78,10 @@ mesure. Avec un outil de placement, un fantôme sous le pointeur montre ce qu'un
   latéral, ou faites glisser son trait du bas vers le haut ou le bas ; double-cliquez dessus pour
   revenir au tracé automatique. Automatiquement, une reprise passe sous les étapes et les liaisons
   de sa propre séquence au lieu de les croiser.
+- Cliquez sur un **double trait** (divergence ou convergence en ET) pour le sélectionner : il est
+  mis en évidence avec les liaisons qu'il relie. Faites-le glisser, ou utilisez les flèches, pour
+  le déplacer avec sa transition ; <kbd>Del</kbd> supprime ces liaisons et garde la transition et
+  les étapes.
 
 ## Tactile : téléphones et tablettes {#touch-phones-and-tablets}
 

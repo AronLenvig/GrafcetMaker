@@ -72,6 +72,10 @@ placeringsverktyg visar ett förslag under pekaren vad ett klick kommer att plac
   uppåtgående länk (en återgång) åt sidan för att flytta dess sidolinje, eller dra dess nedre linje
   uppåt eller nedåt; dubbelklicka på den för att återgå till den automatiska dragningen. Automatiskt
   går en återgång under stegen och ledningarna i sin egen sekvens i stället för att korsa dem.
+- Klicka på en **dubbellinje** (OCH-förgrening eller OCH-sammanföring) för att markera den: den
+  framhävs tillsammans med länkarna den förenar. Dra den, eller använd piltangenterna, för att
+  flytta den med dess övergång; <kbd>Del</kbd> tar bort de länkarna och behåller övergången och
+  stegen.
 
 ## Pekskärm: mobiler och surfplattor {#touch-phones-and-tablets}
 

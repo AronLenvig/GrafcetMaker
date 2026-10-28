@@ -77,6 +77,9 @@ una herramienta de colocación, un fantasma bajo el puntero muestra lo que coloc
   inferior hacia arriba o hacia abajo; haz doble clic en él para volver al trazado automático. Por
   defecto, un bucle pasa por debajo de las etapas y los enlaces de su propia secuencia en lugar de
   cruzarlos.
+- Haz clic en una **línea doble** (divergencia o convergencia en Y) para seleccionarla: se resalta
+  junto con los enlaces que une. Arrástrala, o usa las flechas, para moverla con su transición;
+  <kbd>Del</kbd> elimina esos enlaces y conserva la transición y las etapas.
 
 ## Táctil: móviles y tabletas {#touch-phones-and-tablets}
 

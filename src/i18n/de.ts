@@ -119,6 +119,7 @@ export const de: Messages = {
     delete: 'Löschen',
     deleteNoHeal: 'Löschen',
     deleteLink: 'Verbindung löschen',
+    deleteBar: 'Doppellinie löschen',
     move: 'Verschieben',
     addStep: 'Schritt hinzufügen',
     addTransition: 'Transition hinzufügen',
@@ -524,6 +525,16 @@ export const de: Messages = {
       stepToTransition: 'Von Schritt {{step}} zur Transition „{{receptivity}}“.',
       transitionToStep: 'Von der Transition „{{receptivity}}“ zu Schritt {{step}}.',
       delete: 'Verbindung löschen',
+    },
+    bar: {
+      splitTitle: 'UND-Verzweigung',
+      joinTitle: 'UND-Zusammenführung',
+      split:
+        'Schaltet die Transition „{{receptivity}}“, werden die Schritte {{steps}} gemeinsam aktiviert.',
+      join: 'Die Transition „{{receptivity}}“ ist erst freigegeben, wenn die Schritte {{steps}} alle aktiv sind.',
+      move: 'Ziehen Sie die Doppellinie oder nutzen Sie die Pfeiltasten, um sie mit ihrer Transition zu verschieben.',
+      delete: 'Doppellinie löschen',
+      deleteNote: 'Entfernt nur ihre Verbindungen: Die Transition und die Schritte bleiben.',
     },
     multi: {
       title: '{{count}} Elemente ausgewählt',
@@ -1408,6 +1419,8 @@ export const de: Messages = {
       routeDown: 'nach oben oder unten (unterhalb des Plans vermeidet Kreuzungen)',
       routeAuto: 'zurück zum automatischen Verlauf',
       deleteLink: 'Verbindung löschen',
+      moveBar: 'mit ihrer Transition verschieben',
+      deleteBar: 'ihre Verbindungen löschen (Transition und Schritte bleiben)',
       simRun: 'ausführen / pausieren',
       simStep: 'nächster Schritt',
       simStop: 'Simulation beenden',

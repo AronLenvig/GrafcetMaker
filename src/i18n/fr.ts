@@ -120,6 +120,7 @@ export const fr: Messages = {
     delete: 'Suppression',
     deleteNoHeal: 'Suppression',
     deleteLink: "Suppression d'une liaison",
+    deleteBar: "Suppression d'un double trait",
     move: 'Déplacement',
     addStep: "Ajout d'une étape",
     addTransition: "Ajout d'une transition",
@@ -522,6 +523,16 @@ export const fr: Messages = {
       stepToTransition: "De l'étape {{step}} à la transition « {{receptivity}} ».",
       transitionToStep: "De la transition « {{receptivity}} » à l'étape {{step}}.",
       delete: 'Supprimer la liaison',
+    },
+    bar: {
+      splitTitle: 'Divergence en ET',
+      joinTitle: 'Convergence en ET',
+      split:
+        'Le franchissement de la transition « {{receptivity}} » active ensemble les étapes {{steps}}.',
+      join: "La transition « {{receptivity}} » n'est validée que lorsque les étapes {{steps}} sont toutes actives.",
+      move: 'Faites glisser le double trait, ou utilisez les flèches, pour le déplacer avec sa transition.',
+      delete: 'Supprimer le double trait',
+      deleteNote: 'Supprime seulement ses liaisons : la transition et les étapes restent.',
     },
     multi: {
       title: '{{count}} éléments sélectionnés',
@@ -1402,6 +1413,8 @@ export const fr: Messages = {
       routeDown: 'vers le haut ou le bas (sous le grafcet, pas de croisement)',
       routeAuto: 'revenir au tracé automatique',
       deleteLink: 'supprimer la liaison',
+      moveBar: 'le déplacer avec sa transition',
+      deleteBar: 'supprimer ses liaisons (la transition et les étapes restent)',
       simRun: 'lancer / pause',
       simStep: 'pas suivant',
       simStop: 'arrêter la simulation',

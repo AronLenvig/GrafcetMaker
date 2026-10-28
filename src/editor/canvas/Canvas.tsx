@@ -321,7 +321,14 @@ export function Canvas({
             <LinkView key={l.key} linkKey={l.key} d={pointsToPath(l.points)} arrow={linkArrow(l)} />
           ))}
         {geom.bars.map((b) => (
-          <BarView key={b.key} x1={b.x1} x2={b.x2} y={b.y} stem={pointsToPath(b.stem)} />
+          <BarView
+            key={b.key}
+            barKey={b.key}
+            x1={b.x1}
+            x2={b.x2}
+            y={b.y}
+            stem={pointsToPath(b.stem)}
+          />
         ))}
         {geom.stubs.map((s) => (
           <StubView key={s.key} d={pointsToPath(s.points)} />

@@ -118,6 +118,7 @@ export const es: Messages = {
     delete: 'Eliminar',
     deleteNoHeal: 'Eliminar',
     deleteLink: 'Eliminar enlace',
+    deleteBar: 'Eliminar línea doble',
     move: 'Mover',
     addStep: 'Añadir etapa',
     addTransition: 'Añadir transición',
@@ -516,6 +517,16 @@ export const es: Messages = {
       stepToTransition: 'De la etapa {{step}} a la transición «{{receptivity}}».',
       transitionToStep: 'De la transición «{{receptivity}}» a la etapa {{step}}.',
       delete: 'Eliminar enlace',
+    },
+    bar: {
+      splitTitle: 'Divergencia en Y',
+      joinTitle: 'Convergencia en Y',
+      split:
+        'Al franquear la transición «{{receptivity}}» se activan a la vez las etapas {{steps}}.',
+      join: 'La transición «{{receptivity}}» solo está validada cuando las etapas {{steps}} están todas activas.',
+      move: 'Arrastra la línea doble, o usa las flechas, para moverla con su transición.',
+      delete: 'Eliminar línea doble',
+      deleteNote: 'Solo elimina sus enlaces: la transición y las etapas se quedan.',
     },
     multi: {
       title: '{{count}} elementos seleccionados',
@@ -1387,6 +1398,8 @@ export const es: Messages = {
       routeDown: 'arriba o abajo (por debajo del diagrama se evitan cruces)',
       routeAuto: 'volver al trazado automático',
       deleteLink: 'eliminar el enlace',
+      moveBar: 'moverla con su transición',
+      deleteBar: 'eliminar sus enlaces (la transición y las etapas se quedan)',
       simRun: 'ejecutar / pausar',
       simStep: 'paso siguiente',
       simStop: 'detener la simulación',

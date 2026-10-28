@@ -1,4 +1,4 @@
-import { ACTION_HEIGHT, GRID } from '@/core/layout/geometry';
+import { ACTION_HEIGHT, GRID, parseLinkKey } from '@/core/layout/geometry';
 import {
   copyElements,
   parseClipboard,
@@ -219,12 +219,20 @@ export function editSelection(): void {
   else if (g.actions[id] || g.comments[id]) ui.edit({ id, field: 'text' });
 }
 
-/** `Del`: delete the selection (healing sequences unless `heal` is false) or the selected link. */
+/**
+ * `Del`: delete the selection (healing sequences unless `heal` is false), the selected link, or
+ * the links of the selected AND bar.
+ */
 export function deleteSelection(heal = true): void {
   const { selectedLink } = useUi.getState();
   if (selectedLink) {
-    const [tid, side, sid] = selectedLink.split(':') as [Id, 'in' | 'out', Id];
-    editActive('history.deleteLink', (g) => ops.disconnect(g, tid, side, sid));
+    const ref = parseLinkKey(selectedLink);
+    if (ref?.kind === 'link')
+      editActive('history.deleteLink', (g) =>
+        ops.disconnect(g, ref.transitionId, ref.side, ref.stepId),
+      );
+    else if (ref?.kind === 'bar')
+      editActive('history.deleteBar', (g) => ops.disconnectBar(g, ref.transitionId, ref.bar));
     ui.clearSelection();
     return;
   }
@@ -247,8 +255,11 @@ export function selectAll(): void {
   ]);
 }
 
+/** Arrow keys: move the selection, or the transition of the selected AND bar (drawn with it). */
 export function nudgeSelection(dx: number, dy: number): void {
-  const ids = ui.selectedIds();
+  const { selectedLink } = useUi.getState();
+  const ref = selectedLink ? parseLinkKey(selectedLink) : null;
+  const ids = ref?.kind === 'bar' ? [ref.transitionId] : ui.selectedIds();
   if (ids.length) editActive('history.move', (g) => ops.moveElements(g, ids, dx, dy));
 }
 

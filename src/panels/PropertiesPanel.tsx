@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { Term } from '@/app/ui/TermHelp';
 import { useTranslation } from 'react-i18next';
+import { parseLinkKey } from '@/core/layout/geometry';
 import { indexGrafcet } from '@/core/model/graph';
 import type { Action, Grafcet, Id, Step, Transition } from '@/core/model/types';
 import {
@@ -486,22 +487,37 @@ export function PropertiesPanel() {
   if (!g) return null;
   const ids = Object.keys(selection);
 
+  const ref = selectedLink ? parseLinkKey(selectedLink) : null;
+  const owner = ref ? g.transitions[ref.transitionId] : undefined;
+  const receptivity = owner?.receptivity || '—';
+  // The steps joined by a selected AND bar (none once it is gone, e.g. undone).
+  const barSteps =
+    ref?.kind === 'bar' ? ((ref.bar === 'join' ? owner?.from : owner?.to) ?? []) : [];
+
   let body: React.ReactNode;
-  if (selectedLink) {
-    const [tid, side, sid] = selectedLink.split(':') as [Id, 'in' | 'out', Id];
-    const tr = g.transitions[tid];
+  if (ref?.kind === 'bar' && barSteps.length > 1) {
+    const steps = barSteps.map((id) => stepName(g, id)).join(', ');
+    body = (
+      <Section title={ref.bar === 'join' ? t('props.bar.joinTitle') : t('props.bar.splitTitle')}>
+        <p>
+          {ref.bar === 'join'
+            ? t('props.bar.join', { steps, receptivity })
+            : t('props.bar.split', { steps, receptivity })}
+        </p>
+        <p className="text-xs text-muted">{t('props.bar.move')}</p>
+        <Button variant="danger" onClick={() => deleteSelection()}>
+          <TrashIcon size={14} /> {t('props.bar.delete')}
+        </Button>
+        <p className="text-xs text-muted">{t('props.bar.deleteNote')}</p>
+      </Section>
+    );
+  } else if (ref?.kind === 'link') {
     body = (
       <Section title={t('props.link.title')}>
         <p>
-          {side === 'in'
-            ? t('props.link.stepToTransition', {
-                step: stepName(g, sid),
-                receptivity: tr?.receptivity || '—',
-              })
-            : t('props.link.transitionToStep', {
-                step: stepName(g, sid),
-                receptivity: tr?.receptivity || '—',
-              })}
+          {ref.side === 'in'
+            ? t('props.link.stepToTransition', { step: stepName(g, ref.stepId), receptivity })
+            : t('props.link.transitionToStep', { step: stepName(g, ref.stepId), receptivity })}
         </p>
         <Button variant="danger" onClick={() => deleteSelection()}>
           <TrashIcon size={14} /> {t('props.link.delete')}

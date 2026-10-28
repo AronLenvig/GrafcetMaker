@@ -4,9 +4,11 @@ import {
   ACTION_GAP,
   ACTION_HEIGHT,
   ACTION_MIN_WIDTH,
+  DOUBLE_BAR_GAP,
   elementBounds,
   layoutActions,
   nextStepPosition,
+  parseLinkKey,
   PITCH,
   portPosition,
   ROW,
@@ -304,9 +306,16 @@ function OverlayView({
     if (hover && (g.steps[hover] || g.transitions[hover])) handleIds.add(hover);
     if (link) handleIds.clear();
   }
-  // The selected link, and every link between two selected elements.
+  // The selected link, every link between two selected elements, and a selected AND bar with the
+  // links it joins (those Del removes).
+  const selRef = selectedLink ? parseLinkKey(selectedLink) : null;
+  const selBar = selRef?.kind === 'bar' ? geom.bars.find((b) => b.key === selectedLink) : undefined;
+  const barSide = selRef?.kind === 'bar' && (selRef.bar === 'join' ? 'in' : 'out');
   const selLinks = geom.links.filter(
-    (l) => l.key === selectedLink || (selection[l.transitionId] && selection[l.stepId]),
+    (l) =>
+      l.key === selectedLink ||
+      (selection[l.transitionId] && selection[l.stepId]) ||
+      (selBar && l.transitionId === selBar.transitionId && l.side === barSide),
   );
   // Ghosts of the selection with the Select tool only (a placing tool shows its own ghost).
   const ghostsOf =
@@ -343,6 +352,12 @@ function OverlayView({
       {selLinks.map((l) => (
         <path key={l.key} className="gm-selected-link" d={pointsToPath(l.points)} />
       ))}
+      {selBar && (
+        <path
+          className="gm-selected-link"
+          d={`${pointsToPath(selBar.stem)}M${selBar.x1} ${selBar.y - DOUBLE_BAR_GAP / 2}H${selBar.x2}M${selBar.x1} ${selBar.y + DOUBLE_BAR_GAP / 2}H${selBar.x2}`}
+        />
+      )}
       {targets.map((id) => {
         const r = elementBounds(g, geom, id);
         if (!r) return null;

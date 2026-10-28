@@ -8,6 +8,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- **Double lines** (AND divergence and convergence) can be clicked: the line is selected with the
+  links it joins. Drag it, or use the arrow keys, to move it with its transition; `Del` removes
+  those links and keeps the transition and the steps.
 - **Send feedback** can include a link to the open project, ticked by default, so the developers
   can open a copy of it and see exactly what you mean. Untick it for a confidential project.
 - A warmer **Welcome** screen: a banner greeting with what GrafcetMaker does, the start actions

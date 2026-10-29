@@ -66,6 +66,32 @@ export const da: Messages = {
       brokenLink:
         'Linket er beskadiget eller ufuldstændigt: det er måske blevet afkortet, da det blev kopieret. Bed om linket igen, eller om projektfilen.',
     },
+    text: {
+      title: 'Åbn fra tekst',
+      intro:
+        'Indsæt en grafcet skrevet som GRAFCET-tekst, for eksempel af en AI-assistent som ChatGPT eller Claude. Bed først assistenten om at læse {{url}}: der er formatet forklaret.',
+      label: 'GRAFCET-tekst',
+      open: 'Åbn',
+      opened: '“{{name}}” åbnet fra tekst.',
+      copied:
+        'Grafcetten er kopieret som tekst: indsæt den hos din AI-assistent for at drøfte eller ændre den.',
+      line: 'Linje {{line}}: {{message}}',
+      errors: {
+        empty: 'Teksten indeholder hverken et trin eller en grafcet.',
+        tooLarge: 'Teksten er for lang.',
+        unknownLine:
+          'Linjen er ikke GRAFCET-tekst. Linjer begynder med project, input, output, internal, grafcet, step, note, en aktion (do, on enter:, on exit:, on <hændelse>:, force) eller en transition som 0 -> 1: start.',
+        name: '“{{name}}” er ikke et gyldigt variabelnavn: et bogstav eller _, derefter bogstaver, cifre eller _, og hverken et nøgleord eller et trinnavn som X1.',
+        duplicateVariable: 'Variablen {{name}} er erklæret to gange.',
+        value: '“{{value}}” er ikke en {{type}}-værdi.',
+        duplicateGrafcet: 'To grafcets hedder {{name}}.',
+        duplicateStep: 'Trin {{number}} er erklæret to gange i denne grafcet.',
+        unknownStep: 'Trin {{number}} er ikke erklæret i grafcetten {{grafcet}}.',
+        transitionEnds: 'En transition skal have et trin over eller under sig.',
+        unknownGrafcet: 'Der er ingen grafcet med navnet {{name}}.',
+        invalid: 'Grafcetten er ikke gyldig: {{details}}',
+      },
+    },
     share: {
       copied: 'Delingslinket er kopieret. Alle, der åbner det, får deres egen kopi af projektet.',
       copiedLong:
@@ -227,6 +253,8 @@ export const da: Messages = {
       saveAs: 'Gem som…',
       downloadCopy: 'Download en kopi',
       copyLink: 'Kopier delingslink',
+      openText: 'Åbn fra tekst…',
+      copyText: 'Kopiér som tekst (til AI-assistenter)',
       live: 'Livesamarbejde…',
       localHistory: 'Lokal historik…',
       export: 'Eksporter…',

@@ -59,6 +59,23 @@ del proyecto, con todos sus grafcets y variables, y puede cambiarla sin afectar 
 - Abrir un enlace funciona como abrir un archivo: si tu proyecto tiene cambios sin guardar, primero
   se te pregunta, y un enlace dañado se rechaza con una explicación sin tocar tu proyecto.
 
+## Grafcets de un asistente de IA {#charts-from-ai-assistants}
+
+Un asistente de IA como ChatGPT o Claude puede dibujar un grafcet por ti. Pídele primero que lea
+[grafcet.org/ai.txt](https://grafcet.org/ai.txt): ahí aprende el texto GRAFCET, una forma de
+texto del grafcet, y cómo hacer un enlace que lo abre aquí.
+
+- **Un enlace del asistente** abre el grafcet, colocado automáticamente, en lugar del proyecto
+  abierto (te pregunta antes si tiene cambios sin guardar).
+- **Archivo › Abrir desde texto…** abre un grafcet que el asistente escribió como texto: pégalo y
+  haz clic en **Abrir**. Una línea que no se puede leer se indica con el problema; puedes
+  corregirla o devolver el mensaje al asistente.
+- **Archivo › Copiar como texto (para asistentes de IA)** copia tu grafcet como texto GRAFCET,
+  para pegarlo en el chat y pedir cambios, una explicación o una revisión.
+
+Las posiciones no forman parte del texto: un grafcet abierto desde texto se coloca
+automáticamente.
+
 ## Editar en equipo en tiempo real {#edit-together-live}
 
 **Archivo › Colaboración en tiempo real…** (o el botón de personas de arriba a la derecha) permite

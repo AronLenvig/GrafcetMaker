@@ -9,6 +9,13 @@ import {
   serializeProject,
   suggestedFileName,
 } from '@/core/io/projectFile';
+import {
+  decodeTextHash,
+  GrafcetTextError,
+  parseGrafcetText,
+  projectToText,
+  TEXT_PREFIX,
+} from '@/core/io/grafcetText';
 import { decodeShareHash, encodeShareHash, SHARE_PREFIX } from '@/core/io/shareLink';
 import { tDynamic } from '@/i18n/dynamic';
 import { fitToContent } from '@/editor/canvas/viewport';
@@ -238,12 +245,70 @@ export async function copyShareLink(): Promise<void> {
 }
 
 /**
- * Opens the project of a share link in the address bar (on launch, or pasted into an open tab)
- * and removes the link from the URL, so a reload restores the user's own work. Returns false
- * when the URL holds no share link.
+ * File › Open from text: the dialog's text, and the error of the last attempt. A `#text=` link
+ * that cannot be read opens the dialog with its text and the error, to fix or send back.
+ */
+export const useTextDraft = create<{ open: boolean; text: string; error: string | null }>(() => ({
+  open: false,
+  text: '',
+  error: null,
+}));
+
+export const openTextDialog = () => useTextDraft.setState({ open: true, error: null });
+
+/** A GRAFCET text error as the user reads it: the line and what is wrong. */
+export function textErrorMessage(e: unknown): string {
+  if (!(e instanceof GrafcetTextError)) return String(e);
+  const message = tDynamic(t, `file.text.errors.${e.code}`, e.params);
+  return e.line ? t('file.text.line', { line: e.line, message }) : message;
+}
+
+/**
+ * Opens the project a GRAFCET text describes, in place of the open one (asking first when it has
+ * unsaved changes). Throws GrafcetTextError when the text cannot be read; false when cancelled.
+ */
+export async function openProjectText(text: string): Promise<boolean> {
+  const project = parseGrafcetText(text);
+  if (!(await confirmDiscardIfDirty())) return false;
+  // Like a share link: not unsaved work yet, so trying the next variant asks nothing.
+  await loadIntoEditor(project);
+  toast(t('file.text.opened', { name: project.name }), 'success', 5000);
+  return true;
+}
+
+/** File › Copy as text: the project as GRAFCET text, to paste to an AI assistant. */
+export async function copyProjectText(): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(projectToText(getProject()));
+    toast(t('file.text.copied'), 'success', 6000);
+  } catch {
+    toast(t('export.copyFailed'), 'error');
+  }
+}
+
+/** A `#text=` link: the chart opens, or the dialog shows its text and what is wrong. */
+async function openTextLink(hash: string): Promise<void> {
+  let text = '';
+  try {
+    text = decodeTextHash(hash);
+    await openProjectText(text);
+  } catch (e) {
+    useTextDraft.setState({ open: true, text, error: textErrorMessage(e) });
+  }
+}
+
+/**
+ * Opens the project of a share link or a GRAFCET text link (`#text=`) in the address bar (on
+ * launch, or pasted into an open tab) and removes the link from the URL, so a reload restores the
+ * user's own work. Returns false when the URL holds no such link.
  */
 export async function openSharedLink(): Promise<boolean> {
   const hash = location.hash;
+  if (hash.startsWith(TEXT_PREFIX)) {
+    history.replaceState(null, '', location.pathname + location.search);
+    await openTextLink(hash);
+    return true;
+  }
   if (!hash.startsWith(SHARE_PREFIX)) return false;
   history.replaceState(null, '', location.pathname + location.search);
   let project: Project;

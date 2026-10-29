@@ -63,6 +63,22 @@ beeinflussen.
   Änderungen, werden Sie zuerst gefragt, und ein beschädigter Link wird mit einer Erklärung
   abgelehnt, ohne Ihr Projekt anzutasten.
 
+## Grafcets von einem KI-Assistenten {#charts-from-ai-assistants}
+
+Ein KI-Assistent wie ChatGPT oder Claude kann einen Grafcet für Sie zeichnen. Bitten Sie ihn
+zuerst, [grafcet.org/ai.txt](https://grafcet.org/ai.txt) zu lesen: Dort lernt er den
+GRAFCET-Text, eine Textform des Grafcets, und wie er einen Link macht, der ihn hier öffnet.
+
+- **Ein Link des Assistenten** öffnet den Grafcet, automatisch angeordnet, anstelle des offenen
+  Projekts (mit Rückfrage, wenn es ungespeicherte Änderungen hat).
+- **Datei › Aus Text öffnen…** öffnet einen Grafcet, den der Assistent als Text geschrieben hat:
+  einfügen und **Öffnen** klicken. Eine unlesbare Zeile wird mit dem Problem genannt; Sie können
+  sie korrigieren oder die Meldung an den Assistenten zurückgeben.
+- **Datei › Als Text kopieren (für KI-Assistenten)** kopiert Ihren Grafcet als GRAFCET-Text, zum
+  Einfügen in den Chat, um Änderungen, eine Erklärung oder eine Prüfung zu erbitten.
+
+Positionen gehören nicht zum Text: Ein aus Text geöffneter Grafcet wird automatisch angeordnet.
+
 ## Live gemeinsam bearbeiten {#edit-together-live}
 
 **Datei › Live-Zusammenarbeit…** (oder die Personen-Schaltfläche oben rechts) lässt mehrere

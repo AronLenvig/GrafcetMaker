@@ -397,6 +397,12 @@ Autonomous build log. Read this first in every session and resume from **Current
   browser's context menu event is swallowed and the menu opens on release when it did not move
   (a synthetic `contextmenu` at the pointer), so it behaves the same on Windows (menu on release)
   and macOS/Linux (menu on press).
+- AI assistants (owner request): GRAFCET text (`core/io/grafcetText.ts`: parse with line errors,
+  write, `#text=` links), the examples' builder moved to `core/io/buildProject.ts` and shared;
+  `docs/ai.md` published as `ai.txt` (example link computed at build time), announced in
+  `llms.txt` and the home page text; File › Open from text… (`TextDialog`, also shown for a
+  `#text=` link that cannot be read) and File › Copy as text. Tests: every construct, round trip
+  of every example, line errors, links, the guide's examples open without errors.
 
 ## Decisions
 

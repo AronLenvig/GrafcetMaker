@@ -8,6 +8,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- **AI assistants** can make charts for you: `ai.txt` on the site (announced on the home page and
+  in `llms.txt`) teaches ChatGPT, Claude and other assistants **GRAFCET text**, a plain-text form
+  of a chart, and how to hand it over as a `#text=` link that opens it laid out automatically.
+  **File › Open from text…** opens a chart pasted as text, naming the line that is wrong, and
+  **File › Copy as text (for AI assistants)** copies your chart to paste back into the chat.
 - F1 opens the help on what you are working on: the section about the selected step,
   transition, branch, action, comment or link, a multiple selection, the variable shown, the
   simulation, or the receptivity or assignment being typed; F1 again closes it.

@@ -7,6 +7,10 @@ into PLC code. It is made for automation engineers, teachers and students: free 
 GrafcetMaker is a web app: it runs in any modern browser with JavaScript turned on. New to
 GRAFCET? Read the [GRAFCET guide](en/guide/), also in [French](fr/guide/), [German](de/guide/), [Spanish](es/guide/), [Danish](da/guide/) and [Swedish](sv/guide/).
 
+## For AI assistants
+
+AI assistants such as ChatGPT and Claude can make a chart for you and give it to you as a link that opens it here. Assistant, read [ai.txt](ai.txt) to learn how. In GrafcetMaker, **File › Open from text…** opens a chart an assistant wrote, and **File › Copy as text** gives your chart back to it.
+
 ## What you can do with it
 
 - **Draw** steps, transitions, receptivities and actions with the mouse or the keyboard

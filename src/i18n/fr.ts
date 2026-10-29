@@ -66,6 +66,32 @@ export const fr: Messages = {
       brokenLink:
         'Le lien est endommagé ou incomplet : il a peut-être été tronqué lors de la copie. Redemandez le lien, ou le fichier du projet.',
     },
+    text: {
+      title: 'Ouvrir depuis du texte',
+      intro:
+        'Collez un grafcet écrit en texte GRAFCET, par exemple par un assistant IA comme ChatGPT ou Claude. Demandez d’abord à l’assistant de lire {{url}} : le format y est expliqué.',
+      label: 'Texte GRAFCET',
+      open: 'Ouvrir',
+      opened: '« {{name}} » ouvert depuis du texte.',
+      copied:
+        'Le grafcet est copié en texte : collez-le à votre assistant IA pour en discuter ou le modifier.',
+      line: 'Ligne {{line}} : {{message}}',
+      errors: {
+        empty: 'Ce texte ne contient ni étape ni grafcet.',
+        tooLarge: 'Ce texte est trop long.',
+        unknownLine:
+          'Cette ligne n’est pas du texte GRAFCET. Les lignes commencent par project, input, output, internal, grafcet, step, note, une action (do, on enter:, on exit:, on <événement>:, force) ou une transition comme 0 -> 1: start.',
+        name: '« {{name}} » n’est pas un nom de variable valide : une lettre ou _, puis des lettres, chiffres ou _, ni mot-clé ni nom d’étape comme X1.',
+        duplicateVariable: 'La variable {{name}} est déclarée deux fois.',
+        value: '« {{value}} » n’est pas une valeur {{type}}.',
+        duplicateGrafcet: 'Deux grafcets s’appellent {{name}}.',
+        duplicateStep: 'L’étape {{number}} est déclarée deux fois dans ce grafcet.',
+        unknownStep: 'L’étape {{number}} n’est pas déclarée dans le grafcet {{grafcet}}.',
+        transitionEnds: 'Une transition a besoin d’une étape au-dessus ou en dessous.',
+        unknownGrafcet: 'Aucun grafcet ne s’appelle {{name}}.',
+        invalid: 'Le grafcet n’est pas valide : {{details}}',
+      },
+    },
     share: {
       copied:
         "Lien de partage copié. Toute personne qui l'ouvre obtient sa propre copie de ce projet.",
@@ -230,6 +256,8 @@ export const fr: Messages = {
       saveAs: 'Enregistrer sous…',
       downloadCopy: 'Télécharger une copie',
       copyLink: 'Copier le lien de partage',
+      openText: 'Ouvrir depuis du texte…',
+      copyText: 'Copier en texte (pour les assistants IA)',
       live: 'Collaboration en direct…',
       localHistory: 'Historique local…',
       export: 'Exporter…',

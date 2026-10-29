@@ -5,7 +5,7 @@ into PLC code. It is made for automation engineers, teachers and students: free 
 (MIT licence), with no account, and it works offline.
 
 GrafcetMaker is a web app: it runs in any modern browser with JavaScript turned on. New to
-GRAFCET? Read the [GRAFCET guide](en/guide/), also in [French](fr/guide/), [German](de/guide/), [Spanish](es/guide/), [Danish](da/guide/) and [Swedish](sv/guide/).
+GRAFCET? Read the [GRAFCET guide](en/guide/), also in [French](fr/guide/), [German](de/guide/), [Spanish](es/guide/), [Danish](da/guide/), [Swedish](sv/guide/), [Portuguese](pt/guide/), [Polish](pl/guide/), [Russian](ru/guide/), [Chinese](zh/guide/) and [Hindi](hi/guide/).
 
 ## For AI assistants
 

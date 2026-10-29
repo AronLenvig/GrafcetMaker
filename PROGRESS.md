@@ -347,6 +347,16 @@ Autonomous build log. Read this first in every session and resume from **Current
   follow DS/EN and SS-EN 60848 usage where known (trin/steg, transition/övergång,
   transitionsbetingelse/övergångsvillkor, aktion). Figure action names stay ASCII (identifiers),
   e.g. `Hoejre`, `Upp`/`Ned`.
+- Portuguese, Polish, Russian, Chinese and Hindi (owner request; same files as Danish and Swedish,
+  `pt pl ru zh hi`). Portuguese is Brazilian (largest user base; Brazil's flag), Chinese is
+  simplified. First visits: BR/PT/AO/MZ/CV/GW/ST/TL Portuguese, PL Polish, RU/BY/KZ/KG/TJ Russian
+  (not Ukraine), CN/SG/TW/HK/MO Chinese; India stays English (engineering is taught in English
+  there), so Hindi is only chosen by hand. Polish and Russian have `_few`/`_many` plural keys
+  (allowed by `Messages`, required by the i18n test); Chinese keeps `_one` equal to `_other`.
+  Hindi transliterates the GRAFCET terms (स्टेप, ट्रांज़िशन, रिसेप्टिविटी) as Indian engineers learn
+  them in English, with standard Hindi UI words. Guide figure identifiers stay English in Russian,
+  Chinese and Hindi (ASCII identifiers). `slug()` keeps combining marks (`\p{M}`), or Devanagari
+  anchors lose their vowel signs. The phone flag row wraps (eleven flags).
 - The main menu no longer lists the languages (owner request): the flag button at the bottom
   right and the palette on desktop, the flags in the menu drawer on phones.
 - Loop lanes beside their body (`geometry.ts` `loopBody`: what lies on the way down from the
@@ -509,11 +519,15 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Enclosing step symbol (vertical inner lines) not verified against the IEC 60848 figure; adjust
   in `elements.tsx` and `svgExport.ts` if the standard differs.
 - An initial step cannot be a macro-step or an enclosing step (data model limitation).
-- The interface and help exist in English, French, German, Spanish, Danish and Swedish, kept in
+- The interface and help exist in English, French, German, Spanish, Danish, Swedish, Portuguese,
+  Polish, Russian, Chinese and Hindi, kept in
   step by hand (the i18n test catches missing keys, placeholders and anchors, not stale wording).
   The examples, the help diagrams and generated PLC code stay English. The
   translations were made by a model; a native review of each language is still to do.
-- The website guide exists in six languages kept in step by hand. Guide figures use the system monospace font (the app's JetBrains Mono
+- The website guide exists in eleven languages kept in step by hand.
+- PDF export draws text with jsPDF's standard fonts (Latin-1): Cyrillic, Chinese or Devanagari
+  that a user types (names, comments, actions) does not come out in PDFs; SVG and PNG are fine.
+  Embedding fonts for these scripts (megabytes for Chinese) is not done. Guide figures use the system monospace font (the app's JetBrains Mono
   is not loaded there).
 - Generated code is not compiled by a real PLC toolchain in CI (no vendor tools available); the
   ST uses only standard IEC 61131-3 constructs and the XML follows TC6 2.01 by hand. Vendor

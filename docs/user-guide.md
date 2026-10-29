@@ -69,7 +69,7 @@ fully when you point at them or reach them with the keyboard:
 - **Command palette** (`Ctrl+K`) runs any command by name; **Settings** is `Ctrl+,`.
 - **GRAFCET guide** (**Help › GRAFCET guide**, or the start screen): a web page that explains the
   language itself (elements, the five evolution rules, actions, branches, hierarchy, GRAFCET and
-  SFC) in English, French, German, Spanish, Danish and Swedish, with examples that open in the editor. It is part
+  SFC) in English, French, German, Spanish, Danish, Swedish, Portuguese, Polish, Russian, Chinese and Hindi, with examples that open in the editor. It is part
   of the app, so it also works offline and on-premise (`en/guide/`, `fr/guide/`, `de/guide/`,
   `es/guide/`, `da/guide/`, `sv/guide/` next to the app).
 
@@ -536,9 +536,10 @@ Choose System (screen icon), Light (sun) or Dark (moon) in the row at the bottom
 
 ## Language
 
-GrafcetMaker is in English, French, German, Spanish, Danish and Swedish. On grafcet.org the first visit starts in
-the language of the country you visit from (English for countries that speak none of the other
-five, and on self-hosted installs). To change it, use the language button at the bottom right (it
+GrafcetMaker is in English, French, German, Spanish, Danish, Swedish, Portuguese (Brazil), Polish,
+Russian, Chinese (simplified) and Hindi. On grafcet.org the first visit starts in the language of
+the country you visit from (English for countries that speak none of the others, for India, where
+engineering is taught in English, and on self-hosted installs). To change it, use the language button at the bottom right (it
 shows the flag of the current language; point at it for its name), on phones the flags at the
 bottom of the menu drawer ☰, or the command palette (`Ctrl+K`, "Language"). The choice is remembered on this device.
 

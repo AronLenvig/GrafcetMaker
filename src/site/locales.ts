@@ -3,7 +3,7 @@
  * page frame. Titles and descriptions are what search engines show, so keep them short: about 60
  * and 155 characters.
  */
-export const LANGS = ['en', 'fr', 'de', 'es', 'da', 'sv'] as const;
+export const LANGS = ['en', 'fr', 'de', 'es', 'da', 'sv', 'pt', 'pl', 'ru', 'zh', 'hi'] as const;
 export type Lang = (typeof LANGS)[number];
 
 /** The guide linked from the app, the page for search engines' x-default and the sitemap's first. */
@@ -180,5 +180,125 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     documentation: 'Dokumentation',
     footer:
       'GrafcetMaker är en kostnadsfri editor och simulator för GRAFCET med öppen källkod (MIT). Den körs i webbläsaren, fungerar offline och kräver inget konto.',
+  },
+  pt: {
+    language: 'Português',
+    locale: 'pt_BR',
+    title: 'O que é GRAFCET? Guia completo da IEC 60848 com exemplos',
+    description:
+      'GRAFCET explicado: etapas, transições, receptividades, ações, as cinco regras de evolução, divergências OU e E, macroetapas e forçamento, com exemplos.',
+    updated: '2026-10-29',
+    updatedLabel: 'Atualizado',
+    skip: 'Ir para o conteúdo',
+    contents: 'Nesta página',
+    languages: 'Idioma',
+    openEditor: 'Abrir o editor',
+    openExample: 'Abrir este exemplo no editor',
+    guide: 'Guia de GRAFCET',
+    appTitle: 'Editor e simulador de GRAFCET online e gratuito | GrafcetMaker',
+    appDescription:
+      'Desenhe, verifique e simule GRAFCET (IEC 60848) no navegador. Gratuito, código aberto, offline. Exporta PDF, SVG, Structured Text e PLCopen XML.',
+    ogTitle: 'GrafcetMaker: editor e simulador de GRAFCET online e gratuito',
+    ogDescription:
+      'Desenhe, verifique e simule diagramas GRAFCET (IEC 60848) no navegador. Gratuito e de código aberto, funciona offline, sem conta.',
+    documentation: 'Documentação',
+    footer:
+      'GrafcetMaker é um editor e simulador de GRAFCET gratuito e de código aberto (MIT). Funciona no navegador, também offline, e não exige conta.',
+  },
+  pl: {
+    language: 'Polski',
+    locale: 'pl_PL',
+    title: 'Czym jest GRAFCET? Pełny przewodnik po IEC 60848 z przykładami',
+    description:
+      'GRAFCET w pigułce: kroki, tranzycje, warunki, akcje, pięć reguł ewolucji, rozgałęzienia LUB i I, makrokroki i wymuszanie, z diagramami i przykładami.',
+    updated: '2026-10-29',
+    updatedLabel: 'Zaktualizowano',
+    skip: 'Przejdź do treści',
+    contents: 'Na tej stronie',
+    languages: 'Język',
+    openEditor: 'Otwórz edytor',
+    openExample: 'Otwórz ten przykład w edytorze',
+    guide: 'Przewodnik GRAFCET',
+    appTitle: 'Darmowy edytor i symulator GRAFCET online | GrafcetMaker',
+    appDescription:
+      'Rysuj, sprawdzaj i symuluj GRAFCET (IEC 60848) w przeglądarce. Darmowy, otwarty kod, offline. Eksport do PDF, SVG, Structured Text i PLCopen XML.',
+    ogTitle: 'GrafcetMaker: darmowy edytor i symulator GRAFCET online',
+    ogDescription:
+      'Rysuj, sprawdzaj i symuluj diagramy GRAFCET (IEC 60848) w przeglądarce. Darmowy i otwarty, działa offline, bez konta.',
+    documentation: 'Dokumentacja',
+    footer:
+      'GrafcetMaker to darmowy edytor i symulator GRAFCET o otwartym kodzie (MIT). Działa w przeglądarce, także offline, i nie wymaga konta.',
+  },
+  ru: {
+    language: 'Русский',
+    locale: 'ru_RU',
+    title: 'Что такое GRAFCET? Полное руководство по IEC 60848 с примерами',
+    description:
+      'GRAFCET простыми словами: шаги, переходы, условия переходов, действия, пять правил эволюции, ветвления ИЛИ и И, макрошаги и принудительная установка.',
+    updated: '2026-10-29',
+    updatedLabel: 'Обновлено',
+    skip: 'Перейти к содержанию',
+    contents: 'На этой странице',
+    languages: 'Язык',
+    openEditor: 'Открыть редактор',
+    openExample: 'Открыть этот пример в редакторе',
+    guide: 'Руководство по GRAFCET',
+    appTitle: 'Бесплатный онлайн-редактор и симулятор GRAFCET | GrafcetMaker',
+    appDescription:
+      'Рисуйте, проверяйте и моделируйте GRAFCET (IEC 60848) в браузере. Бесплатно, открытый код, офлайн. Экспорт в PDF, SVG, Structured Text и PLCopen XML.',
+    ogTitle: 'GrafcetMaker: бесплатный онлайн-редактор и симулятор GRAFCET',
+    ogDescription:
+      'Рисуйте, проверяйте и моделируйте диаграммы GRAFCET (IEC 60848) в браузере. Бесплатно, открытый код, работает офлайн, без учётной записи.',
+    documentation: 'Документация',
+    footer:
+      'GrafcetMaker — бесплатный редактор и симулятор GRAFCET с открытым исходным кодом (MIT). Работает в браузере, в том числе офлайн, без учётной записи.',
+  },
+  zh: {
+    language: '中文',
+    locale: 'zh_CN',
+    title: '什么是 GRAFCET？IEC 60848 完整指南与示例',
+    description:
+      'GRAFCET 详解：步、转换、转换条件、动作、五条演变规则、选择分支与并行分支、宏步和强制，配有图示和示例。',
+    updated: '2026-10-29',
+    updatedLabel: '更新于',
+    skip: '跳到正文',
+    contents: '本页内容',
+    languages: '语言',
+    openEditor: '打开编辑器',
+    openExample: '在编辑器中打开此示例',
+    guide: 'GRAFCET 指南',
+    appTitle: '免费在线 GRAFCET 编辑器和仿真器（IEC 60848）| GrafcetMaker',
+    appDescription:
+      '在浏览器中绘制、检查和仿真 GRAFCET（IEC 60848）图。免费开源，可离线使用。可导出为 PDF、SVG、结构化文本（ST）和 PLCopen XML。',
+    ogTitle: 'GrafcetMaker：免费在线 GRAFCET 编辑器和仿真器',
+    ogDescription:
+      '在浏览器中绘制、检查和仿真 GRAFCET 图（IEC 60848）。免费开源，可离线使用，无需注册。',
+    documentation: '文档',
+    footer:
+      'GrafcetMaker 是一款免费、开源（MIT）的 GRAFCET 编辑器和仿真器。它在浏览器中运行，可离线使用，无需注册账号。',
+  },
+  hi: {
+    language: 'हिन्दी',
+    locale: 'hi_IN',
+    title: 'GRAFCET क्या है? उदाहरणों के साथ IEC 60848 की पूरी गाइड',
+    description:
+      'GRAFCET की सरल व्याख्या: स्टेप, ट्रांज़िशन, रिसेप्टिविटी, एक्शन, विकास के पाँच नियम, OR और AND शाखाएँ, मैक्रो-स्टेप और फ़ोर्सिंग, उदाहरणों सहित।',
+    updated: '2026-10-29',
+    updatedLabel: 'अपडेट किया गया',
+    skip: 'सामग्री पर जाएँ',
+    contents: 'इस पेज पर',
+    languages: 'भाषा',
+    openEditor: 'एडिटर खोलें',
+    openExample: 'यह उदाहरण एडिटर में खोलें',
+    guide: 'GRAFCET गाइड',
+    appTitle: 'मुफ़्त ऑनलाइन GRAFCET एडिटर और सिम्युलेटर | GrafcetMaker',
+    appDescription:
+      'ब्राउज़र में GRAFCET (IEC 60848) चार्ट बनाएँ, जाँचें और सिम्युलेट करें। मुफ़्त, ओपन सोर्स, ऑफ़लाइन। PDF, SVG, Structured Text और PLCopen XML में एक्सपोर्ट।',
+    ogTitle: 'GrafcetMaker: मुफ़्त ऑनलाइन GRAFCET एडिटर और सिम्युलेटर',
+    ogDescription:
+      'ब्राउज़र में GRAFCET चार्ट (IEC 60848) बनाएँ, जाँचें और सिम्युलेट करें। मुफ़्त और ओपन सोर्स, ऑफ़लाइन चलता है, अकाउंट की ज़रूरत नहीं।',
+    documentation: 'दस्तावेज़',
+    footer:
+      'GrafcetMaker एक मुफ़्त, ओपन सोर्स (MIT) GRAFCET एडिटर और सिम्युलेटर है। यह आपके ब्राउज़र में चलता है, ऑफ़लाइन भी काम करता है और इसके लिए अकाउंट की ज़रूरत नहीं।',
   },
 };

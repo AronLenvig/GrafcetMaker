@@ -92,7 +92,7 @@ export function LanguageSwitcher() {
       value={language}
       onValueChange={(v) => v && void setLanguage(v as Language)}
       aria-label={t('language.label')}
-      className="flex rounded-md border border-border bg-surface-2 p-0.5"
+      className="flex flex-wrap rounded-md border border-border bg-surface-2 p-0.5"
     >
       {CODES.map((l) => (
         <ToggleGroup.Item

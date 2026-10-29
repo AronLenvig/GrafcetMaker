@@ -5,7 +5,7 @@ código de autómata. Está pensado para ingenieros de automatización, docentes
 de código abierto (licencia MIT), sin cuenta, y funciona sin conexión.
 
 GrafcetMaker es una aplicación web: funciona en cualquier navegador actual con JavaScript activado.
-¿Es nuevo para ti el GRAFCET? Lee la [guía de GRAFCET](es/guide/), también en [inglés](en/guide/), [francés](fr/guide/), [alemán](de/guide/), [danés](da/guide/) y [sueco](sv/guide/).
+¿Es nuevo para ti el GRAFCET? Lee la [guía de GRAFCET](es/guide/), también en [inglés](en/guide/), [francés](fr/guide/), [alemán](de/guide/), [danés](da/guide/), [sueco](sv/guide/), [portugués](pt/guide/), [polaco](pl/guide/), [ruso](ru/guide/), [chino](zh/guide/) e [hindi](hi/guide/).
 
 ## Para asistentes de IA
 

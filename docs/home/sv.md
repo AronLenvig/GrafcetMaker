@@ -6,7 +6,7 @@ dem till PLC-kod. Den är gjord för automationsingenjörer, lärare och student
 
 GrafcetMaker är en webbapp: den körs i alla moderna webbläsare med JavaScript påslaget. Är GRAFCET
 nytt för dig? Läs [GRAFCET-guiden](sv/guide/), som också finns på [engelska](en/guide/),
-[franska](fr/guide/), [tyska](de/guide/), [spanska](es/guide/) och [danska](da/guide/).
+[franska](fr/guide/), [tyska](de/guide/), [spanska](es/guide/), [danska](da/guide/), [portugisiska](pt/guide/), [polska](pl/guide/), [ryska](ru/guide/), [kinesiska](zh/guide/) och [hindi](hi/guide/).
 
 ## För AI-assistenter
 

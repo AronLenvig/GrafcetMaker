@@ -5,7 +5,7 @@ SPS-Code um. Er ist für Automatisierungstechniker, Lehrkräfte und Studierende 
 Open Source (MIT-Lizenz), ohne Konto, und er funktioniert offline.
 
 GrafcetMaker ist eine Web-App: Sie läuft in jedem aktuellen Browser mit eingeschaltetem
-JavaScript. Ist GRAFCET neu für Sie? Lesen Sie den [GRAFCET-Leitfaden](de/guide/), auch auf [Englisch](en/guide/), [Französisch](fr/guide/), [Spanisch](es/guide/), [Dänisch](da/guide/) und [Schwedisch](sv/guide/).
+JavaScript. Ist GRAFCET neu für Sie? Lesen Sie den [GRAFCET-Leitfaden](de/guide/), auch auf [Englisch](en/guide/), [Französisch](fr/guide/), [Spanisch](es/guide/), [Dänisch](da/guide/), [Schwedisch](sv/guide/), [Portugiesisch](pt/guide/), [Polnisch](pl/guide/), [Russisch](ru/guide/), [Chinesisch](zh/guide/) und [Hindi](hi/guide/).
 
 ## Für KI-Assistenten
 

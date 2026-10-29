@@ -8,11 +8,14 @@ import { en } from '@/i18n/en';
  * Translations keep what the code relies on: every key with the same placeholders, and help pages
  * with the anchors, figures, links and keys of the English page.
  */
-const LANGS = ['fr', 'de', 'es', 'da', 'sv'] as const;
+const LANGS = ['fr', 'de', 'es', 'da', 'sv', 'pt', 'pl', 'ru', 'zh', 'hi'] as const;
 
-const strings = import.meta.glob<Record<string, unknown>>('/src/i18n/{fr,de,es,da,sv}.ts', {
-  eager: true,
-});
+const strings = import.meta.glob<Record<string, unknown>>(
+  '/src/i18n/{fr,de,es,da,sv,pt,pl,ru,zh,hi}.ts',
+  {
+    eager: true,
+  },
+);
 const help = import.meta.glob<string>('/docs/help/**/*.md', {
   query: '?raw',
   import: 'default',
@@ -92,6 +95,17 @@ describe.each(LANGS)('%s', (lang) => {
       expect(translated.has(key), key).toBe(true);
       expect(placeholders(translated.get(key)!), key).toEqual(placeholders(text));
     }
+  });
+
+  // English has one and other; Polish and Russian also count in few and many (2–4, 5+).
+  it('has every plural form of its language', () => {
+    const translated = new Map(leaves(strings[`/src/i18n/${lang}.ts`]![lang]));
+    const forms = new Intl.PluralRules(lang)
+      .resolvedOptions()
+      .pluralCategories.filter((f) => (lang === 'pl' || lang === 'ru') && f !== 'zero');
+    for (const [key] of leaves(en).filter(([k]) => k.endsWith('_one')))
+      for (const form of forms)
+        expect(translated.has(key.replace(/_one$/, `_${form}`)), `${key} → ${form}`).toBe(true);
   });
 
   it.each(englishPages)('help page %s keeps anchors, figures, links and keys', (id) => {

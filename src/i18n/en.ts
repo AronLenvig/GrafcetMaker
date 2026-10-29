@@ -1496,7 +1496,10 @@ export const en = {
   },
 } as const;
 
-/** What every translation provides: the same keys as English, in its own words. */
+/**
+ * What every translation provides: the same keys as English, in its own words, plus the plural
+ * forms its language has beyond English's one and other (Polish and Russian: few and many).
+ */
 export type Messages<T = typeof en> = {
   readonly [K in keyof T]: T[K] extends string ? string : Messages<T[K]>;
-};
+} & { readonly [K in `${string}_${'few' | 'many'}`]?: string };

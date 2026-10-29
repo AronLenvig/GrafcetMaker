@@ -23,7 +23,7 @@ Browser GRAFCET (IEC 60848) editor + simulator for professional automation engin
 - When the spec is ambiguous, pick the option closest to IEC 60848 and common engineering practice, note it in `docs/semantics.md` or this file, and continue.
 
 ## Stack (fixed)
-TypeScript strict · Vite · React 18 · Zustand + Immer (patches → undo/redo) · custom SVG renderer (no React Flow/JointJS) · Radix UI · Tailwind + CSS variables · Zod · Dexie (IndexedDB) · i18next (EN, FR, DE, ES, DA, SV) · svg2pdf.js + jsPDF · vite-plugin-pwa · Vitest · Playwright · ESLint + Prettier.
+TypeScript strict · Vite · React 18 · Zustand + Immer (patches → undo/redo) · custom SVG renderer (no React Flow/JointJS) · Radix UI · Tailwind + CSS variables · Zod · Dexie (IndexedDB) · i18next (EN, FR, DE, ES, DA, SV, PT, PL, RU, ZH, HI) · svg2pdf.js + jsPDF · vite-plugin-pwa · Vitest · Playwright · ESLint + Prettier.
 
 ## Architecture
 ```

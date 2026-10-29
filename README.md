@@ -101,8 +101,11 @@ toolbar.
 - **On your own server:** `docker build -t grafcetmaker . && docker run -p 8080:8080 grafcetmaker`,
   or copy the static build anywhere (see [Self-hosting](#self-hosting)).
 - **New to GRAFCET?** The [GRAFCET guide](https://grafcet.org/en/) explains the standard with
-  diagrams, in English, [French](https://grafcet.org/fr/), [German](https://grafcet.org/de/) and
-  [Spanish](https://grafcet.org/es/).
+  diagrams, in English, [French](https://grafcet.org/fr/guide/), [German](https://grafcet.org/de/guide/),
+  [Spanish](https://grafcet.org/es/guide/), [Danish](https://grafcet.org/da/guide/),
+  [Swedish](https://grafcet.org/sv/guide/), [Portuguese](https://grafcet.org/pt/guide/),
+  [Polish](https://grafcet.org/pl/guide/), [Russian](https://grafcet.org/ru/guide/),
+  [Chinese](https://grafcet.org/zh/guide/) and [Hindi](https://grafcet.org/hi/guide/).
 
 ## Features
 
@@ -129,7 +132,8 @@ toolbar.
   Studio 5000, and **PLCopen XML** (SFC) generation.
 - **Learn as you go**: start screen with examples, guided tour, help center with a beginner
   tutorial and diagrams, glossary of standard terms, in-app changelog, and a GRAFCET guide web
-  page in English, French, German, Spanish, Danish and Swedish.
+  page, all in English, French, German, Spanish, Danish, Swedish, Portuguese (Brazil), Polish,
+  Russian, Chinese (simplified) and Hindi.
 - **Phones and tablets**: a one-handed phone layout (bottom toolbar, panels in a sheet, menu
   drawer), pinch-zoom, double-tap, and a selection toolbar for what the shortcuts do.
 - **Accessible and offline**: WCAG 2.2 AA (keyboard everywhere, outline tree view, light/dark
@@ -202,7 +206,8 @@ data it cannot read; a room's storage is deleted 30 days after its last change.
 
 The Worker also serves the root page (`/`, in `run_worker_first`) with the visitor's country from
 Cloudflare on `<html data-country>` ([`worker/country.ts`](worker/country.ts)): the app starts a
-first visit in French, German or Spanish for those countries and in English otherwise. Nothing is
+first visit in the language of the visitor's country where the interface has it and in English
+otherwise (`languageOfCountry` in [`src/i18n/index.ts`](src/i18n/index.ts)). Nothing is
 stored or logged. Without the Worker (on premises, other hosts) a first visit starts in English.
 
 Security headers (no framing by other sites, `nosniff`, no referrer, HTTPS only…) come from

@@ -20,6 +20,11 @@ export const LANGUAGES = {
   es: 'Español',
   da: 'Dansk',
   sv: 'Svenska',
+  pt: 'Português',
+  pl: 'Polski',
+  ru: 'Русский',
+  zh: '中文',
+  hi: 'हिन्दी',
 } as const;
 export type Language = keyof typeof LANGUAGES;
 
@@ -32,6 +37,11 @@ const LOAD: Record<Exclude<Language, 'en'>, () => Promise<Messages>> = {
   es: () => import('./es').then((m) => m.es),
   da: () => import('./da').then((m) => m.da),
   sv: () => import('./sv').then((m) => m.sv),
+  pt: () => import('./pt').then((m) => m.pt),
+  pl: () => import('./pl').then((m) => m.pl),
+  ru: () => import('./ru').then((m) => m.ru),
+  zh: () => import('./zh').then((m) => m.zh),
+  hi: () => import('./hi').then((m) => m.hi),
 };
 
 const isLanguage = (v: unknown): v is Language => typeof v === 'string' && v in LANGUAGES;
@@ -57,8 +67,9 @@ function save(language: Language): void {
 }
 
 /**
- * Countries whose visitors start in French, German or Spanish: the main language of the country,
- * or the one engineering is taught in. Everyone else starts in English.
+ * Countries whose visitors start in a language other than English: the main language of the
+ * country, or the one engineering is taught in. Everyone else starts in English, India included
+ * (engineering is taught in English there; Hindi is one click away). Ukraine is not given Russian.
  */
 const COUNTRIES: Record<Exclude<Language, 'en'>, string> = {
   fr: 'FR BE LU MC GP MQ GF RE YT PM NC PF WF BL MF SN CI ML BF NE TD GN BJ TG CM GA CG CD CF BI DJ KM MG HT MA DZ TN',
@@ -66,6 +77,11 @@ const COUNTRIES: Record<Exclude<Language, 'en'>, string> = {
   es: 'ES MX GT HN SV NI CR PA CU DO PR CO VE EC PE BO CL AR PY UY GQ',
   da: 'DK GL FO',
   sv: 'SE AX',
+  pt: 'BR PT AO MZ CV GW ST TL',
+  pl: 'PL',
+  ru: 'RU BY KZ KG TJ',
+  zh: 'CN SG TW HK MO',
+  hi: '',
 };
 
 /** The language a visitor from a country (ISO 3166 code) starts in. */

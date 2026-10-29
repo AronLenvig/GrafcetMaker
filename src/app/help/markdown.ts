@@ -27,7 +27,7 @@ export function slug(text: string): string {
   return text
     .toLowerCase()
     .replace(/<[^>]+>/g, '')
-    .replace(/[^\p{L}\p{N}\s-]/gu, '')
+    .replace(/[^\p{L}\p{M}\p{N}\s-]/gu, '')
     .trim()
     .replace(/\s+/g, '-');
 }

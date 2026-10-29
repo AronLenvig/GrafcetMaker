@@ -6,7 +6,7 @@ source (MIT-licens), uden konto, og den virker offline.
 
 GrafcetMaker er en webapp: den kører i enhver moderne browser med JavaScript slået til. Er GRAFCET
 nyt for dig? Læs [GRAFCET-guiden](da/guide/), som også findes på [engelsk](en/guide/),
-[fransk](fr/guide/), [tysk](de/guide/), [spansk](es/guide/) og [svensk](sv/guide/).
+[fransk](fr/guide/), [tysk](de/guide/), [spansk](es/guide/), [svensk](sv/guide/), [portugisisk](pt/guide/), [polsk](pl/guide/), [russisk](ru/guide/), [kinesisk](zh/guide/) og [hindi](hi/guide/).
 
 ## Til AI-assistenter
 

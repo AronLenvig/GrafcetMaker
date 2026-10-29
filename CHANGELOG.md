@@ -217,6 +217,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- Adding a step or transition (Enter or a ghost) no longer re-centres the view: it scrolls only as far as
+  needed, and only down when the new element is below the visible area.
 - A loop inside a parallel or alternative branch ran around the whole chart, crossing the other
   branches; it now runs beside its own branch, and auto-layout leaves room for it there.
 - Live collaboration: a transition rotated to flow right to left showed top to bottom for the

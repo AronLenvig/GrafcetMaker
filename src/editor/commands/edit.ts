@@ -478,7 +478,7 @@ export function revealInGrafcet(gid: Id, ids: Id[]): void {
   setActiveGrafcet(gid);
   ui.select(ids.slice(0, 1));
   requestAnimationFrame(() => {
-    revealElements(gid, ids);
+    revealElements(gid, ids, true);
     ui.flash(ids);
   });
 }

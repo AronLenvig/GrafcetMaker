@@ -109,8 +109,12 @@ export function fitToContent(gid: Id, ids?: Iterable<Id>): void {
   else setViewport(gid, DEFAULT_VIEWPORT);
 }
 
-/** Pans (and zooms out if needed) so the elements are visible; keeps the zoom when they fit. */
-export function revealElements(gid: Id, ids: Iterable<Id>): void {
+/**
+ * Pans (and zooms out if needed) so the elements are visible; keeps the zoom when they fit. By
+ * default it scrolls only as far as needed and only along the axis where they are out of view (a
+ * new step below scrolls down, never sideways); `center` centres them instead (jumping to them).
+ */
+export function revealElements(gid: Id, ids: Iterable<Id>, center = false): void {
   const r = boundsOf(gid, ids);
   if (!r) return;
   const v = getViewport(gid);
@@ -128,11 +132,23 @@ export function revealElements(gid: Id, ids: Iterable<Id>): void {
     r.y + r.height <= top + vh - m;
   if (inside) return;
   if (r.width + (2 * FIT_PADDING) / v.zoom <= vw && r.height + (2 * FIT_PADDING) / v.zoom <= vh) {
-    setViewport(gid, {
-      ...v,
-      x: r.x + r.width / 2 - (a.x + a.width / 2) / v.zoom,
-      y: r.y + r.height / 2 - (a.y + a.height / 2) / v.zoom,
-    });
+    // Along one axis: the shift that brings [lo, hi] inside [from + m, from + size - m].
+    const shift = (lo: number, hi: number, from: number, size: number) =>
+      lo < from + m ? lo - (from + m) : hi > from + size - m ? hi - (from + size - m) : 0;
+    setViewport(
+      gid,
+      center
+        ? {
+            ...v,
+            x: r.x + r.width / 2 - (a.x + a.width / 2) / v.zoom,
+            y: r.y + r.height / 2 - (a.y + a.height / 2) / v.zoom,
+          }
+        : {
+            ...v,
+            x: v.x + shift(r.x, r.x + r.width, left, vw),
+            y: v.y + shift(r.y, r.y + r.height, top, vh),
+          },
+    );
   } else {
     showRect(gid, r, v.zoom);
   }

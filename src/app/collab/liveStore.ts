@@ -107,6 +107,6 @@ export function followPeer(id: string): void {
   setActiveGrafcet(gid);
   requestAnimationFrame(() => {
     if (p.c) centerOn(gid, p.c);
-    else if (p.sel.length) revealElements(gid, p.sel);
+    else if (p.sel.length) revealElements(gid, p.sel, true);
   });
 }

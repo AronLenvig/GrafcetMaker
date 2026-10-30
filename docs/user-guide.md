@@ -373,6 +373,9 @@ panel opens and the clock starts running.
 - **Evolution log** (folded: click its title to open it): every cycle with its trigger and each
   iteration (transitions cleared, steps activated / deactivated), so transient evolutions are
   visible. Click a cycle to see the diagram as it was then.
+- **Step by step**: when one change makes several transitions clear in a row, the diagram shows
+  each step it passes through for at least 0.1 s (the token moves from step to step). Only the
+  display waits; the simulation follows IEC 60848, where these unstable steps last no time.
 - **Chronogram** tab: waveforms of all variables and of the steps of the open grafcet. Click or drag
   in it to move the cursor back in time (the diagram follows); **Back to live** returns.
 - **Scenarios**: **Record** restarts the simulation and records your input changes with their

@@ -57,6 +57,10 @@ under **Indstillinger › Simulering**.
   selve signalet: i `/a` er `a` grøn, når `a` er slået til.
 - **Kontinuerlige aktioner**, der udføres, viser et ✓; **lagrede aktioner** viser den aktuelle værdi
   af deres variabel.
+- **Trin for trin**: når én ændring får flere transitioner til at passeres efter hinanden, viser
+  diagrammet hvert trin, den går igennem, i mindst 0,1 s, så du kan følge mærket. Kun visningen
+  venter: i simuleringen varer disse ustabile trin ingen tid, som IEC 60848 kræver, og de viste
+  værdier er allerede de endelige.
 
 ## Udviklingslog {#evolution-log}
 

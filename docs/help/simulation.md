@@ -55,6 +55,10 @@ The bar shows the time, the cycle number and when the next timer expires. The de
   `a` is green when `a` is on.
 - **Continuous actions** being executed show a ✓; **stored actions** show the current value of
   their variable.
+- **Step by step**: when one change makes several transitions clear in a row, the diagram shows each
+  step it passes through for at least 0.1 s, so you can follow the token. Only the display waits: in
+  the simulation these unstable steps last no time, as IEC 60848 requires, and the values shown are
+  already the final ones.
 
 ## Evolution log
 

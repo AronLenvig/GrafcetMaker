@@ -59,6 +59,10 @@ velocidad predeterminada está en **Configuración › Simulación**.
   el color muestra la propia señal: en `/a`, `a` está en verde cuando `a` está activada.
 - Las **acciones continuas** que se están ejecutando muestran un ✓; las **acciones memorizadas**
   muestran el valor actual de su variable.
+- **Etapa a etapa**: cuando un cambio hace franquear varias transiciones seguidas, el diagrama
+  muestra cada etapa por la que pasa durante al menos 0,1 s, para que puedas seguir la marca. Solo
+  espera la visualización: en la simulación estas etapas inestables no duran nada, como exige la IEC
+  60848, y los valores mostrados ya son los finales.
 
 ## Registro de evolución {#evolution-log}
 

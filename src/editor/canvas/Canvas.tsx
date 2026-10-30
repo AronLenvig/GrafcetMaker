@@ -157,14 +157,16 @@ function useSimDisplay() {
   const snapshot = useSim((s) => s.snapshot);
   const cursor = useSim((s) => s.cursor);
   const cycles = useSim((s) => s.cycles.length);
+  // Each evolution is shown for a moment (simStore pacing): the steps it passes through.
+  const shown = useSim((s) => s.shown);
   // Keys of what is drawn, so a snapshot that only moves the clock changes nothing.
   const { activeKey, valuesKey, executingKey } = useMemo(
     () => ({
-      activeKey: snapshot ? snapshot.active.join(',') : '',
+      activeKey: snapshot ? (shown ?? snapshot.active).join(',') : '',
       valuesKey: snapshot ? JSON.stringify(snapshot.values) : '',
       executingKey: snapshot ? snapshot.executing.join(',') : '',
     }),
-    [snapshot],
+    [snapshot, shown],
   );
   return useMemo(() => {
     if (!on || !snapshot) return null;
@@ -174,7 +176,7 @@ function useSimDisplay() {
         return { active: past.active, values: past.values, executing: null as Set<string> | null };
     }
     return {
-      active: new Set(snapshot.active),
+      active: new Set(shown ?? snapshot.active),
       values: snapshot.values,
       executing: new Set(snapshot.executing),
     };

@@ -57,6 +57,10 @@ Pasek pokazuje czas, numer cyklu i chwilę upływu następnego timera. Domyślna
   jest zielona, gdy `a` jest włączone.
 - Wykonywane **akcje ciągłe** pokazują ✓; **akcje zapamiętane** pokazują bieżącą wartość swojej
   zmiennej.
+- **Krok po kroku**: gdy jedna zmiana powoduje zadziałanie kilku tranzycji po kolei, diagram
+  pokazuje każdy krok, przez który przechodzi, przez co najmniej 0,1 s, aby można było śledzić
+  znacznik. Czeka tylko wyświetlanie: w symulacji te kroki niestabilne nie trwają wcale, jak wymaga
+  IEC 60848, a pokazane wartości są już końcowe.
 
 ## Dziennik ewolucji {#evolution-log}
 

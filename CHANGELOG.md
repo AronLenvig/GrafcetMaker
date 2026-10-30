@@ -8,6 +8,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- Simulation shows each step for at least 0.1 s: when one change makes several transitions clear
+  in a row, the token moves through every step instead of jumping to the last. Only the display
+  waits; the simulation still follows IEC 60848 (unstable steps last no time).
 - `llms.txt` and `ai.txt` tell AI assistants **when** to offer a GrafcetMaker chart: the requests
   it fits (GRAFCET or SFC, a process in steps, exercises, checking a chart, PLC code, drawings for
   documents) and what it is not for.

@@ -10,6 +10,7 @@ import { toast } from '@/app/toasts';
 import { newId } from '@/core/model/factory';
 import type { Id, Project, Scenario, ScenarioEvent } from '@/core/model/types';
 import type { SimSnapshot, Value } from '@/core/simulation/engine';
+import { framesOf, type Frame } from '@/core/simulation/frames';
 import type { CompileProblem } from '@/core/simulation/program';
 import {
   SimSession,
@@ -30,6 +31,10 @@ export function preferredSpeed(): Speed {
 }
 const MAX_CYCLES = 20_000;
 const FAST_INTERVAL_MS = 250;
+/** Each situation stays on the diagram at least this long, so every step can be seen. */
+const MIN_STEP_MS = 100;
+/** Situations waiting to be shown: older ones are skipped, so the diagram lags at most ~1 s. */
+const MAX_QUEUED = 10;
 
 export interface Baseline {
   time: number;
@@ -46,8 +51,13 @@ interface SimState {
   /** State after the start cycle, then every later cycle (for log, chronogram, time travel). */
   baseline: Baseline | null;
   cycles: CycleRecord[];
-  /** Transitions cleared by the last batch of cycles (flashed on the diagram). */
+  /** Transitions cleared to reach the situation shown (flashed on the diagram). */
   flash: { ids: Id[]; at: number } | null;
+  /**
+   * The situation the diagram shows while it catches up with the simulation, each evolution held
+   * MIN_STEP_MS (unstable situations included); null when it shows `snapshot.active`.
+   */
+  shown: Id[] | null;
   problems: CompileProblem[];
   recording: ScenarioEvent[] | null;
   replay: { name: string; events: ScenarioEvent[]; index: number } | null;
@@ -63,6 +73,7 @@ export const useSim = create<SimState>(() => ({
   baseline: null,
   cycles: [],
   flash: null,
+  shown: null,
   problems: [],
   recording: null,
   replay: null,
@@ -115,8 +126,53 @@ function send(req: SimRequest): Promise<SimResponse | null> {
   return p;
 }
 
+// --------------------------------------------------------------------------------------------
+// Pacing: the diagram shows each evolution for at least MIN_STEP_MS.
+
+let queue: Frame[] = [];
+let shownAt = 0;
+let paceTimer: ReturnType<typeof setTimeout> | undefined;
+
+function stopPacing(): void {
+  if (paceTimer !== undefined) clearTimeout(paceTimer);
+  paceTimer = undefined;
+  queue = [];
+  shownAt = 0;
+}
+
+function showNext(): void {
+  paceTimer = undefined;
+  const wait = shownAt + MIN_STEP_MS - performance.now();
+  if (wait > 0) {
+    paceTimer = setTimeout(showNext, wait);
+    return;
+  }
+  const frame = queue.shift();
+  if (!frame) {
+    useSim.setState({ shown: null });
+    return;
+  }
+  shownAt = performance.now();
+  useSim.setState((s) => ({
+    shown: frame.active,
+    flash: frame.cleared.length ? { ids: frame.cleared, at: Date.now() } : s.flash,
+  }));
+  paceTimer = setTimeout(showNext, MIN_STEP_MS);
+}
+
+function pace(frames: Frame[]): void {
+  if (!frames.length) return;
+  queue = [...queue, ...frames].slice(-MAX_QUEUED);
+  if (paceTimer === undefined) showNext();
+}
+
 function apply(res: SimResponse | null, opts: { restart?: boolean } = {}): void {
   if (!res) return;
+  const before = useSim.getState().snapshot?.active;
+  if (opts.restart) {
+    stopPacing();
+    useSim.setState({ shown: null, flash: null });
+  } else if (before && !res.snapshot.error) pace(framesOf(before, res.cycles));
   useSim.setState((s) => {
     let cycles = opts.restart ? [] : s.cycles;
     let baseline = opts.restart ? null : s.baseline;
@@ -133,14 +189,7 @@ function apply(res: SimResponse | null, opts: { restart?: boolean } = {}): void 
       baseline = advanceBaseline(baseline, drop);
       cycles = cycles.slice(drop.length);
     }
-    const cleared = [...new Set(res.cycles.flatMap((c) => c.iterations.flatMap((i) => i.cleared)))];
-    return {
-      snapshot: res.snapshot,
-      problems: res.problems,
-      baseline,
-      cycles,
-      flash: cleared.length ? { ids: cleared, at: Date.now() } : s.flash,
-    };
+    return { snapshot: res.snapshot, problems: res.problems, baseline, cycles };
   });
   if (res.snapshot.error) {
     pause();
@@ -301,12 +350,14 @@ export async function startSimulation(): Promise<void> {
 
 export function stopSimulation(): void {
   pause();
+  stopPacing();
   useSim.setState({
     on: false,
     snapshot: null,
     cycles: [],
     baseline: null,
     flash: null,
+    shown: null,
     recording: null,
     replay: null,
     cursor: null,

@@ -58,6 +58,10 @@ under **Inställningar › Simulering**.
   är `a` grön när `a` är på.
 - **Kontinuerliga aktioner** som utförs visar en ✓; **lagrade aktioner** visar det aktuella värdet
   på sin variabel.
+- **Steg för steg**: när en ändring gör att flera övergångar passeras i följd visar diagrammet varje
+  steg den går igenom i minst 0,1 s, så att du kan följa markören. Bara visningen väntar: i
+  simuleringen varar dessa instabila steg ingen tid, som IEC 60848 kräver, och de värden som visas
+  är redan de slutliga.
 
 ## Utvecklingslogg {#evolution-log}
 

@@ -59,6 +59,10 @@ vitesse par défaut se règle dans **Paramètres › Simulation**.
   le signal lui-même : dans `/a`, `a` est en vert quand `a` est à 1.
 - Les **actions continues** en cours d'exécution affichent un ✓ ; les **actions mémorisées**
   affichent la valeur actuelle de leur variable.
+- **Étape par étape** : quand un changement fait franchir plusieurs transitions à la suite, le
+  diagramme montre chaque étape traversée pendant au moins 0,1 s, pour suivre le jeton. Seul
+  l’affichage attend : dans la simulation ces étapes instables ne durent pas, comme l’exige l’IEC
+  60848, et les valeurs affichées sont déjà les valeurs finales.
 
 ## Journal d'évolution {#evolution-log}
 

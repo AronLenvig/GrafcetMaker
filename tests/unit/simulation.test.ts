@@ -7,6 +7,7 @@ import { createGrafcet, newId } from '@/core/model/factory';
 import { SCHEMA_VERSION } from '@/core/model/schema';
 import type { ActionKind, Grafcet, GrafcetKind, Project, VariableType } from '@/core/model/types';
 import { Simulator } from '@/core/simulation/engine';
+import { framesOf } from '@/core/simulation/frames';
 import { compile } from '@/core/simulation/program';
 
 type VarSpec = 'in' | 'out' | 'int' | 'n' | 'nin' | 'time';
@@ -1059,5 +1060,30 @@ describe('hierarchy', () => {
     set(sim, { c: true });
     set(sim, { e: true });
     expect(X(sim)).toEqual(['E1.31', 'G1.1']);
+  });
+});
+
+describe('evolutions shown one by one (framesOf)', () => {
+  it('lists each situation of a transient evolution, then the stable one', () => {
+    const sim = run(
+      build(
+        { a: 'in' },
+        {
+          name: 'G',
+          initial: [0],
+          steps: [0, 1, 2],
+          transitions: [
+            [[0], 'a', [1]],
+            [[1], 'a', [2]],
+          ],
+        },
+      ),
+    );
+    const before = sim.snapshot().active;
+    const frames = framesOf(before, sim.setInputs({ a: true }));
+    expect(frames.map((f) => f.active)).toEqual([['G_1'], ['G_2']]);
+    expect(frames.every((f) => f.cleared.length === 1)).toBe(true);
+    // A cycle that clears nothing shows nothing new.
+    expect(framesOf(sim.snapshot().active, sim.setInputs({ a: false }))).toEqual([]);
   });
 });

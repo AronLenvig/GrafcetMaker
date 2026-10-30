@@ -47,7 +47,7 @@ export function OutlinePanel() {
   const project = useDoc((s) => s.project);
   const activeGid = useUi((s) => s.activeGrafcetId);
   const selection = useUi((s) => s.selection);
-  const simActive = useSim((s) => (s.on && s.snapshot ? s.snapshot.active : null));
+  const simActive = useSim((s) => (s.on && s.snapshot ? (s.shown ?? s.snapshot.active) : null));
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [cursor, setCursor] = useState<string | null>(null);
 

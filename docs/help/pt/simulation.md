@@ -58,6 +58,10 @@ padrão fica em **Configurações › Simulação**.
   sinal: em `/a`, `a` fica verde quando `a` está ligada.
 - As **ações contínuas** em execução mostram um ✓; as **ações memorizadas** mostram o valor atual
   da sua variável.
+- **Etapa por etapa**: quando uma mudança faz várias transições serem transpostas em sequência, o
+  diagrama mostra cada etapa por onde passa durante pelo menos 0,1 s, para você acompanhar a ficha.
+  Só a exibição espera: na simulação essas etapas instáveis não duram nada, como exige a IEC 60848,
+  e os valores mostrados já são os finais.
 
 ## Registro da evolução {#evolution-log}
 

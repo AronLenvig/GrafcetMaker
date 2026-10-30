@@ -128,6 +128,11 @@ hand-verified charts (`tests/unit/simulation.test.ts`).
 - Steps activated and deactivated within one cycle are **transient**: their stored actions run,
   their continuous actions are never emitted (continuous actions are computed on the stable
   situation only).
+- **Display only:** the diagram replays the situations of an evolution one by one, each for at
+  least 100 ms of wall time (`core/simulation/frames.ts`, paced in `simStore`), so transient steps
+  can be seen. The simulation is not delayed: virtual time, values, the log and the chronogram
+  are those of the instantaneous evolution. At most 10 situations wait to be shown; older ones are
+  skipped so the diagram never lags far behind.
 - After **1000 iterations** the cycle stops with a **transient loop** error, shown in the
   simulation bar and in Problems. The simulation halts until it is restarted.
 - **Feedback within a cycle.** When a cycle changes a variable that a receptivity or an event

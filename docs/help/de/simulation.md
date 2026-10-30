@@ -60,6 +60,10 @@ Standardgeschwindigkeit finden Sie unter **Einstellungen › Simulation**.
   Farbe das Signal selbst: In `/a` ist `a` grün, wenn `a` eingeschaltet ist.
 - **Kontinuierlich wirkende Aktionen**, die ausgeführt werden, zeigen ein ✓; **speichernd wirkende
   Aktionen** zeigen den aktuellen Wert ihrer Variablen.
+- **Schritt für Schritt**: Wenn eine Änderung mehrere Transitionen nacheinander schalten lässt,
+  zeigt das Diagramm jeden durchlaufenen Schritt mindestens 0,1 s lang, damit Sie der Marke folgen
+  können. Nur die Anzeige wartet: In der Simulation dauern diese instabilen Schritte keine Zeit, wie
+  IEC 60848 es verlangt, und die angezeigten Werte sind bereits die endgültigen.
 
 ## Ablaufprotokoll {#evolution-log}
 

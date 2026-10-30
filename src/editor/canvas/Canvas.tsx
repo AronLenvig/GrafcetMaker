@@ -27,6 +27,7 @@ import {
   CommentView,
   LinkView,
   StepView,
+  JumpView,
   StubView,
   type StepMark,
   TransitionView,
@@ -333,6 +334,15 @@ export function Canvas({
         {geom.stubs.map((s) => (
           <StubView key={s.key} d={pointsToPath(s.points)} />
         ))}
+        {geom.jumps
+          .filter((j) => inView(j.elementId))
+          .map((j) => (
+            <JumpView
+              key={j.key}
+              jump={j}
+              editing={j.side === 'from' && editField(j.elementId) === 'jump'}
+            />
+          ))}
         {transitions
           .filter((tr) => inView(tr.id))
           .map((tr) => (

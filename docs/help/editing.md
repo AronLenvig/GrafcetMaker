@@ -15,6 +15,7 @@ top of the canvas list the keys that apply to the current selection.
 | <kbd>L</kbd> then click a step | loop back to that step                                       | link to that step (if it leads nowhere yet) |
 | <kbd>F2</kbd> or double-click  | edit the number                                              | edit the receptivity                        |
 | <kbd>R</kbd>                   | —                                                            | rotate: top to bottom or right to left      |
+| <kbd>J</kbd>                   | —                                                            | jump to a step: type `X10` under it         |
 | <kbd>Del</kbd>                 | delete and reconnect the sequence                            | delete                                      |
 
 A transition turned **right to left** has a vertical bar: the link from the step before it enters
@@ -108,6 +109,12 @@ Divergences and convergences are never drawn by hand; they follow from the links
   into a step makes an OR convergence.
 - **Edit › Source transition above step / Sink transition below step** adds a transition without a
   step above or below.
+- <kbd>J</kbd> on a transition **jumps** to a step instead of drawing a line to it: type the step
+  under the transition (`X10`, or just `10`) and press <kbd>Enter</kbd>. The transition ends in an
+  arrow marked **X10**, and a step reached only by jumps gets an arrow marked with the steps they
+  come from. Double-click X10 to change it; clear it to remove the jump. Right-click a link or a
+  jumping transition for **Draw link as a jump** and **Draw jump as a link**. Only the drawing
+  changes: the transition still leads to that step, in simulation and in generated code.
 
 ## Tidy up
 

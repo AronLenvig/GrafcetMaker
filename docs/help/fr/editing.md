@@ -16,6 +16,7 @@ utilisables avec la sélection en cours.
 | <kbd>L</kbd> puis clic sur une étape | revenir à cette étape (reprise de séquence)                                | relier à cette étape (si elle ne mène encore nulle part) |
 | <kbd>F2</kbd> ou double-clic         | modifier le numéro                                                         | modifier la réceptivité                                  |
 | <kbd>R</kbd>                         | —                                                                          | pivoter : de haut en bas ou de droite à gauche           |
+| <kbd>J</kbd>                         | —                                                                          | renvoi vers une étape : tapez `X10` dessous              |
 | <kbd>Del</kbd>                       | supprimer et reconnecter la séquence                                       | supprimer                                                |
 
 Une transition orientée **de droite à gauche** a un trait vertical : la liaison venant de l'étape
@@ -129,6 +130,13 @@ liaisons.
   transition à une étape crée une convergence en OU.
 - **Édition › Transition source au-dessus de l'étape / Transition puits sous l'étape** ajoute une
   transition sans étape en amont ou en aval.
+- <kbd>J</kbd> sur une transition fait un **renvoi** vers une étape au lieu de tracer une liaison :
+  tapez l’étape sous la transition (`X10`, ou simplement `10`) puis <kbd>Enter</kbd>. La transition
+  se termine par une flèche marquée **X10**, et une étape atteinte seulement par des renvois reçoit
+  une flèche marquée des étapes d’où ils viennent. Double-cliquez sur X10 pour le changer ;
+  effacez-le pour supprimer le renvoi. Clic droit sur une liaison ou une transition à renvoi :
+  **Dessiner la liaison en renvoi** et **Dessiner le renvoi en liaison**. Seul le dessin change : la
+  transition mène toujours à cette étape, en simulation comme dans le code généré.
 
 ## Mettre en ordre {#tidy-up}
 

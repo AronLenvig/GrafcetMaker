@@ -136,6 +136,7 @@ export const da: Messages = {
     },
   },
   history: {
+    jump: 'Spring',
     append: 'Tilføj trin',
     addAction: 'Tilføj aktion',
     moveAction: 'Flyt aktion',
@@ -198,8 +199,10 @@ export const da: Messages = {
     nextStep: 'næste trin',
   },
   editor: {
+    unknownStep: 'Skriv nummeret på et trin i denne grafcet, f.eks. X10.',
     invalidNumber: 'Indtast et heltal mellem 0 og 999999.',
     fields: {
+      jump: 'Spring til trin',
       number: 'Nummer',
       label: 'Betegnelse',
       receptivity: 'Transitionsbetingelse',
@@ -208,6 +211,8 @@ export const da: Messages = {
     },
   },
   canvas: {
+    jumpFrom: 'Nås ved spring fra {{steps}}',
+    jumpTo: 'Spring til trin {{step}}',
     region: 'Diagram',
     label: 'Grafcet {{name}}',
     roleDescription: 'GRAFCET-diagrameditor',
@@ -274,6 +279,8 @@ export const da: Messages = {
       settings: 'Indstillinger…',
     },
     edit: {
+      drawAsLink: 'Tegn springet som forbindelse',
+      drawAsJump: 'Tegn forbindelsen som spring (X10)',
       undo: 'Fortryd',
       redo: 'Gentag',
       undoWhat: 'Fortryd {{what}}',
@@ -292,6 +299,7 @@ export const da: Messages = {
       removeUnusedVariables: 'Fjern ubrugte variabler',
     },
     insert: {
+      jump: 'Spring til et trin…',
       append: 'Tilføj transition og trin',
       action: 'Tilføj aktion til trin',
       step: 'Tilføj trin',
@@ -1306,6 +1314,7 @@ export const da: Messages = {
     active: 'aktiv',
   },
   selectionBar: {
+    jump: 'Spring',
     label: 'Markering',
     append: 'Trin',
     action: 'Aktion',
@@ -1364,6 +1373,7 @@ export const da: Messages = {
       hoverTransition: 'Peg på en transition',
     },
     do: {
+      jump: 'spring til et trin (X10) i stedet for en forbindelse',
       addStep: 'tilføj et trin',
       placeStep: 'klik så: placer et trin',
       commands: 'alle kommandoer',

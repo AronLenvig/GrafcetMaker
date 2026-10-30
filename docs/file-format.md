@@ -9,10 +9,10 @@ The authoritative definition is the Zod schema in
 
 ## Versioning
 
-- `schemaVersion` (integer) identifies the format. Current version: **3**.
+- `schemaVersion` (integer) identifies the format. Current version: **4**.
 - History: **1** first release; **2** actions may have no step (`stepId: null` with a
-  `position`); **3** transitions may flow right to left (`flow: 'left'`). Older files are upgraded
-  unchanged.
+  `position`); **3** transitions may flow right to left (`flow: 'left'`); **4** a transition's link
+  may be drawn as a jump (`jump: true`). Older files are upgraded unchanged.
 - Older files are upgraded on load through a migration chain
   ([`src/core/io/migrations.ts`](../src/core/io/migrations.ts)); each migration upgrades exactly
   one version.
@@ -57,7 +57,7 @@ working example link) and announced in `llms.txt` and the home page text. Parser
 - Reading builds the project with the same builder as the examples (`core/io/buildProject.ts`),
   lays it out automatically, declares names used but not declared from their use, then loads it
   through `parseProjectFile` (limits, integrity). Texts over 1 MB are refused.
-- Not written (lost through text): positions, transition numbers, flow direction, loop routing,
+- Not written (lost through text): positions, transition numbers, flow direction, jumps, loop routing,
   scenarios and the project's metadata. Everything else round-trips: writing the text of a project
   read from text gives the same text (tested on every example).
 
@@ -202,6 +202,9 @@ Transition {
   flow?: 'left'               // right to left: vertical bar, upstream links enter on the right,
                               //   downstream links leave on the left (absent: top to bottom;
                               //   a transition with AND links is always drawn top to bottom)
+  jump?: true                 // the link to its one downstream step is drawn as a jump: an arrow
+                              //   marked with the step (X10) instead of a line; drawing only,
+                              //   ignored unless `to` has exactly one step
   routing?: {                 // manual routing of upward (loop) links; missing = automatic
     sideX?: number            //   x of their vertical segment (side lane)
     dropY?: number            //   y of their bottom line (kept below the source)

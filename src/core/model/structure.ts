@@ -43,7 +43,10 @@ export function addParallelBranch(g: Grafcet, id: Id): Id | null {
       : [s.position.x];
     const x = freeX(g, maxX(siblings, s.position.x) + BRANCH_DX, [s.position.y]);
     const ns = addStep(g, { x, y: s.position.y }, 'normal', preferredStepNumber(g, s.number));
-    if (tin) tin.to.push(ns.id);
+    if (tin) {
+      tin.to.push(ns.id);
+      delete tin.jump;
+    }
     if (tout) tout.from.push(ns.id);
     return ns.id;
   }
@@ -57,6 +60,7 @@ export function addParallelBranch(g: Grafcet, id: Id): Id | null {
     const x = t.to.length ? freeX(g, maxX(xs, t.position.x) + BRANCH_DX, [y]) : t.position.x;
     const ns = addStep(g, { x, y }, 'normal', preferredStepNumber(g, prev));
     t.to.push(ns.id);
+    delete t.jump;
     return ns.id;
   }
   return null;
@@ -125,6 +129,7 @@ export function addLoop(g: Grafcet, fromId: Id, target: Id): Id | null {
   const t = g.transitions[fromId];
   if (t && t.to.length === 0) {
     t.to.push(target);
+    delete t.jump;
     return t.id;
   }
   return null;

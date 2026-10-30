@@ -15,6 +15,7 @@ værktøjslinjen øverst på lærredet viser de taster, der gælder for den aktu
 | <kbd>L</kbd> og klik derefter på et trin | tilbageføring til det trin                                                    | forbind med det trin (hvis den endnu ikke fører nogen steder hen) |
 | <kbd>F2</kbd> eller dobbeltklik          | rediger nummeret                                                              | rediger transitionsbetingelsen                                    |
 | <kbd>R</kbd>                             | –                                                                             | drej: oppefra og ned eller fra højre mod venstre                  |
+| <kbd>J</kbd>                             | —                                                                             | spring til et trin: skriv `X10` under den                         |
 | <kbd>Del</kbd>                           | slet, og genforbind sekvensen                                                 | slet                                                              |
 
 En transition, der er drejet til **fra højre mod venstre**, har en lodret streg: forbindelsen fra
@@ -121,6 +122,13 @@ Forgreninger og sammenføringer tegnes aldrig i hånden; de følger af forbindel
   transition ind i et trin, får du en ELLER-sammenføring.
 - **Rediger › Kildetransition over trin / Dræntransition under trin** tilføjer en transition uden
   trin over eller under sig.
+- <kbd>J</kbd> på en transition laver et **spring** til et trin i stedet for en streg til det: skriv
+  trinnet under transitionen (`X10` eller blot `10`) og tryk <kbd>Enter</kbd>. Transitionen ender i
+  en pil mærket **X10**, og et trin, der kun nås ved spring, får en pil mærket med de trin, de
+  kommer fra. Dobbeltklik på X10 for at ændre det; slet teksten for at fjerne springet. Højreklik på
+  en forbindelse eller en transition med spring: **Tegn forbindelsen som spring** og **Tegn springet
+  som forbindelse**. Kun tegningen ændres: transitionen fører stadig til trinnet, i simuleringen og
+  i den genererede kode.
 
 ## Ryd op {#tidy-up}
 

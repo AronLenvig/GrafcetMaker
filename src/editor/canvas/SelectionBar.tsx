@@ -6,6 +6,7 @@ import {
   AlternativeIcon,
   AppendIcon,
   EditIcon,
+  JumpIcon,
   LoopIcon,
   ParallelIcon,
   PropertiesIcon,
@@ -22,7 +23,16 @@ type Kind = 'step' | 'transition' | 'other' | 'many' | 'link';
 interface Entry {
   /** Command id, or 'properties' for the details panel. */
   id: string;
-  label: 'append' | 'action' | 'parallel' | 'alternative' | 'loop' | 'edit' | 'details' | 'delete';
+  label:
+    | 'append'
+    | 'action'
+    | 'parallel'
+    | 'alternative'
+    | 'loop'
+    | 'jump'
+    | 'edit'
+    | 'details'
+    | 'delete';
   Icon: typeof EditIcon;
   for: Kind[];
 }
@@ -38,6 +48,7 @@ const ENTRIES: Entry[] = [
     for: ['step', 'transition'],
   },
   { id: 'insert.loop', label: 'loop', Icon: LoopIcon, for: ['step', 'transition'] },
+  { id: 'insert.jump', label: 'jump', Icon: JumpIcon, for: ['transition'] },
   { id: 'edit.rename', label: 'edit', Icon: EditIcon, for: ['step', 'transition', 'other'] },
   {
     id: 'properties',

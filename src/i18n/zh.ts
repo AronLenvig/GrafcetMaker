@@ -129,6 +129,7 @@ export const zh: Messages = {
     },
   },
   history: {
+    jump: '跳转',
     append: '追加步',
     addAction: '添加动作',
     moveAction: '移动动作',
@@ -189,8 +190,10 @@ export const zh: Messages = {
     nextStep: '下一步',
   },
   editor: {
+    unknownStep: '请输入此 grafcet 中某个步的编号，例如 X10。',
     invalidNumber: '请输入 0 到 999999 之间的整数。',
     fields: {
+      jump: '跳转到步',
       number: '编号',
       label: '标签',
       receptivity: '转换条件',
@@ -199,6 +202,8 @@ export const zh: Messages = {
     },
   },
   canvas: {
+    jumpFrom: '由 {{steps}} 跳转到达',
+    jumpTo: '跳转到步 {{step}}',
     region: '图表',
     label: 'Grafcet {{name}}',
     roleDescription: 'GRAFCET 图表编辑器',
@@ -264,6 +269,8 @@ export const zh: Messages = {
       settings: '设置…',
     },
     edit: {
+      drawAsLink: '将跳转画为连线',
+      drawAsJump: '将连线画为跳转（X10）',
       undo: '撤销',
       redo: '重做',
       undoWhat: '撤销{{what}}',
@@ -282,6 +289,7 @@ export const zh: Messages = {
       removeUnusedVariables: '移除未使用的变量',
     },
     insert: {
+      jump: '跳转到步…',
       append: '追加转换和步',
       action: '为步添加动作',
       step: '添加步',
@@ -1259,6 +1267,7 @@ export const zh: Messages = {
     active: '激活',
   },
   selectionBar: {
+    jump: '跳转',
     label: '所选内容',
     append: '步',
     action: '动作',
@@ -1317,6 +1326,7 @@ export const zh: Messages = {
       hoverTransition: '指向一个转换',
     },
     do: {
+      jump: '跳转到某个步（X10），代替连线',
       addStep: '添加步',
       placeStep: '然后单击：放置步',
       commands: '所有命令',

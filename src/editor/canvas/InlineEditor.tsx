@@ -10,6 +10,9 @@ import {
   actionBoxOf,
   actionDecor,
   commentRect,
+  isJump,
+  jumpLabelAnchor,
+  jumpText,
   stepLabelAnchor,
   transitionNumberAnchor,
   transitionTextAnchor,
@@ -18,8 +21,9 @@ import {
 import { actionTextKind, type ExpressionKind } from '@/core/expr/check';
 import type { Grafcet } from '@/core/model/types';
 import { ExpressionInput, type ExpressionInputHandle } from '@/panels/ExpressionInput';
-import { continueAfter, nextAfter } from '../commands/edit';
+import { continueAfter, editActive, nextAfter } from '../commands/edit';
 import { editExpression } from '../commands/variables';
+import { getActiveGrafcet } from '../store/document';
 import { ui, useUi, type EditTarget, type Viewport } from '../store/uiStore';
 import { useInteraction } from './interactionStore';
 import { useCoarsePointer, useCompact } from '@/app/ui/media';
@@ -34,12 +38,17 @@ function currentValue(g: Grafcet, t: EditTarget): string | null {
   if (s)
     return t.field === 'number' ? String(s.number) : t.field === 'label' ? (s.label ?? '') : null;
   const tr = g.transitions[t.id];
-  if (tr)
+  if (tr) {
+    if (t.field === 'jump') {
+      const target = isJump(tr) ? g.steps[tr.to[0]!] : undefined;
+      return target ? jumpText(target.number) : '';
+    }
     return t.field === 'receptivity'
       ? tr.receptivity
       : t.field === 'number'
         ? String(tr.number ?? '')
         : null;
+  }
   const a = g.actions[t.id];
   if (a) return t.field === 'text' ? a.text : t.field === 'condition' ? (a.condition ?? '') : null;
   const c = g.comments[t.id];
@@ -47,11 +56,43 @@ function currentValue(g: Grafcet, t: EditTarget): string | null {
   return null;
 }
 
+/**
+ * The step a jump is typed to: `X10` or `10` names step 10 of the grafcet. Null when no step has
+ * that number (or the text is not a step).
+ */
+function jumpTarget(g: Grafcet | undefined, text: string): string | null {
+  const m = /^X?\s*(\d{1,6})$/i.exec(text);
+  if (!g || !m) return null;
+  const n = Number(m[1]);
+  return Object.values(g.steps).find((s) => s.number === n)?.id ?? null;
+}
+
 /** Applies an edited value. Returns an i18n error key when the value is rejected. */
-export function applyEdit(t: EditTarget, raw: string): 'editor.invalidNumber' | null {
+export function applyEdit(
+  t: EditTarget,
+  raw: string,
+): 'editor.invalidNumber' | 'editor.unknownStep' | null {
   const value = t.field === 'text' ? raw.replace(/\s+$/, '') : raw.trim();
   if (t.field === 'number' && value !== '' && !/^\d{1,6}$/.test(value))
     return 'editor.invalidNumber';
+  if (t.field === 'jump') {
+    // Empty: no jump (the transition ends its sequence). Otherwise it leads to that step, drawn
+    // as an arrow marked with it.
+    const target = value === '' ? null : jumpTarget(getActiveGrafcet(), value);
+    if (value !== '' && !target) return 'editor.unknownStep';
+    editActive('history.jump', (g) => {
+      const tr = g.transitions[t.id];
+      if (!tr || (value === '' && !isJump(tr))) return;
+      if (target) {
+        tr.to = [target];
+        tr.jump = true;
+      } else {
+        tr.to = [];
+        delete tr.jump;
+      }
+    });
+    return null;
+  }
   // Receptivities, action texts and conditions declare the new names they use.
   editExpression('history.edit', (g) => {
     const s = g.steps[t.id];
@@ -133,6 +174,10 @@ function placement(
     return { x: sx(a.x), y: sy(a.y), align: 'right', fontSize: LABEL_FONT_SIZE * z };
   }
   const tr = g.transitions[t.id];
+  if (tr && t.field === 'jump') {
+    const a = jumpLabelAnchor(tr);
+    return { x: sx(a.x), y: sy(a.y), align: a.anchor === 'end' ? 'right' : 'left', fontSize };
+  }
   if (tr) {
     const a = t.field === 'number' ? transitionNumberAnchor(tr) : transitionTextAnchor(tr);
     return { x: sx(a.x), y: sy(a.y), align: t.field === 'number' ? 'right' : 'left', fontSize };

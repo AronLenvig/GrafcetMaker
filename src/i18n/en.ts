@@ -132,6 +132,7 @@ export const en = {
     },
   },
   history: {
+    jump: 'Jump',
     append: 'Append step',
     addAction: 'Add action',
     moveAction: 'Move action',
@@ -193,8 +194,10 @@ export const en = {
     nextStep: 'next step',
   },
   editor: {
+    unknownStep: 'Type the number of a step of this grafcet, e.g. X10.',
     invalidNumber: 'Enter a whole number between 0 and 999999.',
     fields: {
+      jump: 'Jump to step',
       number: 'Number',
       label: 'Label',
       receptivity: 'Receptivity',
@@ -203,6 +206,8 @@ export const en = {
     },
   },
   canvas: {
+    jumpFrom: 'Reached by a jump from {{steps}}',
+    jumpTo: 'Jumps to step {{step}}',
     region: 'Diagram',
     label: 'Grafcet {{name}}',
     roleDescription: 'GRAFCET diagram editor',
@@ -268,6 +273,8 @@ export const en = {
       settings: 'Settings…',
     },
     edit: {
+      drawAsLink: 'Draw jump as a link',
+      drawAsJump: 'Draw link as a jump (X10)',
       undo: 'Undo',
       redo: 'Redo',
       undoWhat: 'Undo {{what}}',
@@ -286,6 +293,7 @@ export const en = {
       removeUnusedVariables: 'Remove unused variables',
     },
     insert: {
+      jump: 'Jump to a step…',
       append: 'Append transition and step',
       action: 'Add action to step',
       step: 'Add step',
@@ -1292,6 +1300,7 @@ export const en = {
     active: 'active',
   },
   selectionBar: {
+    jump: 'Jump',
     label: 'Selection',
     append: 'Step',
     action: 'Action',
@@ -1350,6 +1359,7 @@ export const en = {
       hoverTransition: 'Point at a transition',
     },
     do: {
+      jump: 'jump to a step (X10) instead of a link',
       addStep: 'add a step',
       placeStep: 'then click: place a step',
       commands: 'all commands',

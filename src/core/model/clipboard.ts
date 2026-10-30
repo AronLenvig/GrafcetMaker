@@ -47,12 +47,16 @@ export function copyElements(
   const stepIds = new Set(steps.map((s) => s.id));
   for (const id of set) {
     const t = g.transitions[id];
-    if (t)
-      transitions.push({
-        ...t,
-        from: t.from.filter((s) => stepIds.has(s)),
-        to: t.to.filter((s) => stepIds.has(s)),
-      });
+    if (!t) continue;
+    const { jump, ...rest } = t;
+    const to = t.to.filter((s) => stepIds.has(s));
+    // A jump to a step left behind is not copied: the copy ends as a sink.
+    transitions.push({
+      ...rest,
+      from: t.from.filter((s) => stepIds.has(s)),
+      to,
+      ...(jump && to.length === 1 ? { jump } : {}),
+    });
   }
   const actions: Action[] = Object.values(g.actions).filter((a) =>
     a.stepId === null ? set.has(a.id) : stepIds.has(a.stepId),

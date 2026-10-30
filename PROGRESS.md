@@ -357,6 +357,13 @@ Autonomous build log. Read this first in every session and resume from **Current
   them in English, with standard Hindi UI words. Guide figure identifiers stay English in Russian,
   Chinese and Hindi (ASCII identifiers). `slug()` keeps combining marks (`\p{M}`), or Devanagari
   anchors lose their vowel signs. The phone flag row wraps (eleven flags).
+- Jumps (owner request: write X10 under a transition instead of wiring to the step): `jump: true`
+  on a transition (format 4) draws its one downstream link as an arrow marked `X<n>` (IEC 60848
+  interrupted link); drawing only, `to` still holds the step, so simulation, validation and codegen
+  are unchanged. A step reached only by jumps gets an incoming arrow marked with the source steps.
+  Ops that rewire `to` clear the flag (heal and Enter carry it to the transition that takes over);
+  auto-layout ignores jump edges. `J` / inline field `jump` (X10 or 10, empty removes), right-click
+  Draw as jump / as link. Not written in GRAFCET text (read back as lines).
 - Settings is its own entry in the main menu, just below Help (owner request), no longer under File.
 - The main menu no longer lists the languages (owner request): the flag button at the bottom
   right and the palette on desktop, the flags in the menu drawer on phones.

@@ -348,6 +348,15 @@ export const LoopIcon = (p: IconProps) => (
   </Icon>
 );
 
+/** A transition whose link ends in an arrow marked with its step (a jump, X10). */
+export const JumpIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4 4h8M8 4v12" />
+    <path d="M5 13l3 3 3-3" />
+    <path d="M15 14h5M17.5 14v6" />
+  </Icon>
+);
+
 export const PropertiesIcon = (p: IconProps) => (
   <Icon {...p}>
     <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0" />

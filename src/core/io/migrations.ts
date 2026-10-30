@@ -11,6 +11,9 @@ export const MIGRATIONS: Readonly<Record<number, Migration>> = {
   1: (doc) => doc,
   // 3: transitions may flow right to left (`flow: 'left'`). Every version 2 file is valid.
   2: (doc) => doc,
+  // 4: a transition's link to its step may be drawn as a jump (`jump: true`). Every version 3 file
+  // is valid.
+  3: (doc) => doc,
 };
 
 export class MigrationError extends Error {

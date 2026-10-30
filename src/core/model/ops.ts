@@ -178,12 +178,16 @@ export function appendAfterTransition(
   if (t.to.length === 0) {
     const ns = addStep(g, at, 'normal', preferredStepNumber(g, prev));
     t.to = [ns.id];
+    delete t.jump;
     return { stepId: ns.id };
   }
   shiftBelow(g, t.position.y, PITCH);
   const ns = addStep(g, at, 'normal', preferredStepNumber(g, prev));
   const t2 = addTransition(g, { x: at.x, y: at.y + ROW }, [ns.id], t.to);
+  // The new transition takes over where this one led, drawn the same way (a jump stays a jump).
+  if (t.jump) t2.jump = true;
   t.to = [ns.id];
+  delete t.jump;
   return { stepId: ns.id, transitionId: t2.id };
 }
 
@@ -213,7 +217,10 @@ export function connect(g: Grafcet, fromId: Id, toId: Id): boolean {
   }
   const fromT = g.transitions[fromId];
   if (fromT && g.steps[toId]) {
-    if (!fromT.to.includes(toId)) fromT.to.push(toId);
+    if (!fromT.to.includes(toId)) {
+      fromT.to.push(toId);
+      delete fromT.jump;
+    }
     return true;
   }
   return false;
@@ -224,7 +231,10 @@ export function disconnect(g: Grafcet, transitionId: Id, side: 'in' | 'out', ste
   const t = g.transitions[transitionId];
   if (!t) return;
   if (side === 'in') t.from = t.from.filter((id) => id !== stepId);
-  else t.to = t.to.filter((id) => id !== stepId);
+  else {
+    t.to = t.to.filter((id) => id !== stepId);
+    delete t.jump;
+  }
 }
 
 /**
@@ -235,7 +245,10 @@ export function disconnectBar(g: Grafcet, transitionId: Id, bar: 'join' | 'split
   const t = g.transitions[transitionId];
   if (!t) return;
   if (bar === 'join') t.from = [];
-  else t.to = [];
+  else {
+    t.to = [];
+    delete t.jump;
+  }
 }
 
 function removeStep(g: Grafcet, id: Id): void {
@@ -243,7 +256,10 @@ function removeStep(g: Grafcet, id: Id): void {
   for (const a of Object.values(g.actions)) if (a.stepId === id) delete g.actions[a.id];
   for (const t of Object.values(g.transitions)) {
     if (t.from.includes(id)) t.from = t.from.filter((s) => s !== id);
-    if (t.to.includes(id)) t.to = t.to.filter((s) => s !== id);
+    if (t.to.includes(id)) {
+      t.to = t.to.filter((s) => s !== id);
+      delete t.jump;
+    }
   }
 }
 
@@ -300,6 +316,9 @@ function healStep(g: Grafcet, s: Step, del: Set<Id>): void {
         if (everythingBelowIsDownstream) closeGap = next.position.y - sy;
       }
       tin.to = successors;
+      // It leads where the deleted transition led, drawn the same way.
+      if (tout.jump) tin.jump = true;
+      else delete tin.jump;
       delete g.transitions[tout.id];
       del.delete(tout.id);
       removeStep(g, s.id);

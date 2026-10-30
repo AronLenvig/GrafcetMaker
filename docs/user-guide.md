@@ -180,6 +180,13 @@ Divergences and convergences are never drawn by hand: they follow from the links
 - **Loop** — `L`, then click the step to go back to. From a step, a new transition is added next
   to the existing ones; from a transition that leads nowhere yet, it is linked to the step.
   `Esc` cancels.
+- **Jump** — `J` on a transition, then type the step under it (`X10`, or `10`) and `Enter`: the
+  transition leads to that step without a line drawn to it (an IEC 60848 interrupted link). It
+  ends in an arrow marked X10; a step reached only by jumps gets an arrow marked with the steps
+  they come from. Double-click X10 to change it, clear it to remove the jump. Right-click a link
+  for **Draw link as a jump**, a jumping transition for **Draw jump as a link**. Only the drawing
+  differs: simulation, checks and generated code follow the link as usual, and auto-layout does
+  not place the step under the jump.
 - **Source / sink transitions** (Edit menu): a transition without upstream step (above a step) or
   without downstream step (below a step).
 - Linking by hand also creates structures: linking a second step into a transition makes an AND

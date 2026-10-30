@@ -16,6 +16,7 @@ zaznaczenia.
 | <kbd>L</kbd>, potem kliknij krok | pętla z powrotem do tego kroku                                 | połącz z tym krokiem (jeśli jeszcze nigdzie nie prowadzi) |
 | <kbd>F2</kbd> lub dwuklik        | edytuj numer                                                   | edytuj warunek tranzycji                                  |
 | <kbd>R</kbd>                     | —                                                              | obróć: z góry w dół lub z prawej w lewo                   |
+| <kbd>J</kbd>                     | —                                                              | skok do kroku: wpisz pod nią `X10`                        |
 | <kbd>Del</kbd>                   | usuń i połącz sekwencję                                        | usuń                                                      |
 
 Tranzycja obrócona **z prawej w lewo** ma pionową kreskę: połączenie od kroku poprzedzającego
@@ -116,6 +117,13 @@ Rozgałęzień i zbieżności nigdy nie rysuje się ręcznie; wynikają z połą
   tworzy zbieżność LUB.
 - **Edycja › Tranzycja źródłowa nad krokiem / Tranzycja końcowa pod krokiem** dodaje tranzycję bez
   kroku nad nią lub pod nią.
+- <kbd>J</kbd> na tranzycji tworzy **skok** do kroku zamiast rysować do niego połączenie: wpisz krok
+  pod tranzycją (`X10` lub samo `10`) i naciśnij <kbd>Enter</kbd>. Tranzycja kończy się strzałką
+  oznaczoną **X10**, a krok osiągany tylko skokami dostaje strzałkę z krokami, z których one
+  wychodzą. Kliknij dwukrotnie X10, aby go zmienić; wyczyść, aby usunąć skok. Prawy przycisk na
+  połączeniu lub tranzycji ze skokiem: **Rysuj połączenie jako skok** i **Rysuj skok jako
+  połączenie**. Zmienia się tylko rysunek: tranzycja nadal prowadzi do tego kroku, w symulacji i w
+  wygenerowanym kodzie.
 
 ## Porządkowanie {#tidy-up}
 

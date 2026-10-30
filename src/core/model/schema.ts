@@ -60,6 +60,12 @@ export const transitionSchema = z.object({
    */
   flow: z.literal('left').optional(),
   /**
+   * The link to its one downstream step is drawn as a jump: an arrow under the transition marked
+   * with the step (X10) instead of a line to it. Only how it is drawn: the transition still leads
+   * to that step. Ignored unless `to` has exactly one step.
+   */
+  jump: z.literal(true).optional(),
+  /**
    * Manual routing of the upward (loop) links of this transition: x of their vertical segment
    * (side lane) and y of their bottom line. Missing values are routed automatically.
    */

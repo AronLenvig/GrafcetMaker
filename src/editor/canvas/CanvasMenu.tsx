@@ -36,6 +36,9 @@ const MENUS: Record<MenuKind, readonly string[]> = {
   transition: [
     'edit.rename',
     'insert.append',
+    'insert.jump',
+    'edit.drawAsJump',
+    'edit.drawAsLink',
     'edit.rotate',
     'autoRoute',
     '-',
@@ -48,7 +51,7 @@ const MENUS: Record<MenuKind, readonly string[]> = {
   ],
   action: ['edit.rename', 'insert.action', '-', 'edit.cut', 'edit.copy', '-', 'edit.delete'],
   comment: ['edit.rename', '-', 'edit.cut', 'edit.copy', '-', 'edit.delete'],
-  link: ['edit.delete'],
+  link: ['edit.drawAsJump', 'edit.delete'],
   many: [
     'arrange.layoutSelection',
     'view.fitSelection',

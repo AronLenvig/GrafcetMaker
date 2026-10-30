@@ -140,6 +140,7 @@ export const fr: Messages = {
     },
   },
   history: {
+    jump: 'Renvoi',
     append: "Ajout d'une étape",
     addAction: "Ajout d'une action",
     moveAction: "Déplacement d'une action",
@@ -202,8 +203,10 @@ export const fr: Messages = {
     nextStep: 'étape suivante',
   },
   editor: {
+    unknownStep: 'Tapez le numéro d’une étape de ce grafcet, par ex. X10.',
     invalidNumber: 'Saisissez un nombre entier entre 0 et 999999.',
     fields: {
+      jump: 'Renvoi vers l’étape',
       number: 'Numéro',
       label: 'Libellé',
       receptivity: 'Réceptivité',
@@ -212,6 +215,8 @@ export const fr: Messages = {
     },
   },
   canvas: {
+    jumpFrom: 'Atteinte par un renvoi depuis {{steps}}',
+    jumpTo: 'Renvoi vers l’étape {{step}}',
     region: 'Diagramme',
     label: 'Grafcet {{name}}',
     roleDescription: 'Éditeur de diagramme GRAFCET',
@@ -277,6 +282,8 @@ export const fr: Messages = {
       settings: 'Paramètres…',
     },
     edit: {
+      drawAsLink: 'Dessiner le renvoi en liaison',
+      drawAsJump: 'Dessiner la liaison en renvoi (X10)',
       undo: 'Annuler',
       redo: 'Rétablir',
       undoWhat: 'Annuler : {{what}}',
@@ -295,6 +302,7 @@ export const fr: Messages = {
       removeUnusedVariables: 'Supprimer les variables inutilisées',
     },
     insert: {
+      jump: 'Renvoi vers une étape…',
       append: 'Ajouter une transition et une étape',
       action: "Ajouter une action à l'étape",
       step: 'Ajouter une étape',
@@ -1328,6 +1336,7 @@ export const fr: Messages = {
     active: 'active',
   },
   selectionBar: {
+    jump: 'Renvoi',
     label: 'Sélection',
     append: 'Étape',
     action: 'Action',
@@ -1386,6 +1395,7 @@ export const fr: Messages = {
       hoverTransition: 'Pointer une transition',
     },
     do: {
+      jump: 'renvoi vers une étape (X10) au lieu d’une liaison',
       addStep: 'ajouter une étape',
       placeStep: 'puis clic : placer une étape',
       commands: 'toutes les commandes',

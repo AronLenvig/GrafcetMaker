@@ -117,7 +117,7 @@ function pinchOf(points: Map<number, Point>): { kind: 'pinch'; dist: number; mid
 
 function elementAt(
   el: Element | null,
-): { kind: string; id: string | null; key: string | null } | null {
+): { kind: string; id: string | null; key: string | null; field: string | null } | null {
   // Problem badges stand for the element they are attached to.
   const hit = el?.closest('[data-el],[data-badge]');
   if (!hit) return null;
@@ -125,6 +125,8 @@ function elementAt(
     kind: hit.getAttribute('data-el') ?? hit.getAttribute('data-badge') ?? '',
     id: hit.getAttribute('data-id'),
     key: hit.getAttribute('data-key'),
+    // A part edited on its own: the step of a transition's jump.
+    field: hit.getAttribute('data-field'),
   };
 }
 
@@ -800,6 +802,11 @@ export function useCanvasInteraction(
           const t = g.transitions[tid];
           if (t) delete t.routing;
         });
+      return;
+    }
+    if (hit?.id && hit.field === 'jump') {
+      ui.select([hit.id]);
+      ui.edit({ id: hit.id, field: 'jump' });
       return;
     }
     if (hit?.id && hit.kind !== 'link') {

@@ -53,7 +53,7 @@ test('create a sequence, save it, reopen it', async ({ page }, testInfo) => {
   const path = testInfo.outputPath('saved.grafcet.json');
   await download.saveAs(path);
   const saved = JSON.parse(readFileSync(path, 'utf8'));
-  expect(saved.schemaVersion).toBe(3);
+  expect(saved.schemaVersion).toBe(4);
   await expect(page.getByLabel('Unsaved changes')).toHaveCount(0);
 
   // Undo/redo: the text edit, then the added action.

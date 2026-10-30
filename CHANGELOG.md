@@ -8,6 +8,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- **Jumps**: press **J** on a transition and type the step under it (`X10`) to lead there without
+  drawing a line (IEC 60848 interrupted link). The transition ends in an arrow marked X10, and a
+  step reached only by jumps shows where they come from. Right-click switches a link between a
+  line and a jump. Files are format version 4 (older files open unchanged).
 - **AI assistants** can make charts for you: `ai.txt` on the site (announced on the home page and
   in `llms.txt`) teaches ChatGPT, Claude and other assistants **GRAFCET text**, a plain-text form
   of a chart, and how to hand it over as a `#text=` link that opens it laid out automatically.

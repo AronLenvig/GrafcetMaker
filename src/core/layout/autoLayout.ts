@@ -2,7 +2,8 @@
  * On-demand auto-layout.
  *
  * 1. Back-edges (loops) are found by a depth-first search from the initial steps (then from any
- *    node without predecessors, then from the topmost remaining node) and ignored.
+ *    node without predecessors, then from the topmost remaining node) and ignored, as are jumps
+ *    (links drawn as an arrow marked X10): their step is laid out where its other links put it.
  * 2. Rows: longest path from the roots, so a convergence is always below all of its branches.
  *    Steps and transitions alternate rows ROW apart (step pitch = 2 ROW).
  * 3. Columns: a structured walk. A sequence stays in its column; at a divergence each branch is
@@ -25,6 +26,7 @@ import {
   STEP_HALF,
   TRANSITION_WIDTH,
   expressionWidth,
+  isJump,
   layoutActions,
   snap,
   textWidth,
@@ -55,7 +57,7 @@ export function autoLayout(g: Grafcet, only?: ReadonlySet<Id>): Map<Id, Point> {
   const rawSucc = new Map<Id, Id[]>();
   for (const s of steps)
     rawSucc.set(s.id, (index.outgoing.get(s.id) ?? []).map((t) => t.id).filter(inScope));
-  for (const t of transitions) rawSucc.set(t.id, t.to.filter(inScope).sort(byX));
+  for (const t of transitions) rawSucc.set(t.id, isJump(t) ? [] : t.to.filter(inScope).sort(byX));
   const rawPredCount = new Map<Id, number>(ids.map((id) => [id, 0]));
   for (const list of rawSucc.values())
     for (const n of list) rawPredCount.set(n, (rawPredCount.get(n) ?? 0) + 1);

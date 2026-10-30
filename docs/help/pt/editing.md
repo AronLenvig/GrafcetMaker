@@ -15,6 +15,7 @@ barra de ferramentas, no topo da área de desenho, listam as teclas que valem pa
 | <kbd>L</kbd> e depois clique em uma etapa | retornar a essa etapa                                                     | ligar a essa etapa (se ainda não leva a lugar nenhum)   |
 | <kbd>F2</kbd> ou clique duplo             | editar o número                                                           | editar a receptividade                                  |
 | <kbd>R</kbd>                              | —                                                                         | girar: de cima para baixo ou da direita para a esquerda |
+| <kbd>J</kbd>                              | —                                                                         | salto para uma etapa: digite `X10` abaixo               |
 | <kbd>Del</kbd>                            | excluir e reconectar a sequência                                          | excluir                                                 |
 
 Uma transição girada **da direita para a esquerda** tem uma barra vertical: a ligação vinda da
@@ -122,6 +123,13 @@ Divergências e convergências nunca são desenhadas à mão; elas decorrem das 
   a uma etapa cria uma convergência em OU.
 - **Editar › Transição fonte acima da etapa / Transição sumidouro abaixo da etapa** adiciona uma
   transição sem etapa acima ou abaixo.
+- <kbd>J</kbd> numa transição faz um **salto** para uma etapa em vez de desenhar uma ligação: digite
+  a etapa abaixo da transição (`X10`, ou só `10`) e pressione <kbd>Enter</kbd>. A transição termina
+  numa seta marcada **X10**, e uma etapa alcançada só por saltos recebe uma seta marcada com as
+  etapas de onde eles vêm. Clique duas vezes em X10 para mudá-lo; apague-o para remover o salto.
+  Clique com o botão direito numa ligação ou numa transição com salto: **Desenhar a ligação como
+  salto** e **Desenhar o salto como ligação**. Só o desenho muda: a transição continua levando a
+  essa etapa, na simulação e no código gerado.
 
 ## Organizar {#tidy-up}
 

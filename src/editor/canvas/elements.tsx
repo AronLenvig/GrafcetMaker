@@ -12,17 +12,19 @@ import {
   STEP_FONT_SIZE,
   STEP_HALF,
   actionDecor,
+  arrowPath,
   commentRect,
   stepLabelAnchor,
   transitionBar,
   transitionHitRect,
   transitionNumberAnchor,
   transitionTextAnchor,
+  type JumpGeom,
 } from '@/core/layout/geometry';
 import type { Action, Comment, Step, Transition } from '@/core/model/types';
 import type { EditField } from '../store/uiStore';
 import { ExprText } from './ExprText';
-import { baseline } from './svg';
+import { baseline, pointsToPath } from './svg';
 
 /**
  * `mark`: E / S for the entry and exit steps of a macro-step expansion; * for the steps an
@@ -316,4 +318,50 @@ export const BarView = memo(function BarView({
 
 export const StubView = memo(function StubView({ d }: { d: string }) {
   return <path className="gm-line" d={d} />;
+});
+
+/**
+ * A jump: the arrow under a transition marked with the step it leads to (part of the transition:
+ * a click selects it, a double-click edits the step), or the arrow into a step reached only by
+ * jumps, marked with the steps they come from.
+ */
+export const JumpView = memo(function JumpView({
+  jump,
+  editing,
+}: {
+  jump: JumpGeom;
+  /** The step of the jump is being typed: the editor shows it instead. */
+  editing?: boolean;
+}) {
+  const { t } = useTranslation();
+  const d = pointsToPath(jump.points);
+  const { label } = jump;
+  return (
+    <g
+      data-el={jump.side === 'from' ? 'transition' : 'step'}
+      data-id={jump.elementId}
+      data-field={jump.side === 'from' ? 'jump' : undefined}
+    >
+      {label && (
+        <title>
+          {jump.side === 'from'
+            ? t('canvas.jumpTo', { step: label.text })
+            : t('canvas.jumpFrom', { steps: label.text })}
+        </title>
+      )}
+      <path className="gm-hit-line" d={d} />
+      <path className="gm-line" d={d} />
+      <path className="gm-fill" d={arrowPath(jump.arrow, jump.arrow.dir)} />
+      {label && !editing && (
+        <text
+          className="gm-text"
+          x={label.x}
+          y={baseline(label.y, FONT_SIZE)}
+          textAnchor={label.anchor}
+        >
+          {label.text}
+        </text>
+      )}
+    </g>
+  );
 });

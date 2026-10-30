@@ -31,6 +31,8 @@ export const LOOP_DROP = 20;
 export const LOOP_MARGIN = 30;
 export const LOOP_LANE = 20;
 export const STUB = 20;
+/** Length of a jump arrow, from its transition (or into the step it leads to). */
+export const JUMP_LENGTH = 30;
 
 export const FONT_SIZE = 13;
 export const STEP_FONT_SIZE = 14;
@@ -124,6 +126,26 @@ export function transitionNumberAnchor(t: Transition): Point {
   return flowOf(t) === 'left'
     ? { x: x - 6, y: y - TRANSITION_WIDTH / 2 - 8 }
     : { x: x - TRANSITION_WIDTH / 2 - 6, y };
+}
+
+/**
+ * Whether the link of a transition to its step is drawn as a jump: an arrow marked with the step
+ * (X10) instead of a line to it.
+ */
+export const isJump = (t: Transition): boolean => t.jump === true && t.to.length === 1;
+
+/** How a jump to step `n` is written. */
+export const jumpText = (n: number) => `X${n}`;
+
+/**
+ * Where the step of a jump is written: right of the arrow's tip under the bar (left-aligned), or
+ * left of its tip for a transition flowing right to left (right-aligned).
+ */
+export function jumpLabelAnchor(t: Transition): Point & { anchor: 'start' | 'end' } {
+  const { x, y } = t.position;
+  return flowOf(t) === 'left'
+    ? { x: x - JUMP_LENGTH - 4, y, anchor: 'end' }
+    : { x: x + 8, y: y + JUMP_LENGTH - 6, anchor: 'start' };
 }
 
 /** What is drawn for a transition: its bar, number and receptivity (lines of text included). */
@@ -440,11 +462,27 @@ export interface StubGeom {
   points: [Point, Point];
 }
 
+/**
+ * A jump (IEC 60848 interrupted link): an arrow from the transition marked with the step it leads
+ * to, and, above a step reached only by jumps, an arrow into it marked with the steps they come
+ * from.
+ */
+export interface JumpGeom {
+  key: string;
+  /** The transition (side 'from') or the step reached (side 'to'). */
+  elementId: Id;
+  side: 'from' | 'to';
+  points: [Point, Point];
+  arrow: Point & { dir: ArrowDir };
+  label: { text: string; x: number; y: number; anchor: 'start' | 'end' } | null;
+}
+
 export interface GrafcetGeometry {
   index: GrafcetIndex;
   links: LinkGeom[];
   bars: BarGeom[];
   stubs: StubGeom[];
+  jumps: JumpGeom[];
   /** Actions not attached to any step. */
   freeActions: ActionBox[];
 }
@@ -729,8 +767,8 @@ export function computeGeometry(
 
   // Step inputs: transition → step (downstream side of the transition).
   for (const s of Object.values(g.steps)) {
-    const ins = index.incoming.get(s.id);
-    if (!ins) continue;
+    const ins = index.incoming.get(s.id)?.filter((t) => !isJump(t));
+    if (!ins?.length) continue;
     const end = { x: s.position.x, y: s.position.y - STEP_HALF };
     const convY = end.y - OR_LINE_OFFSET;
     for (const t of ins) {
@@ -839,6 +877,8 @@ export function computeGeometry(
     }
   }
 
+  const jumps = jumpGeometry(g, index);
+
   // Upward links (loops). 1. Bottom lines, sources from left to right: each drops below its source
   // until its line to its lane (just left of the loop's body) crosses nothing of its own sequence
   // (wires, elements, the bottom lines of loops further left), or stays where it was dragged.
@@ -938,7 +978,56 @@ export function computeGeometry(
   const freeActions = Object.values(g.actions)
     .filter((a) => a.stepId === null)
     .map(freeActionBox);
-  return { index, links, bars, stubs, freeActions };
+  return { index, links, bars, stubs, jumps, freeActions };
+}
+
+function jumpGeometry(g: Grafcet, index: GrafcetIndex): JumpGeom[] {
+  const jumps: JumpGeom[] = [];
+  for (const t of Object.values(g.transitions)) {
+    const target = isJump(t) ? g.steps[t.to[0]!] : undefined;
+    if (!target) continue;
+    const { x, y } = t.position;
+    const left = flowOf(t) === 'left';
+    const tip = left ? { x: x - JUMP_LENGTH, y } : { x, y: y + JUMP_LENGTH };
+    const label = jumpLabelAnchor(t);
+    jumps.push({
+      key: `${t.id}:jump`,
+      elementId: t.id,
+      side: 'from',
+      points: [{ x, y }, tip],
+      arrow: left ? { x: tip.x + 6, y, dir: 'left' } : { x, y: tip.y - 6, dir: 'down' },
+      label: { text: jumpText(target.number), ...label },
+    });
+  }
+  // A step reached only by jumps shows where they come from.
+  for (const s of Object.values(g.steps)) {
+    const ins = index.incoming.get(s.id);
+    if (!ins?.length || !ins.every(isJump)) continue;
+    const numbers = [
+      ...new Set(ins.flatMap((t) => t.from.flatMap((id) => g.steps[id]?.number ?? []))),
+    ].sort((a, b) => a - b);
+    const { x } = s.position;
+    const top = s.position.y - STEP_HALF;
+    jumps.push({
+      key: `${s.id}:jumpIn`,
+      elementId: s.id,
+      side: 'to',
+      points: [
+        { x, y: top - JUMP_LENGTH },
+        { x, y: top },
+      ],
+      arrow: { x, y: top - 6, dir: 'down' },
+      label: numbers.length
+        ? {
+            text: numbers.map(jumpText).join(', '),
+            x: x + 8,
+            y: top - JUMP_LENGTH + 6,
+            anchor: 'start',
+          }
+        : null,
+    });
+  }
+  return jumps;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -1000,6 +1089,19 @@ export function grafcetBounds(
   for (const l of geom.links) {
     if (only && !(only.has(l.stepId) && only.has(l.transitionId))) continue;
     for (const p of l.points) unionInto(acc, { x: p.x, y: p.y, width: 0, height: 0 });
+  }
+  for (const j of geom.jumps) {
+    if (!take(j.elementId)) continue;
+    for (const p of j.points) unionInto(acc, { x: p.x - 5, y: p.y, width: 10, height: 0 });
+    if (j.label) {
+      const w = textWidth(j.label.text);
+      unionInto(acc, {
+        x: j.label.anchor === 'end' ? j.label.x - w : j.label.x,
+        y: j.label.y - 8,
+        width: w,
+        height: 16,
+      });
+    }
   }
   if (acc.x1 === Infinity) return null;
   return { x: acc.x1, y: acc.y1, width: acc.x2 - acc.x1, height: acc.y2 - acc.y1 };

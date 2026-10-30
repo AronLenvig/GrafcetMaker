@@ -139,6 +139,7 @@ export const de: Messages = {
     },
   },
   history: {
+    jump: 'Sprung',
     append: 'Schritt anhängen',
     addAction: 'Aktion hinzufügen',
     moveAction: 'Aktion verschieben',
@@ -201,8 +202,10 @@ export const de: Messages = {
     nextStep: 'nächster Schritt',
   },
   editor: {
+    unknownStep: 'Geben Sie die Nummer eines Schritts dieses Grafcets ein, z. B. X10.',
     invalidNumber: 'Geben Sie eine ganze Zahl zwischen 0 und 999999 ein.',
     fields: {
+      jump: 'Sprung zu Schritt',
       number: 'Nummer',
       label: 'Bezeichnung',
       receptivity: 'Transitionsbedingung',
@@ -211,6 +214,8 @@ export const de: Messages = {
     },
   },
   canvas: {
+    jumpFrom: 'Erreicht durch einen Sprung von {{steps}}',
+    jumpTo: 'Sprung zu Schritt {{step}}',
     region: 'Diagramm',
     label: 'Grafcet {{name}}',
     roleDescription: 'GRAFCET-Diagrammeditor',
@@ -277,6 +282,8 @@ export const de: Messages = {
       settings: 'Einstellungen…',
     },
     edit: {
+      drawAsLink: 'Sprung als Verbindung zeichnen',
+      drawAsJump: 'Verbindung als Sprung zeichnen (X10)',
       undo: 'Rückgängig',
       redo: 'Wiederholen',
       undoWhat: 'Rückgängig: {{what}}',
@@ -295,6 +302,7 @@ export const de: Messages = {
       removeUnusedVariables: 'Unbenutzte Variablen entfernen',
     },
     insert: {
+      jump: 'Sprung zu einem Schritt…',
       append: 'Transition und Schritt anhängen',
       action: 'Aktion zum Schritt hinzufügen',
       step: 'Schritt hinzufügen',
@@ -1333,6 +1341,7 @@ export const de: Messages = {
     active: 'aktiv',
   },
   selectionBar: {
+    jump: 'Sprung',
     label: 'Auswahl',
     append: 'Schritt',
     action: 'Aktion',
@@ -1392,6 +1401,7 @@ export const de: Messages = {
       hoverTransition: 'Auf eine Transition zeigen',
     },
     do: {
+      jump: 'Sprung zu einem Schritt (X10) statt einer Verbindung',
       addStep: 'Schritt hinzufügen',
       placeStep: 'dann klicken: Schritt platzieren',
       commands: 'alle Befehle',

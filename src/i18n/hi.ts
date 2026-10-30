@@ -136,6 +136,7 @@ export const hi: Messages = {
     },
   },
   history: {
+    jump: 'जंप',
     append: 'स्टेप जोड़ें',
     addAction: 'एक्शन जोड़ें',
     moveAction: 'एक्शन खिसकाएँ',
@@ -197,8 +198,10 @@ export const hi: Messages = {
     nextStep: 'अगला स्टेप',
   },
   editor: {
+    unknownStep: 'इस grafcet के किसी स्टेप का नंबर लिखें, जैसे X10।',
     invalidNumber: '0 और 999999 के बीच एक पूर्ण संख्या दर्ज करें।',
     fields: {
+      jump: 'स्टेप पर जंप',
       number: 'नंबर',
       label: 'लेबल',
       receptivity: 'रिसेप्टिविटी',
@@ -207,6 +210,8 @@ export const hi: Messages = {
     },
   },
   canvas: {
+    jumpFrom: '{{steps}} से जंप द्वारा पहुँचा',
+    jumpTo: 'स्टेप {{step}} पर जंप',
     region: 'आरेख',
     label: 'Grafcet {{name}}',
     roleDescription: 'GRAFCET आरेख एडिटर',
@@ -272,6 +277,8 @@ export const hi: Messages = {
       settings: 'सेटिंग्स…',
     },
     edit: {
+      drawAsLink: 'जंप को लिंक के रूप में दिखाएँ',
+      drawAsJump: 'लिंक को जंप के रूप में दिखाएँ (X10)',
       undo: 'पूर्ववत करें',
       redo: 'फिर से करें',
       undoWhat: 'पूर्ववत करें: {{what}}',
@@ -290,6 +297,7 @@ export const hi: Messages = {
       removeUnusedVariables: 'अप्रयुक्त वेरिएबल हटाएँ',
     },
     insert: {
+      jump: 'किसी स्टेप पर जंप…',
       append: 'ट्रांज़िशन और स्टेप जोड़ें',
       action: 'स्टेप में एक्शन जोड़ें',
       step: 'स्टेप जोड़ें',
@@ -1305,6 +1313,7 @@ export const hi: Messages = {
     active: 'सक्रिय',
   },
   selectionBar: {
+    jump: 'जंप',
     label: 'चयन',
     append: 'स्टेप',
     action: 'एक्शन',
@@ -1363,6 +1372,7 @@ export const hi: Messages = {
       hoverTransition: 'किसी ट्रांज़िशन पर पॉइंटर रखें',
     },
     do: {
+      jump: 'लिंक के बजाय किसी स्टेप पर जंप (X10)',
       addStep: 'स्टेप जोड़ें',
       placeStep: 'फिर क्लिक: स्टेप रखें',
       commands: 'सभी कमांड',

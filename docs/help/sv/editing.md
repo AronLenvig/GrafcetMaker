@@ -15,6 +15,7 @@ verktygsfältet överst på ritytan listar de tangenter som gäller för den akt
 | <kbd>L</kbd> och klicka sedan på ett steg | återgång till det steget                                                 | länka till det steget (om den inte leder någonstans ännu) |
 | <kbd>F2</kbd> eller dubbelklick           | redigera numret                                                          | redigera övergångsvillkoret                               |
 | <kbd>R</kbd>                              | —                                                                        | rotera: uppifrån och ned eller höger till vänster         |
+| <kbd>J</kbd>                              | —                                                                        | hopp till ett steg: skriv `X10` under den                 |
 | <kbd>Del</kbd>                            | ta bort och koppla ihop sekvensen                                        | ta bort                                                   |
 
 En övergång som har roterats till **höger till vänster** har ett lodrätt streck: länken från steget
@@ -118,6 +119,13 @@ Förgreningar och sammanföringar ritas aldrig för hand; de följer av länkarn
   i ett steg ger en ELLER-sammanföring.
 - **Redigera › Källövergång ovanför steget / Sänkövergång nedanför steget** lägger till en övergång
   utan steg ovanför eller nedanför.
+- <kbd>J</kbd> på en övergång gör ett **hopp** till ett steg i stället för en linje dit: skriv
+  steget under övergången (`X10` eller bara `10`) och tryck <kbd>Enter</kbd>. Övergången slutar i en
+  pil märkt **X10**, och ett steg som bara nås genom hopp får en pil märkt med stegen de kommer
+  från. Dubbelklicka på X10 för att ändra det; töm det för att ta bort hoppet. Högerklicka på en
+  länk eller en övergång med hopp: **Rita länken som hopp** och **Rita hoppet som länk**. Bara
+  ritningen ändras: övergången leder fortfarande till steget, i simuleringen och i den genererade
+  koden.
 
 ## Städa upp {#tidy-up}
 

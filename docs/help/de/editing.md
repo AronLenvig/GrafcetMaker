@@ -16,6 +16,7 @@ die für die aktuelle Auswahl gelten.
 | <kbd>L</kbd>, dann Klick auf einen Schritt | zu diesem Schritt zurückführen                                                   | mit diesem Schritt verbinden (wenn sie noch nirgendwohin führt) |
 | <kbd>F2</kbd> oder Doppelklick             | Nummer bearbeiten                                                                | Transitionsbedingung bearbeiten                                 |
 | <kbd>R</kbd>                               | —                                                                                | drehen: von oben nach unten oder von rechts nach links          |
+| <kbd>J</kbd>                               | —                                                                                | Sprung zu einem Schritt: `X10` darunter eingeben                |
 | <kbd>Del</kbd>                             | löschen und die Kette wieder schließen                                           | löschen                                                         |
 
 Eine Transition **von rechts nach links** hat einen senkrechten Strich: Die Verbindung vom
@@ -135,6 +136,14 @@ Verbindungen.
   verbinden Sie eine zweite Transition mit einem Schritt, entsteht eine ODER-Zusammenführung.
 - **Bearbeiten › Quelltransition über dem Schritt / Senkentransition unter dem Schritt** fügt eine
   Transition ohne Schritt darüber bzw. darunter hinzu.
+- <kbd>J</kbd> auf einer Transition setzt einen **Sprung** zu einem Schritt, statt eine Linie zu ihm
+  zu ziehen: Geben Sie den Schritt unter der Transition ein (`X10` oder nur `10`) und drücken Sie
+  <kbd>Enter</kbd>. Die Transition endet in einem Pfeil mit **X10**, und ein Schritt, der nur über
+  Sprünge erreicht wird, erhält einen Pfeil mit den Schritten, von denen sie kommen. Doppelklicken
+  Sie auf X10, um es zu ändern; leeren Sie es, um den Sprung zu entfernen. Rechtsklick auf eine
+  Verbindung oder eine springende Transition: **Verbindung als Sprung zeichnen** und **Sprung als
+  Verbindung zeichnen**. Nur die Zeichnung ändert sich: Die Transition führt weiterhin zu diesem
+  Schritt, in der Simulation wie im erzeugten Code.
 
 ## Aufräumen {#tidy-up}
 

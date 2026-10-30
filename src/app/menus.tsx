@@ -120,6 +120,7 @@ const MAIN_MENU: (MenuSection | CommandNode)[] = [
       cmd('insert.parallel'),
       cmd('insert.alternative'),
       cmd('insert.loop'),
+      cmd('insert.jump'),
       cmd('insert.source'),
       cmd('insert.sink'),
       cmd('insert.macroStep'),

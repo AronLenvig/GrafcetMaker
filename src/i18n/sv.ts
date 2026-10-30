@@ -136,6 +136,7 @@ export const sv: Messages = {
     },
   },
   history: {
+    jump: 'Hopp',
     append: 'Lägg till steg',
     addAction: 'Lägg till aktion',
     moveAction: 'Flytta aktion',
@@ -198,8 +199,10 @@ export const sv: Messages = {
     nextStep: 'nästa steg',
   },
   editor: {
+    unknownStep: 'Skriv numret på ett steg i detta grafcet, t.ex. X10.',
     invalidNumber: 'Ange ett heltal mellan 0 och 999999.',
     fields: {
+      jump: 'Hopp till steg',
       number: 'Nummer',
       label: 'Etikett',
       receptivity: 'Övergångsvillkor',
@@ -208,6 +211,8 @@ export const sv: Messages = {
     },
   },
   canvas: {
+    jumpFrom: 'Nås genom hopp från {{steps}}',
+    jumpTo: 'Hopp till steg {{step}}',
     region: 'Diagram',
     label: 'Grafcet {{name}}',
     roleDescription: 'Editor för GRAFCET-diagram',
@@ -274,6 +279,8 @@ export const sv: Messages = {
       settings: 'Inställningar…',
     },
     edit: {
+      drawAsLink: 'Rita hoppet som länk',
+      drawAsJump: 'Rita länken som hopp (X10)',
       undo: 'Ångra',
       redo: 'Gör om',
       undoWhat: 'Ångra: {{what}}',
@@ -292,6 +299,7 @@ export const sv: Messages = {
       removeUnusedVariables: 'Ta bort oanvända variabler',
     },
     insert: {
+      jump: 'Hopp till ett steg…',
       append: 'Lägg till övergång och steg',
       action: 'Lägg till aktion i steget',
       step: 'Lägg till steg',
@@ -1305,6 +1313,7 @@ export const sv: Messages = {
     active: 'aktivt',
   },
   selectionBar: {
+    jump: 'Hopp',
     label: 'Markering',
     append: 'Steg',
     action: 'Aktion',
@@ -1363,6 +1372,7 @@ export const sv: Messages = {
       hoverTransition: 'Peka på en övergång',
     },
     do: {
+      jump: 'hopp till ett steg (X10) i stället för en länk',
       addStep: 'lägg till ett steg',
       placeStep: 'klicka sedan: placera ett steg',
       commands: 'alla kommandon',

@@ -140,6 +140,7 @@ export const pl: Messages = {
     },
   },
   history: {
+    jump: 'Skok',
     append: 'Dodaj krok',
     addAction: 'Dodaj akcję',
     moveAction: 'Przenieś akcję',
@@ -201,8 +202,10 @@ export const pl: Messages = {
     nextStep: 'następny krok',
   },
   editor: {
+    unknownStep: 'Wpisz numer kroku tego grafcetu, np. X10.',
     invalidNumber: 'Podaj liczbę całkowitą od 0 do 999999.',
     fields: {
+      jump: 'Skok do kroku',
       number: 'Numer',
       label: 'Etykieta',
       receptivity: 'Warunek tranzycji',
@@ -211,6 +214,8 @@ export const pl: Messages = {
     },
   },
   canvas: {
+    jumpFrom: 'Osiągany skokiem z {{steps}}',
+    jumpTo: 'Skok do kroku {{step}}',
     region: 'Diagram',
     label: 'Grafcet {{name}}',
     roleDescription: 'Edytor diagramów GRAFCET',
@@ -276,6 +281,8 @@ export const pl: Messages = {
       settings: 'Ustawienia…',
     },
     edit: {
+      drawAsLink: 'Rysuj skok jako połączenie',
+      drawAsJump: 'Rysuj połączenie jako skok (X10)',
       undo: 'Cofnij',
       redo: 'Ponów',
       undoWhat: 'Cofnij: {{what}}',
@@ -294,6 +301,7 @@ export const pl: Messages = {
       removeUnusedVariables: 'Usuń nieużywane zmienne',
     },
     insert: {
+      jump: 'Skok do kroku…',
       append: 'Dołącz tranzycję i krok',
       action: 'Dodaj akcję do kroku',
       step: 'Dodaj krok',
@@ -1365,6 +1373,7 @@ export const pl: Messages = {
     active: 'aktywny',
   },
   selectionBar: {
+    jump: 'Skok',
     label: 'Zaznaczenie',
     append: 'Krok',
     action: 'Akcja',
@@ -1423,6 +1432,7 @@ export const pl: Messages = {
       hoverTransition: 'Wskaż tranzycję',
     },
     do: {
+      jump: 'skok do kroku (X10) zamiast połączenia',
       addStep: 'dodaj krok',
       placeStep: 'potem kliknij: umieść krok',
       commands: 'wszystkie polecenia',

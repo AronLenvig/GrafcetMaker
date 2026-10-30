@@ -138,6 +138,7 @@ export const es: Messages = {
     },
   },
   history: {
+    jump: 'Salto',
     append: 'Añadir etapa siguiente',
     addAction: 'Añadir acción',
     moveAction: 'Mover acción',
@@ -199,8 +200,10 @@ export const es: Messages = {
     nextStep: 'etapa siguiente',
   },
   editor: {
+    unknownStep: 'Escribe el número de una etapa de este grafcet, p. ej. X10.',
     invalidNumber: 'Escribe un número entero entre 0 y 999999.',
     fields: {
+      jump: 'Salto a la etapa',
       number: 'Número',
       label: 'Etiqueta',
       receptivity: 'Receptividad',
@@ -209,6 +212,8 @@ export const es: Messages = {
     },
   },
   canvas: {
+    jumpFrom: 'Alcanzada por un salto desde {{steps}}',
+    jumpTo: 'Salto a la etapa {{step}}',
     region: 'Diagrama',
     label: 'Grafcet {{name}}',
     roleDescription: 'Editor de diagramas GRAFCET',
@@ -274,6 +279,8 @@ export const es: Messages = {
       settings: 'Configuración…',
     },
     edit: {
+      drawAsLink: 'Dibujar el salto como enlace',
+      drawAsJump: 'Dibujar el enlace como salto (X10)',
       undo: 'Deshacer',
       redo: 'Rehacer',
       undoWhat: 'Deshacer {{what}}',
@@ -292,6 +299,7 @@ export const es: Messages = {
       removeUnusedVariables: 'Quitar variables no usadas',
     },
     insert: {
+      jump: 'Salto a una etapa…',
       append: 'Añadir transición y etapa',
       action: 'Añadir acción a la etapa',
       step: 'Añadir etapa',
@@ -1313,6 +1321,7 @@ export const es: Messages = {
     active: 'activa',
   },
   selectionBar: {
+    jump: 'Salto',
     label: 'Selección',
     append: 'Etapa',
     action: 'Acción',
@@ -1371,6 +1380,7 @@ export const es: Messages = {
       hoverTransition: 'Señalar una transición',
     },
     do: {
+      jump: 'salto a una etapa (X10) en lugar de un enlace',
       addStep: 'añadir una etapa',
       placeStep: 'luego clic: colocar una etapa',
       commands: 'todos los comandos',

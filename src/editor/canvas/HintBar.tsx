@@ -43,6 +43,7 @@ const TRANSITION: Hint[] = [
   ['F2', 'editReceptivity'],
   ['Enter', 'appendFromTransition'],
   ['R', 'rotate'],
+  ['J', 'jump'],
   ['@dragHandle', 'connectToStep'],
   ['@edges', 'edges'],
   ['Delete', 'deleteHeal'],

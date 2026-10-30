@@ -223,6 +223,12 @@ function render(
     w.line(`M${n(b.x1)} ${n(b.y - h)}H${n(b.x2)}M${n(b.x1)} ${n(b.y + h)}H${n(b.x2)}`);
   }
   for (const s of geom.stubs) if (keep(s.transitionId)) w.line(path(s.points));
+  for (const j of geom.jumps) {
+    if (!keep(j.elementId)) continue;
+    w.line(path(j.points));
+    w.fill(arrowPath(j.arrow, j.arrow.dir));
+    if (j.label) w.text(j.label.text, j.label.x, j.label.y, FONT_SIZE, { anchor: j.label.anchor });
+  }
 
   for (const t of Object.values(g.transitions)) {
     if (!keep(t.id)) continue;

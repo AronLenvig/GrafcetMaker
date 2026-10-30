@@ -10,7 +10,7 @@ export interface Viewport {
   zoom: number;
 }
 
-export type EditField = 'number' | 'label' | 'receptivity' | 'text' | 'condition';
+export type EditField = 'number' | 'label' | 'receptivity' | 'text' | 'condition' | 'jump';
 
 export interface EditTarget {
   id: Id;

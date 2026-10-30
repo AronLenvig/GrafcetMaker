@@ -138,6 +138,7 @@ export const ru: Messages = {
     },
   },
   history: {
+    jump: 'Прыжок',
     append: 'Добавление шага',
     addAction: 'Добавление действия',
     moveAction: 'Перемещение действия',
@@ -200,8 +201,10 @@ export const ru: Messages = {
     nextStep: 'следующий шаг',
   },
   editor: {
+    unknownStep: 'Введите номер шага этого графсета, например X10.',
     invalidNumber: 'Введите целое число от 0 до 999999.',
     fields: {
+      jump: 'Прыжок к шагу',
       number: 'Номер',
       label: 'Метка',
       receptivity: 'Условие перехода',
@@ -210,6 +213,8 @@ export const ru: Messages = {
     },
   },
   canvas: {
+    jumpFrom: 'Достигается прыжком из {{steps}}',
+    jumpTo: 'Прыжок к шагу {{step}}',
     region: 'Диаграмма',
     label: 'Графсет {{name}}',
     roleDescription: 'Редактор диаграмм GRAFCET',
@@ -275,6 +280,8 @@ export const ru: Messages = {
       settings: 'Настройки…',
     },
     edit: {
+      drawAsLink: 'Показать прыжок как связь',
+      drawAsJump: 'Показать связь как прыжок (X10)',
       undo: 'Отменить',
       redo: 'Повторить',
       undoWhat: 'Отменить: {{what}}',
@@ -293,6 +300,7 @@ export const ru: Messages = {
       removeUnusedVariables: 'Удалить неиспользуемые переменные',
     },
     insert: {
+      jump: 'Прыжок к шагу…',
       append: 'Добавить переход и шаг',
       action: 'Добавить действие к шагу',
       step: 'Добавить шаг',
@@ -1365,6 +1373,7 @@ export const ru: Messages = {
     active: 'активен',
   },
   selectionBar: {
+    jump: 'Прыжок',
     label: 'Выделение',
     append: 'Шаг',
     action: 'Действие',
@@ -1423,6 +1432,7 @@ export const ru: Messages = {
       hoverTransition: 'Наведите на переход',
     },
     do: {
+      jump: 'прыжок к шагу (X10) вместо связи',
       addStep: 'добавить шаг',
       placeStep: 'затем щелчок: поставить шаг',
       commands: 'все команды',

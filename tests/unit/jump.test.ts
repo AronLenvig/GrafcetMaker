@@ -1,10 +1,16 @@
 /** Jumps: a transition's link to its step drawn as an arrow marked X10 instead of a line. */
 import { describe, expect, it } from 'vitest';
 import { autoLayout } from '@/core/layout/autoLayout';
-import { computeGeometry, isJump } from '@/core/layout/geometry';
+import { computeGeometry, isJump, linkKey } from '@/core/layout/geometry';
 import { copyElements } from '@/core/model/clipboard';
 import { createGrafcet } from '@/core/model/factory';
-import { addStep, addTransition, appendAfterTransition, deleteElements } from '@/core/model/ops';
+import {
+  addStep,
+  addTransition,
+  appendAfterTransition,
+  deleteElements,
+  disconnect,
+} from '@/core/model/ops';
 import type { Grafcet, Id } from '@/core/model/types';
 
 /** 0 → 1 → 2, and the transition after 2 jumps back to 0. */
@@ -58,6 +64,16 @@ describe('jump geometry', () => {
 });
 
 describe('jumps through editing', () => {
+  it('the arrow is the link to the step: deleting it leaves a sink, no jump', () => {
+    const { g, s, t } = chart();
+    expect(computeGeometry(g).jumps[0]!.key).toBe(linkKey(t[2]!, 'out', s[0]!));
+    disconnect(g, t[2]!, 'out', s[0]!);
+    const tr = g.transitions[t[2]!]!;
+    expect(tr.to).toEqual([]);
+    expect(tr.jump).toBeUndefined();
+    expect(computeGeometry(g).jumps).toEqual([]);
+  });
+
   it('delete-with-heal keeps the jump on the transition that takes over', () => {
     const { g, s, t } = chart();
     deleteElements(g, [s[2]!]);

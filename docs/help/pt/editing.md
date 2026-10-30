@@ -129,7 +129,9 @@ Divergências e convergências nunca são desenhadas à mão; elas decorrem das 
   etapas de onde eles vêm. Clique duas vezes em X10 para mudá-lo; apague-o para remover o salto.
   Clique com o botão direito numa ligação ou numa transição com salto: **Desenhar a ligação como
   salto** e **Desenhar o salto como ligação**. Só o desenho muda: a transição continua levando a
-  essa etapa, na simulação e no código gerado.
+  essa etapa, na simulação e no código gerado. Para remover um salto, você também pode clicar na
+  seta e pressionar <kbd>Del</kbd>. Abaixo de uma transição que ainda não leva a lugar nenhum, a
+  seta fantasma **X…** ao lado da etapa fantasma faz o mesmo que <kbd>J</kbd>.
 
 ## Organizar {#tidy-up}
 

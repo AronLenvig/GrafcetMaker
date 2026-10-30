@@ -222,6 +222,7 @@ export const hi: Messages = {
       autoRoute: 'स्वचालित लूप रूट',
     },
     ghost: {
+      jump: 'किसी स्टेप पर जंप: X10 लिखें (J)',
       action: 'एक्शन जोड़ें (A)',
       transition: 'ट्रांज़िशन जोड़ें',
       sequence: 'ट्रांज़िशन और स्टेप जोड़ें (Enter)',
@@ -1372,6 +1373,8 @@ export const hi: Messages = {
       hoverTransition: 'किसी ट्रांज़िशन पर पॉइंटर रखें',
     },
     do: {
+      deleteJump: 'जंप हटाएँ',
+      editJump: 'जंप का स्टेप बदलें',
       jump: 'लिंक के बजाय किसी स्टेप पर जंप (X10)',
       addStep: 'स्टेप जोड़ें',
       placeStep: 'फिर क्लिक: स्टेप रखें',

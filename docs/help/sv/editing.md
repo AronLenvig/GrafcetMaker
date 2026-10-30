@@ -125,7 +125,9 @@ Förgreningar och sammanföringar ritas aldrig för hand; de följer av länkarn
   från. Dubbelklicka på X10 för att ändra det; töm det för att ta bort hoppet. Högerklicka på en
   länk eller en övergång med hopp: **Rita länken som hopp** och **Rita hoppet som länk**. Bara
   ritningen ändras: övergången leder fortfarande till steget, i simuleringen och i den genererade
-  koden.
+  koden. Ett hopp tas också bort om du klickar på pilen och trycker <kbd>Del</kbd>. Under en
+  övergång som ännu inte leder någonstans gör den streckade pilen **X…** bredvid det streckade
+  steget samma sak som <kbd>J</kbd>.
 
 ## Städa upp {#tidy-up}
 

@@ -15,6 +15,7 @@ import {
   arrowPath,
   commentRect,
   stepLabelAnchor,
+  textWidth,
   transitionBar,
   transitionHitRect,
   transitionNumberAnchor,
@@ -321,9 +322,9 @@ export const StubView = memo(function StubView({ d }: { d: string }) {
 });
 
 /**
- * A jump: the arrow under a transition marked with the step it leads to (part of the transition:
- * a click selects it, a double-click edits the step), or the arrow into a step reached only by
- * jumps, marked with the steps they come from.
+ * A jump: the arrow under a transition marked with the step it leads to (the transition's link to
+ * it: a click selects it, Del removes it, a double-click edits the step), or the arrow into a step
+ * reached only by jumps, marked with the steps they come from.
  */
 export const JumpView = memo(function JumpView({
   jump,
@@ -336,10 +337,21 @@ export const JumpView = memo(function JumpView({
   const { t } = useTranslation();
   const d = pointsToPath(jump.points);
   const { label } = jump;
+  // The arrow's tip and its X10: a target clear of the transition's link handle near the bar.
+  const tip = jump.points[1];
+  const w = label ? textWidth(label.text) : 0;
+  const lx = label ? (label.anchor === 'end' ? label.x - w : label.x) : tip.x;
+  const hit = {
+    x1: Math.min(tip.x - 8, lx),
+    x2: Math.max(tip.x + 8, lx + w),
+    y1: Math.min(tip.y - 16, (label?.y ?? tip.y) - 9),
+    y2: Math.max(tip.y + 3, (label?.y ?? tip.y) + 9),
+  };
   return (
     <g
-      data-el={jump.side === 'from' ? 'transition' : 'step'}
+      data-el={jump.side === 'from' ? 'link' : 'step'}
       data-id={jump.elementId}
+      data-key={jump.side === 'from' ? jump.key : undefined}
       data-field={jump.side === 'from' ? 'jump' : undefined}
     >
       {label && (
@@ -350,6 +362,15 @@ export const JumpView = memo(function JumpView({
         </title>
       )}
       <path className="gm-hit-line" d={d} />
+      {jump.side === 'from' && (
+        <rect
+          className="gm-hit"
+          x={hit.x1}
+          y={hit.y1}
+          width={hit.x2 - hit.x1}
+          height={hit.y2 - hit.y1}
+        />
+      )}
       <path className="gm-line" d={d} />
       <path className="gm-fill" d={arrowPath(jump.arrow, jump.arrow.dir)} />
       {label && !editing && (

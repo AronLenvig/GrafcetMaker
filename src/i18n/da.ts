@@ -224,6 +224,7 @@ export const da: Messages = {
       autoRoute: 'Automatisk rute for tilbageføring',
     },
     ghost: {
+      jump: 'Spring til et trin: skriv X10 (J)',
       action: 'Tilføj en aktion (A)',
       transition: 'Tilføj en transition',
       sequence: 'Tilføj en transition og et trin (Enter)',
@@ -1373,6 +1374,8 @@ export const da: Messages = {
       hoverTransition: 'Peg på en transition',
     },
     do: {
+      deleteJump: 'fjern springet',
+      editJump: 'skift trinnet, der springes til',
       jump: 'spring til et trin (X10) i stedet for en forbindelse',
       addStep: 'tilføj et trin',
       placeStep: 'klik så: placer et trin',

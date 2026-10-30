@@ -4,7 +4,7 @@ import { openHelp } from '@/app/help/helpStore';
 import { setPrefs, usePrefs } from '@/app/prefs';
 import { CloseIcon } from '@/app/ui/icons';
 import { useCoarsePointer, useCompact } from '@/app/ui/media';
-import { parseLinkKey } from '@/core/layout/geometry';
+import { isJump, parseLinkKey } from '@/core/layout/geometry';
 import type { Grafcet } from '@/core/model/types';
 import { tDynamic } from '@/i18n/dynamic';
 import { formatKeys } from '../commands/registry';
@@ -78,6 +78,13 @@ const LINK: Hint[] = [
   ['@dragBottom', 'routeDown'],
   ['@dblclick', 'routeAuto'],
   ['Delete', 'deleteLink'],
+];
+
+/** A jump's arrow: its step is typed again; Del removes the jump. */
+const JUMP: Hint[] = [
+  ['@dblclick', 'editJump'],
+  ['F2', 'editJump'],
+  ['Delete', 'deleteJump'],
 ];
 
 /** An AND double line: it moves with its transition; Del removes its links. */
@@ -200,8 +207,12 @@ function HintBarView() {
       ['@drag', 'pan'],
       ['V', 'backToSelect'],
     ];
-  else if (selectedLink) hints = parseLinkKey(selectedLink)?.kind === 'bar' ? BAR : LINK;
-  else {
+  else if (selectedLink) {
+    const ref = parseLinkKey(selectedLink);
+    const tr =
+      ref?.kind === 'link' && ref.side === 'out' ? g.transitions[ref.transitionId] : undefined;
+    hints = ref?.kind === 'bar' ? BAR : tr && isJump(tr) ? JUMP : LINK;
+  } else {
     const ids = Object.keys(selection);
     hints = ids.length ? selectionHints(g, ids) : Object.keys(g.steps).length ? IDLE : EMPTY;
   }

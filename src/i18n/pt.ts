@@ -228,6 +228,7 @@ export const pt: Messages = {
       autoRoute: 'Traçado automático do retorno',
     },
     ghost: {
+      jump: 'Salto para uma etapa: digite X10 (J)',
       action: 'Adicionar uma ação (A)',
       transition: 'Adicionar uma transição',
       sequence: 'Adicionar uma transição e uma etapa (Enter)',
@@ -1383,6 +1384,8 @@ export const pt: Messages = {
       hoverTransition: 'Aponte para uma transição',
     },
     do: {
+      deleteJump: 'remover o salto',
+      editJump: 'mudar a etapa do salto',
       jump: 'salto para uma etapa (X10) em vez de uma ligação',
       addStep: 'adicionar uma etapa',
       placeStep: 'depois clique: colocar uma etapa',

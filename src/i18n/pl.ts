@@ -226,6 +226,7 @@ export const pl: Messages = {
       autoRoute: 'Automatyczna trasa pętli',
     },
     ghost: {
+      jump: 'Skok do kroku: wpisz X10 (J)',
       action: 'Dodaj akcję (A)',
       transition: 'Dodaj tranzycję',
       sequence: 'Dodaj tranzycję i krok (Enter)',
@@ -1432,6 +1433,8 @@ export const pl: Messages = {
       hoverTransition: 'Wskaż tranzycję',
     },
     do: {
+      deleteJump: 'usuń skok',
+      editJump: 'zmień krok docelowy skoku',
       jump: 'skok do kroku (X10) zamiast połączenia',
       addStep: 'dodaj krok',
       placeStep: 'potem kliknij: umieść krok',

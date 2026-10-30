@@ -183,7 +183,9 @@ Divergences and convergences are never drawn by hand: they follow from the links
 - **Jump** — `J` on a transition, then type the step under it (`X10`, or `10`) and `Enter`: the
   transition leads to that step without a line drawn to it (an IEC 60848 interrupted link). It
   ends in an arrow marked X10; a step reached only by jumps gets an arrow marked with the steps
-  they come from. Double-click X10 to change it, clear it to remove the jump. Right-click a link
+  they come from. Double-click X10 (or select it and press `F2`) to change it; click the arrow
+  and press `Del`, or clear X10, to remove the jump. A transition that leads nowhere yet shows a
+  ghost arrow **X…** beside its ghost step: click it to type the step. Right-click a link
   for **Draw link as a jump**, a jumping transition for **Draw jump as a link**. Only the drawing
   differs: simulation, checks and generated code follow the link as usual, and auto-layout does
   not place the step under the jump.

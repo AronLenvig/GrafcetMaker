@@ -155,6 +155,11 @@
   fill: var(--selection-fill);
 }
 
+.gm-ghost .gm-ghost-arrow {
+  fill: var(--selection);
+  stroke: none;
+}
+
 .gm-ghost .gm-ghost-bar {
   fill: var(--selection);
   stroke: none;

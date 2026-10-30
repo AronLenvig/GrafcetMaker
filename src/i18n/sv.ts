@@ -224,6 +224,7 @@ export const sv: Messages = {
       autoRoute: 'Automatisk dragning av återgången',
     },
     ghost: {
+      jump: 'Hopp till ett steg: skriv X10 (J)',
       action: 'Lägg till en aktion (A)',
       transition: 'Lägg till en övergång',
       sequence: 'Lägg till en övergång och ett steg (Enter)',
@@ -1372,6 +1373,8 @@ export const sv: Messages = {
       hoverTransition: 'Peka på en övergång',
     },
     do: {
+      deleteJump: 'ta bort hoppet',
+      editJump: 'byt steget som hoppet går till',
       jump: 'hopp till ett steg (X10) i stället för en länk',
       addStep: 'lägg till ett steg',
       placeStep: 'klicka sedan: placera ett steg',

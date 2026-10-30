@@ -5,6 +5,7 @@ import {
   ACTION_HEIGHT,
   ACTION_MIN_WIDTH,
   DOUBLE_BAR_GAP,
+  JUMP_LENGTH,
   elementBounds,
   layoutActions,
   nextStepPosition,
@@ -18,10 +19,12 @@ import {
   TRANSITION_WIDTH,
   type GrafcetGeometry,
   type Rect,
+  arrowPath,
+  flowOf,
 } from '@/core/layout/geometry';
 import { useCoarsePointer } from '@/app/ui/media';
 import { nextStepNumber, preferredStepNumber } from '@/core/model/ops';
-import type { Grafcet, Id, Point } from '@/core/model/types';
+import type { Grafcet, Id, Point, Transition } from '@/core/model/types';
 import { useShallow } from 'zustand/react/shallow';
 import { useUi } from '../store/uiStore';
 import { useInteraction } from './interactionStore';
@@ -145,6 +148,35 @@ function GhostAction({
   );
 }
 
+/**
+ * Ghost of a jump (J): an arrow marked X… left of the bar, or below a bar flowing right to left
+ * (whose ghost step is on its left). A click types the step it jumps to.
+ */
+function GhostJump({ tr, title }: { tr: Transition; title: string }) {
+  const { x, y } = tr.position;
+  const left = flowOf(tr) === 'left';
+  const lx = left ? x : x - TRANSITION_WIDTH / 2 - 28;
+  const y1 = left ? y + 14 : y + 12;
+  const tip = y1 + JUMP_LENGTH;
+  return (
+    <g className="gm-ghost gm-ghost-hit" data-ghost="jump">
+      <title>{title}</title>
+      <path d={left ? `M${lx} ${y1}V${tip}` : `M${x - TRANSITION_WIDTH / 2} ${y}H${lx}V${tip}`} />
+      <path className="gm-ghost-arrow" d={arrowPath({ x: lx, y: tip - 6 }, 'down')} />
+      <text x={left ? lx + 8 : lx - 8} y={tip - 6} style={{ textAnchor: left ? 'start' : 'end' }}>
+        X…
+      </text>
+      <rect
+        className="gm-ghost-pad"
+        x={lx - (left ? 10 : 40)}
+        y={y1 - 4}
+        width={50}
+        height={JUMP_LENGTH + 8}
+      />
+    </g>
+  );
+}
+
 function GhostStep({ at, number }: { at: Point; number: number }) {
   return (
     <>
@@ -220,6 +252,7 @@ function SelectionGhosts({ g, geom, id }: { g: Grafcet; geom: GrafcetGeometry; i
         <path d={`M${x} ${y}H${at.x}V${at.y - STEP_HALF}`} />
         <GhostStep at={at} number={preferredStepNumber(g, prev)} />
       </g>,
+      <GhostJump key="jump" tr={tr} title={t('canvas.ghost.jump')} />,
     );
   }
   return <>{out}</>;
@@ -352,6 +385,11 @@ function OverlayView({
       {selLinks.map((l) => (
         <path key={l.key} className="gm-selected-link" d={pointsToPath(l.points)} />
       ))}
+      {geom.jumps
+        .filter((j) => j.side === 'from' && j.key === selectedLink)
+        .map((j) => (
+          <path key={j.key} className="gm-selected-link" d={pointsToPath(j.points)} />
+        ))}
       {selBar && (
         <path
           className="gm-selected-link"

@@ -218,6 +218,7 @@ export const en = {
       autoRoute: 'Automatic loop route',
     },
     ghost: {
+      jump: 'Jump to a step: type X10 (J)',
       action: 'Add an action (A)',
       transition: 'Add a transition',
       sequence: 'Add a transition and a step (Enter)',
@@ -1359,6 +1360,8 @@ export const en = {
       hoverTransition: 'Point at a transition',
     },
     do: {
+      deleteJump: 'remove the jump',
+      editJump: 'change the step it jumps to',
       jump: 'jump to a step (X10) instead of a link',
       addStep: 'add a step',
       placeStep: 'then click: place a step',

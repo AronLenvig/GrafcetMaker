@@ -214,6 +214,7 @@ export const zh: Messages = {
       autoRoute: '自动回路走线',
     },
     ghost: {
+      jump: '跳转到步：输入 X10（J）',
       action: '添加动作（A）',
       transition: '添加转换',
       sequence: '添加转换和步（Enter）',
@@ -1326,6 +1327,8 @@ export const zh: Messages = {
       hoverTransition: '指向一个转换',
     },
     do: {
+      deleteJump: '删除跳转',
+      editJump: '更改跳转目标步',
       jump: '跳转到某个步（X10），代替连线',
       addStep: '添加步',
       placeStep: '然后单击：放置步',

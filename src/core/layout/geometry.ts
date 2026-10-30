@@ -468,6 +468,7 @@ export interface StubGeom {
  * from.
  */
 export interface JumpGeom {
+  /** At the transition: the key of its link to the step (selected and deleted as that link). */
   key: string;
   /** The transition (side 'from') or the step reached (side 'to'). */
   elementId: Id;
@@ -991,7 +992,7 @@ function jumpGeometry(g: Grafcet, index: GrafcetIndex): JumpGeom[] {
     const tip = left ? { x: x - JUMP_LENGTH, y } : { x, y: y + JUMP_LENGTH };
     const label = jumpLabelAnchor(t);
     jumps.push({
-      key: `${t.id}:jump`,
+      key: linkKey(t.id, 'out', target.id),
       elementId: t.id,
       side: 'from',
       points: [{ x, y }, tip],

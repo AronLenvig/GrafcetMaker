@@ -128,7 +128,9 @@ Forgreninger og sammenføringer tegnes aldrig i hånden; de følger af forbindel
   kommer fra. Dobbeltklik på X10 for at ændre det; slet teksten for at fjerne springet. Højreklik på
   en forbindelse eller en transition med spring: **Tegn forbindelsen som spring** og **Tegn springet
   som forbindelse**. Kun tegningen ændres: transitionen fører stadig til trinnet, i simuleringen og
-  i den genererede kode.
+  i den genererede kode. Et spring kan også fjernes ved at klikke på pilen og trykke <kbd>Del</kbd>.
+  Under en transition, der endnu ikke fører nogen steder hen, gør pladsholder-pilen **X…** ved siden
+  af pladsholder-trinnet det samme som <kbd>J</kbd>.
 
 ## Ryd op {#tidy-up}
 

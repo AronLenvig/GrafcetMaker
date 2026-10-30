@@ -227,6 +227,7 @@ export const de: Messages = {
       autoRoute: 'Automatischer Verlauf der Rückführung',
     },
     ghost: {
+      jump: 'Sprung zu einem Schritt: X10 eingeben (J)',
       action: 'Aktion hinzufügen (A)',
       transition: 'Transition hinzufügen',
       sequence: 'Transition und Schritt hinzufügen (Enter)',
@@ -1401,6 +1402,8 @@ export const de: Messages = {
       hoverTransition: 'Auf eine Transition zeigen',
     },
     do: {
+      deleteJump: 'Sprung entfernen',
+      editJump: 'Zielschritt ändern',
       jump: 'Sprung zu einem Schritt (X10) statt einer Verbindung',
       addStep: 'Schritt hinzufügen',
       placeStep: 'dann klicken: Schritt platzieren',

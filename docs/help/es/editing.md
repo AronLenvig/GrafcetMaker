@@ -132,7 +132,9 @@ Las divergencias y las convergencias nunca se dibujan a mano; se deducen de los 
   marcada con las etapas de las que vienen. Haz doble clic en X10 para cambiarlo; bórralo para
   quitar el salto. Clic derecho en un enlace o en una transición con salto: **Dibujar el enlace como
   salto** y **Dibujar el salto como enlace**. Solo cambia el dibujo: la transición sigue llevando a
-  esa etapa, en la simulación y en el código generado.
+  esa etapa, en la simulación y en el código generado. Para quitar un salto también puedes hacer
+  clic en su flecha y pulsar <kbd>Del</kbd>. Bajo una transición que aún no lleva a ninguna parte,
+  la flecha fantasma **X…** junto a la etapa fantasma hace lo mismo que <kbd>J</kbd>.
 
 ## Ordenar {#tidy-up}
 

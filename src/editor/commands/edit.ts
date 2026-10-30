@@ -1,4 +1,4 @@
-import { ACTION_HEIGHT, GRID, parseLinkKey } from '@/core/layout/geometry';
+import { ACTION_HEIGHT, GRID, isJump, parseLinkKey } from '@/core/layout/geometry';
 import {
   copyElements,
   parseClipboard,
@@ -211,6 +211,13 @@ export function addActionAt(at: Point, stepId: Id | null): Id | null {
 /** `F2`: edit the main text of the selected element. */
 export function editSelection(): void {
   const g = getActiveGrafcet();
+  const { selectedLink } = useUi.getState();
+  const ref = selectedLink ? parseLinkKey(selectedLink) : null;
+  if (g && ref?.kind === 'link' && ref.side === 'out') {
+    const tr = g.transitions[ref.transitionId];
+    if (tr && isJump(tr)) ui.edit({ id: tr.id, field: 'jump' });
+    return;
+  }
   const sel = ui.selectedIds();
   if (!g || sel.length !== 1) return;
   const id = sel[0]!;

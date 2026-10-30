@@ -35,7 +35,7 @@ import { doc, getProject } from '../store/document';
 import { ui, useUi } from '../store/uiStore';
 import { useInteraction, type LinkDrag } from './interactionStore';
 import { openChild } from '../commands/hierarchy';
-import { cancelPending, completeLoop } from '../commands/structure';
+import { cancelPending, completeLoop, jumpToStep } from '../commands/structure';
 import { toggleInput, useSim } from '../simulation/simStore';
 import { getViewport, panBy, screenToDiagram, zoomAt } from './viewport';
 
@@ -353,7 +353,9 @@ export function useCanvasInteraction(
           ? addActionToSelection()
           : ghost === 'transition'
             ? appendTransition()
-            : appendSequence({ editReceptivity: false }),
+            : ghost === 'jump'
+              ? jumpToStep()
+              : appendSequence({ editReceptivity: false }),
       );
       return;
     }
@@ -794,6 +796,12 @@ export function useCanvasInteraction(
     // Macro-steps and enclosing steps open their sub-grafcet (F2 still edits the number).
     if (hit?.kind === 'step' && hit.id && openChild(hit.id)) return;
     if (readOnly) return;
+    // A jump: type its step again.
+    if (hit?.id && hit.field === 'jump') {
+      ui.select([hit.id]);
+      ui.edit({ id: hit.id, field: 'jump' });
+      return;
+    }
     // A loop link dragged elsewhere goes back to its automatic route.
     if (hit?.kind === 'link' && hit.key) {
       const tid = hit.key.split(':')[0]!;
@@ -802,11 +810,6 @@ export function useCanvasInteraction(
           const t = g.transitions[tid];
           if (t) delete t.routing;
         });
-      return;
-    }
-    if (hit?.id && hit.field === 'jump') {
-      ui.select([hit.id]);
-      ui.edit({ id: hit.id, field: 'jump' });
       return;
     }
     if (hit?.id && hit.kind !== 'link') {

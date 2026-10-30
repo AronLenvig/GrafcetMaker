@@ -136,7 +136,10 @@ liaisons.
   une flèche marquée des étapes d’où ils viennent. Double-cliquez sur X10 pour le changer ;
   effacez-le pour supprimer le renvoi. Clic droit sur une liaison ou une transition à renvoi :
   **Dessiner la liaison en renvoi** et **Dessiner le renvoi en liaison**. Seul le dessin change : la
-  transition mène toujours à cette étape, en simulation comme dans le code généré.
+  transition mène toujours à cette étape, en simulation comme dans le code généré. Pour supprimer un
+  renvoi, vous pouvez aussi cliquer sur sa flèche et appuyer sur <kbd>Del</kbd>. Sous une transition
+  qui ne mène encore nulle part, la flèche fantôme **X…** à côté de l’étape fantôme fait comme
+  <kbd>J</kbd>.
 
 ## Mettre en ordre {#tidy-up}
 

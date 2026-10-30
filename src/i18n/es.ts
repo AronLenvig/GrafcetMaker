@@ -224,6 +224,7 @@ export const es: Messages = {
       autoRoute: 'Trazado automático del bucle',
     },
     ghost: {
+      jump: 'Salto a una etapa: escribe X10 (J)',
       action: 'Añadir una acción (A)',
       transition: 'Añadir una transición',
       sequence: 'Añadir una transición y una etapa (Enter)',
@@ -1380,6 +1381,8 @@ export const es: Messages = {
       hoverTransition: 'Señalar una transición',
     },
     do: {
+      deleteJump: 'quitar el salto',
+      editJump: 'cambiar la etapa del salto',
       jump: 'salto a una etapa (X10) en lugar de un enlace',
       addStep: 'añadir una etapa',
       placeStep: 'luego clic: colocar una etapa',

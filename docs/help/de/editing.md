@@ -143,7 +143,10 @@ Verbindungen.
   Sie auf X10, um es zu ändern; leeren Sie es, um den Sprung zu entfernen. Rechtsklick auf eine
   Verbindung oder eine springende Transition: **Verbindung als Sprung zeichnen** und **Sprung als
   Verbindung zeichnen**. Nur die Zeichnung ändert sich: Die Transition führt weiterhin zu diesem
-  Schritt, in der Simulation wie im erzeugten Code.
+  Schritt, in der Simulation wie im erzeugten Code. Einen Sprung entfernen Sie auch, indem Sie
+  seinen Pfeil anklicken und <kbd>Del</kbd> drücken. Unter einer Transition, die noch nirgends
+  hinführt, macht der Platzhalter-Pfeil **X…** neben dem Platzhalter-Schritt dasselbe wie
+  <kbd>J</kbd>.
 
 ## Aufräumen {#tidy-up}
 

@@ -123,7 +123,9 @@ Rozgałęzień i zbieżności nigdy nie rysuje się ręcznie; wynikają z połą
   wychodzą. Kliknij dwukrotnie X10, aby go zmienić; wyczyść, aby usunąć skok. Prawy przycisk na
   połączeniu lub tranzycji ze skokiem: **Rysuj połączenie jako skok** i **Rysuj skok jako
   połączenie**. Zmienia się tylko rysunek: tranzycja nadal prowadzi do tego kroku, w symulacji i w
-  wygenerowanym kodzie.
+  wygenerowanym kodzie. Skok usuniesz też, klikając jego strzałkę i naciskając <kbd>Del</kbd>. Pod
+  tranzycją, która jeszcze nigdzie nie prowadzi, zarys strzałki **X…** obok zarysu kroku działa tak
+  samo jak <kbd>J</kbd>.
 
 ## Porządkowanie {#tidy-up}
 

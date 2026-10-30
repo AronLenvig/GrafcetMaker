@@ -225,6 +225,7 @@ export const ru: Messages = {
       autoRoute: 'Автоматический маршрут цикла',
     },
     ghost: {
+      jump: 'Прыжок к шагу: введите X10 (J)',
       action: 'Добавить действие (A)',
       transition: 'Добавить переход',
       sequence: 'Добавить переход и шаг (Enter)',
@@ -1432,6 +1433,8 @@ export const ru: Messages = {
       hoverTransition: 'Наведите на переход',
     },
     do: {
+      deleteJump: 'убрать прыжок',
+      editJump: 'изменить шаг прыжка',
       jump: 'прыжок к шагу (X10) вместо связи',
       addStep: 'добавить шаг',
       placeStep: 'затем щелчок: поставить шаг',

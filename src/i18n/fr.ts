@@ -227,6 +227,7 @@ export const fr: Messages = {
       autoRoute: 'Tracé automatique de la reprise',
     },
     ghost: {
+      jump: 'Renvoi vers une étape : tapez X10 (J)',
       action: 'Ajouter une action (A)',
       transition: 'Ajouter une transition',
       sequence: 'Ajouter une transition et une étape (Enter)',
@@ -1395,6 +1396,8 @@ export const fr: Messages = {
       hoverTransition: 'Pointer une transition',
     },
     do: {
+      deleteJump: 'supprimer le renvoi',
+      editJump: 'changer l’étape du renvoi',
       jump: 'renvoi vers une étape (X10) au lieu d’une liaison',
       addStep: 'ajouter une étape',
       placeStep: 'puis clic : placer une étape',

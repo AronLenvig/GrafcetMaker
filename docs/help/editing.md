@@ -114,7 +114,9 @@ Divergences and convergences are never drawn by hand; they follow from the links
   arrow marked **X10**, and a step reached only by jumps gets an arrow marked with the steps they
   come from. Double-click X10 to change it; clear it to remove the jump. Right-click a link or a
   jumping transition for **Draw link as a jump** and **Draw jump as a link**. Only the drawing
-  changes: the transition still leads to that step, in simulation and in generated code.
+  changes: the transition still leads to that step, in simulation and in generated code. To remove a
+  jump you can also click its arrow and press <kbd>Del</kbd>. Under a transition that leads nowhere
+  yet, the ghost arrow **X…** beside the ghost step does the same as <kbd>J</kbd>.
 
 ## Tidy up
 

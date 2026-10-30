@@ -158,7 +158,7 @@ código generado antes de ejecutarlo en una máquina.
 
 ## Configuración {#settings}
 
-**Archivo › Configuración…** (<kbd>Ctrl+,</kbd>) contiene el tema, la notación, la pantalla de
+**☰ › Configuración…** (<kbd>Ctrl+,</kbd>) contiene el tema, la notación, la pantalla de
 bienvenida, la cuadrícula, las sugerencias y las preferencias de simulación, y muestra cuánto
 almacenamiento del navegador se usa. Ahí puedes borrar el historial local y la lista de archivos
 recientes.

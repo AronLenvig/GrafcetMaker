@@ -95,7 +95,6 @@ const MAIN_MENU: (MenuSection | CommandNode)[] = [
       },
       SEP,
       cmd('file.localHistory'),
-      cmd('file.settings'),
     ],
   },
   {
@@ -192,6 +191,8 @@ const MAIN_MENU: (MenuSection | CommandNode)[] = [
       cmd('help.about'),
     ],
   },
+  // Its own entry below Help rather than inside File (owner decision).
+  cmd('file.settings'),
 ];
 
 function useCommandLabel() {

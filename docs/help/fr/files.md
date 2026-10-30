@@ -167,7 +167,7 @@ généré avant qu'il ne s'exécute sur une machine.
 
 ## Paramètres {#settings}
 
-**Fichier › Paramètres…** (<kbd>Ctrl+,</kbd>) contient le thème, la notation, l'écran d'accueil,
+**☰ › Paramètres…** (<kbd>Ctrl+,</kbd>) contient le thème, la notation, l'écran d'accueil,
 la grille, les indications et les préférences de simulation, et indique l'espace de stockage du
 navigateur utilisé. Vous pouvez y effacer l'historique local et la liste des fichiers récents.
 

@@ -162,7 +162,7 @@ immer, bevor er auf einer Maschine läuft.
 
 ## Einstellungen {#settings}
 
-**Datei › Einstellungen…** (<kbd>Ctrl+,</kbd>) enthält das Farbschema, die Schreibweise, den
+**☰ › Einstellungen…** (<kbd>Ctrl+,</kbd>) enthält das Farbschema, die Schreibweise, den
 Startbildschirm, das Raster, die Hinweise und die Simulationseinstellungen und zeigt, wie viel
 Browserspeicher belegt ist. Dort können Sie den lokalen Verlauf und die Liste der zuletzt
 geöffneten Dateien leeren.

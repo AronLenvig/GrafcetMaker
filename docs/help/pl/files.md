@@ -150,7 +150,7 @@ zostanie uruchomiony na maszynie.
 
 ## Ustawienia {#settings}
 
-**Plik › Ustawienia…** (<kbd>Ctrl+,</kbd>) zawiera preferencje motywu, notacji, ekranu powitalnego,
+**☰ › Ustawienia…** (<kbd>Ctrl+,</kbd>) zawiera preferencje motywu, notacji, ekranu powitalnego,
 siatki, podpowiedzi i symulacji oraz pokazuje, ile pamięci przeglądarki jest zajęte. Można tam
 wyczyścić historię lokalną i listę ostatnich plików.
 

@@ -518,7 +518,7 @@ yourself.
 
 ## Settings
 
-**Settings** (`Ctrl+,` or **File › Settings…**) are applied at once and
+**Settings** (`Ctrl+,` or **☰ › Settings…**, below Help) are applied at once and
 remembered on this device:
 
 - **Appearance**: theme, textbook notation, welcome screen at startup.

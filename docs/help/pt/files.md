@@ -154,7 +154,7 @@ gerado antes de executá-lo em uma máquina.
 
 ## Configurações {#settings}
 
-**Arquivo › Configurações…** (<kbd>Ctrl+,</kbd>) reúne as preferências de tema, notação, tela de
+**☰ › Configurações…** (<kbd>Ctrl+,</kbd>) reúne as preferências de tema, notação, tela de
 boas-vindas, grade, dicas e simulação, e mostra quanto armazenamento do navegador está em uso. Lá
 você pode limpar o histórico local e a lista de arquivos recentes.
 

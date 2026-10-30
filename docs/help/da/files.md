@@ -147,7 +147,7 @@ kører på en maskine.
 
 ## Indstillinger {#settings}
 
-**Filer › Indstillinger…** (<kbd>Ctrl+,</kbd>) rummer tema, notation, velkomstskærm, gitter, tips
+**☰ › Indstillinger…** (<kbd>Ctrl+,</kbd>) rummer tema, notation, velkomstskærm, gitter, tips
 og simuleringspræferencer og viser, hvor meget af browserens lager der er brugt. Du kan rydde den
 lokale historik og listen over seneste filer der.
 

@@ -357,6 +357,7 @@ Autonomous build log. Read this first in every session and resume from **Current
   them in English, with standard Hindi UI words. Guide figure identifiers stay English in Russian,
   Chinese and Hindi (ASCII identifiers). `slug()` keeps combining marks (`\p{M}`), or Devanagari
   anchors lose their vowel signs. The phone flag row wraps (eleven flags).
+- Settings is its own entry in the main menu, just below Help (owner request), no longer under File.
 - The main menu no longer lists the languages (owner request): the flag button at the bottom
   right and the palette on desktop, the flags in the menu drawer on phones.
 - Loop lanes beside their body (`geometry.ts` `loopBody`: what lies on the way down from the

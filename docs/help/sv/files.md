@@ -148,7 +148,7 @@ den körs på en maskin.
 
 ## Inställningar {#settings}
 
-**Arkiv › Inställningar…** (<kbd>Ctrl+,</kbd>) innehåller tema, notation, välkomstskärm, rutnät,
+**☰ › Inställningar…** (<kbd>Ctrl+,</kbd>) innehåller tema, notation, välkomstskärm, rutnät,
 tips och simuleringsinställningar, och visar hur mycket av webbläsarens lagring som används. Där kan
 du rensa den lokala historiken och listan över senaste filer.
 

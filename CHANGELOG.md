@@ -240,6 +240,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- **F1** now opens the help on what is selected for more things: a jump's arrow (new **Jumps**
+  section), an AND double line, a loop, a source transition, a loop waiting for its step (`L`) and
+  a placing tool. Before, links all led to the Mouse section and the others to no section.
 - Adding a step or transition (Enter or a ghost) no longer re-centres the view: it scrolls only as far as
   needed, and only down when the new element is below the visible area.
 - A loop inside a parallel or alternative branch ran around the whole chart, crossing the other

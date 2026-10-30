@@ -117,15 +117,17 @@ Rozgałęzień i zbieżności nigdy nie rysuje się ręcznie; wynikają z połą
   tworzy zbieżność LUB.
 - **Edycja › Tranzycja źródłowa nad krokiem / Tranzycja końcowa pod krokiem** dodaje tranzycję bez
   kroku nad nią lub pod nią.
-- <kbd>J</kbd> na tranzycji tworzy **skok** do kroku zamiast rysować do niego połączenie: wpisz krok
-  pod tranzycją (`X10` lub samo `10`) i naciśnij <kbd>Enter</kbd>. Tranzycja kończy się strzałką
-  oznaczoną **X10**, a krok osiągany tylko skokami dostaje strzałkę z krokami, z których one
-  wychodzą. Kliknij dwukrotnie X10, aby go zmienić; wyczyść, aby usunąć skok. Prawy przycisk na
-  połączeniu lub tranzycji ze skokiem: **Rysuj połączenie jako skok** i **Rysuj skok jako
-  połączenie**. Zmienia się tylko rysunek: tranzycja nadal prowadzi do tego kroku, w symulacji i w
-  wygenerowanym kodzie. Skok usuniesz też, klikając jego strzałkę i naciskając <kbd>Del</kbd>. Pod
-  tranzycją, która jeszcze nigdzie nie prowadzi, zarys strzałki **X…** obok zarysu kroku działa tak
-  samo jak <kbd>J</kbd>.
+
+## Skoki {#jumps}
+
+<kbd>J</kbd> na tranzycji tworzy **skok** do kroku zamiast rysować do niego połączenie: wpisz krok
+pod tranzycją (`X10` lub samo `10`) i naciśnij <kbd>Enter</kbd>. Tranzycja kończy się strzałką
+oznaczoną **X10**, a krok osiągany tylko skokami dostaje strzałkę z krokami, z których one wychodzą.
+Kliknij dwukrotnie X10, aby go zmienić; wyczyść, aby usunąć skok. Prawy przycisk na połączeniu lub
+tranzycji ze skokiem: **Rysuj połączenie jako skok** i **Rysuj skok jako połączenie**. Zmienia się
+tylko rysunek: tranzycja nadal prowadzi do tego kroku, w symulacji i w wygenerowanym kodzie. Skok
+usuniesz też, klikając jego strzałkę i naciskając <kbd>Del</kbd>. Pod tranzycją, która jeszcze
+nigdzie nie prowadzi, zarys strzałki **X…** obok zarysu kroku działa tak samo jak <kbd>J</kbd>.
 
 ## Porządkowanie {#tidy-up}
 

@@ -123,15 +123,18 @@ Divergências e convergências nunca são desenhadas à mão; elas decorrem das 
   a uma etapa cria uma convergência em OU.
 - **Editar › Transição fonte acima da etapa / Transição sumidouro abaixo da etapa** adiciona uma
   transição sem etapa acima ou abaixo.
-- <kbd>J</kbd> numa transição faz um **salto** para uma etapa em vez de desenhar uma ligação: digite
-  a etapa abaixo da transição (`X10`, ou só `10`) e pressione <kbd>Enter</kbd>. A transição termina
-  numa seta marcada **X10**, e uma etapa alcançada só por saltos recebe uma seta marcada com as
-  etapas de onde eles vêm. Clique duas vezes em X10 para mudá-lo; apague-o para remover o salto.
-  Clique com o botão direito numa ligação ou numa transição com salto: **Desenhar a ligação como
-  salto** e **Desenhar o salto como ligação**. Só o desenho muda: a transição continua levando a
-  essa etapa, na simulação e no código gerado. Para remover um salto, você também pode clicar na
-  seta e pressionar <kbd>Del</kbd>. Abaixo de uma transição que ainda não leva a lugar nenhum, a
-  seta fantasma **X…** ao lado da etapa fantasma faz o mesmo que <kbd>J</kbd>.
+
+## Saltos {#jumps}
+
+<kbd>J</kbd> numa transição faz um **salto** para uma etapa em vez de desenhar uma ligação: digite a
+etapa abaixo da transição (`X10`, ou só `10`) e pressione <kbd>Enter</kbd>. A transição termina numa
+seta marcada **X10**, e uma etapa alcançada só por saltos recebe uma seta marcada com as etapas de
+onde eles vêm. Clique duas vezes em X10 para mudá-lo; apague-o para remover o salto. Clique com o
+botão direito numa ligação ou numa transição com salto: **Desenhar a ligação como salto** e
+**Desenhar o salto como ligação**. Só o desenho muda: a transição continua levando a essa etapa, na
+simulação e no código gerado. Para remover um salto, você também pode clicar na seta e pressionar
+<kbd>Del</kbd>. Abaixo de uma transição que ainda não leva a lugar nenhum, a seta fantasma **X…** ao
+lado da etapa fantasma faz o mesmo que <kbd>J</kbd>.
 
 ## Organizar {#tidy-up}
 

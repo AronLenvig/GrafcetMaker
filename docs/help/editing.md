@@ -109,14 +109,17 @@ Divergences and convergences are never drawn by hand; they follow from the links
   into a step makes an OR convergence.
 - **Edit › Source transition above step / Sink transition below step** adds a transition without a
   step above or below.
-- <kbd>J</kbd> on a transition **jumps** to a step instead of drawing a line to it: type the step
-  under the transition (`X10`, or just `10`) and press <kbd>Enter</kbd>. The transition ends in an
-  arrow marked **X10**, and a step reached only by jumps gets an arrow marked with the steps they
-  come from. Double-click X10 to change it; clear it to remove the jump. Right-click a link or a
-  jumping transition for **Draw link as a jump** and **Draw jump as a link**. Only the drawing
-  changes: the transition still leads to that step, in simulation and in generated code. To remove a
-  jump you can also click its arrow and press <kbd>Del</kbd>. Under a transition that leads nowhere
-  yet, the ghost arrow **X…** beside the ghost step does the same as <kbd>J</kbd>.
+
+## Jumps
+
+<kbd>J</kbd> on a transition **jumps** to a step instead of drawing a line to it: type the step
+under the transition (`X10`, or just `10`) and press <kbd>Enter</kbd>. The transition ends in an
+arrow marked **X10**, and a step reached only by jumps gets an arrow marked with the steps they come
+from. Double-click X10 to change it; clear it to remove the jump. Right-click a link or a jumping
+transition for **Draw link as a jump** and **Draw jump as a link**. Only the drawing changes: the
+transition still leads to that step, in simulation and in generated code. To remove a jump you can
+also click its arrow and press <kbd>Del</kbd>. Under a transition that leads nowhere yet, the ghost
+arrow **X…** beside the ghost step does the same as <kbd>J</kbd>.
 
 ## Tidy up
 

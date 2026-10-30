@@ -136,17 +136,19 @@ Verbindungen.
   verbinden Sie eine zweite Transition mit einem Schritt, entsteht eine ODER-Zusammenführung.
 - **Bearbeiten › Quelltransition über dem Schritt / Senkentransition unter dem Schritt** fügt eine
   Transition ohne Schritt darüber bzw. darunter hinzu.
-- <kbd>J</kbd> auf einer Transition setzt einen **Sprung** zu einem Schritt, statt eine Linie zu ihm
-  zu ziehen: Geben Sie den Schritt unter der Transition ein (`X10` oder nur `10`) und drücken Sie
-  <kbd>Enter</kbd>. Die Transition endet in einem Pfeil mit **X10**, und ein Schritt, der nur über
-  Sprünge erreicht wird, erhält einen Pfeil mit den Schritten, von denen sie kommen. Doppelklicken
-  Sie auf X10, um es zu ändern; leeren Sie es, um den Sprung zu entfernen. Rechtsklick auf eine
-  Verbindung oder eine springende Transition: **Verbindung als Sprung zeichnen** und **Sprung als
-  Verbindung zeichnen**. Nur die Zeichnung ändert sich: Die Transition führt weiterhin zu diesem
-  Schritt, in der Simulation wie im erzeugten Code. Einen Sprung entfernen Sie auch, indem Sie
-  seinen Pfeil anklicken und <kbd>Del</kbd> drücken. Unter einer Transition, die noch nirgends
-  hinführt, macht der Platzhalter-Pfeil **X…** neben dem Platzhalter-Schritt dasselbe wie
-  <kbd>J</kbd>.
+
+## Sprünge {#jumps}
+
+<kbd>J</kbd> auf einer Transition setzt einen **Sprung** zu einem Schritt, statt eine Linie zu ihm
+zu ziehen: Geben Sie den Schritt unter der Transition ein (`X10` oder nur `10`) und drücken Sie
+<kbd>Enter</kbd>. Die Transition endet in einem Pfeil mit **X10**, und ein Schritt, der nur über
+Sprünge erreicht wird, erhält einen Pfeil mit den Schritten, von denen sie kommen. Doppelklicken Sie
+auf X10, um es zu ändern; leeren Sie es, um den Sprung zu entfernen. Rechtsklick auf eine Verbindung
+oder eine springende Transition: **Verbindung als Sprung zeichnen** und **Sprung als Verbindung
+zeichnen**. Nur die Zeichnung ändert sich: Die Transition führt weiterhin zu diesem Schritt, in der
+Simulation wie im erzeugten Code. Einen Sprung entfernen Sie auch, indem Sie seinen Pfeil anklicken
+und <kbd>Del</kbd> drücken. Unter einer Transition, die noch nirgends hinführt, macht der
+Platzhalter-Pfeil **X…** neben dem Platzhalter-Schritt dasselbe wie <kbd>J</kbd>.
 
 ## Aufräumen {#tidy-up}
 

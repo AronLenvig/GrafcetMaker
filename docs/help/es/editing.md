@@ -126,15 +126,18 @@ Las divergencias y las convergencias nunca se dibujan a mano; se deducen de los 
   transición a una etapa crea una convergencia en O.
 - **Editar › Transición fuente sobre la etapa / Transición sumidero bajo la etapa** añade una
   transición sin etapa encima o debajo.
-- <kbd>J</kbd> en una transición hace un **salto** a una etapa en lugar de trazar un enlace: escribe
-  la etapa bajo la transición (`X10`, o solo `10`) y pulsa <kbd>Enter</kbd>. La transición termina
-  en una flecha marcada **X10**, y una etapa a la que solo se llega por saltos recibe una flecha
-  marcada con las etapas de las que vienen. Haz doble clic en X10 para cambiarlo; bórralo para
-  quitar el salto. Clic derecho en un enlace o en una transición con salto: **Dibujar el enlace como
-  salto** y **Dibujar el salto como enlace**. Solo cambia el dibujo: la transición sigue llevando a
-  esa etapa, en la simulación y en el código generado. Para quitar un salto también puedes hacer
-  clic en su flecha y pulsar <kbd>Del</kbd>. Bajo una transición que aún no lleva a ninguna parte,
-  la flecha fantasma **X…** junto a la etapa fantasma hace lo mismo que <kbd>J</kbd>.
+
+## Saltos {#jumps}
+
+<kbd>J</kbd> en una transición hace un **salto** a una etapa en lugar de trazar un enlace: escribe
+la etapa bajo la transición (`X10`, o solo `10`) y pulsa <kbd>Enter</kbd>. La transición termina en
+una flecha marcada **X10**, y una etapa a la que solo se llega por saltos recibe una flecha marcada
+con las etapas de las que vienen. Haz doble clic en X10 para cambiarlo; bórralo para quitar el
+salto. Clic derecho en un enlace o en una transición con salto: **Dibujar el enlace como salto** y
+**Dibujar el salto como enlace**. Solo cambia el dibujo: la transición sigue llevando a esa etapa,
+en la simulación y en el código generado. Para quitar un salto también puedes hacer clic en su
+flecha y pulsar <kbd>Del</kbd>. Bajo una transición que aún no lleva a ninguna parte, la flecha
+fantasma **X…** junto a la etapa fantasma hace lo mismo que <kbd>J</kbd>.
 
 ## Ordenar {#tidy-up}
 

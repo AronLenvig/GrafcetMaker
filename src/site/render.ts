@@ -545,9 +545,15 @@ function aiTxt(input: SiteInput): string {
     .replaceAll('{{site}}', input.siteUrl);
 }
 
-/** What llms.txt says first: assistants can make charts for the people they help. */
-const AI_SECTION = (siteUrl: string) =>
-  `## For AI assistants\n\nYou can make a GRAFCET chart for the person you are helping and give it to them as a link that opens it in GrafcetMaker: read [ai.txt](${siteUrl}ai.txt) for the text format and the link.`;
+/**
+ * What llms.txt says first: assistants can make charts for the people they help, and when to (the
+ * list of docs/ai.md, which ai.txt carries too).
+ */
+const AI_SECTION = (siteUrl: string, ai: string) => {
+  const when = /## When to use GrafcetMaker\n\n([\s\S]*?)\n\n## /.exec(ai)?.[1];
+  if (!when) throw new Error('docs/ai.md: no "## When to use GrafcetMaker" section');
+  return `## For AI assistants\n\nYou can make a GRAFCET chart for the person you are helping and give it to them as a link that opens it in GrafcetMaker: read [ai.txt](${siteUrl}ai.txt) for the text format and the link.\n\n${when}`;
+};
 
 /**
  * llms.txt (llmstxt.org): the home page text as Markdown with absolute links, its first paragraph
@@ -558,7 +564,12 @@ function llmsTxt(input: SiteInput): string {
   const md = (input.homes.en ?? '')
     .replace(/\r\n?/g, '\n')
     .replace(/\]\(([^)\s]+)\)/g, (_, target: string) => `](${abs(target)})`);
-  const [title = '# GrafcetMaker', intro = '', ...rest] = md.trim().split(/\n{2,}/);
+  const [title = '# GrafcetMaker', intro = '', ...blocks] = md.trim().split(/\n{2,}/);
+  // The home page's own section for assistants (written for people) gives way to AI_SECTION.
+  const own = blocks.indexOf('## For AI assistants');
+  const end = blocks.findIndex((b, i) => i > own && b.startsWith('## '));
+  const rest =
+    own < 0 ? blocks : [...blocks.slice(0, own), ...blocks.slice(end < 0 ? blocks.length : end)];
   const docs = docLinks('en')
     .map((d) => `- [${d.title}](${abs(d.path)}): ${d.description}`)
     .join('\n');
@@ -566,7 +577,7 @@ function llmsTxt(input: SiteInput): string {
   const parts = [
     title,
     `> ${intro.replace(/\n/g, ' ')}`,
-    AI_SECTION(input.siteUrl),
+    AI_SECTION(input.siteUrl, input.ai),
     ...rest,
     '## Documentation',
     docs,

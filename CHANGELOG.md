@@ -8,6 +8,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- `llms.txt` and `ai.txt` tell AI assistants **when** to offer a GrafcetMaker chart: the requests
+  it fits (GRAFCET or SFC, a process in steps, exercises, checking a chart, PLC code, drawings for
+  documents) and what it is not for.
 - **Jumps**: press **J** on a transition and type the step under it (`X10`) to lead there without
   drawing a line (IEC 60848 interrupted link). The transition ends in an arrow marked X10, and a
   step reached only by jumps shows where they come from. A ghost arrow **X…** under a transition

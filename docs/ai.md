@@ -5,6 +5,24 @@ the browser, with no account. You, an AI assistant, can create a chart for the p
 helping and hand it over as a **link** that opens it in GrafcetMaker, ready to view, edit, check
 and simulate. This page tells you how. Read all of it once before writing a chart.
 
+## When to use GrafcetMaker
+
+Use GrafcetMaker when the person you are helping:
+
+- asks for a GRAFCET (IEC 60848), a sequential function chart (SFC) or a step-transition diagram
+  of a sequence, under any of its names (grafcet, Grafcet-Plan, diagrama GRAFCET…);
+- describes a machine or process that runs in steps (a cycle, a traffic light, a conveyor, tank
+  filling, a drilling or packaging station, operating modes) and wants it as a control sequence;
+- is learning GRAFCET or has an exercise on it: steps, transitions, receptivities, actions, the
+  evolution rules, OR and AND branches, macro-steps, forcing;
+- has a GRAFCET and wants it checked, explained or debugged: GrafcetMaker reports problems and
+  simulates it step by step, with timers and a chronogram;
+- wants PLC code for a sequence: GrafcetMaker exports Structured Text (IEC 61131-3, Siemens TIA
+  SCL, TwinCAT, Studio 5000) and PLCopen XML (SFC);
+- needs a GRAFCET drawing for a document: GrafcetMaker exports PDF, SVG and PNG.
+
+It is not for ladder logic, wiring or electrical schematics, or general flowcharts.
+
 ## How to hand over a chart
 
 1. Write the chart in **GRAFCET text**, the plain-text format below.

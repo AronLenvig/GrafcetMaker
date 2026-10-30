@@ -387,9 +387,18 @@ function OverlayView({
       ))}
       {geom.jumps
         .filter((j) => j.side === 'from' && j.key === selectedLink)
-        .map((j) => (
-          <path key={j.key} className="gm-selected-link" d={pointsToPath(j.points)} />
-        ))}
+        .map((j) => {
+          // The line up to the base of the arrowhead, then the head itself: still an arrow.
+          const [from, tip] = j.points;
+          const back = { down: [0, -9], up: [0, 9], left: [9, 0], right: [-9, 0] }[j.arrow.dir];
+          const base = { x: tip.x + back[0]!, y: tip.y + back[1]! };
+          return (
+            <g key={j.key}>
+              <path className="gm-selected-link" d={pointsToPath([from, base])} />
+              <path className="gm-selected-arrow" d={arrowPath(j.arrow, j.arrow.dir)} />
+            </g>
+          );
+        })}
       {selBar && (
         <path
           className="gm-selected-link"

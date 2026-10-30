@@ -91,6 +91,14 @@
   stroke-width: 3;
 }
 
+/* The head of a selected jump arrow, a little larger than the arrow it covers. */
+.gm-selected-arrow {
+  fill: var(--selection);
+  stroke: var(--selection);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
 .gm-marquee {
   fill: var(--selection-fill);
   stroke: var(--selection);

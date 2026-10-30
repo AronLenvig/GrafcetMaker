@@ -11,6 +11,7 @@ import {
   actionDecor,
   commentRect,
   isJump,
+  linkKey,
   jumpLabelAnchor,
   jumpText,
   stepLabelAnchor,
@@ -91,6 +92,11 @@ export function applyEdit(
         delete tr.jump;
       }
     });
+    // A selected jump arrow stays selected on its new step (its key names the step).
+    const { selectedLink } = useUi.getState();
+    const leads = !!getActiveGrafcet()?.transitions[t.id]?.to.length;
+    if (selectedLink?.startsWith(`${t.id}:out:`) && (target || !leads))
+      ui.set({ selectedLink: target ? linkKey(t.id, 'out', target) : null });
     return null;
   }
   // Receptivities, action texts and conditions declare the new names they use.

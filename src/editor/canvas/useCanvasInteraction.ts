@@ -796,9 +796,9 @@ export function useCanvasInteraction(
     // Macro-steps and enclosing steps open their sub-grafcet (F2 still edits the number).
     if (hit?.kind === 'step' && hit.id && openChild(hit.id)) return;
     if (readOnly) return;
-    // A jump: type its step again.
+    // A jump: type its step again. The arrow stays selected, not its transition.
     if (hit?.id && hit.field === 'jump') {
-      ui.select([hit.id]);
+      if (hit.key) ui.set({ selection: {}, selectedLink: hit.key });
       ui.edit({ id: hit.id, field: 'jump' });
       return;
     }

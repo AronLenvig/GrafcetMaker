@@ -182,7 +182,9 @@ export function createDocumentStore(initial: Project): DocumentStore {
     revision: 0,
     generation: 0,
   }));
-  let tx: { label: string; patches: Patch[]; inverse: Patch[] } | null = null;
+  /** The open transaction; its inverse patches are kept per update and reversed on commit. */
+  let tx: { label: string; patches: Patch[]; inverse: Patch[][] } | null = null;
+  const inverseOf = (t: { inverse: Patch[][] }): Patch[] => t.inverse.toReversed().flat();
   /** The project as each history entry left it (compared by undo and redo, see replay). */
   const stamps = new WeakMap<HistoryEntry, Project>();
 
@@ -207,7 +209,7 @@ export function createDocumentStore(initial: Project): DocumentStore {
     const [project, patches, inverse] = produce(recipe);
     if (!patches.length) return;
     tx.patches.push(...patches);
-    tx.inverse.unshift(...inverse);
+    tx.inverse.push(inverse);
     store.setState((s) => ({ project, revision: s.revision + 1 }));
   };
 
@@ -228,7 +230,7 @@ export function createDocumentStore(initial: Project): DocumentStore {
     tx = null;
     if (!t || !t.patches.length) return;
     pushEntry(
-      compact({ label: t.label, patches: t.patches, inverse: t.inverse }),
+      compact({ label: t.label, patches: t.patches, inverse: inverseOf(t) }),
       store.getState().project,
     );
   };
@@ -238,7 +240,7 @@ export function createDocumentStore(initial: Project): DocumentStore {
     tx = null;
     if (!t || !t.patches.length) return;
     store.setState((s) => ({
-      project: applySafely(s.project, t.inverse),
+      project: applySafely(s.project, inverseOf(t)),
       revision: s.revision + 1,
     }));
   };

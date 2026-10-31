@@ -290,18 +290,22 @@ export interface ActionDrop {
  * Where the action being dragged (unattached meanwhile, at its `position`) would be attached
  * with the pointer at `p`: the step whose row (the step, its actions and room for this one) is
  * under the pointer, at the place among its actions nearest the left edge of the dragged box.
- * Null over anything else: the action is dropped without a step.
+ * Null over anything else: the action is dropped without a step. A drag passes the index of the
+ * grafcet once (the other actions stay put meanwhile).
  */
-export function actionDropAt(g: Grafcet, actionId: Id, p: Point): ActionDrop | null {
+export function actionDropAt(
+  g: Grafcet,
+  actionId: Id,
+  p: Point,
+  graph: GrafcetIndex = indexGrafcet(g),
+): ActionDrop | null {
   const a = g.actions[actionId];
   if (!a) return null;
   const left = a.position?.x ?? p.x;
   for (const s of Object.values(g.steps)) {
     if (Math.abs(p.y - s.position.y) > ACTION_HEIGHT / 2 || p.x < s.position.x - STEP_HALF)
       continue;
-    const actions = Object.values(g.actions)
-      .filter((x) => x.stepId === s.id && x.id !== actionId)
-      .sort((x, y) => x.order - y.order);
+    const actions = (graph.actions.get(s.id) ?? []).filter((x) => x.id !== actionId);
     const edges = [
       s.position.x + STEP_HALF + ACTION_GAP,
       ...layoutActions(s, actions).map((b) => b.x + b.width),
@@ -595,6 +599,84 @@ function loopBody(down: Map<Id, Id[]>, up: Map<Id, Id[]>, target: Id, source: Id
   return body;
 }
 
+/**
+ * What loop routing derives from the structure alone (which steps and transitions there are and
+ * how they are linked, not where they are), kept per grafcet: it stays the same while elements are
+ * dragged. Compared by content, since grafcets outside the store may be changed in place.
+ */
+interface Structure {
+  steps: Id[];
+  transitions: { id: Id; from: Id[]; to: Id[]; jump: boolean }[];
+  seq: Map<Id, Id> | null;
+  /** The upward links (keys) the bodies were found for: they decide which links go down. */
+  upward: string;
+  /** Loop bodies by `target>source`. */
+  bodies: Map<string, Set<Id>>;
+}
+
+const structures = new Map<Id, Structure>();
+
+const sameIds = (a: readonly Id[], b: readonly Id[]) =>
+  a.length === b.length && a.every((id, i) => id === b[i]);
+
+function structureOf(g: Grafcet): Structure {
+  const steps = Object.keys(g.steps);
+  const transitions = Object.values(g.transitions);
+  const known = structures.get(g.id);
+  if (
+    known &&
+    sameIds(known.steps, steps) &&
+    known.transitions.length === transitions.length &&
+    transitions.every((t, i) => {
+      const k = known.transitions[i]!;
+      return (
+        k.id === t.id &&
+        k.jump === (t.jump === true) &&
+        sameIds(k.from, t.from) &&
+        sameIds(k.to, t.to)
+      );
+    })
+  )
+    return known;
+  const s: Structure = {
+    steps,
+    transitions: transitions.map((t) => ({
+      id: t.id,
+      from: [...t.from],
+      to: [...t.to],
+      jump: t.jump === true,
+    })),
+    seq: null,
+    upward: '',
+    bodies: new Map(),
+  };
+  structures.set(g.id, s);
+  return s;
+}
+
+/** The body of each loop (see loopBody), found again only when other links go up. */
+function bodyOf(
+  s: Structure,
+  upward: readonly PendingUpward[],
+  down: Map<Id, Id[]>,
+  up: Map<Id, Id[]>,
+): (p: PendingUpward) => Set<Id> {
+  const key = upward
+    .map((p) => p.link.key)
+    .sort()
+    .join(' ');
+  if (s.upward !== key) {
+    s.upward = key;
+    s.bodies = new Map();
+  }
+  return (p) => {
+    const k = `${p.target}>${p.source}`;
+    let body = s.bodies.get(k);
+    if (!body) s.bodies.set(k, (body = loopBody(down, up, p.target, p.source)));
+    return body;
+  };
+}
+
 /** Leftmost x of the elements of a loop's body (step labels and transition numbers included). */
 function bodyLeft(g: Grafcet, body: ReadonlySet<Id>): number {
   let min = Infinity;
@@ -883,7 +965,8 @@ export function computeGeometry(
   // Upward links (loops). 1. Bottom lines, sources from left to right: each drops below its source
   // until its line to its lane (just left of the loop's body) crosses nothing of its own sequence
   // (wires, elements, the bottom lines of loops further left), or stays where it was dragged.
-  const seq = upward.length ? sequences(g) : new Map<Id, Id>();
+  const structure = upward.length ? structureOf(g) : null;
+  const seq = structure ? (structure.seq ??= sequences(g)) : new Map<Id, Id>();
   const obstacles = upward.length
     ? obstaclesBySequence(g, index, seq, [
         ...links.filter((l) => l.points.length),
@@ -902,8 +985,9 @@ export function computeGeometry(
     return list;
   };
   const loopLines = new Map<Id, Box[]>();
+  const body = structure ? bodyOf(structure, upward, down, up) : null;
   for (const p of [...upward].sort((a, b) => a.start.x - b.start.x || b.start.y - a.start.y)) {
-    p.laneX = p.override ?? snap(bodyLeft(g, loopBody(down, up, p.target, p.source)) - LOOP_MARGIN);
+    p.laneX = p.override ?? snap(bodyLeft(g, body!(p)) - LOOP_MARGIN);
     const lines = listOf(loopLines, p);
     p.dropY =
       p.dropOverride !== undefined

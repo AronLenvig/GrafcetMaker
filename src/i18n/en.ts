@@ -618,6 +618,7 @@ export const en = {
   },
   problems: {
     none: 'No problems found.',
+    checkFailed: 'Checking the diagram failed: {{message}}',
     allHidden: 'All problems are hidden by the filters above.',
     open: 'Show problems',
     summary: '{{errors}} errors, {{warnings}} warnings',
@@ -694,6 +695,9 @@ export const en = {
   },
   simulation: {
     badge: 'SIMULATION',
+    failed: 'The simulation stopped because of an error: {{message}}',
+    restarted:
+      'The simulator stopped unexpectedly. The simulation started again from the initial situation.',
     notRunning: 'Start the simulation (Simulate › Start simulation, or F5) to use this panel.',
     why: {
       steps_one: 'Waiting for step {{steps}} to be active',

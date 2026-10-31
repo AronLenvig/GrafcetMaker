@@ -630,6 +630,7 @@ export const pt: Messages = {
   },
   problems: {
     none: 'Nenhum problema encontrado.',
+    checkFailed: 'A verificação do diagrama falhou: {{message}}',
     allHidden: 'Todos os problemas estão ocultos pelos filtros acima.',
     open: 'Mostrar problemas',
     summary: '{{errors}} erros, {{warnings}} avisos',
@@ -707,6 +708,9 @@ export const pt: Messages = {
   },
   simulation: {
     badge: 'SIMULAÇÃO',
+    failed: 'A simulação parou devido a um erro: {{message}}',
+    restarted:
+      'O simulador parou inesperadamente. A simulação reiniciou a partir da situação inicial.',
     notRunning: 'Inicie a simulação (Simular › Iniciar simulação, ou F5) para usar este painel.',
     why: {
       steps_one: 'Aguardando a etapa {{steps}} ficar ativa',

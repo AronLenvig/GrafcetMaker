@@ -154,35 +154,27 @@ function valueKeys(
 /** What the simulation shows on the diagram: live state, or the past state under the cursor. */
 function useSimDisplay() {
   const on = useSim((s) => s.on);
-  const snapshot = useSim((s) => s.snapshot);
   const cursor = useSim((s) => s.cursor);
   const cycles = useSim((s) => s.cycles.length);
   // Each evolution is shown for a moment (simStore pacing): the steps it passes through.
   const shown = useSim((s) => s.shown);
-  // Keys of what is drawn, so a snapshot that only moves the clock changes nothing.
-  const { activeKey, valuesKey, executingKey } = useMemo(
-    () => ({
-      activeKey: snapshot ? (shown ?? snapshot.active).join(',') : '',
-      valuesKey: snapshot ? JSON.stringify(snapshot.values) : '',
-      executingKey: snapshot ? snapshot.executing.join(',') : '',
-    }),
-    [snapshot, shown],
-  );
+  // The snapshot fields that change what is drawn: they stay the same objects while only the
+  // clock moves (simStore settle).
+  const active = useSim((s) => s.snapshot?.active);
+  const values = useSim((s) => s.snapshot?.values);
+  const executing = useSim((s) => s.snapshot?.executing);
+  const drawn = shown ?? active;
   return useMemo(() => {
-    if (!on || !snapshot) return null;
+    if (!on || !drawn || !values || !executing) return null;
     if (cursor !== null) {
       const past = stateAt(cursor);
       if (past)
         return { active: past.active, values: past.values, executing: null as Set<string> | null };
     }
-    return {
-      active: new Set(shown ?? snapshot.active),
-      values: snapshot.values,
-      executing: new Set(snapshot.executing),
-    };
-    // Keys stand for the snapshot fields that change what is drawn (not the clock).
+    return { active: new Set(drawn), values, executing: new Set(executing) };
+    // cycles: the past under the cursor is known once its cycles have arrived.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [on, activeKey, valuesKey, executingKey, cursor, cycles]);
+  }, [on, drawn, values, executing, cursor, cycles]);
 }
 
 /**

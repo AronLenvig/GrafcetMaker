@@ -609,6 +609,7 @@ export const zh: Messages = {
   },
   problems: {
     none: '未发现问题。',
+    checkFailed: '检查图表失败：{{message}}',
     allHidden: '所有问题都被上方的筛选器隐藏了。',
     open: '显示问题',
     summary: '{{errors}} 个错误，{{warnings}} 个警告',
@@ -681,6 +682,8 @@ export const zh: Messages = {
   },
   simulation: {
     badge: '仿真',
+    failed: '仿真因错误而停止：{{message}}',
+    restarted: '仿真器意外停止。仿真已从初始情况重新开始。',
     notRunning: '请开始仿真（仿真 › 开始仿真，或按 F5）以使用此面板。',
     why: {
       steps_one: '等待步 {{steps}} 激活',

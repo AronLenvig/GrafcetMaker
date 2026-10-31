@@ -240,6 +240,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- Simulation: a step timer such as `3s/X2` could never fire in real-time mode when its step was
+  activated at certain fractional times (rounding put the expiry just past the deadline).
+- Simulation: a continuous action whose assignment condition reads another continuous output
+  (`H if M`) no longer depends on the order of the actions.
+- Simulation: forcing passes down the hierarchy: when G1 forces G2 into a step that forces G3,
+  G3 is forced too.
+- Simulation: transitions under an inactive enclosing step are no longer marked enabled.
+- If the simulation or validation worker fails, a message says so and the simulation restarts in
+  the page instead of stopping silently.
+- Faster: help loads only the current language; drags redraw once per frame; long drags, the
+  chronogram, the outline and culling of large charts cost less.
+
 - **F1** now opens the help on what is selected for more things: a jump's arrow (new **Jumps**
   section), an AND double line, a loop, a source transition, a loop waiting for its step (`L`) and
   a placing tool. Before, links all led to the Mouse section and the others to no section.
@@ -282,6 +294,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   generation.
 
 ### Security
+
+- Live sessions: only holders of the room key can replace a room's stored snapshot (write
+  token); a participant can no longer pin a field with a huge version; incoming frames are
+  bounded; two steps given the same number at once are renumbered the same way for everyone.
+- Relays: connections need a matching Origin; the self-hosted relay caps rooms, connections per
+  address and snapshot memory (`RELAY_*` settings, see README); both cap bytes per person.
+- Feedback is rate-limited per address and filed as plain text (no mentions, links or images).
+- Export settings restored from the browser are validated.
 
 - A file, share link or live-session participant could use ids such as `constructor` or
   `__proto__`, which passed the integrity checks and made the editor fail on every launch (the

@@ -556,9 +556,10 @@ Autonomous build log. Read this first in every session and resume from **Current
   on-premise Docker files (`deploy/relay.Dockerfile`, `docker-compose.yml`) were not built here
   (no Docker on the build machine); the relay itself is covered by the e2e test. WebSockets rely on
   CSP `connect-src 'self'` matching `wss:` on the same host (CSP 3, current browsers).
-- Abuse limits of the optional backends: the hosted relay and feedback endpoint have no per-IP
-  rate limit in code (README recommends a Cloudflare rate-limiting rule on `/api/`; the Origin
-  checks stop other web pages, not scripts). The Node relay has no cap on the number of rooms it
-  keeps (in memory without `RELAY_DATA_DIR`, on disk with it) for their 30 days.
+- Abuse limits of the optional backends: both relays cap peers, frames and bytes per person, the
+  Node relay also rooms, connections (total and per IP) and snapshot memory, and the hosted site
+  rate-limits room connections and feedback per IP (`ratelimits` in `wrangler.jsonc`: check the
+  namespace ids are free in the Cloudflare account). A live link cannot be revoked; leaving and
+  starting a new session gives a new key.
 - `npm audit`: undici advisories in Wrangler's local dev server (miniflare pins undici 7.29.1, also
   in the latest Wrangler); development tooling only, nothing shipped to users.

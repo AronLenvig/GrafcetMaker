@@ -16,7 +16,7 @@ import { cachedBool } from '@/core/expr/cache';
 import { buildEnv } from '@/core/expr/check';
 import { formatDuration } from '@/core/expr/format';
 import { signalsOf, signalValue, variablesOf } from '@/core/expr/signals';
-import type { Grafcet, Id, Variable } from '@/core/model/types';
+import type { Grafcet, Id, Point, Variable } from '@/core/model/types';
 import type { Value } from '@/core/simulation/engine';
 import { stateAt, useSim } from '../simulation/simStore';
 import { getProject, useDoc } from '../store/document';
@@ -77,6 +77,15 @@ function withDraft(
 }
 /** Above this many elements, only what is (nearly) visible is rendered. */
 const CULL_THRESHOLD = 1000;
+
+/** The box around a polyline. */
+function pointsBounds(points: readonly Point[]): Rect {
+  const xs = points.map((p) => p.x);
+  const ys = points.map((p) => p.y);
+  const x = Math.min(...xs);
+  const y = Math.min(...ys);
+  return { x, y, width: Math.max(...xs) - x, height: Math.max(...ys) - y };
+}
 
 /**
  * For the conditions of grafcet `g` while simulating: `on;inputs`, the indices (signalsOf order,
@@ -248,7 +257,7 @@ export function Canvas({
     [g],
   );
   // Culling rect, quantized so panning re-renders only every half screen.
-  const cull: Rect | null =
+  const cullRect: Rect | null =
     total > CULL_THRESHOLD
       ? {
           x: Math.floor((viewport.x - w / 2) / (w / 2)) * (w / 2),
@@ -257,7 +266,12 @@ export function Canvas({
           height: h * 2.5,
         }
       : null;
-  const cullKey = cull ? [cull.x, cull.y, cull.width, cull.height].join(',') : '';
+  const cullKey = cullRect
+    ? [cullRect.x, cullRect.y, cullRect.width, cullRect.height].join(',')
+    : '';
+  // The same object until the rect changes, so the memoized layers keep their drawing.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const cull = useMemo(() => cullRect, [cullKey]);
 
   const content = useMemo(() => {
     if (!g || !geom) return null;
@@ -272,21 +286,12 @@ export function Canvas({
       return undefined;
     };
     const comments = Object.values(g.comments);
-    const visible = cull;
     const inView = (id: string) => {
-      if (!visible) return true;
+      if (!cull) return true;
       const b = elementBounds(g, geom, id);
-      return !b || rectsIntersect(b, visible);
+      return !b || rectsIntersect(b, cull);
     };
-    const linkInView = (pts: readonly { x: number; y: number }[]) =>
-      !visible ||
-      pts.some(
-        (p) =>
-          p.x >= visible.x &&
-          p.x <= visible.x + visible.width &&
-          p.y >= visible.y &&
-          p.y <= visible.y + visible.height,
-      );
+    const linkInView = (pts: readonly Point[]) => !cull || rectsIntersect(pointsBounds(pts), cull);
     const actionBoxes: { box: ActionBox; first: boolean }[] = [];
     for (const s of steps) {
       if (!inView(s.id)) continue;
@@ -315,19 +320,23 @@ export function Canvas({
           .map((l) => (
             <LinkView key={l.key} linkKey={l.key} d={pointsToPath(l.points)} arrow={linkArrow(l)} />
           ))}
-        {geom.bars.map((b) => (
-          <BarView
-            key={b.key}
-            barKey={b.key}
-            x1={b.x1}
-            x2={b.x2}
-            y={b.y}
-            stem={pointsToPath(b.stem)}
-          />
-        ))}
-        {geom.stubs.map((s) => (
-          <StubView key={s.key} d={pointsToPath(s.points)} />
-        ))}
+        {geom.bars
+          .filter((b) => linkInView([{ x: b.x1, y: b.y }, { x: b.x2, y: b.y }, ...b.stem]))
+          .map((b) => (
+            <BarView
+              key={b.key}
+              barKey={b.key}
+              x1={b.x1}
+              x2={b.x2}
+              y={b.y}
+              stem={pointsToPath(b.stem)}
+            />
+          ))}
+        {geom.stubs
+          .filter((s) => linkInView(s.points))
+          .map((s) => (
+            <StubView key={s.key} d={pointsToPath(s.points)} />
+          ))}
         {geom.jumps
           .filter((j) => inView(j.elementId))
           .map((j) => (
@@ -408,9 +417,7 @@ export function Canvas({
         })}
       </>
     );
-    // cull is derived from cullKey; listing it would re-render on every pan.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [g, geom, cullKey, sim, editing, focused]);
+  }, [g, geom, cull, sim, editing, focused]);
 
   const enabled = useMemo(() => {
     if (!sim || !g) return new Set<string>();
@@ -493,7 +500,7 @@ export function Canvas({
           )}
           <g>{content}</g>
           {live && g && geom && <PeerLayer g={g} geom={geom} zoom={viewport.zoom} />}
-          {g && geom && !readOnly && <IssueBadges g={g} geom={geom} />}
+          {g && geom && !readOnly && <IssueBadges g={g} geom={geom} cull={cull} />}
           {g && geom && sim && (
             <SimOverlay
               g={g}
@@ -501,9 +508,10 @@ export function Canvas({
               enabled={enabled}
               time={cursor ?? snapshot?.time ?? 0}
               activatedAt={cursor === null ? (snapshot?.activatedAt ?? null) : null}
+              cull={cull}
             />
           )}
-          {focused && g && geom && <Overlay g={g} geom={geom} readOnly={readOnly} />}
+          {focused && g && geom && <Overlay g={g} geom={geom} readOnly={readOnly} cull={cull} />}
         </svg>
         {focused && g && geom && <InlineEditor g={g} geom={geom} viewport={viewport} />}
         {focused && <SimValueEditor viewport={viewport} />}

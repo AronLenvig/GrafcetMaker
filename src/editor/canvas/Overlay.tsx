@@ -21,6 +21,7 @@ import {
   type Rect,
   arrowPath,
   flowOf,
+  rectsIntersect,
 } from '@/core/layout/geometry';
 import { useCoarsePointer } from '@/app/ui/media';
 import { nextStepNumber, preferredStepNumber } from '@/core/model/ops';
@@ -306,15 +307,20 @@ function ToolGhost({ g, geom }: { g: Grafcet; geom: GrafcetGeometry }) {
   }
 }
 
-/** Selection, link handles, link-drag preview, marquee and flash: everything that is not the diagram. */
+/**
+ * Selection, link handles, link-drag preview, marquee and flash: everything that is not the
+ * diagram. With `cull`, selection and target boxes only within it.
+ */
 function OverlayView({
   g,
   geom,
   readOnly,
+  cull,
 }: {
   g: Grafcet;
   geom: GrafcetGeometry;
   readOnly: boolean;
+  cull: Rect | null;
 }) {
   const selection = useUi((s) => s.selection);
   const selectedLink = useUi((s) => s.selectedLink);
@@ -380,7 +386,7 @@ function OverlayView({
     <g className="gm-overlay">
       {ids.map((id) => {
         const r = elementBounds(g, geom, id);
-        return r ? <SelectionRect key={id} r={r} /> : null;
+        return r && (!cull || rectsIntersect(r, cull)) ? <SelectionRect key={id} r={r} /> : null;
       })}
       {selLinks.map((l) => (
         <path key={l.key} className="gm-selected-link" d={pointsToPath(l.points)} />
@@ -407,7 +413,7 @@ function OverlayView({
       )}
       {targets.map((id) => {
         const r = elementBounds(g, geom, id);
-        if (!r) return null;
+        if (!r || (cull && !rectsIntersect(r, cull))) return null;
         const hot = hotTarget === id;
         return (
           <g key={id}>

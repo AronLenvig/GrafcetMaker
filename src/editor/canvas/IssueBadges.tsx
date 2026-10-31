@@ -5,8 +5,10 @@ import {
   actionBoxOf,
   STEP_HALF,
   expressionWidth,
+  rectsIntersect,
   transitionTextAnchor,
   type GrafcetGeometry,
+  type Rect,
 } from '@/core/layout/geometry';
 import type { Grafcet, Id, Point } from '@/core/model/types';
 import { SEVERITY_ORDER, type Issue, type Severity } from '@/core/validation/types';
@@ -79,8 +81,19 @@ const Badge = memo(function Badge({
   );
 });
 
-/** On-element problem badges for the active grafcet (worst severity per element). */
-function IssueBadgesView({ g, geom }: { g: Grafcet; geom: GrafcetGeometry }) {
+/**
+ * On-element problem badges for the active grafcet (worst severity per element); with `cull`,
+ * only those within it.
+ */
+function IssueBadgesView({
+  g,
+  geom,
+  cull,
+}: {
+  g: Grafcet;
+  geom: GrafcetGeometry;
+  cull: Rect | null;
+}) {
   const { t } = useTranslation();
   const byElement = useProblems((s) => s.byElement);
   const badges: { id: Id; severity: Severity; title: string; at: Point; kind: string }[] = [];
@@ -91,7 +104,7 @@ function IssueBadgesView({ g, geom }: { g: Grafcet; geom: GrafcetGeometry }) {
     );
     if (!relevant.length) continue;
     const a = anchor(g, geom, id);
-    if (!a) continue;
+    if (!a || (cull && !rectsIntersect({ ...a.at, width: 0, height: 0 }, cull))) continue;
     const worst = relevant.reduce(
       (w, i) => (SEVERITY_ORDER[i.severity] < SEVERITY_ORDER[w] ? i.severity : w),
       'info' as Severity,

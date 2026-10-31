@@ -39,7 +39,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 
 - Pure editing ops in `src/core/model/ops.ts` (append/insert, delete-with-heal, connect, move),
   clipboard payload (`core/model/clipboard.ts`), geometry + orthogonal link routing with loop
-  lanes (`core/layout/geometry.ts`). Tests: undo/redo patches, transactions, heal, paste.
+  lanes (`core/layout/geometry.ts`, routing in `routing.ts`). Tests: undo/redo patches, transactions, heal, paste.
 - Document store (vanilla Zustand + Immer `produceWithPatches`), `execute(label, recipe)`,
   transactions for drags (compacted to one entry), dirty tracking by history position.
 - SVG canvas: memoized element views, separate overlay layer (selection, handles, link drag with
@@ -367,7 +367,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 - Settings is its own entry in the main menu, just below Help (owner request), no longer under File.
 - The main menu no longer lists the languages (owner request): the flag button at the bottom
   right and the palette on desktop, the flags in the menu drawer on phones.
-- Loop lanes beside their body (`geometry.ts` `loopBody`: what lies on the way down from the
+- Loop lanes beside their body (`routing.ts` `loopBody`: what lies on the way down from the
   target to the source, following downward links only): a lane starts just left of its body and
   moves left past elements, wires and other loops' lanes and lines in its way; loops to one target
   share the leftmost lane. Bottom lines are cleared only between the source and the lane.

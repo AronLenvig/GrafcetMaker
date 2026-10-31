@@ -267,7 +267,7 @@ hand-verified charts (`tests/unit/simulation.test.ts`).
   hanging from the bottom edge, pointing away from the box, its condition to its right.
 - Stored action on event: a flag (pole and pennant) on the top edge, 12 units from the right side,
   with the event written to its left. The flag is drawn even when the event is still empty.
-- The marks are computed once (`actionDecor` in `src/core/layout/geometry.ts`) and drawn by both
+- The marks are computed once (`actionDecor` in `src/core/layout/shapes.ts`) and drawn by both
   the canvas and the SVG/PDF exporter, so screen and exports match. Problem badges of actions sit
   on the bottom-right corner so they never cover these marks.
 - `^` is not part of the grammar: the expression editor replaces a typed `^` with `↑`.

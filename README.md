@@ -194,15 +194,18 @@ To enable the feedback endpoint:
    secret `GITHUB_TOKEN` in the Worker › Settings › Variables and Secrets (or
    `npx wrangler secret put GITHUB_TOKEN`). Secrets survive deploys; plain variables set only in
    the dashboard do not.
-4. Recommended: a Cloudflare rate-limiting rule on `/api/` (e.g. 20 requests per minute per IP)
-   against feedback spam and scripts opening many live rooms; the Worker itself keeps no record
-   of who sends what.
+4. The `ratelimits` bindings in `wrangler.jsonc` limit each address (`CF-Connecting-IP`) to 5
+   messages and 60 live room connections a minute ([`worker/ratelimit.ts`](worker/ratelimit.ts)).
+   Their `namespace_id` values (`1001`, `1002`) only need to be numbers no other rate limiter of
+   your Cloudflare account uses; without the bindings the Worker runs unlimited. Cloudflare keeps
+   the counts; the Worker itself keeps no record of who sends what.
 
 Live collaboration needs nothing to set up: the same Worker relays live sessions at
 `/api/room/<id>` with one Durable Object per room ([`worker/collab.ts`](worker/collab.ts), SQLite
 storage, available on the Workers Free plan). The migration in `wrangler.jsonc` creates it on the
 first deploy. Messages are end-to-end encrypted in the browser, so the Worker forwards and stores
-data it cannot read; a room's storage is deleted 30 days after its last change.
+data it cannot read; a room's storage is deleted 30 days after its last change. A room's snapshot
+is written at most every 5 s, and only with the write token derived from the room key.
 
 The Worker also serves the root page (`/`, in `run_worker_first`) with the visitor's country from
 Cloudflare on `<html data-country>` ([`worker/country.ts`](worker/country.ts)): the app starts a
@@ -214,7 +217,8 @@ Security headers (no framing by other sites, `nosniff`, no referrer, HTTPS only�
 [`public/_headers`](public/_headers) for the static files and from
 [`worker/headers.ts`](worker/headers.ts) for the Worker's own responses; keep the two in step with
 [`deploy/security-headers.conf`](deploy/security-headers.conf), which nginx uses. The live relay
-accepts WebSockets only from the site's own pages (and from `localhost` for development).
+accepts WebSockets only from the site's own pages (and from `localhost` for development); a
+client that names no page is refused.
 
 New feedback then arrives as GitHub notifications (web, mobile app or the email of your GitHub
 account, which stays private). Renew the token before it expires. Without these settings the
@@ -271,6 +275,36 @@ This runs the app and the relay ([`deploy/relay.Dockerfile`](deploy/relay.Docker
 forwards `api/room` to it with [`deploy/relay-proxy.conf`](deploy/relay-proxy.conf). Behind another
 web server, proxy `…/api/room` and `…/api/room/<id>` (with WebSocket upgrade) to the relay's port
 (`PORT`, default 8081). Without a relay the app works as before and shows the share link instead.
+
+The relay protects itself with these environment variables (defaults in brackets; all listed in
+[`server/relay.ts`](server/relay.ts)):
+
+| Variable                   | Meaning                                                                                                                                                                                  |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RELAY_ALLOWED_ORIGINS`    | Comma-separated origins of the pages that may connect, e.g. `https://grafcet.example.com` [pages of the host the relay is reached at, any port]. Set it when your proxy rewrites `Host`. |
+| `RELAY_MAX_ROOMS`          | Rooms with people in them at once [1000]                                                                                                                                                 |
+| `RELAY_MAX_CONNECTIONS`    | Connections at once [2000]                                                                                                                                                               |
+| `RELAY_MAX_PER_IP`         | Connections at once from one address [100]; raise it when many people share one address (NAT)                                                                                            |
+| `RELAY_CLIENT_IP_HEADER`   | Header with the client's address from your proxy, e.g. `x-real-ip` (set in `docker-compose.yml`) [the connection's address]. Only when the relay is reachable through that proxy alone.  |
+| `RELAY_SNAPSHOT_MEMORY_MB` | Memory for room snapshots [256]; beyond it, the empty rooms changed least recently leave memory (and are lost without `RELAY_DATA_DIR`)                                                  |
+
+Each participant may also send at most 600 messages and 8 MiB per 10 s, and a room holds 20
+people. A browser refused for a cap tries again later by itself.
+
+### Security notes
+
+- The Content Security Policy allows no inline or evaluated scripts, but keeps
+  `style-src 'unsafe-inline'`: React sets element styles inline (positions on the diagram,
+  colors of participants). Styles cannot run code; the remaining risk is limited to CSS
+  injection, and every text shown is escaped.
+- A live session's key is in the link's fragment (`#room=<id>,<key>`). Browsers never send the
+  fragment to a server, but it stays in the browser history and wherever the link was pasted.
+  A link cannot be revoked: to shut out people who have it, choose **Leave session**, then
+  **Start live session** again, which creates a new room with a new key and link (the old room
+  keeps the project as it was until it is deleted, 30 days after its last change).
+- Anyone with the room id alone (the relay operator, access logs) cannot read a room, replace its
+  stored snapshot or merge anything into it; they can only see when people join and leave, and
+  send messages the browsers drop unopened.
 
 ## Development
 

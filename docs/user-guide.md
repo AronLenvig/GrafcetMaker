@@ -496,7 +496,8 @@ collaboration…**, or the people button at the top right).
 - **Changes merge field by field**: one person moving a step while another renames it keeps both
   changes. When two people change the same field at the same moment, the same one wins for
   everyone. A link to a step someone deleted meanwhile is dropped, an action of a deleted step goes
-  with it, and a name created twice at once is made unique (a grafcet gets `_2`).
+  with it, a name created twice at once is made unique (a grafcet gets `_2`), and a step number
+  added twice at once moves to the next free number for one of the two steps.
 - **Undo** (`Ctrl+Z`) takes back only your own changes. A change someone else has since made to
   the same field is kept; a message says so.
 - **Simulating**: your simulation runs on the diagram as it was when it started. Changes the others
@@ -509,8 +510,10 @@ collaboration…**, or the people button at the top right).
   the others go on. Opening another project leaves the session too.
 - **Privacy**: everything is end-to-end encrypted with a key that exists only in the link (after
   the `#`, never sent to a server): the server only relays and stores data it cannot read.
-  Anyone who has the link can see and change the project, so share it like the file itself. A
-  session is deleted 30 days after its last change.
+  Anyone who has the link can see and change the project, so share it like the file itself; the
+  link also stays in your browser history. A link cannot be withdrawn: to continue without those
+  who have it, **Leave session** and **Start live session** again, which makes a new link with a
+  new key. A session is deleted 30 days after its last change.
 
 Live collaboration needs a relay server: the public site has one; self-hosted installations add
 it as described in the README. Elsewhere the menu entry is unavailable.

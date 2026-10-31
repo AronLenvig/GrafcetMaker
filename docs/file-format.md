@@ -77,12 +77,16 @@ last-writer-wins register `{ v, n, x }`: version, random 32-bit nonce, value (no
 unset). The higher version wins, then the lower nonce, so every replica keeps the same register
 whatever order the messages arrive in. Deleting sets the field `$d`; the record stays as a
 tombstone. Every field is checked against the file schema when merged; unknown fields and invalid
-values are dropped.
+values are dropped. A version more than 2^24 above the highest version a replica holds is lowered
+to that bound (the value is kept), so no one can pin a field at the largest version where no later
+edit could win; honest replicas are never that far ahead (`MAX_VERSION_JUMP` in `records.ts`).
 
 **Derived project**: the project shown is computed from the records, with a deterministic repair
 so that it always passes the integrity rules below: elements of a deleted grafcet are hidden,
 `from` / `to` lose steps that no longer exist, an action whose step is gone is hidden, a reference
-to a missing grafcet is removed, a duplicate grafcet name (case-insensitive) gets `_2`, `_3`… (the
+to a missing grafcet is removed, a step number used twice in a grafcet stays with the lowest id
+while the others take, in id order, the first free number above it, a duplicate grafcet name
+(case-insensitive) gets `_2`, `_3`… (the
 lowest id keeps it), a duplicate variable name is hidden (the lowest id is shown), and the grafcet
 order lists every grafcet once.
 
@@ -94,12 +98,23 @@ ciphertext, at most 1 MiB (larger `changes` are split). Messages from a newer pr
 version are refused with an explanation.
 
 **Relay** ([`worker/room.ts`](../worker/room.ts)): `GET <app path>/api/room` answers
-`{ "ok": true }` where live collaboration is available; `<app path>/api/room/<id>` is the room's
-WebSocket. The relay forwards sealed messages (to everyone, or to one participant), tells who
-joins and leaves, and keeps the latest sealed `sync` as the room snapshot, written 2 s after
-changes settle by the participant with the lowest relay id. Limits: 20 people per room, 600
-messages per 10 s per person; rooms are deleted 30 days after their last snapshot. Each browser
-also keeps its records in IndexedDB (table `rooms`), so a reload rejoins with offline edits.
+`{ "ok": true, "protocol": 2 }` where live collaboration is available; `<app path>/api/room/<id>`
+is the room's WebSocket, opened only from the app's pages (the `Origin` header is required). The
+relay forwards sealed messages (to everyone, or to one participant), tells who joins and leaves,
+and keeps the latest sealed `sync` as the room snapshot, written 2 s after changes settle by the
+participant with the lowest relay id. Limits: 20 people per room, 600 messages and 8 MiB per 10 s
+per person; rooms are deleted 30 days after their last snapshot. Each browser also keeps its
+records in IndexedDB (table `rooms`), so a reload rejoins with offline edits. A browser drops
+messages from a participant once one of them failed to open with the key, and stops queueing
+incoming messages beyond 100 (it then asks everyone for their state again).
+
+**Write token** (protocol 2): a snapshot frame `{ t: 's', d, w }` carries
+`w = base64url(HMAC-SHA-256(room key, "GrafcetMaker room snapshot write token v1"))`. The relay
+keeps the SHA-256 of the first token it receives for a room and refuses later snapshots with
+another token or none (`{ t: 'error', code: 'denied' }`), so someone who knows only the room id
+cannot replace the snapshot. Rooms stored before protocol 2 (no hash kept) accept snapshots
+without a token until the first one with a token claims them. The on-premise relay stores the hash
+as the first line of the room file, the Durable Object as its `auth` key.
 
 ## Importing grafcet.io files
 

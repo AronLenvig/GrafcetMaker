@@ -1,12 +1,11 @@
 import { blockText, inlineText, parseMarkdown, type Block } from './markdown';
 
 // The pages are the Markdown files of docs/help (English) and docs/help/<lang>/ (translations),
-// bundled with the (lazy) help panel.
+// loaded one language at a time (one chunk per language, see vite.config.ts).
 const RAW = import.meta.glob('/docs/help/**/*.md', {
   query: '?raw',
   import: 'default',
-  eager: true,
-}) as Record<string, string>;
+}) as Record<string, () => Promise<string>>;
 
 /** Reading order (the contents page first). */
 export const ORDER = [
@@ -58,23 +57,39 @@ export interface Help {
 }
 
 const cache = new Map<string, Help>();
+const loading = new Map<string, Promise<Help>>();
 
-/** The help in one language; a page not translated yet stays in English. */
-export function helpPages(lang: string): Help {
-  let help = cache.get(lang);
+/** Loads the help in one language; a page not translated yet stays in English. */
+export function loadHelp(lang: string): Promise<Help> {
+  let help = loading.get(lang);
   if (!help) {
-    const pages = ORDER.flatMap((id) => {
-      const src = RAW[`/docs/help/${lang}/${id}.md`] ?? RAW[`/docs/help/${id}.md`];
-      return src === undefined ? [] : [load(id, src)];
-    });
-    help = { pages, byId: new Map(pages.map((p) => [p.id, p])) };
-    cache.set(lang, help);
+    help = Promise.all(
+      ORDER.map(async (id) => {
+        const file = RAW[`/docs/help/${lang}/${id}.md`] ?? RAW[`/docs/help/${id}.md`];
+        return file ? [load(id, await file())] : [];
+      }),
+    ).then(
+      (lists) => {
+        const pages = lists.flat();
+        const h = { pages, byId: new Map(pages.map((p) => [p.id, p])) };
+        cache.set(lang, h);
+        return h;
+      },
+      (err: unknown) => {
+        // Tried again next time (a chunk that failed to load).
+        loading.delete(lang);
+        throw err;
+      },
+    );
+    loading.set(lang, help);
   }
   return help;
 }
 
-/** The English pages. */
-export const PAGES: HelpPage[] = helpPages('en').pages;
+/** The help in one language, once loadHelp has loaded it (undefined before). */
+export function loadedHelp(lang: string): Help | undefined {
+  return cache.get(lang);
+}
 
 export interface SearchHit extends HelpSection {
   pageTitle: string;

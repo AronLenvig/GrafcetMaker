@@ -640,6 +640,7 @@ export const pl: Messages = {
   },
   problems: {
     none: 'Nie znaleziono problemów.',
+    checkFailed: 'Sprawdzanie diagramu nie powiodło się: {{message}}',
     allHidden: 'Wszystkie problemy są ukryte przez filtry powyżej.',
     open: 'Pokaż problemy',
     summary: 'Błędy: {{errors}}, ostrzeżenia: {{warnings}}',
@@ -723,6 +724,9 @@ export const pl: Messages = {
   },
   simulation: {
     badge: 'SYMULACJA',
+    failed: 'Symulacja zatrzymała się z powodu błędu: {{message}}',
+    restarted:
+      'Symulator nieoczekiwanie przestał działać. Symulacja rozpoczęła się od nowa z sytuacji początkowej.',
     notRunning: 'Uruchom symulację (Symulacja › Uruchom symulację lub F5), aby używać tego panelu.',
     why: {
       steps_one: 'Czeka, aż krok {{steps}} będzie aktywny',

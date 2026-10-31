@@ -625,6 +625,7 @@ export const da: Messages = {
   },
   problems: {
     none: 'Ingen problemer fundet.',
+    checkFailed: 'Kontrollen af diagrammet mislykkedes: {{message}}',
     allHidden: 'Alle problemer er skjult af filtrene ovenfor.',
     open: 'Vis problemer',
     summary: '{{errors}} fejl, {{warnings}} advarsler',
@@ -702,6 +703,8 @@ export const da: Messages = {
   },
   simulation: {
     badge: 'SIMULERING',
+    failed: 'Simuleringen stoppede på grund af en fejl: {{message}}',
+    restarted: 'Simulatoren stoppede uventet. Simuleringen startede forfra fra initialsituationen.',
     notRunning:
       'Start simuleringen (Simuler › Start simulering, eller F5) for at bruge dette panel.',
     why: {

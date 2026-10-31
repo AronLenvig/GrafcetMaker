@@ -626,6 +626,7 @@ export const es: Messages = {
   },
   problems: {
     none: 'No se encontraron problemas.',
+    checkFailed: 'No se pudo comprobar el diagrama: {{message}}',
     allHidden: 'Todos los problemas están ocultos por los filtros de arriba.',
     open: 'Mostrar problemas',
     summary: '{{errors}} errores, {{warnings}} advertencias',
@@ -703,6 +704,9 @@ export const es: Messages = {
   },
   simulation: {
     badge: 'SIMULACIÓN',
+    failed: 'La simulación se detuvo por un error: {{message}}',
+    restarted:
+      'El simulador se detuvo inesperadamente. La simulación se reinició desde la situación inicial.',
     notRunning: 'Inicia la simulación (Simular › Iniciar simulación, o F5) para usar este panel.',
     why: {
       steps_one: 'Espera a que la etapa {{steps}} esté activa',

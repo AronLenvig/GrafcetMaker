@@ -632,6 +632,7 @@ export const fr: Messages = {
   },
   problems: {
     none: 'Aucun problème trouvé.',
+    checkFailed: 'La vérification du diagramme a échoué : {{message}}',
     allHidden: 'Tous les problèmes sont masqués par les filtres ci-dessus.',
     open: 'Afficher les problèmes',
     summary: '{{errors}} erreurs, {{warnings}} avertissements',
@@ -710,6 +711,9 @@ export const fr: Messages = {
   },
   simulation: {
     badge: 'SIMULATION',
+    failed: "La simulation s'est arrêtée à cause d'une erreur : {{message}}",
+    restarted:
+      "Le simulateur s'est arrêté de manière inattendue. La simulation a redémarré depuis la situation initiale.",
     notRunning:
       'Démarrez la simulation (Simulation › Démarrer la simulation, ou F5) pour utiliser ce panneau.',
     why: {

@@ -16,7 +16,7 @@ import {
   portPosition,
   parseLinkKey,
 } from '@/core/layout/geometry';
-import { indexGrafcet } from '@/core/model/graph';
+import { indexGrafcet, type GrafcetIndex } from '@/core/model/graph';
 import * as ops from '@/core/model/ops';
 import type { Id, Point } from '@/core/model/types';
 import { usePrefs } from '@/app/prefs';
@@ -80,6 +80,8 @@ type Gesture =
       applied: Point;
       ids: Id[];
       action?: { id: Id; stepId: Id | null; index: number };
+      /** For where the action would be attached: the grafcet's index, made once per drag. */
+      drops?: GrafcetIndex;
     }
   | { kind: 'marquee'; startD: Point; additive: boolean }
   | { kind: 'link'; drag: LinkDrag }
@@ -158,6 +160,28 @@ export function useCanvasInteraction(
   // The right button: held down, or when it was released; and the menu being opened by openMenu.
   const rightButton = useRef({ down: false, upAt: -Infinity });
   const replaying = useRef(false);
+  // A drag changes the document at most once per animation frame: the latest pointer position.
+  const frame = useRef<{ id: number; run: () => void } | null>(null);
+  const nextFrame = (run: () => void) => {
+    if (frame.current) {
+      frame.current.run = run;
+      return;
+    }
+    const f = { id: 0, run };
+    f.id = requestAnimationFrame(() => {
+      frame.current = null;
+      f.run();
+    });
+    frame.current = f;
+  };
+  /** Applies the pending drag step now (the drag ends). */
+  const settleFrame = () => {
+    const f = frame.current;
+    if (!f) return;
+    cancelAnimationFrame(f.id);
+    frame.current = null;
+    f.run();
+  };
 
   const local = useCallback(
     (e: { clientX: number; clientY: number }): Point => {
@@ -177,6 +201,9 @@ export function useCanvasInteraction(
 
   const cancelGesture = useCallback(() => {
     window.clearTimeout(longPress.current);
+    const f = frame.current;
+    if (f) cancelAnimationFrame(f.id);
+    frame.current = null;
     const g = gesture.current;
     if (g.kind === 'move' || (g.kind === 'route' && g.moved)) doc.cancel();
     gesture.current = { kind: 'idle' };
@@ -613,24 +640,28 @@ export function useCanvasInteraction(
       }
       case 'move': {
         const d = toDiagram(p);
-        const delta = snapPoint({ x: d.x - g0.startD.x, y: d.y - g0.startD.y });
-        if (delta.x !== g0.applied.x || delta.y !== g0.applied.y) {
-          const dx = delta.x - g0.applied.x;
-          const dy = delta.y - g0.applied.y;
-          doc.update((proj) => {
-            const g = proj.grafcets[gid];
-            if (g) ops.moveElements(g, g0.ids, dx, dy);
-          });
-          g0.applied = delta;
-        }
-        // A dragged action shows the step and the place it would be attached to.
-        if (g0.action) {
-          const g = getProject().grafcets[gid];
-          const target = g ? actionDropAt(g, g0.action.id, d) : null;
-          const cur = useInteraction.getState().dropTarget;
-          if (cur?.stepId !== target?.stepId || cur?.index !== target?.index)
-            useInteraction.setState({ dropTarget: target });
-        }
+        nextFrame(() => {
+          if (gesture.current !== g0) return;
+          const delta = snapPoint({ x: d.x - g0.startD.x, y: d.y - g0.startD.y });
+          if (delta.x !== g0.applied.x || delta.y !== g0.applied.y) {
+            const dx = delta.x - g0.applied.x;
+            const dy = delta.y - g0.applied.y;
+            doc.update((proj) => {
+              const g = proj.grafcets[gid];
+              if (g) ops.moveElements(g, g0.ids, dx, dy);
+            });
+            g0.applied = delta;
+          }
+          // A dragged action shows the step and the place it would be attached to.
+          if (g0.action) {
+            const g = getProject().grafcets[gid];
+            if (g) g0.drops ??= indexGrafcet(g);
+            const target = g ? actionDropAt(g, g0.action.id, d, g0.drops) : null;
+            const cur = useInteraction.getState().dropTarget;
+            if (cur?.stepId !== target?.stepId || cur?.index !== target?.index)
+              useInteraction.setState({ dropTarget: target });
+          }
+        });
         return;
       }
       case 'marquee':
@@ -646,9 +677,12 @@ export function useCanvasInteraction(
         }
         const value = snap(g0.value + delta);
         const key = g0.axis === 'x' ? 'sideX' : 'dropY';
-        doc.update((proj) => {
-          const tr = proj.grafcets[gid]?.transitions[g0.transitionId];
-          if (tr && tr.routing?.[key] !== value) tr.routing = { ...tr.routing, [key]: value };
+        nextFrame(() => {
+          if (gesture.current !== g0) return;
+          doc.update((proj) => {
+            const tr = proj.grafcets[gid]?.transitions[g0.transitionId];
+            if (tr && tr.routing?.[key] !== value) tr.routing = { ...tr.routing, [key]: value };
+          });
         });
         return;
       }
@@ -704,6 +738,7 @@ export function useCanvasInteraction(
   };
 
   const onPointerUp = (e: ReactPointerEvent<SVGSVGElement>) => {
+    settleFrame();
     const g0 = gesture.current;
     const touch = e.pointerType === 'touch';
     if (touch) touches.current.delete(e.pointerId);

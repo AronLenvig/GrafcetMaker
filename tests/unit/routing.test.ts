@@ -107,6 +107,46 @@ describe('loop routing', () => {
     expect(t.routing).toEqual({ sideX: -80, dropY: t.position.y + 300 });
     expect(loopFrom(g, '< 100').loop!.sideX).toBe(-80);
   });
+
+  it('routes as from scratch after moves and links changed in place (structure kept per grafcet)', () => {
+    const g = createGrafcet('G1');
+    const step = (n: number, x: number, y: number, kind: StepKind = 'normal'): Id => {
+      const s = createStep(n, { x, y }, kind);
+      g.steps[s.id] = s;
+      return s.id;
+    };
+    const s1 = step(1, 0, 0, 'initial');
+    const s2 = step(2, 0, 120);
+    const s3 = step(3, 0, 240);
+    const side = step(4, -200, 180);
+    const t1 = addTransition(g, { x: 0, y: 60 }, [s1], [s2], 'a');
+    addTransition(g, { x: 0, y: 180 }, [s2], [s3], 'b');
+    const back = addTransition(g, { x: 0, y: 300 }, [s3], [s1], 'c');
+    let n = 0;
+    // A copy under another id is routed without what is kept for g.
+    const same = () =>
+      expect(computeGeometry(g)).toEqual(
+        computeGeometry({ ...structuredClone(g), id: `fresh-${n++}` }),
+      );
+    same();
+    // Step 4 joins the loop's body (AND divergence and convergence): its lane moves left.
+    t1.to.push(side);
+    back.from.push(side);
+    same();
+    // The loop's transition above its target: its links go down, then up again.
+    moveElements(g, [back.id], 0, -400);
+    same();
+    moveElements(g, [back.id], 0, 400);
+    same();
+    // A separate sequence on the left with its own loop, then linked to this one.
+    const s5 = step(5, -400, 0);
+    const s6 = step(6, -400, 120);
+    const t5 = addTransition(g, { x: -400, y: 60 }, [s5], [s6], 'd');
+    addTransition(g, { x: -400, y: 180 }, [s6], [s5], 'e');
+    same();
+    t5.to.push(s3);
+    same();
+  });
 });
 
 describe('loops inside parallel branches', () => {

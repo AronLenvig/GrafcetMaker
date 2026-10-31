@@ -1,8 +1,15 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePrefs } from '@/app/prefs';
-import { flowOf, LABEL_FONT_SIZE, STEP_HALF, transitionBar } from '@/core/layout/geometry';
-import type { Grafcet, Id } from '@/core/model/types';
+import {
+  flowOf,
+  LABEL_FONT_SIZE,
+  rectsIntersect,
+  STEP_HALF,
+  transitionBar,
+  type Rect,
+} from '@/core/layout/geometry';
+import type { Grafcet, Id, Point } from '@/core/model/types';
 import { useSim } from '../simulation/simStore';
 import { baseline } from './svg';
 
@@ -16,6 +23,7 @@ export function formatSimTime(ms: number): string {
 /**
  * Simulation markers drawn over the diagram: enabled transitions (a ▶ marker), transitions just
  * cleared (flash, skipped with reduced motion), and the time each active step has been active.
+ * With `cull`, only within it.
  */
 function SimOverlayView({
   g,
@@ -23,21 +31,24 @@ function SimOverlayView({
   enabled,
   time,
   activatedAt,
+  cull,
 }: {
   g: Grafcet;
   active: ReadonlySet<Id>;
   enabled: ReadonlySet<Id>;
   time: number;
   activatedAt: Record<Id, number> | null;
+  cull: Rect | null;
 }) {
   const { t } = useTranslation();
+  const near = (p: Point) => !cull || rectsIntersect({ ...p, width: 0, height: 0 }, cull);
   const flash = useSim((s) => s.flash);
   const showFlash = usePrefs((s) => s.simFlash);
   const showTimers = usePrefs((s) => s.simStepTimers);
   return (
     <g className="gm-overlay">
       {Object.values(g.transitions).map((tr) => {
-        if (!enabled.has(tr.id)) return null;
+        if (!enabled.has(tr.id) || !near(tr.position)) return null;
         // A triangle pointing at the bar: from its left end, or from below a vertical bar.
         const bar = transitionBar(tr);
         const x = bar.x - 4;
@@ -74,7 +85,8 @@ function SimOverlayView({
       {activatedAt &&
         showTimers &&
         Object.values(g.steps).map((s) => {
-          if (!active.has(s.id) || activatedAt[s.id] === undefined) return null;
+          if (!active.has(s.id) || activatedAt[s.id] === undefined || !near(s.position))
+            return null;
           const x = s.position.x + STEP_HALF + 4;
           const y = s.position.y + STEP_HALF + 10;
           return (

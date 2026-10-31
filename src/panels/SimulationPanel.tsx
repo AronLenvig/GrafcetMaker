@@ -129,15 +129,15 @@ const InputRow = memo(function InputRow({
 function describeCycle(
   t: (k: string, o?: Record<string, unknown>) => string,
   c: CycleRecord,
-  project: Project,
+  grafcets: Project['grafcets'],
 ): string[] {
   const stepLabel = (id: string) => {
-    for (const g of Object.values(project.grafcets))
+    for (const g of Object.values(grafcets))
       if (g.steps[id]) return `${g.name}.X${g.steps[id].number}`;
     return '?';
   };
   const transitionLabel = (id: string) => {
-    for (const g of Object.values(project.grafcets)) {
+    for (const g of Object.values(grafcets)) {
       const tr = g.transitions[id];
       if (tr)
         return `${g.name}: ${tr.from.map((s) => g.steps[s]?.number ?? '?').join(',') || '–'} → ${tr.to.map((s) => g.steps[s]?.number ?? '?').join(',') || '–'}`;
@@ -153,7 +153,7 @@ function describeCycle(
     }),
   );
   for (const f of c.forced) {
-    const g = project.grafcets[f.grafcet];
+    const g = grafcets[f.grafcet];
     lines.push(
       t('simulation.forcedLine', {
         grafcet: g?.name ?? '?',
@@ -165,41 +165,54 @@ function describeCycle(
   return lines;
 }
 
+/** One cycle of the log: drawn once, the log grows by a row per cycle. */
+const CycleRow = memo(function CycleRow({
+  c,
+  grafcets,
+  current,
+}: {
+  c: CycleRecord;
+  grafcets: Project['grafcets'];
+  current: boolean;
+}) {
+  const { t } = useTranslation();
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={() => setCursor(c.time)}
+        aria-current={current ? 'time' : undefined}
+        className={cx('w-full px-2 py-1 text-left hover:bg-surface-2', current && 'bg-accent-soft')}
+      >
+        <div className="flex gap-2 text-xs">
+          <span className="font-medium">{t('simulation.cycle', { n: c.cycle })}</span>
+          <span className="text-muted tabular-nums">{formatSimTime(c.time)}</span>
+          <span className="text-muted">{t(`simulation.trigger.${c.trigger}`)}</span>
+          <span className="truncate font-mono text-muted">
+            {c.inputs.map((i) => `${i.name}=${formatValue(i.value)}`).join(' ')}
+          </span>
+        </div>
+        {describeCycle(t as never, c, grafcets).map((line, i) => (
+          <div key={i} className="truncate pl-2 font-mono text-xs">
+            {line}
+          </div>
+        ))}
+      </button>
+    </li>
+  );
+});
+
 function CycleLogList() {
   const { t } = useTranslation();
   const cycles = useSim((s) => s.cycles);
   const cursor = useSim((s) => s.cursor);
-  const project = useDoc((s) => s.project);
+  const grafcets = useDoc((s) => s.project.grafcets);
   const rows = cycles.slice(-MAX_LOG_ROWS).reverse();
   if (!rows.length) return <p className="p-2 text-muted">{t('simulation.logEmpty')}</p>;
   return (
     <ol className="divide-y divide-border">
       {rows.map((c) => (
-        <li key={c.cycle}>
-          <button
-            type="button"
-            onClick={() => setCursor(c.time)}
-            aria-current={cursor === c.time ? 'time' : undefined}
-            className={cx(
-              'w-full px-2 py-1 text-left hover:bg-surface-2',
-              cursor === c.time && 'bg-accent-soft',
-            )}
-          >
-            <div className="flex gap-2 text-xs">
-              <span className="font-medium">{t('simulation.cycle', { n: c.cycle })}</span>
-              <span className="text-muted tabular-nums">{formatSimTime(c.time)}</span>
-              <span className="text-muted">{t(`simulation.trigger.${c.trigger}`)}</span>
-              <span className="truncate font-mono text-muted">
-                {c.inputs.map((i) => `${i.name}=${formatValue(i.value)}`).join(' ')}
-              </span>
-            </div>
-            {describeCycle(t as never, c, project).map((line, i) => (
-              <div key={i} className="truncate pl-2 font-mono text-xs">
-                {line}
-              </div>
-            ))}
-          </button>
-        </li>
+        <CycleRow key={c.cycle} c={c} grafcets={grafcets} current={cursor === c.time} />
       ))}
     </ol>
   );

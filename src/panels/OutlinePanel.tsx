@@ -5,6 +5,7 @@ import { cx } from '@/app/ui/primitives';
 import { indexGrafcet } from '@/core/model/graph';
 import type { Grafcet, Id } from '@/core/model/types';
 import { editSelection, revealInGrafcet, setActiveGrafcet } from '@/editor/commands/edit';
+import { useInteraction } from '@/editor/canvas/interactionStore';
 import { useSim } from '@/editor/simulation/simStore';
 import { useDoc } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
@@ -44,7 +45,12 @@ function stepOrder(g: Grafcet): Id[] {
  */
 export function OutlinePanel() {
   const { t } = useTranslation();
-  const project = useDoc((s) => s.project);
+  const live = useDoc((s) => s.project);
+  // While elements are dragged the tree waits for the drop: positions change no more than the
+  // order of branches, and rebuilding it on every frame would slow the drag down.
+  const moving = useInteraction((s) => s.moving);
+  const [project, setProject] = useState(live);
+  if (!moving && project !== live) setProject(live);
   const activeGid = useUi((s) => s.activeGrafcetId);
   const selection = useUi((s) => s.selection);
   const simActive = useSim((s) => (s.on && s.snapshot ? (s.shown ?? s.snapshot.active) : null));

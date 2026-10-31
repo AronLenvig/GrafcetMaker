@@ -634,6 +634,7 @@ export const de: Messages = {
   },
   problems: {
     none: 'Keine Probleme gefunden.',
+    checkFailed: 'Die Prüfung des Diagramms ist fehlgeschlagen: {{message}}',
     allHidden: 'Alle Probleme sind durch die Filter oben ausgeblendet.',
     open: 'Probleme anzeigen',
     summary: '{{errors}} Fehler, {{warnings}} Warnungen',
@@ -714,6 +715,9 @@ export const de: Messages = {
   },
   simulation: {
     badge: 'SIMULATION',
+    failed: 'Die Simulation wurde wegen eines Fehlers angehalten: {{message}}',
+    restarted:
+      'Der Simulator wurde unerwartet beendet. Die Simulation wurde aus der Anfangssituation neu gestartet.',
     notRunning:
       'Starten Sie die Simulation (Simulieren › Simulation starten oder F5), um diesen Bereich zu nutzen.',
     why: {

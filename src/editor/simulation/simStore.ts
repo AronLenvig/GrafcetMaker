@@ -12,12 +12,8 @@ import type { Id, Project, Scenario, ScenarioEvent } from '@/core/model/types';
 import type { SimSnapshot, Value } from '@/core/simulation/engine';
 import { framesOf, type Frame } from '@/core/simulation/frames';
 import type { CompileProblem } from '@/core/simulation/program';
-import {
-  SimSession,
-  type CycleRecord,
-  type SimRequest,
-  type SimResponse,
-} from '@/core/simulation/session';
+import type { CycleRecord, SimRequest, SimResponse, SimSession } from '@/core/simulation/session';
+import type { SimReply } from '@/workers/simulation.worker';
 import { doc, getProject } from '../store/document';
 import { useUi } from '../store/uiStore';
 
@@ -84,9 +80,23 @@ export const useSim = create<SimState>(() => ({
 // Transport: worker with an in-thread fallback.
 
 let worker: Worker | null = null;
-let inline: SimSession | null = null;
+/** The simulator in this thread (no worker, or it failed), loaded only then. */
+let inline: Promise<SimSession> | null = null;
 let seq = 0;
 const waiting = new Map<number, (res: SimResponse | null) => void>();
+
+const errorText = (err: unknown) => (err instanceof Error ? err.message : String(err));
+
+/** The simulator threw: what it was asked would throw again, so the clock stops and says why. */
+function failed(message: string): void {
+  pause();
+  toast(i18next.t('simulation.failed', { message }), 'error', 8000);
+}
+
+function startInline(): Promise<SimSession> {
+  inline ??= import('@/core/simulation/session').then((m) => new m.SimSession());
+  return inline;
+}
 
 function transport(): void {
   if (worker || inline) return;
@@ -94,29 +104,55 @@ function transport(): void {
     worker = new Worker(new URL('../../workers/simulation.worker.ts', import.meta.url), {
       type: 'module',
     });
-    worker.onmessage = (e: MessageEvent<{ seq: number; res: SimResponse | null }>) => {
-      waiting.get(e.data.seq)?.(e.data.res);
+    worker.onmessage = (e: MessageEvent<SimReply>) => {
+      const resolve = waiting.get(e.data.seq);
       waiting.delete(e.data.seq);
+      if ('error' in e.data) {
+        failed(e.data.error);
+        resolve?.(null);
+      } else resolve?.(e.data.res);
     };
     worker.onerror = () => {
       worker?.terminate();
       worker = null;
-      inline = new SimSession();
+      void startInline();
       for (const [, resolve] of waiting) resolve(null);
       waiting.clear();
+      // The simulator in this thread starts from the diagram again: the state is lost.
+      if (useSim.getState().on) {
+        toast(i18next.t('simulation.restarted'), 'warning', 8000);
+        void reloadSimulation();
+      }
     };
   } catch {
-    inline = new SimSession();
+    void startInline();
   }
 }
 
 /** Requests are strictly sequential: the clock waits for each reply before sending the next. */
 let chain: Promise<unknown> = Promise.resolve();
 
+/** Never rejects: a failure is shown (see failed) and answered with null. */
 function send(req: SimRequest): Promise<SimResponse | null> {
   const run = () =>
     new Promise<SimResponse | null>((resolve) => {
-      if (inline) return resolve(inline.handle(req));
+      if (inline) {
+        inline.then(
+          (session) => {
+            try {
+              resolve(session.handle(req));
+            } catch (err) {
+              failed(errorText(err));
+              resolve(null);
+            }
+          },
+          (err: unknown) => {
+            failed(errorText(err));
+            resolve(null);
+          },
+        );
+        return;
+      }
       const n = ++seq;
       waiting.set(n, resolve);
       worker!.postMessage({ seq: n, req });
@@ -166,6 +202,36 @@ function pace(frames: Frame[]): void {
   if (paceTimer === undefined) showNext();
 }
 
+const sameIds = (a: readonly Id[], b: readonly Id[]) =>
+  a.length === b.length && a.every((id, i) => id === b[i]);
+
+function sameRecord<T>(a: Record<string, T>, b: Record<string, T>): boolean {
+  const keys = Object.keys(a);
+  return (
+    keys.length === Object.keys(b).length && keys.every((k) => Object.hasOwn(b, k) && a[k] === b[k])
+  );
+}
+
+/**
+ * The snapshot to keep: the clock moves on every frame, the rest seldom does. Fields that did not
+ * change stay the previous objects, and so does the whole snapshot when nothing changed.
+ */
+function settle(prev: SimSnapshot | null, next: SimSnapshot): SimSnapshot {
+  if (!prev || prev.error || next.error) return next;
+  const kept: SimSnapshot = {
+    ...next,
+    active: sameIds(prev.active, next.active) ? prev.active : next.active,
+    enabled: sameIds(prev.enabled, next.enabled) ? prev.enabled : next.enabled,
+    executing: sameIds(prev.executing, next.executing) ? prev.executing : next.executing,
+    values: sameRecord(prev.values, next.values) ? prev.values : next.values,
+    activatedAt: sameRecord(prev.activatedAt, next.activatedAt)
+      ? prev.activatedAt
+      : next.activatedAt,
+  };
+  const same = (Object.keys(kept) as (keyof SimSnapshot)[]).every((k) => kept[k] === prev[k]);
+  return same ? prev : kept;
+}
+
 function apply(res: SimResponse | null, opts: { restart?: boolean } = {}): void {
   if (!res) return;
   const before = useSim.getState().snapshot?.active;
@@ -174,6 +240,9 @@ function apply(res: SimResponse | null, opts: { restart?: boolean } = {}): void 
     useSim.setState({ shown: null, flash: null });
   } else if (before && !res.snapshot.error) pace(framesOf(before, res.cycles));
   useSim.setState((s) => {
+    const snapshot = opts.restart ? res.snapshot : settle(s.snapshot, res.snapshot);
+    // Compile problems change only when a program is loaded (load and reset restart).
+    if (!opts.restart && snapshot === s.snapshot && !res.cycles.length) return s;
     let cycles = opts.restart ? [] : s.cycles;
     let baseline = opts.restart ? null : s.baseline;
     let incoming = res.cycles;
@@ -183,13 +252,14 @@ function apply(res: SimResponse | null, opts: { restart?: boolean } = {}): void 
       baseline = { time: first.time, active: first.active, values: { ...res.snapshot.values } };
       incoming = incoming.slice(1);
     }
-    if (incoming.length) cycles = [...cycles, ...incoming];
+    if (incoming.length) cycles = cycles.concat(incoming);
     if (cycles.length > MAX_CYCLES && baseline) {
-      const drop = cycles.slice(0, cycles.length - MAX_CYCLES / 2);
-      baseline = advanceBaseline(baseline, drop);
-      cycles = cycles.slice(drop.length);
+      const drop = cycles.length - MAX_CYCLES / 2;
+      baseline = { time: cycles[drop - 1]!.time, ...replay(baseline, cycles, 0, drop) };
+      cycles = cycles.slice(drop);
     }
-    return { snapshot: res.snapshot, problems: res.problems, baseline, cycles };
+    const problems = opts.restart ? res.problems : s.problems;
+    return { snapshot, problems, baseline, cycles };
   });
   if (res.snapshot.error) {
     pause();
@@ -197,30 +267,58 @@ function apply(res: SimResponse | null, opts: { restart?: boolean } = {}): void 
   }
 }
 
-function advanceBaseline(b: Baseline, cycles: CycleRecord[]): Baseline {
-  const values = { ...b.values };
-  let active = b.active;
-  let time = b.time;
-  for (const c of cycles) {
-    for (const ch of [...c.inputs, ...c.changes]) values[ch.name] = ch.value;
-    active = c.active;
-    time = c.time;
-  }
-  return { time, active, values };
+interface Situation {
+  active: Id[];
+  values: Record<string, Value>;
 }
+
+/** The situation after cycles[start..end) from `from` (not changed). */
+function replay(
+  from: Situation,
+  cycles: readonly CycleRecord[],
+  start: number,
+  end: number,
+): Situation {
+  const values = { ...from.values };
+  let active = from.active;
+  for (let i = start; i < end; i++) {
+    const c = cycles[i]!;
+    for (const ch of c.inputs) values[ch.name] = ch.value;
+    for (const ch of c.changes) values[ch.name] = ch.value;
+    active = c.active;
+  }
+  return { active, values };
+}
+
+/** Time travel replays at most this many cycles from the nearest checkpoint. */
+const CHECKPOINT = 256;
+/** checkpoints.states[k]: the situation after the first k * CHECKPOINT cycles of the baseline. */
+let checkpoints: { baseline: Baseline | null; states: Situation[] } = {
+  baseline: null,
+  states: [],
+};
 
 /** Situation and values at virtual time `t` (time travel from the chronogram). */
 export function stateAt(t: number): { active: Set<Id>; values: Record<string, Value> } | null {
   const { baseline, cycles } = useSim.getState();
   if (!baseline) return null;
-  const values = { ...baseline.values };
-  let active = baseline.active;
-  for (const c of cycles) {
-    if (c.time > t) break;
-    for (const ch of [...c.inputs, ...c.changes]) values[ch.name] = ch.value;
-    active = c.active;
+  // Cycles are only appended while the baseline stays (a new one restarts or trims them).
+  if (checkpoints.baseline !== baseline) checkpoints = { baseline, states: [baseline] };
+  // The cycles up to t: the first `end` ones (in time order).
+  let end = 0;
+  for (let hi = cycles.length; end < hi;) {
+    const mid = (end + hi) >> 1;
+    if (cycles[mid]!.time > t) hi = mid;
+    else end = mid + 1;
   }
-  return { active: new Set(active), values };
+  const { states } = checkpoints;
+  const k = Math.floor(end / CHECKPOINT);
+  while (states.length <= k) {
+    const j = states.length - 1;
+    states.push(replay(states[j]!, cycles, j * CHECKPOINT, (j + 1) * CHECKPOINT));
+  }
+  const at = replay(states[k]!, cycles, k * CHECKPOINT, end);
+  return { active: new Set(at.active), values: at.values };
 }
 
 // --------------------------------------------------------------------------------------------
@@ -243,17 +341,21 @@ async function tick(): Promise<void> {
   if (!st.on || !st.playing) return;
   if (!inFlight) {
     inFlight = true;
-    const target = now();
-    const next = st.replay?.events[st.replay.index];
-    if (next && next.t <= target) {
-      advanceReplay();
-      apply(await send({ type: 'input', at: next.t, changes: { [next.name]: next.value } }));
-    } else {
-      apply(await send({ type: 'advance', to: target }));
+    try {
+      const target = now();
+      const next = st.replay?.events[st.replay.index];
+      if (next && next.t <= target) {
+        advanceReplay();
+        apply(await send({ type: 'input', at: next.t, changes: { [next.name]: next.value } }));
+      } else {
+        apply(await send({ type: 'advance', to: target }));
+      }
+    } finally {
+      inFlight = false;
     }
-    inFlight = false;
   }
-  raf = requestAnimationFrame(() => void tick());
+  // Not when the reply stopped the clock (an error).
+  if (useSim.getState().playing) raf = requestAnimationFrame(() => void tick());
 }
 
 async function fastTick(): Promise<void> {

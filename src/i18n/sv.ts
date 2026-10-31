@@ -624,6 +624,7 @@ export const sv: Messages = {
   },
   problems: {
     none: 'Inga problem hittades.',
+    checkFailed: 'Kontrollen av diagrammet misslyckades: {{message}}',
     allHidden: 'Alla problem döljs av filtren ovan.',
     open: 'Visa problem',
     summary: '{{errors}} fel, {{warnings}} varningar',
@@ -701,6 +702,8 @@ export const sv: Messages = {
   },
   simulation: {
     badge: 'SIMULERING',
+    failed: 'Simuleringen stoppades på grund av ett fel: {{message}}',
+    restarted: 'Simulatorn stoppades oväntat. Simuleringen startade om från initialsituationen.',
     notRunning:
       'Starta simuleringen (Simulera › Starta simulering, eller F5) för att använda den här panelen.',
     why: {

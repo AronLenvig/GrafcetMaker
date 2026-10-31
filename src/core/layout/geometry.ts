@@ -615,6 +615,7 @@ interface Structure {
 }
 
 const structures = new Map<Id, Structure>();
+const MAX_STRUCTURES = 256;
 
 const sameIds = (a: readonly Id[], b: readonly Id[]) =>
   a.length === b.length && a.every((id, i) => id === b[i]);
@@ -650,6 +651,8 @@ function structureOf(g: Grafcet): Structure {
     upward: '',
     bodies: new Map(),
   };
+  // Grafcets of projects closed meanwhile are not tracked: start over past a bound instead.
+  if (structures.size >= MAX_STRUCTURES) structures.clear();
   structures.set(g.id, s);
   return s;
 }

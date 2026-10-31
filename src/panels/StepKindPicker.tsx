@@ -3,8 +3,6 @@ import { useTranslation } from 'react-i18next';
 import type { StepKind } from '@/core/model/types';
 import { PicturePicker } from './PicturePicker';
 
-const KINDS: readonly StepKind[] = ['normal', 'initial', 'macro', 'enclosing'];
-
 /** The step symbol with its links, as the diagram draws it. */
 const BOX = (
   <>
@@ -42,6 +40,9 @@ const ENCLOSED_INITIAL = (
     <path d="M8 7.5v5M5.8 8.7l4.4 2.6M10.2 8.7l-4.4 2.6" strokeWidth="1.1" />
   </>
 );
+
+/** The kinds in the picker's order. */
+const KINDS = Object.keys(PICTURES) as StepKind[];
 
 /** The symbol of a step kind, small (the selection overview). */
 export function StepKindIcon({ kind }: { kind: StepKind }) {

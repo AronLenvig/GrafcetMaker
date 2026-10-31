@@ -1,7 +1,7 @@
 import * as ContextMenu from '@radix-ui/react-context-menu';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Id } from '@/core/model/types';
+import type { GrafcetKind, Id } from '@/core/model/types';
 import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@/ui/icons';
 import { cx, IconButton, menuContentClass } from '@/ui/primitives';
 import { showDialog } from '@/ui/dialogStore';
@@ -62,6 +62,13 @@ interface TabDrag {
   /** Insertion slot (0 = before the first tab, n = after the last). */
   slot: number;
 }
+
+/** The tab's badge: M for a macro-step expansion, E for an enclosed grafcet. */
+const KIND_BADGE: Record<GrafcetKind, string | null> = {
+  partial: null,
+  macroExpansion: 'M',
+  enclosed: 'E',
+};
 
 const DRAG_THRESHOLD = 4;
 const EDGE_SCROLL = 24;
@@ -330,13 +337,13 @@ export function GrafcetTabs({ floating = false }: { floating?: boolean }) {
                   ) : (
                     g.name
                   )}
-                  {g.kind !== 'partial' && (
+                  {KIND_BADGE[g.kind] && (
                     <span
                       className="rounded bg-surface-3 px-1 font-sans text-[10px] font-semibold text-muted"
                       title={t(`props.grafcet.kinds.${g.kind}`)}
                       aria-label={t(`props.grafcet.kinds.${g.kind}`)}
                     >
-                      {g.kind === 'macroExpansion' ? 'M' : 'E'}
+                      {KIND_BADGE[g.kind]}
                     </span>
                   )}
                 </div>

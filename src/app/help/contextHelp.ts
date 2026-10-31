@@ -1,7 +1,7 @@
 import { computeGeometry, isJump, parseLinkKey } from '@/core/layout/geometry';
-import { uiKindOf } from '@/core/model/actionKind';
+import { uiKindOf, type ActionUiKind } from '@/core/model/actionKind';
 import { indexGrafcet } from '@/core/model/graph';
-import type { Grafcet, Id } from '@/core/model/types';
+import type { Grafcet, Id, StepKind } from '@/core/model/types';
 import { useSim } from '@/editor/simulation/simStore';
 import { getActiveGrafcet } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
@@ -21,15 +21,26 @@ function expressionHelp(): HelpTarget | null {
   return null;
 }
 
+const STEP_HELP: Record<StepKind, HelpTarget> = {
+  normal: H.step,
+  initial: H.step,
+  macro: H.macroStep,
+  enclosing: H.enclosingStep,
+};
+
+const ACTION_HELP: Record<ActionUiKind, HelpTarget> = {
+  continuous: H.continuousAction,
+  conditional: H.continuousAction,
+  storedOnActivation: H.storedAction,
+  storedOnDeactivation: H.storedAction,
+  storedOnEvent: H.storedAction,
+  forcing: H.forcing,
+};
+
 /** The help on one element of the diagram. */
 function elementHelp(g: Grafcet, id: Id): HelpTarget | null {
   const step = g.steps[id];
-  if (step)
-    return step.kind === 'macro'
-      ? H.macroStep
-      : step.kind === 'enclosing'
-        ? H.enclosingStep
-        : H.step;
+  if (step) return STEP_HELP[step.kind];
   const tr = g.transitions[id];
   if (tr) {
     if (tr.from.length > 1 || tr.to.length > 1) return H.andBranch;
@@ -44,8 +55,7 @@ function elementHelp(g: Grafcet, id: Id): HelpTarget | null {
   if (action) {
     if (action.kind === 'forcing') return H.forcing;
     if (action.stepId === null) return H.actionWithoutStep;
-    const kind = uiKindOf(action);
-    return kind === 'continuous' || kind === 'conditional' ? H.continuousAction : H.storedAction;
+    return ACTION_HELP[uiKindOf(action)];
   }
   return g.comments[id] ? H.comment : null;
 }

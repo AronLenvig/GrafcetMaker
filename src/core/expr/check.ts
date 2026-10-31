@@ -2,7 +2,7 @@
  * Name resolution and type checking of expressions against a project. Produces diagnostics with
  * source positions and fix hints; never throws.
  */
-import type { Grafcet, Id, Project, Variable, VariableType } from '../model/types';
+import type { ActionKind, Grafcet, Id, Project, Variable, VariableType } from '../model/types';
 import type { ArithNode, BoolNode, ExprError, ForcingOrder } from './ast';
 import { cachedAssignment, cachedBool, cachedForcing, cachedOutput } from './cache';
 import { STEP_REF_RE } from './parser';
@@ -433,11 +433,15 @@ export function analyze(kind: ExpressionKind, source: string, env: ExprEnv): Ana
   }
 }
 
+const ACTION_TEXT_KIND: Record<ActionKind, ExpressionKind> = {
+  continuous: 'output',
+  storedOnActivation: 'assignment',
+  storedOnDeactivation: 'assignment',
+  storedOnEvent: 'assignment',
+  forcing: 'forcing',
+};
+
 /** Expression kind of an action's text, from the action kind. */
-export function actionTextKind(
-  kind: 'continuous' | 'storedOnActivation' | 'storedOnDeactivation' | 'storedOnEvent' | 'forcing',
-): ExpressionKind {
-  if (kind === 'continuous') return 'output';
-  if (kind === 'forcing') return 'forcing';
-  return 'assignment';
+export function actionTextKind(kind: ActionKind): ExpressionKind {
+  return ACTION_TEXT_KIND[kind];
 }

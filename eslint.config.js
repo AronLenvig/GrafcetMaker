@@ -37,6 +37,20 @@ export default defineConfig(
     },
   },
   {
+    // Type-aware: a switch over a union (step, action or grafcet kinds…) must handle every member,
+    // so adding a kind makes the linter point at each switch to extend.
+    files: ['src/**/*.{ts,tsx}'],
+    languageOptions: {
+      parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname },
+    },
+    rules: {
+      '@typescript-eslint/switch-exhaustiveness-check': [
+        'error',
+        { considerDefaultExhaustiveForUnions: true },
+      ],
+    },
+  },
+  {
     // core/ must stay framework- and DOM-free so it runs in Node and Web Workers.
     files: ['src/core/**/*.ts'],
     languageOptions: { globals: { ...globals['shared-node-browser'] } },

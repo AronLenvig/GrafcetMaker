@@ -40,6 +40,37 @@ CI runs the same steps.
 - Keep the file format backward compatible: bump `SCHEMA_VERSION` and add a migration in
   `src/core/io/migrations.ts`, and document it in `docs/file-format.md`.
 
+## Recipes
+
+### Add a step or action kind
+
+The compiler and the linter find most of the places to change: every table over the kinds is a
+`Record<StepKind | ActionKind, …>` and every `switch` over them must handle each kind (ESLint
+`switch-exhaustiveness-check`, type-aware).
+
+1. Add the kind to `stepKindSchema` or `actionKindSchema` in `src/core/model/schema.ts`. Older
+   versions of the app reject files using it: bump `SCHEMA_VERSION` (`src/core/model/constants.ts`)
+   with a migration in `src/core/io/migrations.ts`, and document it in `docs/file-format.md`.
+2. Run `npm run typecheck` and `npm run lint` and fix every error. They point at, among others:
+   `STEP_MARK` and `actionDecor` (`src/core/layout/shapes.ts`), `expectedChildKind`
+   (`src/core/model/hierarchy.ts`), `ACTION_UI_KINDS` / `uiKindOf` (`src/core/model/actionKind.ts`),
+   `actionTextKind` (`src/core/expr/check.ts`), the simulation program
+   (`src/core/simulation/program.ts`), the PLCopen export (`src/core/codegen/plcopen.ts`), the
+   contextual help (`src/app/help/contextHelp.ts`), the glossary terms
+   (`src/panels/PropertiesPanel.tsx`), the pictures of `src/panels/StepKindPicker.tsx` and
+   `src/panels/ActionKindPicker.tsx`, and the labels built from the kind in `src/i18n/en.ts`
+   (then every other language: they are typed against English).
+3. Review what tests for one kind (`kind === '…'`), which no tool flags: the simulation engine
+   (`src/core/simulation/engine.ts`, and record the semantics in `docs/semantics.md`), validation
+   (`src/core/validation/validate.ts`), Structured Text (`src/core/codegen/st.ts`, `stCase.ts`,
+   `common.ts`), drawing (`src/editor/canvas/elements.tsx`, `src/core/io/svgExport.ts`), the text
+   format (`src/core/io/grafcetText.ts`), the grafcet.io import (`src/core/io/grafcetIo.ts`), and
+   for steps `src/core/model/hierarchy.ts`, `src/editor/commands/hierarchy.ts` and
+   `src/core/model/renumber.ts`.
+4. Add a golden chart to `tests/unit/simulation.test.ts` and a snapshot to
+   `tests/unit/codegen.test.ts`; describe the kind in `docs/help/actions.md` or
+   `docs/help/hierarchy.md` (and the translated help pages) and in `docs/user-guide.md`.
+
 ## Commit messages
 
 Short imperative summary, e.g. `simulation: handle edges in transient evolution`.

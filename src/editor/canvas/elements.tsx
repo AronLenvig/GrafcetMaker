@@ -12,6 +12,7 @@ import {
   STEP_FONT_SIZE,
   STEP_HALF,
   actionDecor,
+  STEP_MARK,
   arrowPath,
   commentRect,
   stepLabelAnchor,
@@ -59,7 +60,7 @@ export const StepView = memo(function StepView({
         height={2 * r}
       />
       {active && <circle className="gm-token" cx={x} cy={y + r - 8} r={3.5} />}
-      {step.kind === 'initial' && mark !== '*' && (
+      {STEP_MARK[step.kind] === 'doubleFrame' && mark !== '*' && (
         <rect
           className="gm-thin"
           x={x - r + INITIAL_INSET}
@@ -78,13 +79,13 @@ export const StepView = memo(function StepView({
           {mark}
         </text>
       )}
-      {step.kind === 'macro' && (
+      {STEP_MARK[step.kind] === 'rows' && (
         <path
           className="gm-thin"
           d={`M${x - r} ${y - r + 6}H${x + r}M${x - r} ${y + r - 6}H${x + r}`}
         />
       )}
-      {step.kind === 'enclosing' && (
+      {STEP_MARK[step.kind] === 'columns' && (
         <path
           className="gm-thin"
           d={`M${x - r + 6} ${y - r}V${y + r}M${x + r - 6} ${y - r}V${y + r}`}

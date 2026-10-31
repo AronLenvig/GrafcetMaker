@@ -68,6 +68,7 @@ export {
   nextStepPosition,
   rectsIntersect,
   snap,
+  STEP_MARK,
   stepLabelAnchor,
   stepRect,
   textWidth,

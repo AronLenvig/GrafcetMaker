@@ -506,15 +506,26 @@ export function generatePlcOpen(project: Project, opts: PlcOpenOptions): Codegen
     for (const a of p.alwaysActions) {
       const c = cond(a);
       const body = assign(a);
-      if (a.kind === 'continuous' && a.target)
-        continuous.set(a.target, [...(continuous.get(a.target) ?? []), c ? `(${c})` : 'TRUE']);
-      else if (a.kind === 'storedOnActivation' && body)
-        always.push(`IF ${first}${c ? ` AND (${c})` : ''} THEN ${body} END_IF;`);
-      else if (a.kind === 'storedOnEvent' && body && c) always.push(`IF ${c} THEN ${body} END_IF;`);
-      else if (a.kind === 'forcing') {
-        const text = project.grafcets[p.grafcets[a.grafcet]!.id]!.actions[a.id]!.text;
-        warn({ code: 'forcing', elementId: a.id, params: { order: text } });
-        always.push(`(* forcing order ${comment(text)}: see the Structured Text export *)`);
+      switch (a.kind) {
+        case 'continuous':
+          if (a.target)
+            continuous.set(a.target, [...(continuous.get(a.target) ?? []), c ? `(${c})` : 'TRUE']);
+          break;
+        case 'storedOnActivation':
+          if (body) always.push(`IF ${first}${c ? ` AND (${c})` : ''} THEN ${body} END_IF;`);
+          break;
+        case 'storedOnEvent':
+          if (body && c) always.push(`IF ${c} THEN ${body} END_IF;`);
+          break;
+        case 'storedOnDeactivation':
+          // Without a step, never deactivated.
+          break;
+        case 'forcing': {
+          const text = project.grafcets[p.grafcets[a.grafcet]!.id]!.actions[a.id]!.text;
+          warn({ code: 'forcing', elementId: a.id, params: { order: text } });
+          always.push(`(* forcing order ${comment(text)}: see the Structured Text export *)`);
+          break;
+        }
       }
     }
     // Variables also driven by steps keep what the SFC programs set this scan (OR).

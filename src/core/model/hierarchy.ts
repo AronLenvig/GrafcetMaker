@@ -5,7 +5,7 @@
 import { PITCH, ROW } from '../layout/geometry';
 import { createGrafcet, createStep, newId } from './factory';
 import { indexGrafcet } from './graph';
-import type { Grafcet, GrafcetKind, Id, Project, Step } from './types';
+import type { Grafcet, GrafcetKind, Id, Project, Step, StepKind } from './types';
 
 /** First step number for a new grafcet: next multiple of 10 above every number in the project. */
 export function nextBaseNumber(p: Project): number {
@@ -97,7 +97,14 @@ export function revertToNormal(p: Project, gid: Id, stepId: Id): void {
   delete s.refGrafcetId;
 }
 
+const CHILD_KIND: Record<StepKind, GrafcetKind | null> = {
+  normal: null,
+  initial: null,
+  macro: 'macroExpansion',
+  enclosing: 'enclosed',
+};
+
 /** Which kind of sub-grafcet a step kind refers to. */
-export function expectedChildKind(kind: Step['kind']): GrafcetKind | null {
-  return kind === 'macro' ? 'macroExpansion' : kind === 'enclosing' ? 'enclosed' : null;
+export function expectedChildKind(kind: StepKind): GrafcetKind | null {
+  return CHILD_KIND[kind];
 }

@@ -18,6 +18,7 @@ import {
   LINE_HEIGHT,
   STEP_FONT_SIZE,
   STEP_HALF,
+  STEP_MARK,
   arrowPath,
   commentRect,
   computeGeometry,
@@ -258,7 +259,7 @@ function render(
     w.rect({ x: x - r, y: y - r, width: 2 * r, height: 2 * r }, pal.background ?? 'none');
     if (mark === '*') w.text('*', x - r - 4, y - r + 6, STEP_FONT_SIZE, { anchor: 'end' });
     else if (mark) w.text(mark, x - r + 3, y - r + 7, LABEL_FONT_SIZE);
-    if (s.kind === 'initial' && mark !== '*') {
+    if (STEP_MARK[s.kind] === 'doubleFrame' && mark !== '*') {
       w.rect(
         {
           x: x - r + INITIAL_INSET,
@@ -271,9 +272,9 @@ function render(
         1,
       );
     }
-    if (s.kind === 'macro')
+    if (STEP_MARK[s.kind] === 'rows')
       w.line(`M${n(x - r)} ${n(y - r + 6)}H${n(x + r)}M${n(x - r)} ${n(y + r - 6)}H${n(x + r)}`, 1);
-    if (s.kind === 'enclosing')
+    if (STEP_MARK[s.kind] === 'columns')
       w.line(`M${n(x - r + 6)} ${n(y - r)}V${n(y + r)}M${n(x + r - 6)} ${n(y - r)}V${n(y + r)}`, 1);
     w.text(String(s.number), x, y, STEP_FONT_SIZE, { anchor: 'middle' });
     if (s.label) {

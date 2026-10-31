@@ -2,7 +2,16 @@
 import { cachedBool, memoBySource } from '../expr/cache';
 import { formatTextbook } from '../expr/format';
 import { indexGrafcet, type GrafcetIndex } from '../model/graph';
-import type { Action, Comment, Grafcet, Id, Point, Step, Transition } from '../model/types';
+import type {
+  Action,
+  Comment,
+  Grafcet,
+  Id,
+  Point,
+  Step,
+  StepKind,
+  Transition,
+} from '../model/types';
 import {
   ACTION_GAP,
   ACTION_HEIGHT,
@@ -203,42 +212,66 @@ export function actionDecor(a: Action, box: Rect): ActionDecor {
   const top = box.y;
   const cond = a.condition?.trim() ? a.condition : undefined;
   const textY = top - 9;
-  if (a.kind === 'storedOnEvent') {
-    const x = box.x + box.width - ACTION_MARK_INSET;
-    const y = top - ACTION_MARK_RISE - 2;
-    return {
-      stem: `M${x} ${top}V${y}`,
-      mark: `M${x} ${y}L${x + 9} ${y + 3.5}L${x} ${y + 7}Z`,
-      ...(cond ? { text: { source: cond, x: x - 5, y: textY, anchor: 'end' as const } } : {}),
-    };
+  switch (a.kind) {
+    case 'storedOnEvent': {
+      const x = box.x + box.width - ACTION_MARK_INSET;
+      const y = top - ACTION_MARK_RISE - 2;
+      return {
+        stem: `M${x} ${top}V${y}`,
+        mark: `M${x} ${y}L${x + 9} ${y + 3.5}L${x} ${y + 7}Z`,
+        ...(cond ? { text: { source: cond, x: x - 5, y: textY, anchor: 'end' as const } } : {}),
+      };
+    }
+    case 'storedOnActivation':
+    case 'storedOnDeactivation': {
+      const x = box.x + ACTION_MARK_INSET;
+      const up = a.kind === 'storedOnActivation';
+      const edge = up ? top : top + box.height;
+      const tip = up ? edge - ACTION_MARK_RISE : edge + ACTION_MARK_RISE;
+      const base = up ? tip + HEAD : tip - HEAD;
+      return {
+        stem: `M${x} ${edge}V${tip}`,
+        mark: `M${x} ${tip}L${x - HEAD_HALF} ${base}L${x + HEAD_HALF} ${base}Z`,
+        ...(cond
+          ? {
+              text: {
+                source: cond,
+                x: x + 6,
+                y: up ? edge - 9 : edge + 9,
+                anchor: 'start' as const,
+              },
+            }
+          : {}),
+      };
+    }
+    case 'continuous':
+    case 'forcing': {
+      const x = box.x + ACTION_MARK_INSET;
+      if (!cond) {
+        // A conditional action whose condition is not written yet still shows its condition line.
+        return a.kind === 'continuous' && a.condition !== undefined
+          ? { stem: `M${x} ${top}V${top - 10}` }
+          : {};
+      }
+      return {
+        stem: `M${x} ${top}V${top - 10}`,
+        text: { source: cond, x: x + 4, y: textY, anchor: 'start' },
+      };
+    }
   }
-  const x = box.x + ACTION_MARK_INSET;
-  if (a.kind === 'storedOnActivation' || a.kind === 'storedOnDeactivation') {
-    const up = a.kind === 'storedOnActivation';
-    const edge = up ? top : top + box.height;
-    const tip = up ? edge - ACTION_MARK_RISE : edge + ACTION_MARK_RISE;
-    const base = up ? tip + HEAD : tip - HEAD;
-    return {
-      stem: `M${x} ${edge}V${tip}`,
-      mark: `M${x} ${tip}L${x - HEAD_HALF} ${base}L${x + HEAD_HALF} ${base}Z`,
-      ...(cond
-        ? {
-            text: { source: cond, x: x + 6, y: up ? edge - 9 : edge + 9, anchor: 'start' as const },
-          }
-        : {}),
-    };
-  }
-  if (!cond) {
-    // A conditional action whose condition is not written yet still shows its condition line.
-    return a.kind === 'continuous' && a.condition !== undefined
-      ? { stem: `M${x} ${top}V${top - 10}` }
-      : {};
-  }
-  return {
-    stem: `M${x} ${top}V${top - 10}`,
-    text: { source: cond, x: x + 4, y: textY, anchor: 'start' },
-  };
 }
+
+/**
+ * How a step's kind is marked inside its square (IEC 60848): the initial step's double frame, the
+ * macro-step's two horizontal lines, the enclosing step's two vertical lines. The canvas and the
+ * exports draw these.
+ */
+export const STEP_MARK: Record<StepKind, 'none' | 'doubleFrame' | 'rows' | 'columns'> = {
+  normal: 'none',
+  initial: 'doubleFrame',
+  macro: 'rows',
+  enclosing: 'columns',
+};
 
 /** Action boxes are chained left to right, starting ACTION_GAP right of the step. */
 export function layoutActions(s: Step, actions: readonly Action[]): ActionBox[] {

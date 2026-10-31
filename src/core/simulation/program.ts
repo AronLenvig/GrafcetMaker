@@ -279,51 +279,60 @@ export function compile(project: Project): Program {
           undefined;
         if (!ca.condition) continue;
       }
-      if (a.kind === 'continuous') {
-        const r = cachedOutput(a.text);
-        if (!r.ok) {
-          problems.push({ kind: 'expression', elementId: a.id });
-          continue;
-        }
-        ca.target = r.value.name.toLowerCase();
-      } else if (a.kind === 'forcing') {
-        const r = cachedForcing(a.text);
-        const target = r.ok ? grafcetByName.get(r.value.grafcet.toLowerCase()) : undefined;
-        if (!r.ok || !target) {
-          problems.push({ kind: 'expression', elementId: a.id });
-          continue;
-        }
-        const targetSteps = target.steps.filter((i) =>
-          r.value.steps.some((s) => s.number === steps[i]!.number),
-        );
-        ca.forcing = { target: target.idx, mode: r.value.mode, steps: targetSteps };
-      } else {
-        const r = cachedAssignment(a.text);
-        if (!r.ok) {
-          problems.push({ kind: 'expression', elementId: a.id });
-          continue;
-        }
-        const v = variables.get(r.value.target.toLowerCase());
-        ca.target = r.value.target.toLowerCase();
-        if (!v || v.type === 'BOOL') {
-          if (!r.value.bool) {
+      switch (a.kind) {
+        case 'continuous': {
+          const r = cachedOutput(a.text);
+          if (!r.ok) {
             problems.push({ kind: 'expression', elementId: a.id });
             continue;
           }
-          ca.boolValue = {
-            uid: `v:${a.id}`,
-            grafcet: cg.idx,
-            phase: 'evolution',
-            ast: r.value.bool,
-            steps: bindSteps(r.value.bool),
-          };
-          expressions.push(ca.boolValue);
-        } else {
-          if (!r.value.arith) {
+          ca.target = r.value.name.toLowerCase();
+          break;
+        }
+        case 'forcing': {
+          const r = cachedForcing(a.text);
+          const target = r.ok ? grafcetByName.get(r.value.grafcet.toLowerCase()) : undefined;
+          if (!r.ok || !target) {
             problems.push({ kind: 'expression', elementId: a.id });
             continue;
           }
-          ca.arithValue = r.value.arith;
+          const targetSteps = target.steps.filter((i) =>
+            r.value.steps.some((s) => s.number === steps[i]!.number),
+          );
+          ca.forcing = { target: target.idx, mode: r.value.mode, steps: targetSteps };
+          break;
+        }
+        case 'storedOnActivation':
+        case 'storedOnDeactivation':
+        case 'storedOnEvent': {
+          const r = cachedAssignment(a.text);
+          if (!r.ok) {
+            problems.push({ kind: 'expression', elementId: a.id });
+            continue;
+          }
+          const v = variables.get(r.value.target.toLowerCase());
+          ca.target = r.value.target.toLowerCase();
+          if (!v || v.type === 'BOOL') {
+            if (!r.value.bool) {
+              problems.push({ kind: 'expression', elementId: a.id });
+              continue;
+            }
+            ca.boolValue = {
+              uid: `v:${a.id}`,
+              grafcet: cg.idx,
+              phase: 'evolution',
+              ast: r.value.bool,
+              steps: bindSteps(r.value.bool),
+            };
+            expressions.push(ca.boolValue);
+          } else {
+            if (!r.value.arith) {
+              problems.push({ kind: 'expression', elementId: a.id });
+              continue;
+            }
+            ca.arithValue = r.value.arith;
+          }
+          break;
         }
       }
       actions.push(ca);

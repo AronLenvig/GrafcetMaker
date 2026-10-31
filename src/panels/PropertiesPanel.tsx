@@ -3,7 +3,15 @@ import type { Term } from '@/ui/TermHelp';
 import { useTranslation } from 'react-i18next';
 import { parseLinkKey } from '@/core/layout/geometry';
 import { indexGrafcet } from '@/core/model/graph';
-import type { Action, Grafcet, Id, Step, Transition } from '@/core/model/types';
+import type {
+  Action,
+  ActionKind,
+  Grafcet,
+  Id,
+  Step,
+  StepKind,
+  Transition,
+} from '@/core/model/types';
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -48,14 +56,22 @@ function stepName(g: Grafcet, id: Id): string {
   return s ? String(s.number) : '?';
 }
 
-/** The glossary term of an action's kind. */
-function actionTerm(action: Action): Term {
-  return action.kind === 'forcing'
-    ? 'forcingOrder'
-    : action.kind === 'continuous'
-      ? 'action'
-      : 'storedAction';
-}
+/** The glossary term of each action kind. */
+const ACTION_TERM: Record<ActionKind, Term> = {
+  continuous: 'action',
+  storedOnActivation: 'storedAction',
+  storedOnDeactivation: 'storedAction',
+  storedOnEvent: 'storedAction',
+  forcing: 'forcingOrder',
+};
+
+/** The glossary term of each step kind. */
+const STEP_TERM: Record<StepKind, Term> = {
+  normal: 'step',
+  initial: 'step',
+  macro: 'macroStep',
+  enclosing: 'enclosingStep',
+};
 
 /** Move left/right (actions of a step) and delete. */
 function ActionTools({ action, index, count }: { action: Action; index: number; count: number }) {
@@ -130,7 +146,7 @@ function ActionFields({ action }: { action: Action }) {
       <ExpressionField
         kind={actionTextKind(action.kind)}
         label={t(`props.action.textLabel.${action.kind}`)}
-        term={actionTerm(action)}
+        term={ACTION_TERM[action.kind]}
         value={action.text}
         placeholder={t(`props.action.textPlaceholder.${action.kind}`)}
         onCommit={(v) => write('text', v)}
@@ -271,12 +287,7 @@ function StepProps({ g, step }: { g: Grafcet; step: Step }) {
   );
   return (
     <>
-      <Section
-        title={t('props.step.title', { n: step.number })}
-        term={
-          step.kind === 'macro' ? 'macroStep' : step.kind === 'enclosing' ? 'enclosingStep' : 'step'
-        }
-      >
+      <Section title={t('props.step.title', { n: step.number })} term={STEP_TERM[step.kind]}>
         <CommitField
           label={t('props.step.number')}
           value={String(step.number)}

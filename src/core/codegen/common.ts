@@ -191,6 +191,13 @@ export function referencedNames(p: Program): string[] {
       case 'arith':
         walk(n.left);
         walk(n.right);
+        return;
+      case 'const':
+      case 'dur':
+      case 'num':
+      case 'step':
+        // Leaves naming no variable.
+        return;
     }
   };
   for (const e of p.expressions) walk(e.ast);

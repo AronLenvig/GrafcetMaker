@@ -9,8 +9,8 @@ import {
 import type { StDialect } from '@/core/codegen/dialect';
 import type { Grafcet, Id, Project } from '@/core/model/types';
 import { z } from 'zod';
+import { EXPORT_FORMAT_IDS, type ExportFormat } from './formats';
 
-export type ExportFormat = 'pdf' | 'svg' | 'png' | 'webp' | 'csv' | 'xlsx' | 'st' | 'xml';
 export type ExportScope = 'grafcet' | 'selection' | 'all';
 
 export interface ExportSettings {
@@ -66,7 +66,7 @@ const storedSettingsSchema = (() => {
   const one = <T extends z.ZodType>(schema: T, fallback: z.output<T>) => schema.catch(fallback);
   const scale = z.union([z.literal(1), z.literal(2), z.literal(4)]);
   return z.object({
-    format: one(z.enum(['pdf', 'svg', 'png', 'webp', 'csv', 'xlsx', 'st', 'xml']), d.format),
+    format: one(z.enum(EXPORT_FORMAT_IDS as [ExportFormat, ...ExportFormat[]]), d.format),
     scope: one(z.enum(['grafcet', 'selection', 'all']), d.scope),
     theme: one(z.enum(['print', 'current']), d.theme),
     textbook: one(z.boolean(), d.textbook),

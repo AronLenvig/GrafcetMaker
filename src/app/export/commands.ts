@@ -19,15 +19,17 @@ import {
   safeFileName,
   svgToPng,
 } from './exporters';
+import { EXPORT_FORMATS } from './formats';
 
 const t = i18next.t.bind(i18next);
 
-export const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+const { csv: CSV, xlsx: XLSX } = EXPORT_FORMATS;
+
 export const VARIABLES_FILE: FileKind = {
   get description() {
     return t('file.types.variables');
   },
-  accept: { 'text/csv': ['.csv'], [XLSX_MIME]: ['.xlsx'] },
+  accept: { [CSV.mime]: [`.${CSV.extension}`], [XLSX.mime]: [`.${XLSX.extension}`] },
 };
 const MAX_BYTES = 5 * 1024 * 1024;
 
@@ -110,7 +112,10 @@ export async function copyDiagram(kind: 'png' | 'svg'): Promise<void> {
 export function exportVariables(format: 'csv' | 'xlsx'): void {
   const p = getProject();
   const name = safeFileName(p.name, t('export.variablesFile'));
-  if (format === 'csv') downloadBlob(variablesToCsv(p), `${name}.csv`, 'text/csv');
+  if (format === 'csv') downloadBlob(variablesToCsv(p), `${name}.${CSV.extension}`, CSV.mime);
   else
-    downloadBlob(new Blob([variablesToXlsx(p) as BlobPart], { type: XLSX_MIME }), `${name}.xlsx`);
+    downloadBlob(
+      new Blob([variablesToXlsx(p) as BlobPart], { type: XLSX.mime }),
+      `${name}.${XLSX.extension}`,
+    );
 }

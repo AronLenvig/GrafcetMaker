@@ -71,6 +71,25 @@ The compiler and the linter find most of the places to change: every table over 
    `tests/unit/codegen.test.ts`; describe the kind in `docs/help/actions.md` or
    `docs/help/hierarchy.md` (and the translated help pages) and in `docs/user-guide.md`.
 
+### Add an export format
+
+1. Add an entry to `EXPORT_FORMATS` in `src/app/export/formats.ts` (its place there is its place in
+   the Export dialog): what the file holds (`content`, which decides the dialog's scope, appearance
+   and preview), extension and MIME type, what Copy copies, whether it gets an "Export as …"
+   command, and `produce`, which loads its exporter from `src/app/export/produce.ts`. The
+   `ExportFormat` union, the stored settings' schema, the dialog's list and the commands derive
+   from this table.
+2. Write the exporter in `produce.ts`; put heavy code in its own module loaded with `import()`
+   (as `pdf.ts` and the code generators are) to keep it out of the main bundle.
+3. Options of its own: add them to `ExportSettings`, `DEFAULT_EXPORT_SETTINGS` and the stored
+   settings' schema in `src/app/export/exporters.ts` (each setting falls back to its default, so
+   settings stored by older versions still load), and draw them in the `options` switch of
+   `src/app/export/ExportDialog.tsx` (the linter asks for the new case).
+4. Strings: `export.formats.<id>` and `export.formatHints.<id>` (the type checker asks for them),
+   and with a command `commands.file.export<Id>` and an entry in the File menu
+   (`src/app/menus.tsx`), in `src/i18n/en.ts` and every other language. Describe it in
+   `docs/help/files.md` (and the translated help pages) and `docs/user-guide.md`.
+
 ## Commit messages
 
 Short imperative summary, e.g. `simulation: handle edges in transient evolution`.

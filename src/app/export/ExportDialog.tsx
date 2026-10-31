@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { variablesToCsv, variablesToXlsx } from '@/core/io/csv';
-import { groupWarnings, type CodegenResult, type CodegenWarning } from '@/core/codegen/common';
-import { dialectFile, ST_DIALECTS } from '@/core/codegen/dialect';
-import type { Id, Project } from '@/core/model/types';
+import { variablesToCsv } from '@/core/io/csv';
+import { groupWarnings, type CodegenWarning } from '@/core/codegen/common';
+import { ST_DIALECTS } from '@/core/codegen/dialect';
+import type { Id } from '@/core/model/types';
 import { tDynamic } from '@/i18n/dynamic';
 import { useDoc } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
@@ -18,41 +18,13 @@ import {
   saveExportSettings,
   requestedFormat,
   requestExportFormat,
-  svgToImage,
-  svgToPng,
   UnsupportedFormatError,
-  type ExportFormat,
   type ExportSettings,
   type Target,
 } from './exporters';
+import { EXPORT_FORMAT_IDS, EXPORT_FORMATS, isProjectWide, isRaster } from './formats';
 import { planPages, renderPage } from './pages';
-
-const FORMATS: ExportFormat[] = ['pdf', 'svg', 'png', 'webp', 'csv', 'xlsx', 'st', 'xml'];
-const isVariables = (f: ExportFormat) => f === 'csv' || f === 'xlsx';
-const isCode = (f: ExportFormat): f is 'st' | 'xml' => f === 'st' || f === 'xml';
-/** Formats covering the whole project (no scope, colors or notation). */
-const isProjectWide = (f: ExportFormat) => isVariables(f) || isCode(f);
-
-/** Generated PLC code (the generators are loaded on first use). */
-async function generateCode(project: Project, settings: ExportSettings): Promise<CodegenResult> {
-  const opts = { version: __APP_VERSION__, date: new Date() };
-  const st = {
-    ...opts,
-    dialect: settings.st.dialect,
-    storedActions: settings.st.holdStored ? ('whileActive' as const) : ('once' as const),
-  };
-  if (settings.format === 'st' && settings.st.style === 'case') {
-    const { generateStCase } = await import('@/core/codegen/stCase');
-    return generateStCase(project, st);
-  }
-  if (settings.format === 'st') {
-    const { generateSt } = await import('@/core/codegen/st');
-    return generateSt(project, { ...st, stabilityLoop: settings.st.stabilityLoop });
-  }
-  const { generatePlcOpen } = await import('@/core/codegen/plcopen');
-  return generatePlcOpen(project, { ...opts, taskInterval: settings.xml.taskInterval });
-}
-const isRaster = (f: ExportFormat): f is 'png' | 'webp' => f === 'png' || f === 'webp';
+import { generateCode } from './produce';
 
 function Radio<T extends string | number>({
   name,
@@ -137,7 +109,7 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
   const scope =
     settings.scope === 'selection' && !selected.size
       ? 'grafcet'
-      : settings.scope === 'all' && settings.format !== 'pdf'
+      : settings.scope === 'all' && !EXPORT_FORMATS[settings.format].allGrafcets
         ? 'grafcet'
         : settings.scope;
   const targets: Target[] = useMemo(() => {
@@ -157,7 +129,8 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
     let url: string | undefined;
     const run = async () => {
       const target = targets[0];
-      if (isVariables(settings.format)) {
+      const { content } = EXPORT_FORMATS[settings.format];
+      if (content === 'variables') {
         const csv = variablesToCsv(project);
         if (!cancelled)
           setPreview({
@@ -166,7 +139,7 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
           });
         return;
       }
-      if (isCode(settings.format)) {
+      if (content === 'code') {
         const r = await generateCode(project, settings);
         if (!cancelled)
           setPreview({
@@ -177,7 +150,7 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
         return;
       }
       if (!target) return;
-      if (settings.format === 'pdf') {
+      if (content === 'pages') {
         const pages = planPages(targets, settings);
         const i = Math.min(page, pages.length - 1);
         url = URL.createObjectURL(
@@ -209,82 +182,21 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
     };
   }, [settings, targets, project, page, t]);
 
-  const produce = async (): Promise<{ blob: Blob; name: string; text?: string }> => {
-    const target = targets[0]!;
-    switch (settings.format) {
-      case 'st':
-      case 'xml': {
-        const { code } = await generateCode(project, settings);
-        const name = safeFileName(project.name, '');
-        const file = dialectFile(settings.st.dialect);
-        return settings.format === 'st'
-          ? {
-              blob: new Blob([code], { type: file.mime }),
-              name: `${name}.${file.extension}`,
-              text: code,
-            }
-          : {
-              blob: new Blob([code], { type: 'application/xml' }),
-              name: `${name}.xml`,
-              text: code,
-            };
-      }
-      case 'svg': {
-        const res = await renderSvg(target, settings, settings.svg.embedFont);
-        return {
-          blob: new Blob([res.svg], { type: 'image/svg+xml' }),
-          name: `${baseName}.svg`,
-          text: res.svg,
-        };
-      }
-      case 'png': {
-        const res = await renderSvg(target, settings, true, settings.png.transparent);
-        return { blob: await svgToPng(res, settings.png.scale), name: `${baseName}.png` };
-      }
-      case 'webp': {
-        const res = await renderSvg(target, settings, true, settings.webp.transparent);
-        const blob = await svgToImage(
-          res,
-          settings.webp.scale,
-          'image/webp',
-          settings.webp.quality,
-        );
-        return { blob, name: `${baseName}.webp` };
-      }
-      case 'xlsx': {
-        const bytes = variablesToXlsx(project);
-        return {
-          blob: new Blob([bytes as BlobPart], {
-            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          }),
-          name: `${safeFileName(project.name, t('export.variablesFile'))}.xlsx`,
-        };
-      }
-      case 'pdf': {
-        const { buildPdf } = await import('./pdf');
-        return { blob: await buildPdf(project, targets, settings), name: `${baseName}.pdf` };
-      }
-      case 'csv': {
-        const csv = variablesToCsv(project);
-        return {
-          blob: new Blob([csv], { type: 'text/csv' }),
-          name: `${safeFileName(project.name, t('export.variablesFile'))}.csv`,
-          text: csv,
-        };
-      }
-    }
-  };
-
   const run = async (action: 'download' | 'copy') => {
     setBusy(true);
     try {
-      const out = await produce();
+      const out = await EXPORT_FORMATS[settings.format].produce({
+        project,
+        targets,
+        settings,
+        baseName,
+      });
       if (action === 'download') {
         downloadBlob(out.blob, out.name);
         onClose();
       } else {
         const ok =
-          settings.format === 'csv' || isCode(settings.format)
+          EXPORT_FORMATS[settings.format].copy === 'text'
             ? await navigator.clipboard.writeText(out.text!).then(
                 () => true,
                 () => false,
@@ -458,7 +370,7 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
     }
   })();
 
-  const canCopy = settings.format !== 'pdf' && settings.format !== 'xlsx';
+  const canCopy = EXPORT_FORMATS[settings.format].copy !== null;
 
   return (
     <Modal open title={t('export.title')} onOpenChange={(o) => !o && onClose()} width={900}>
@@ -468,7 +380,7 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
           aria-label={t('export.format')}
           className="flex flex-col gap-1 compact:grid compact:grid-cols-2"
         >
-          {FORMATS.map((f) => (
+          {EXPORT_FORMAT_IDS.map((f) => (
             <button
               key={f}
               type="button"
@@ -510,7 +422,7 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
                     label: t('export.scopes.selection', { count: selected.size }),
                     disabled: !selected.size,
                   },
-                  ...(settings.format === 'pdf'
+                  ...(EXPORT_FORMATS[settings.format].allGrafcets
                     ? [
                         {
                           value: 'all' as const,
@@ -545,7 +457,7 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
           <div className="flex min-h-64 flex-col overflow-hidden rounded-md border border-border bg-surface-2">
             <div className="flex items-center gap-2 border-b border-border px-2 py-1 text-xs text-muted">
               <span className="flex-1">{preview?.info ?? t('common.loading')}</span>
-              {settings.format === 'pdf' && (
+              {EXPORT_FORMATS[settings.format].content === 'pages' && (
                 <>
                   <Button
                     size="sm"

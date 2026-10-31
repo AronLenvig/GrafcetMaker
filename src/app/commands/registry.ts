@@ -5,6 +5,7 @@ import { registerCommands, type Command } from '@/editor/commands/command';
 import { closeSplit, focusOtherPane, openSplit, swapPanes } from '@/editor/commands/split';
 import { toggleContextHelp } from '../help/contextHelp';
 import { guideUrl, openHelp } from '@/ui/helpStore';
+import { EXPORT_FORMAT_IDS, EXPORT_FORMATS } from '../export/formats';
 import { SOURCE_URL } from '../source';
 import { setPrefs, usePrefs } from '@/ui/prefs';
 import { showBottomTab, showSideTab, toggleProperties } from '@/editor/store/sheet';
@@ -194,7 +195,7 @@ export const COMMANDS: Command[] = [
     global: true,
     run: () => openAppDialog('export'),
   },
-  ...(['pdf', 'svg', 'png', 'webp', 'st', 'xml'] as const).map((f): Command => ({
+  ...EXPORT_FORMAT_IDS.filter((f) => EXPORT_FORMATS[f].command).map((f): Command => ({
     id: `file.export${f[0]!.toUpperCase()}${f.slice(1)}`,
     label: `file.export${f[0]!.toUpperCase()}${f.slice(1)}`,
     group: 'file',

@@ -1,7 +1,7 @@
 import * as Popover from '@radix-ui/react-popover';
 import { useTranslation } from 'react-i18next';
 import { tDynamic } from '@/i18n/dynamic';
-import { openHelp } from '../help/helpStore';
+import { openHelp } from './helpStore';
 
 /** Glossary terms and the help page explaining each one. */
 export const TERM_HELP = {

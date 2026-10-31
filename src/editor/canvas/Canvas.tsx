@@ -9,9 +9,9 @@ import {
   type ActionBox,
   type Rect,
 } from '@/core/layout/geometry';
-import { useLive } from '@/app/collab/liveState';
-import { usePrefs } from '@/app/prefs';
-import { useCoarsePointer, useCompact } from '@/app/ui/media';
+import { useLive } from '../store/liveState';
+import { usePrefs } from '@/ui/prefs';
+import { useCoarsePointer, useCompact } from '@/ui/media';
 import { cachedBool } from '@/core/expr/cache';
 import { buildEnv } from '@/core/expr/check';
 import { formatDuration } from '@/core/expr/format';

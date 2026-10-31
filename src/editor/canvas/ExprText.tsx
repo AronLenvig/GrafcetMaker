@@ -5,8 +5,8 @@ import { cachedBool } from '@/core/expr/cache';
 import { formatTextbook, textbookSignalColumns, type Columns, type Run } from '@/core/expr/format';
 import { signalsOf } from '@/core/expr/signals';
 import { CHAR_WIDTH_EM, FONT_SIZE, LABEL_FONT_SIZE } from '@/core/layout/geometry';
-import { usePrefs } from '@/app/prefs';
-import { cx } from '@/app/ui/primitives';
+import { usePrefs } from '@/ui/prefs';
+import { cx } from '@/ui/primitives';
 import { baseline } from './svg';
 
 const CW = FONT_SIZE * CHAR_WIDTH_EM;

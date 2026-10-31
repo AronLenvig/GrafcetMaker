@@ -1,6 +1,4 @@
 import { create } from 'zustand';
-import { openProperties, showSheet, useSheet } from './sheet';
-import { isCompact } from './ui/media';
 
 /** Per-device UI preferences persisted in localStorage (best effort: storage may be unavailable). */
 export interface Prefs {
@@ -82,17 +80,4 @@ export function resetPrefs(): void {
 
 export function setPrefs(patch: Partial<Prefs>): void {
   usePrefs.setState(patch);
-}
-
-/** Opens a panel (Variables, Problems, Simulation, Chronogram, Outline). */
-export function showBottomTab(id: string): void {
-  // Desktops: the simulation has its own card, unfolded here.
-  if (id === 'simulation' && !isCompact()) useSheet.setState({ simCollapsed: false });
-  else showSheet(id);
-}
-
-/** Opens the properties (the floating card; on phones, the panel sheet) or another panel. */
-export function showSideTab(tab: 'properties' | 'variables' | 'outline'): void {
-  if (tab === 'properties' && !isCompact()) openProperties();
-  else showSheet(tab);
 }

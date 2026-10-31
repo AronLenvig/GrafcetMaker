@@ -1,6 +1,6 @@
 /** Split view: two grafcets on screen at once; the focused pane is the active grafcet. */
 import i18next from 'i18next';
-import { toast } from '@/app/toasts';
+import { toast } from '@/ui/toasts';
 import type { Id } from '@/core/model/types';
 import { getProject } from '../store/document';
 import { useUi, type SplitView } from '../store/uiStore';

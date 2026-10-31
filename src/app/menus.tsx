@@ -2,7 +2,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { formatKeys, getCommand, runCommand } from '@/editor/commands/registry';
+import { formatKeys, getCommand, runCommand } from '@/editor/commands/command';
 import { useDoc } from '@/editor/store/document';
 import { tDynamic } from '@/i18n/dynamic';
 import { useTheme, type ThemeMode } from '@/theme/theme';
@@ -10,8 +10,8 @@ import { THEME_OPTIONS, ThemeSwitcher } from '@/theme/ThemeSwitcher';
 import { LanguageSwitcher } from './LanguageMenu';
 import { listRecent, type RecentEntry } from './persistence/db';
 import { openRecent } from './persistence/session';
-import { setPrefs, usePrefs } from './prefs';
-import { ChevronDownIcon, CloseIcon, LogoIcon, MenuIcon } from './ui/icons';
+import { setPrefs, usePrefs } from '@/ui/prefs';
+import { ChevronDownIcon, CloseIcon, LogoIcon, MenuIcon } from '@/ui/icons';
 import {
   cx,
   IconButton,
@@ -21,7 +21,7 @@ import {
   MenuSeparator,
   SubMenu,
   Tip,
-} from './ui/primitives';
+} from '@/ui/primitives';
 
 type BoolPref = 'textbookNotation' | 'showGrid' | 'snapToGrid' | 'showHints';
 

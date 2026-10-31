@@ -2,8 +2,8 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
 import { useTranslation } from 'react-i18next';
 import { LANGUAGES, setLanguage, useLanguage, type Language } from '@/i18n';
-import { FLAGS } from './ui/flags';
-import { IconButton, menuContentClass, menuItemClass, Tip } from './ui/primitives';
+import { FLAGS } from '@/ui/flags';
+import { IconButton, menuContentClass, menuItemClass, Tip } from '@/ui/primitives';
 
 const CODES = Object.keys(LANGUAGES) as Language[];
 

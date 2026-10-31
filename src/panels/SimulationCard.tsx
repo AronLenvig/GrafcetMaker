@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { useSheet } from '@/app/sheet';
-import { ChevronDownIcon } from '@/app/ui/icons';
-import { cx, IconButton } from '@/app/ui/primitives';
+import { useSheet } from '@/editor/store/sheet';
+import { ChevronDownIcon } from '@/ui/icons';
+import { cx, IconButton } from '@/ui/primitives';
 import { useSim } from '@/editor/simulation/simStore';
 import { FloatingCard, SIMULATION_CARD_WIDTH } from './panelParts';
 import { SimulationPanel } from './SimulationPanel';

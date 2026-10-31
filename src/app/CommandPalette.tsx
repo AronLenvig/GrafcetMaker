@@ -1,12 +1,13 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { COMMANDS, formatKeys, isAvailable, type Command } from '@/editor/commands/registry';
+import { formatKeys, isAvailable, type Command } from '@/editor/commands/command';
+import { COMMANDS } from './commands/registry';
 import { setActiveGrafcet } from '@/editor/commands/edit';
 import { useDoc } from '@/editor/store/document';
 import { ui, useUi } from '@/editor/store/uiStore';
-import { SearchIcon } from './ui/icons';
-import { cx } from './ui/primitives';
+import { SearchIcon } from '@/ui/icons';
+import { cx } from '@/ui/primitives';
 
 interface Entry {
   key: string;

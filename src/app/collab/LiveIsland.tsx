@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Presence } from '@/core/collab/wire';
-import { openAppDialog } from '@/editor/commands/registry';
+import { openAppDialog } from '../commands/registry';
 import { useDoc } from '@/editor/store/document';
-import { AlertIcon, PlayIcon, UsersIcon } from '../ui/icons';
-import { cx, IconButton, Tip } from '../ui/primitives';
-import { initials, peerColor, useLive } from './liveState';
+import { AlertIcon, PlayIcon, UsersIcon } from '@/ui/icons';
+import { cx, IconButton, Tip } from '@/ui/primitives';
+import { initials, peerColor, useLive } from '@/editor/store/liveState';
 import { followPeer, useLiveAvailable } from './liveStore';
 
 /** A participant: initials on their color; a click shows where they are (not for oneself). */

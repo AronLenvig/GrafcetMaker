@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { Id } from '@/core/model/types';
 import { getProject } from '@/editor/store/document';
-import { setPrefs } from '../prefs';
+import { setPrefs } from '@/ui/prefs';
 
 interface TourState {
   /** Index of the step shown, or null when the tour is not running. */

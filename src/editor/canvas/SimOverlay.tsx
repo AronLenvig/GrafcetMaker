@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { usePrefs } from '@/app/prefs';
+import { usePrefs } from '@/ui/prefs';
 import {
   flowOf,
   LABEL_FONT_SIZE,

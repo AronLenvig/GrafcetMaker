@@ -4,8 +4,8 @@ import { getProject } from '@/editor/store/document';
 import { LIMITS } from '../../../worker/feedback';
 import { FEEDBACK_EMAIL, FEEDBACK_ENDPOINT } from '../config';
 import { shareLink } from '../persistence/session';
-import { toast } from '../toasts';
-import { Button, cx, Modal } from '../ui/primitives';
+import { toast } from '@/ui/toasts';
+import { Button, cx, Modal } from '@/ui/primitives';
 
 const KINDS = ['idea', 'problem', 'question', 'praise'] as const;
 type Kind = (typeof KINDS)[number];

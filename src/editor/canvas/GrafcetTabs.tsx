@@ -2,10 +2,10 @@ import * as ContextMenu from '@radix-ui/react-context-menu';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Id } from '@/core/model/types';
-import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@/app/ui/icons';
-import { cx, IconButton, menuContentClass } from '@/app/ui/primitives';
-import { showDialog } from '@/app/dialogs/dialogStore';
-import { toast } from '@/app/toasts';
+import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@/ui/icons';
+import { cx, IconButton, menuContentClass } from '@/ui/primitives';
+import { showDialog } from '@/ui/dialogStore';
+import { toast } from '@/ui/toasts';
 import {
   addGrafcet,
   deleteGrafcets,

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { formatSimTime } from '@/editor/canvas/SimOverlay';
-import { formatKeys } from '@/editor/commands/registry';
+import { formatKeys } from '@/editor/commands/command';
 import { useDoc } from '@/editor/store/document';
 import {
   nextEvent,
@@ -14,9 +14,9 @@ import {
   useSim,
   type Speed,
 } from '@/editor/simulation/simStore';
-import { useLive } from './collab/liveState';
+import { useLive } from '@/editor/store/liveState';
 import { restartWithChanges } from './collab/liveStore';
-import { toast } from './toasts';
+import { toast } from '@/ui/toasts';
 import {
   AlertIcon,
   ErrorIcon,
@@ -27,8 +27,8 @@ import {
   ResetIcon,
   StepForwardIcon,
   StopIcon,
-} from './ui/icons';
-import { useCompact } from './ui/media';
+} from '@/ui/icons';
+import { useCompact } from '@/ui/media';
 import {
   Button,
   IconButton,
@@ -37,7 +37,7 @@ import {
   MenuItem,
   MenuSeparator,
   Tip,
-} from './ui/primitives';
+} from '@/ui/primitives';
 
 /**
  * The virtual clock (and, wide, the cycle and next timer). Its own component: it changes on every

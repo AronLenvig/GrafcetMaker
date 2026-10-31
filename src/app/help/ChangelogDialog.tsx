@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import changelog from '../../../CHANGELOG.md?raw';
-import { Modal } from '../ui/primitives';
+import { Modal } from '@/ui/primitives';
 import { parseMarkdown } from './markdown';
 import { Blocks } from './MarkdownView';
 

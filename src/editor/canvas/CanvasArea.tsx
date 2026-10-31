@@ -1,9 +1,9 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { setPrefs, usePrefs } from '@/app/prefs';
-import { CloseIcon } from '@/app/ui/icons';
-import { cx, IconButton, Select } from '@/app/ui/primitives';
-import { Splitter } from '@/app/ui/Splitter';
+import { setPrefs, usePrefs } from '@/ui/prefs';
+import { CloseIcon } from '@/ui/icons';
+import { cx, IconButton, Select } from '@/ui/primitives';
+import { Splitter } from '@/ui/Splitter';
 import type { Id } from '@/core/model/types';
 import { closeSplit, focusPane, setPaneGrafcet, swapPanes } from '../commands/split';
 import { useDoc } from '../store/document';

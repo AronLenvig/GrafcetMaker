@@ -1,10 +1,10 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ExpressionKind } from '@/core/expr/check';
-import { cx, Field, Select } from '@/app/ui/primitives';
-import { TermHelp, type Term } from '@/app/ui/TermHelp';
+import { cx, Field, Select } from '@/ui/primitives';
+import { TermHelp, type Term } from '@/ui/TermHelp';
 import { useUi } from '@/editor/store/uiStore';
-import { ExpressionInput } from './ExpressionInput';
+import { ExpressionInput } from '@/editor/canvas/ExpressionInput';
 
 /** "↵ apply · Esc revert", shown while a field has unapplied changes. */
 export function PendingHint({ multiline }: { multiline?: boolean }) {

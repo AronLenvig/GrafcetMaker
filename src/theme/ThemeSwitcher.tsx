@@ -1,6 +1,6 @@
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
 import { useTranslation } from 'react-i18next';
-import { MonitorIcon, MoonIcon, SunIcon } from '@/app/ui/icons';
+import { MonitorIcon, MoonIcon, SunIcon } from '@/ui/icons';
 import { useTheme, type ThemeMode } from './theme';
 
 /** The theme modes with their icons, in menu order. */

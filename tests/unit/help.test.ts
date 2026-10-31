@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { FIGURES } from '@/app/help/figures';
-import { TERM_HELP } from '@/app/ui/TermHelp';
+import { TERM_HELP } from '@/ui/TermHelp';
 import { parseInline, parseMarkdown, type Block, type Inline } from '@/app/help/markdown';
 import { loadHelp, ORDER, searchHelp } from '@/app/help/pages';
 import { grafcetToSvg } from '@/core/io/svgExport';

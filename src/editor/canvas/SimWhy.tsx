@@ -1,7 +1,7 @@
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { useShallow } from 'zustand/react/shallow';
-import { usePrefs } from '@/app/prefs';
+import { usePrefs } from '@/ui/prefs';
 import type { BoolNode } from '@/core/expr/ast';
 import { cachedBool } from '@/core/expr/cache';
 import { buildEnv } from '@/core/expr/check';

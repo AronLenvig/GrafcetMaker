@@ -1,5 +1,5 @@
 import i18next from 'i18next';
-import { toast } from '@/app/toasts';
+import { toast } from '@/ui/toasts';
 import { convertStep, parentOf, revertToNormal, type HierarchyKind } from '@/core/model/hierarchy';
 import type { Id, StepKind } from '@/core/model/types';
 import { fitToContent } from '../canvas/viewport';

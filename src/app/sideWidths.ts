@@ -1,9 +1,9 @@
 import { useSyncExternalStore } from 'react';
 import { useSim } from '@/editor/simulation/simStore';
 import { PROPERTIES_CARD_WIDTH, SIMULATION_CARD_WIDTH } from '@/panels/panelParts';
-import { useHelp } from './help/helpStore';
-import { usePrefs } from './prefs';
-import { PANEL_TABS, usePropertiesVisible, useSheet, type SheetTab } from './sheet';
+import { useHelp } from '@/ui/helpStore';
+import { usePrefs } from '@/ui/prefs';
+import { PANEL_TABS, usePropertiesVisible, useSheet, type SheetTab } from '@/editor/store/sheet';
 
 /** Width the panel card takes on the right (card + gap), 0 when closed. */
 export function usePanelSpace(): number {

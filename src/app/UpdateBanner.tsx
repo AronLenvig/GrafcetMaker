@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { openAppDialog } from '@/editor/commands/registry';
+import { openAppDialog } from './commands/registry';
 import { dismissUpdate, reloadToUpdate, usePwa } from './pwa';
-import { Button } from './ui/primitives';
+import { Button } from '@/ui/primitives';
 
 /** "New version available" and, after an update, "What's new": a card in the bottom-right corner. */
 export function UpdateBanner() {

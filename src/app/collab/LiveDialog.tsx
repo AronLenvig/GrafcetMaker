@@ -3,12 +3,12 @@ import { useTranslation } from 'react-i18next';
 import type { Presence } from '@/core/collab/wire';
 import { useDoc } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
-import { setPrefs, usePrefs } from '../prefs';
-import { toast } from '../toasts';
-import { PlayIcon } from '../ui/icons';
-import { Button, Field, Modal } from '../ui/primitives';
+import { setPrefs, usePrefs } from '@/ui/prefs';
+import { toast } from '@/ui/toasts';
+import { PlayIcon } from '@/ui/icons';
+import { Button, Field, Modal } from '@/ui/primitives';
 import { PeerAvatar } from './LiveIsland';
-import { clientId, useLive, type LiveState } from './liveState';
+import { clientId, useLive, type LiveState } from '@/editor/store/liveState';
 import { declineInvite, joinLive, leaveLive, startLive } from './liveStore';
 
 async function copyLink(link: string): Promise<boolean> {

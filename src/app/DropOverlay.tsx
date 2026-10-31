@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { openFile } from './persistence/session';
-import { UploadIcon } from './ui/icons';
+import { UploadIcon } from '@/ui/icons';
 
 const hasFiles = (e: DragEvent) => !!e.dataTransfer && [...e.dataTransfer.types].includes('Files');
 

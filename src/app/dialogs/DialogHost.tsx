@@ -1,12 +1,13 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { COMMANDS, formatKeys, useAppDialog } from '@/editor/commands/registry';
+import { formatKeys } from '@/editor/commands/command';
+import { COMMANDS, useAppDialog } from '../commands/registry';
 import { getProject, useDoc } from '@/editor/store/document';
 import { listSnapshots, type Snapshot } from '../persistence/db';
 import { restoreSnapshot } from '../persistence/session';
 import { SOURCE_URL } from '../source';
-import { Button, Modal } from '../ui/primitives';
-import { closeDialog, useDialogs } from './dialogStore';
+import { Button, Modal } from '@/ui/primitives';
+import { closeDialog, useDialogs } from '@/ui/dialogStore';
 import { TextDialog } from './TextDialog';
 
 // The export dialog (and the PDF/CSV code behind it) is loaded on first use.

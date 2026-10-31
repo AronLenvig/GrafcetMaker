@@ -1,13 +1,13 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { openHelp } from '@/app/help/helpStore';
-import { setPrefs, usePrefs } from '@/app/prefs';
-import { CloseIcon } from '@/app/ui/icons';
-import { useCoarsePointer, useCompact } from '@/app/ui/media';
+import { openHelp } from '@/ui/helpStore';
+import { setPrefs, usePrefs } from '@/ui/prefs';
+import { CloseIcon } from '@/ui/icons';
+import { useCoarsePointer, useCompact } from '@/ui/media';
 import { isJump, parseLinkKey } from '@/core/layout/geometry';
 import type { Grafcet } from '@/core/model/types';
 import { tDynamic } from '@/i18n/dynamic';
-import { formatKeys } from '../commands/registry';
+import { formatKeys } from '../commands/command';
 import { useSim } from '../simulation/simStore';
 import { useDoc } from '../store/document';
 import { useUi } from '../store/uiStore';

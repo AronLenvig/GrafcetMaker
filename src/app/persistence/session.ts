@@ -23,8 +23,8 @@ import { doc, getProject } from '@/editor/store/document';
 import { isDirty } from '@/editor/store/documentStore';
 import { stopSimulation } from '@/editor/simulation/simStore';
 import { useUi } from '@/editor/store/uiStore';
-import { showDialog } from '../dialogs/dialogStore';
-import { toast } from '../toasts';
+import { showDialog } from '@/ui/dialogStore';
+import { toast } from '@/ui/toasts';
 import { addSnapshot, db, safely, touchRecent, type RecentEntry, type Snapshot } from './db';
 import {
   downloadBlob,

@@ -1,6 +1,6 @@
 import { memo, useEffect, type CSSProperties, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
-import { peerColor, useLive } from '@/app/collab/liveState';
+import { peerColor, useLive } from '../store/liveState';
 import type { Presence } from '@/core/collab/wire';
 import { elementBounds, type GrafcetGeometry, type Rect } from '@/core/layout/geometry';
 import type { Grafcet, Id } from '@/core/model/types';

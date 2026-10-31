@@ -1,13 +1,13 @@
 import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActionIcon, CommentIcon, StepIcon, TransitionIcon, TrashIcon } from '@/app/ui/icons';
-import { Button, cx, Tip } from '@/app/ui/primitives';
+import { ActionIcon, CommentIcon, StepIcon, TransitionIcon, TrashIcon } from '@/ui/icons';
+import { Button, cx, Tip } from '@/ui/primitives';
 import { uiKindOf } from '@/core/model/actionKind';
 import { elementKind, indexGrafcet } from '@/core/model/graph';
 import { stepOrder } from '@/core/model/renumber';
 import type { ElementKind, Grafcet, Id, Transition } from '@/core/model/types';
 import { deleteSelection, revealInGrafcet } from '@/editor/commands/edit';
-import { formatKeys } from '@/editor/commands/registry';
+import { formatKeys } from '@/editor/commands/command';
 import { ui } from '@/editor/store/uiStore';
 import { tDynamic } from '@/i18n/dynamic';
 import { ActionKindIcon } from './ActionKindPicker';

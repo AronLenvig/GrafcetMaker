@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDownIcon, ChevronRightIcon } from '@/app/ui/icons';
-import { cx } from '@/app/ui/primitives';
+import { ChevronDownIcon, ChevronRightIcon } from '@/ui/icons';
+import { cx } from '@/ui/primitives';
 import { indexGrafcet } from '@/core/model/graph';
 import type { Grafcet, Id } from '@/core/model/types';
 import { editSelection, revealInGrafcet, setActiveGrafcet } from '@/editor/commands/edit';

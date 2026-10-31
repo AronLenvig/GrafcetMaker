@@ -19,7 +19,7 @@ import {
 import { indexGrafcet, type GrafcetIndex } from '@/core/model/graph';
 import * as ops from '@/core/model/ops';
 import type { Id, Point } from '@/core/model/types';
-import { usePrefs } from '@/app/prefs';
+import { usePrefs } from '@/ui/prefs';
 import {
   addActionAt,
   addActionToSelection,

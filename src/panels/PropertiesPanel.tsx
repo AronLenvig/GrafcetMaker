@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { Term } from '@/app/ui/TermHelp';
+import type { Term } from '@/ui/TermHelp';
 import { useTranslation } from 'react-i18next';
 import { parseLinkKey } from '@/core/layout/geometry';
 import { indexGrafcet } from '@/core/model/graph';
@@ -11,8 +11,8 @@ import {
   InfoIcon,
   PlusIcon,
   TrashIcon,
-} from '@/app/ui/icons';
-import { Button, cx, IconButton } from '@/app/ui/primitives';
+} from '@/ui/icons';
+import { Button, cx, IconButton } from '@/ui/primitives';
 import {
   addActionTo,
   deleteSelection,

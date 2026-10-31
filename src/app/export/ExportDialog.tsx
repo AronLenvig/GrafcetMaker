@@ -8,8 +8,8 @@ import { tDynamic } from '@/i18n/dynamic';
 import { useDoc } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
 import { downloadBlob } from '../persistence/fileAccess';
-import { toast } from '../toasts';
-import { Button, cx, Modal } from '../ui/primitives';
+import { toast } from '@/ui/toasts';
+import { Button, cx, Modal } from '@/ui/primitives';
 import {
   copyToClipboard,
   loadExportSettings,

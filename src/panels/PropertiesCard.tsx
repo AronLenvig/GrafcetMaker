@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { toggleProperties, usePropertiesVisible } from '@/app/sheet';
-import { CloseIcon } from '@/app/ui/icons';
-import { IconButton } from '@/app/ui/primitives';
+import { toggleProperties, usePropertiesVisible } from '@/editor/store/sheet';
+import { CloseIcon } from '@/ui/icons';
+import { IconButton } from '@/ui/primitives';
 import { useSim } from '@/editor/simulation/simStore';
 import { useDoc } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';

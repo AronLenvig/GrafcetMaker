@@ -207,10 +207,10 @@ Autonomous build log. Read this first in every session and resume from **Current
   `#share=<base64url(deflate-raw(compact JSON))>`; opening one (launch or `hashchange`) goes
   through `parseProjectFile`, asks about unsaved changes and clears the hash. Tests in
   `tests/unit/shareLink.test.ts`.
-- Mobile friendly. `src/app/ui/media.ts` (`useCompact`: ≤639 px wide or ≤479 px tall; `useCoarsePointer`)
+- Mobile friendly. `src/ui/media.ts` (`useCompact`: ≤639 px wide or ≤479 px tall; `useCoarsePointer`)
   and the Tailwind `compact:` variant. Phone layout (`App` → `CompactLayout`): `CompactTopBar` with
   the `MenuDrawer`, canvas without split view, `BottomToolbar`, `PanelSheet` (panels as tabs,
-  state in `src/app/sheet.ts`; `showBottomTab` / `showSideTab` open it on phones), help full
+  state in `src/editor/store/sheet.ts`; `showBottomTab` / `showSideTab` open it on phones), help full
   screen, compact `SimBar`. The main menu is data (`src/app/menus.tsx`) rendered as menu bar or
   drawer. Touch in `useCanvasInteraction`: pinch (two pointers), one-finger pan on empty canvas,
   double-tap, long-press frame, placing tools act on release, 8 px slop. `SelectionBar` on touch
@@ -334,7 +334,7 @@ Autonomous build log. Read this first in every session and resume from **Current
   address's language folder (`rootOfPath`: …/de/ → …/fr/, never …/de/fr/). The dev server gives
   /<lang>/ the `../` base too, like the build. Guide at `<lang>/guide/`, help at `<lang>/help/` (Cloudflare
   `_redirects` for the former `help/`); hreflang on every page with the root as x-default.
-  Flags (`src/app/ui/flags.ts`, SVG data shared by the app and the site) with hover hints.
+  Flags (`src/ui/flags.ts`, SVG data shared by the app and the site) with hover hints.
 - Tour (owner request: direct and useful for beginners): five steps done on the diagram, not read
   (`Tour.tsx` `STEPS`): select the initial step, add a transition and step with a receptivity, give
   it an action, simulate until a non-initial step is active, then where help is. Each step moves on
@@ -426,7 +426,7 @@ Autonomous build log. Read this first in every session and resume from **Current
 
 - Floating layout (owner request): no docked bars on desktops and tablets. `src/app/Islands.tsx`
   composes the islands (`.gm-island`); `PropertiesCard` shows the properties while something is
-  selected (`src/app/sheet.ts`: `hiddenFor` per selection, `pinned` with nothing selected,
+  selected (`src/editor/store/sheet.ts`: `hiddenFor` per selection, `pinned` with nothing selected,
   `focusedVariable` shows a variable's details); `PanelCard` is the one panel card, on the right
   (Variables as list, or as the table from 560 px; width in prefs); `SimulationCard` replaces the
   properties card on the left while simulating (the inspector was removed: the diagram shows the

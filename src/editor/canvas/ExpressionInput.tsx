@@ -19,9 +19,9 @@ import {
 import { toggleEdge, type Edge } from '@/core/expr/edges';
 import { variableUsage } from '@/core/model/variables';
 import type { Id, Variable } from '@/core/model/types';
-import { openHelp } from '@/app/help/helpStore';
-import { InfoIcon } from '@/app/ui/icons';
-import { cx } from '@/app/ui/primitives';
+import { openHelp } from '@/ui/helpStore';
+import { InfoIcon } from '@/ui/icons';
+import { cx } from '@/ui/primitives';
 import { tDynamic } from '@/i18n/dynamic';
 import { useDoc } from '@/editor/store/document';
 

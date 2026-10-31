@@ -43,12 +43,12 @@ import { reloadSimulation, useSim } from '@/editor/simulation/simStore';
 import { doc } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
 import { CLOSE_REFUSED, PING } from '../../../worker/room';
-import { showDialog } from '../dialogs/dialogStore';
+import { showDialog } from '@/ui/dialogStore';
 import { db, safely } from '../persistence/db';
 import { openLiveProject } from '../persistence/session';
-import { usePrefs } from '../prefs';
-import { toast } from '../toasts';
-import { clientId, rememberTabRoom, useLive } from './liveState';
+import { usePrefs } from '@/ui/prefs';
+import { toast } from '@/ui/toasts';
+import { clientId, rememberTabRoom, useLive } from '@/editor/store/liveState';
 
 const t = i18next.t.bind(i18next);
 

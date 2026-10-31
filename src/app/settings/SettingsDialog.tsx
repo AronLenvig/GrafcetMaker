@@ -1,15 +1,15 @@
 import * as Tabs from '@radix-ui/react-tabs';
 import { useEffect, useId, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { openAppDialog } from '@/editor/commands/registry';
+import { openAppDialog } from '../commands/registry';
 import { SPEEDS } from '@/editor/simulation/simStore';
 import { THEME_MODES, useTheme } from '@/theme/theme';
-import { showDialog } from '../dialogs/dialogStore';
+import { showDialog } from '@/ui/dialogStore';
 import { db, safely } from '../persistence/db';
 import { downloadCopy } from '../persistence/session';
-import { resetPrefs, setPrefs, usePrefs } from '../prefs';
-import { toast } from '../toasts';
-import { Button, cx, Modal, Select, Switch } from '../ui/primitives';
+import { resetPrefs, setPrefs, usePrefs } from '@/ui/prefs';
+import { toast } from '@/ui/toasts';
+import { Button, cx, Modal, Select, Switch } from '@/ui/primitives';
 
 const SECTIONS = ['appearance', 'editor', 'simulation', 'data', 'about'] as const;
 type Section = (typeof SECTIONS)[number];

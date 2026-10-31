@@ -190,7 +190,7 @@ a:hover {
   }
 }
 
-/* Language flags (src/app/ui/flags.ts), named by their link's title on hover */
+/* Language flags (src/ui/flags.ts), named by their link's title on hover */
 .flag {
   display: block;
   border-radius: 2px;

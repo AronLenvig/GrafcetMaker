@@ -11,7 +11,7 @@ import { FIGURES } from '@/app/help/figures';
 import { inlineText, parseMarkdown, type Block, type Inline } from '@/app/help/markdown';
 import { loadedHelp, loadHelp, type Help, type HelpPage } from '@/app/help/pages';
 import { SOURCE_URL } from '@/app/source';
-import { flagSvg } from '@/app/ui/flags';
+import { flagSvg } from '@/ui/flags';
 import { encodeTextHash } from '@/core/io/grafcetText';
 import { encodeShareHash } from '@/core/io/shareLink';
 import {

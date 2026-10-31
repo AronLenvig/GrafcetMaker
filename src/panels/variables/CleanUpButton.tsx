@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BroomIcon } from '@/app/ui/icons';
-import { IconButton } from '@/app/ui/primitives';
+import { BroomIcon } from '@/ui/icons';
+import { IconButton } from '@/ui/primitives';
 import { unusedVariables } from '@/core/model/variables';
-import { runCommand } from '@/editor/commands/registry';
+import { runCommand } from '@/editor/commands/command';
 import { useDoc } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
 

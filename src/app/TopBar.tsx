@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { runCommand } from '@/editor/commands/registry';
+import { runCommand } from '@/editor/commands/command';
 import { doc, useDoc } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
 import { isDirty } from '@/editor/store/documentStore';
@@ -9,9 +9,9 @@ import { SeverityIcon } from '@/panels/ProblemsPanel';
 import { LiveIsland } from './collab/LiveIsland';
 import { MenuDrawer } from './menus';
 import { useSession } from './persistence/session';
-import { showBottomTab } from './prefs';
-import { MenuIcon, PlayIcon } from './ui/icons';
-import { IconButton } from './ui/primitives';
+import { showBottomTab } from '@/editor/store/sheet';
+import { MenuIcon, PlayIcon } from '@/ui/icons';
+import { IconButton } from '@/ui/primitives';
 
 /** The page title of index.html, written for search results. */
 const SITE_TITLE = document.title;

@@ -1,6 +1,6 @@
 import i18next from 'i18next';
 import { create } from 'zustand';
-import { toast } from '@/app/toasts';
+import { toast } from '@/ui/toasts';
 import type { Id, Project } from '@/core/model/types';
 import type { Issue } from '@/core/validation/types';
 import type { ValidationReply } from '@/workers/validation.worker';

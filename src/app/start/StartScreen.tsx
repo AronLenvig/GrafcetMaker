@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EXPORT_FONT_FAMILY, grafcetToSvg } from '@/core/io/svgExport';
-import { runCommand } from '@/editor/commands/registry';
+import { runCommand } from '@/editor/commands/command';
 import { useDoc } from '@/editor/store/document';
 import { useTheme } from '@/theme/theme';
 import { EXAMPLE_IDS, EXAMPLES, type ExampleId } from '../examples/examples';
 import { currentThemePalette } from '../export/exporters';
-import { guideUrl, openHelp } from '../help/helpStore';
+import { guideUrl, openHelp } from '@/ui/helpStore';
 import { listRecent, type RecentEntry } from '../persistence/db';
 import { newProject, openNewProject, openRecent, useSession } from '../persistence/session';
-import { setPrefs, usePrefs } from '../prefs';
+import { setPrefs, usePrefs } from '@/ui/prefs';
 import {
   BookIcon,
   ExportIcon,
@@ -18,8 +18,8 @@ import {
   PlusIcon,
   StepIcon,
   UploadIcon,
-} from '../ui/icons';
-import { Button, cx, Modal } from '../ui/primitives';
+} from '@/ui/icons';
+import { Button, cx, Modal } from '@/ui/primitives';
 import { startTour } from './tourStore';
 
 /** Thumbnail of an example's first grafcet, in the colors of the current theme. */

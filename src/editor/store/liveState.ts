@@ -1,12 +1,12 @@
 /**
  * Live collaboration state as the UI shows it (always loaded, no dependencies on the editor's
- * commands). Actions are in liveStore.ts; the session itself in session.ts.
+ * commands). Actions are in src/app/collab/liveStore.ts; the session itself in session.ts there.
  */
 import { create } from 'zustand';
 import type { RoomLink } from '@/core/collab/link';
 import type { Presence } from '@/core/collab/wire';
 import type { Id, Point } from '@/core/model/types';
-import { setPrefs, usePrefs } from '../prefs';
+import { setPrefs, usePrefs } from '@/ui/prefs';
 
 export type LiveStatus = 'off' | 'connecting' | 'connected' | 'reconnecting';
 

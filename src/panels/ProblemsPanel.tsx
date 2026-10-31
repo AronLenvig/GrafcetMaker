@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Issue, Severity } from '@/core/validation/types';
-import { AlertIcon, ErrorIcon, InfoIcon } from '@/app/ui/icons';
-import { Button, cx } from '@/app/ui/primitives';
+import { AlertIcon, ErrorIcon, InfoIcon } from '@/ui/icons';
+import { Button, cx } from '@/ui/primitives';
 import { useDoc } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
 import {

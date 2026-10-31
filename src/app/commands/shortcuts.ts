@@ -1,7 +1,8 @@
-import { isDialogOpen } from '@/app/dialogs/dialogStore';
-import { useUi } from '../store/uiStore';
-import { COMMANDS, isApple, isAvailable, type Command } from './registry';
-import { copySelection, cutSelection, pasteText } from './edit';
+import { isDialogOpen } from '@/ui/dialogStore';
+import { useUi } from '@/editor/store/uiStore';
+import { isApple, isAvailable, type Command } from '@/editor/commands/command';
+import { COMMANDS } from './registry';
+import { copySelection, cutSelection, pasteText } from '@/editor/commands/edit';
 
 function comboOf(e: KeyboardEvent): string {
   const mod = isApple ? e.metaKey : e.ctrlKey;

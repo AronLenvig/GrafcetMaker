@@ -6,10 +6,10 @@ import { useEffect, useState } from 'react';
 import { parseRoomHash, ROOM_PREFIX, type RoomLink } from '@/core/collab/link';
 import { centerOn, revealElements } from '@/editor/canvas/viewport';
 import { setActiveGrafcet } from '@/editor/commands/edit';
-import { openAppDialog } from '@/editor/commands/registry';
+import { openAppDialog } from '../commands/registry';
 import { getProject } from '@/editor/store/document';
 import { db, safely } from '../persistence/db';
-import { tabRoom, useLive } from './liveState';
+import { tabRoom, useLive } from '@/editor/store/liveState';
 
 const session = () => import('./session');
 

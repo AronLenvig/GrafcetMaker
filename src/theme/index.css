@@ -2,7 +2,7 @@
 @import '@fontsource/jetbrains-mono/400.css';
 @import './tokens.css';
 
-/* Phones (see src/app/ui/media.ts): `compact:` utilities. */
+/* Phones (see src/ui/media.ts): `compact:` utilities. */
 @custom-variant compact {
   @media (max-width: 639px), (max-height: 479px) {
     @slot;

@@ -10,10 +10,10 @@ import {
   StepIcon,
   TransitionIcon,
   UndoIcon,
-} from '@/app/ui/icons';
-import { closeSheet, showSheet, useSheet } from '@/app/sheet';
-import { cx, IconButton, Tip } from '@/app/ui/primitives';
-import { formatKeys, getCommand, runCommand } from '../commands/registry';
+} from '@/ui/icons';
+import { closeSheet, showSheet, useSheet } from '../store/sheet';
+import { cx, IconButton, Tip } from '@/ui/primitives';
+import { formatKeys, getCommand, runCommand } from '../commands/command';
 import { useSim } from '../simulation/simStore';
 import { useDoc } from '../store/document';
 import { ui, useUi, type Tool } from '../store/uiStore';

@@ -21,13 +21,13 @@ import {
 } from '@/core/layout/geometry';
 import { actionTextKind, type ExpressionKind } from '@/core/expr/check';
 import type { Grafcet } from '@/core/model/types';
-import { ExpressionInput, type ExpressionInputHandle } from '@/panels/ExpressionInput';
+import { ExpressionInput, type ExpressionInputHandle } from './ExpressionInput';
 import { continueAfter, editActive, nextAfter } from '../commands/edit';
 import { editExpression } from '../commands/variables';
 import { getActiveGrafcet } from '../store/document';
 import { ui, useUi, type EditTarget, type Viewport } from '../store/uiStore';
 import { useInteraction } from './interactionStore';
-import { useCoarsePointer, useCompact } from '@/app/ui/media';
+import { useCoarsePointer, useCompact } from '@/ui/media';
 import { canvasSizeOf } from './viewport';
 
 function focusCanvas(): void {

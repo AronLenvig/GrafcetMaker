@@ -6,7 +6,7 @@
 import i18next from 'i18next';
 import { registerSW } from 'virtual:pwa-register';
 import { create } from 'zustand';
-import { toast } from './toasts';
+import { toast } from '@/ui/toasts';
 
 export const usePwa = create<{
   /** A new version is installed and waiting. */

@@ -1,6 +1,6 @@
 import i18next from 'i18next';
-import { showDialog } from '@/app/dialogs/dialogStore';
-import { toast } from '@/app/toasts';
+import { showDialog } from '@/ui/dialogStore';
+import { toast } from '@/ui/toasts';
 import { autoLayout } from '@/core/layout/autoLayout';
 import { isJump, parseLinkKey } from '@/core/layout/geometry';
 import { planRenumber } from '@/core/model/renumber';

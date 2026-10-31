@@ -1,10 +1,10 @@
 import * as Tabs from '@radix-ui/react-tabs';
 import { lazy, Suspense, useLayoutEffect, useRef, useState, type ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
-import { setPrefs, usePrefs } from '@/app/prefs';
-import { closeSheet, PANEL_TABS, SHEET_TABS, useSheet, type SheetTab } from '@/app/sheet';
-import { CloseIcon } from '@/app/ui/icons';
-import { cx, IconButton } from '@/app/ui/primitives';
+import { setPrefs, usePrefs } from '@/ui/prefs';
+import { closeSheet, PANEL_TABS, SHEET_TABS, useSheet, type SheetTab } from '@/editor/store/sheet';
+import { CloseIcon } from '@/ui/icons';
+import { cx, IconButton } from '@/ui/primitives';
 import { useSim } from '@/editor/simulation/simStore';
 import { OutlinePanel } from './OutlinePanel';
 import { ProblemsBadge, usePanelLabel } from './panelParts';

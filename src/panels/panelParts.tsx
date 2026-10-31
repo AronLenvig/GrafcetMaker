@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { SheetTab } from '@/app/sheet';
-import { cx } from '@/app/ui/primitives';
+import type { SheetTab } from '@/editor/store/sheet';
+import { cx } from '@/ui/primitives';
 import { useProblems } from '@/editor/validation/problems';
 
 /** Desktops: widths of the cards floating at the left of the canvas. */

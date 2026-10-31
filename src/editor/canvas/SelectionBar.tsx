@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { showSideTab } from '@/app/prefs';
+import { showSideTab } from '../store/sheet';
 import {
   ActionIcon,
   AlternativeIcon,
@@ -11,10 +11,10 @@ import {
   ParallelIcon,
   PropertiesIcon,
   TrashIcon,
-} from '@/app/ui/icons';
-import { useCoarsePointer } from '@/app/ui/media';
+} from '@/ui/icons';
+import { useCoarsePointer } from '@/ui/media';
 import type { Grafcet } from '@/core/model/types';
-import { getCommand, runCommand } from '../commands/registry';
+import { getCommand, runCommand } from '../commands/command';
 import { useUi } from '../store/uiStore';
 import { useInteraction } from './interactionStore';
 

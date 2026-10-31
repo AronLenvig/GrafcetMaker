@@ -1,7 +1,7 @@
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { openProjectText, textErrorMessage, useTextDraft } from '../persistence/session';
-import { Button, Modal } from '../ui/primitives';
+import { Button, Modal } from '@/ui/primitives';
 
 /** What the empty text box shows: a short chart in GRAFCET text. */
 const PLACEHOLDER = `project Conveyor

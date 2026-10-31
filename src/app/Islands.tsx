@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { ZoomControls } from '@/editor/canvas/ZoomControls';
 import { HintBar } from '@/editor/canvas/HintBar';
 import { GrafcetTabs } from '@/editor/canvas/GrafcetTabs';
-import { formatKeys, runCommand } from '@/editor/commands/registry';
+import { formatKeys, runCommand } from '@/editor/commands/command';
 import { useSim } from '@/editor/simulation/simStore';
 import { useUi } from '@/editor/store/uiStore';
 import { ToolIsland, UndoRedoIsland } from '@/editor/tools/Toolbar';
@@ -18,7 +18,7 @@ import {
   usePropertiesVisible,
   useSheet,
   type SheetTab,
-} from './sheet';
+} from '@/editor/store/sheet';
 import { useSideWidths, useWindowWidth } from './sideWidths';
 import { ProblemsIndicator, Title } from './TopBar';
 import {
@@ -32,8 +32,8 @@ import {
   OutlineIcon,
   PropertiesIcon,
   TableIcon,
-} from './ui/icons';
-import { cx, IconButton, Tip } from './ui/primitives';
+} from '@/ui/icons';
+import { cx, IconButton, Tip } from '@/ui/primitives';
 
 /** Top left: the main menu, the project name and the properties toggle. */
 function ProjectIsland() {

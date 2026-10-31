@@ -1,7 +1,7 @@
 import i18next from 'i18next';
-import { showDialog } from '@/app/dialogs/dialogStore';
-import { showSideTab } from '@/app/prefs';
-import { toast } from '@/app/toasts';
+import { showDialog } from '@/ui/dialogStore';
+import { showSideTab } from '../store/sheet';
+import { toast } from '@/ui/toasts';
 import type { ExpressionKind } from '@/core/expr/check';
 import { newId } from '@/core/model/factory';
 import type { Grafcet, Id, Variable, VariableDirection, VariableType } from '@/core/model/types';

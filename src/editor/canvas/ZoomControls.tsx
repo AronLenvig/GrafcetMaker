@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { FitIcon, MinusIcon, PlusIcon } from '@/app/ui/icons';
-import { useCompact } from '@/app/ui/media';
+import { FitIcon, MinusIcon, PlusIcon } from '@/ui/icons';
+import { useCompact } from '@/ui/media';
 import type { Id } from '@/core/model/types';
 import { fitToContent, setZoom, zoomBy } from './viewport';
 

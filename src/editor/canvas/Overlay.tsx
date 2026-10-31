@@ -23,7 +23,7 @@ import {
   flowOf,
   rectsIntersect,
 } from '@/core/layout/geometry';
-import { useCoarsePointer } from '@/app/ui/media';
+import { useCoarsePointer } from '@/ui/media';
 import { nextStepNumber, preferredStepNumber } from '@/core/model/ops';
 import type { Grafcet, Id, Point, Transition } from '@/core/model/types';
 import { useShallow } from 'zustand/react/shallow';

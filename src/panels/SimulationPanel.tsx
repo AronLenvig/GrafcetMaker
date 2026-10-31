@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import type { Project, Variable } from '@/core/model/types';
 import type { Value } from '@/core/simulation/engine';
 import type { CycleRecord } from '@/core/simulation/session';
-import { useSheet } from '@/app/sheet';
-import { ChevronDownIcon, TrashIcon } from '@/app/ui/icons';
-import { Button, cx, IconButton, Switch } from '@/app/ui/primitives';
+import { useSheet } from '@/editor/store/sheet';
+import { ChevronDownIcon, TrashIcon } from '@/ui/icons';
+import { Button, cx, IconButton, Switch } from '@/ui/primitives';
 import { formatSimTime } from '@/editor/canvas/SimOverlay';
 import { useDoc } from '@/editor/store/document';
 import {

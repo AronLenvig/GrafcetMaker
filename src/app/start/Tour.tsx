@@ -4,7 +4,7 @@ import type { Grafcet, Id, Project } from '@/core/model/types';
 import { useSim } from '@/editor/simulation/simStore';
 import { useActiveGrafcet, useDoc } from '@/editor/store/document';
 import { useUi, type EditTarget } from '@/editor/store/uiStore';
-import { Button, cx } from '../ui/primitives';
+import { Button, cx } from '@/ui/primitives';
 import { endTour, useTour } from './tourStore';
 
 /**

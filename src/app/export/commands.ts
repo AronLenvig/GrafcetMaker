@@ -9,9 +9,9 @@ import {
 import { readXlsx } from '@/core/io/xlsx';
 import { doc, getActiveGrafcet, getProject } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
-import { showDialog } from '../dialogs/dialogStore';
+import { showDialog } from '@/ui/dialogStore';
 import { downloadBlob, pickFile, type FileKind } from '../persistence/fileAccess';
-import { toast } from '../toasts';
+import { toast } from '@/ui/toasts';
 import {
   copyToClipboard,
   loadExportSettings,

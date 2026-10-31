@@ -2,8 +2,8 @@ import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'rea
 import { useTranslation } from 'react-i18next';
 import type { Variable, VariableDirection, VariableType } from '@/core/model/types';
 import { formatInitialValue, parseInitialValue, variableUsage } from '@/core/model/variables';
-import { ChevronDownIcon, ChevronUpIcon, PlusIcon, SearchIcon, TrashIcon } from '@/app/ui/icons';
-import { Button, cx, IconButton, Select } from '@/app/ui/primitives';
+import { ChevronDownIcon, ChevronUpIcon, PlusIcon, SearchIcon, TrashIcon } from '@/ui/icons';
+import { Button, cx, IconButton, Select } from '@/ui/primitives';
 import {
   addVariable,
   confirmDeleteVariable,

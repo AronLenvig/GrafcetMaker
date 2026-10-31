@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { MoreIcon } from '@/app/ui/icons';
-import { IconMenu, MenuItem, MenuSeparator } from '@/app/ui/primitives';
-import { runCommand } from '@/editor/commands/registry';
+import { MoreIcon } from '@/ui/icons';
+import { IconMenu, MenuItem, MenuSeparator } from '@/ui/primitives';
+import { runCommand } from '@/editor/commands/command';
 import { useUi } from '@/editor/store/uiStore';
 
 /**

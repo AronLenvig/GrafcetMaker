@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next';
-import { showBottomTab } from '@/app/prefs';
+import { showBottomTab } from '../store/sheet';
 import { elementKind } from '@/core/model/graph';
 import type { Project } from '@/core/model/types';
 import type { Issue, QuickFix } from '@/core/validation/types';

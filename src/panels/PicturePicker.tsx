@@ -1,5 +1,5 @@
 import { useId, useRef, type ReactNode } from 'react';
-import { cx, Tip } from '@/app/ui/primitives';
+import { cx, Tip } from '@/ui/primitives';
 
 export interface PictureOption<T extends string> {
   value: T;

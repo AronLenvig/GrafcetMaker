@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { EXPORT_FONT_FAMILY, grafcetToSvg } from '@/core/io/svgExport';
 import { useTheme } from '@/theme/theme';
 import { currentThemePalette } from '../export/exporters';
-import { usePrefs } from '../prefs';
-import { cx } from '../ui/primitives';
+import { usePrefs } from '@/ui/prefs';
+import { cx } from '@/ui/primitives';
 import { FIGURES } from './figures';
-import { openHelp, useHelp } from './helpStore';
+import { openHelp, useHelp } from '@/ui/helpStore';
 import type { Block, Inline } from './markdown';
 
 /* Rendering of parsed Markdown (help pages, changelog): React elements only, never HTML. */

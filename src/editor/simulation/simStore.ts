@@ -5,8 +5,9 @@
  */
 import i18next from 'i18next';
 import { create } from 'zustand';
-import { setPrefs, showBottomTab, usePrefs } from '@/app/prefs';
-import { toast } from '@/app/toasts';
+import { setPrefs, usePrefs } from '@/ui/prefs';
+import { showBottomTab } from '../store/sheet';
+import { toast } from '@/ui/toasts';
 import { newId } from '@/core/model/factory';
 import type { Id, Project, Scenario, ScenarioEvent } from '@/core/model/types';
 import type { SimSnapshot, Value } from '@/core/simulation/engine';

@@ -5,7 +5,7 @@ import type { Grafcet, Id } from '@/core/model/types';
 import { useSim } from '@/editor/simulation/simStore';
 import { getActiveGrafcet } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
-import { closeHelp, openHelp, useHelp } from './helpStore';
+import { closeHelp, openHelp, useHelp } from '@/ui/helpStore';
 import { HELP_TARGETS as H, type HelpTarget } from './helpTargets';
 
 /** The help on what is being typed: expression inputs carry their kind in `data-expression`. */

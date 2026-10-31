@@ -50,13 +50,67 @@ export default defineConfig(
               message: 'core/ must stay pure.',
             },
             {
-              group: ['@/editor/*', '@/panels/*', '@/app/*', '@/theme/*', '@/workers/*'],
+              group: ['@/ui/*', '@/editor/*', '@/panels/*', '@/app/*', '@/theme/*', '@/workers/*'],
               message: 'core/ must not depend on UI layers.',
             },
           ],
         },
       ],
       'no-restricted-globals': ['error', 'window', 'document', 'localStorage', 'navigator'],
+    },
+  },
+  // UI layers, lowest first: core ← ui ← editor ← panels ← app (CONTRIBUTING.md, Architecture).
+  // A layer imports only the layers below it; app-level wiring fills in what the editor needs.
+  {
+    files: ['src/ui/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                '@/editor/*',
+                '@/panels/*',
+                '@/app/*',
+                '**/editor/**',
+                '**/panels/**',
+                '**/app/**',
+              ],
+              message: 'ui/ is the shared UI kit: it must not depend on the editor, panels or app.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/editor/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@/panels/*', '@/app/*', '**/panels/**', '**/app/**'],
+              message: 'editor/ must not depend on the panels or the app.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/panels/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            { group: ['@/app/*', '**/app/**'], message: 'panels/ must not depend on the app.' },
+          ],
+        },
+      ],
     },
   },
   {

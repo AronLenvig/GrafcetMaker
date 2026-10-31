@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeftIcon, BookIcon, ChevronRightIcon, CloseIcon, SearchIcon } from '../ui/icons';
-import { IconButton } from '../ui/primitives';
+import { ArrowLeftIcon, BookIcon, ChevronRightIcon, CloseIcon, SearchIcon } from '@/ui/icons';
+import { IconButton } from '@/ui/primitives';
 import { Blocks } from './MarkdownView';
-import { closeHelp, HELP_HOME, openHelp, useHelp } from './helpStore';
+import { closeHelp, HELP_HOME, openHelp, useHelp } from '@/ui/helpStore';
 import { useLanguage } from '@/i18n';
 import { loadedHelp, loadHelp, ORDER, searchHelp, type Help, type HelpPage } from './pages';
 

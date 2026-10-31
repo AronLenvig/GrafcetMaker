@@ -1,11 +1,11 @@
 import * as ContextMenu from '@radix-ui/react-context-menu';
 import { useRef, type ReactElement, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
-import { menuContentClass, menuItemClass } from '@/app/ui/primitives';
+import { menuContentClass, menuItemClass } from '@/ui/primitives';
 import type { Grafcet, Id } from '@/core/model/types';
 import { tDynamic } from '@/i18n/dynamic';
 import { addStepAt, editActive } from '../commands/edit';
-import { formatKeys, getCommand, isAvailable, runCommand } from '../commands/registry';
+import { formatKeys, getCommand, isAvailable, runCommand } from '../commands/command';
 import { useUi } from '../store/uiStore';
 import { useInteraction } from './interactionStore';
 

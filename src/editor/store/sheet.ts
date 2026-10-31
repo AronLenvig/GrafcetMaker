@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { useUi } from '@/editor/store/uiStore';
+import { isCompact } from '@/ui/media';
 
 /**
  * The panels, shown only when needed. Phones: one sheet over the lower part of the canvas with
@@ -103,6 +104,19 @@ export function toggleProperties(): void {
   if (ui.focusedVariable) useUi.setState({ focusedVariable: null });
   const key = selectionKey(ui);
   useSheet.setState(key ? { hiddenFor: key } : { pinned: false });
+}
+
+/** Opens a panel (Variables, Problems, Simulation, Chronogram, Outline). */
+export function showBottomTab(id: string): void {
+  // Desktops: the simulation has its own card, unfolded here.
+  if (id === 'simulation' && !isCompact()) useSheet.setState({ simCollapsed: false });
+  else showSheet(id);
+}
+
+/** Opens the properties (the floating card; on phones, the panel sheet) or another panel. */
+export function showSideTab(tab: 'properties' | 'variables' | 'outline'): void {
+  if (tab === 'properties' && !isCompact()) openProperties();
+  else showSheet(tab);
 }
 
 // Selecting something replaces the grafcet and project properties opened with nothing selected.

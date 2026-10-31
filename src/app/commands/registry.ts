@@ -1,14 +1,15 @@
 import i18next from 'i18next';
 import { create } from 'zustand';
-import { startTour } from '@/app/start/tourStore';
-import { closeSplit, focusOtherPane, openSplit, swapPanes } from './split';
-import { toggleContextHelp } from '@/app/help/contextHelp';
-import { guideUrl, openHelp } from '@/app/help/helpStore';
-import { SOURCE_URL } from '@/app/source';
-import { setPrefs, showBottomTab, showSideTab, usePrefs } from '@/app/prefs';
-import { toggleProperties } from '@/app/sheet';
-import { toast } from '@/app/toasts';
-import { isCompact } from '@/app/ui/media';
+import { startTour } from '../start/tourStore';
+import { registerCommands, type Command } from '@/editor/commands/command';
+import { closeSplit, focusOtherPane, openSplit, swapPanes } from '@/editor/commands/split';
+import { toggleContextHelp } from '../help/contextHelp';
+import { guideUrl, openHelp } from '@/ui/helpStore';
+import { SOURCE_URL } from '../source';
+import { setPrefs, usePrefs } from '@/ui/prefs';
+import { showBottomTab, showSideTab, toggleProperties } from '@/editor/store/sheet';
+import { toast } from '@/ui/toasts';
+import { isCompact } from '@/ui/media';
 import {
   newProject,
   openProjectDialog,
@@ -18,10 +19,10 @@ import {
   copyProjectText,
   copyShareLink,
   openTextDialog,
-} from '@/app/persistence/session';
+} from '../persistence/session';
 import { setLanguage, type Language } from '@/i18n';
 import { useTheme } from '@/theme/theme';
-import { fitToContent, setZoom, zoomBy } from '../canvas/viewport';
+import { fitToContent, setZoom, zoomBy } from '@/editor/canvas/viewport';
 import {
   nextEvent,
   resetSimulation,
@@ -29,10 +30,16 @@ import {
   stopSimulation,
   togglePlay,
   useSim,
-} from '../simulation/simStore';
-import { doc } from '../store/document';
-import { ui, useUi, type Tool } from '../store/uiStore';
-import { canGoToParent, canOpenChild, convertSelected, goToParent, openChild } from './hierarchy';
+} from '@/editor/simulation/simStore';
+import { doc } from '@/editor/store/document';
+import { ui, useUi, type Tool } from '@/editor/store/uiStore';
+import {
+  canGoToParent,
+  canOpenChild,
+  convertSelected,
+  goToParent,
+  openChild,
+} from '@/editor/commands/hierarchy';
 import {
   alternativeBranch,
   autoLayoutActive,
@@ -46,7 +53,7 @@ import {
   sinkTransition,
   sourceTransition,
   startLoop,
-} from './structure';
+} from '@/editor/commands/structure';
 import {
   addActionToSelection,
   addGrafcet,
@@ -62,29 +69,12 @@ import {
   canRotateSelection,
   rotateSelection,
   toggleInitialStep,
-} from './edit';
-import { removeUnusedVariables } from './variables';
+} from '@/editor/commands/edit';
+import { removeUnusedVariables } from '@/editor/commands/variables';
 
 /** Undo / redo, saying so when changes someone else made since (live session) were kept. */
 function stepHistory(step: () => boolean): void {
   if (step()) toast(i18next.t('live.keptOthers'), 'info', 5000);
-}
-
-export type CommandGroup = 'file' | 'edit' | 'insert' | 'view' | 'tools' | 'simulate' | 'help';
-
-export interface Command {
-  id: string;
-  /** i18n key under `commands.` */
-  label: string;
-  group: CommandGroup;
-  /** Key combos, e.g. `Mod+S` (Mod = Ctrl, or Cmd on Apple platforms). First one is displayed. */
-  keys?: string[];
-  /** Fires even while typing in a text field. */
-  global?: boolean;
-  /** Hidden from the command palette (e.g. arrow-key nudges). */
-  hidden?: boolean;
-  run: () => void | Promise<unknown>;
-  enabled?: () => boolean;
 }
 
 /** App-level dialogs opened by commands. */
@@ -723,49 +713,4 @@ export const COMMANDS: Command[] = [
   },
 ];
 
-const byId = new Map(COMMANDS.map((c) => [c.id, c]));
-
-export function getCommand(id: string): Command {
-  const c = byId.get(id);
-  if (!c) throw new Error(`Unknown command ${id}`);
-  return c;
-}
-
-/** Editing commands are unavailable while simulating (the diagram is locked). */
-export function isAvailable(c: Command): boolean {
-  if (useUi.getState().mode === 'simulate') {
-    if (c.group === 'insert' || c.group === 'tools' || c.id.startsWith('arrange.')) return false;
-    if (c.group === 'edit' && c.id !== 'edit.escape' && c.id !== 'edit.selectAll') return false;
-    if (c.id === 'file.new' || c.id === 'file.open') return false;
-  }
-  return !c.enabled || c.enabled();
-}
-
-export function runCommand(id: string): void {
-  const c = getCommand(id);
-  if (!isAvailable(c)) return;
-  void c.run();
-}
-
-export const isApple =
-  typeof navigator !== 'undefined' &&
-  /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
-
-/** Human-readable key combo for menus and tooltips. */
-export function formatKeys(combo: string): string {
-  return combo
-    .split('+')
-    .map((k) => {
-      if (k === 'Mod') return isApple ? '⌘' : 'Ctrl';
-      if (k === 'Shift') return isApple ? '⇧' : 'Shift';
-      if (k === 'Alt') return isApple ? '⌥' : 'Alt';
-      if (k === 'ArrowUp') return '↑';
-      if (k === 'ArrowDown') return '↓';
-      if (k === 'ArrowLeft') return '←';
-      if (k === 'ArrowRight') return '→';
-      if (k === 'Delete') return isApple ? '⌦' : 'Del';
-      if (k === 'Escape') return 'Esc';
-      return k;
-    })
-    .join(isApple ? '' : '+');
-}
+registerCommands(COMMANDS);

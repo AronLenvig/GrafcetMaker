@@ -25,4 +25,12 @@
     "bindings": [{ "name": "ROOMS", "class_name": "CollabRoom" }],
   },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["CollabRoom"] }],
+  // Per-address limits (Workers Rate Limiting, keyed by CF-Connecting-IP; worker/ratelimit.ts):
+  // feedback messages, and connections to live rooms (a browser reconnects with backoff). Each
+  // namespace_id is any number not used by another rate limiter of the Cloudflare account. Without
+  // these bindings the Worker runs unlimited.
+  "ratelimits": [
+    { "name": "FEEDBACK_LIMITER", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } },
+    { "name": "ROOM_LIMITER", "namespace_id": "1002", "simple": { "limit": 60, "period": 60 } },
+  ],
 }

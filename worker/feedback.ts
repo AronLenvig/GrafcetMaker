@@ -7,17 +7,24 @@
  * in the dialog), so the developers can open a copy of it.
  *
  * Settings:
- *   GITHUB_REPO   owner/name of the private repository that receives the issues (wrangler.jsonc)
- *   GITHUB_TOKEN  fine-grained token with "Issues: read and write" on that repository only
- *                 (secret: Worker › Settings › Variables and Secrets)
+ *   GITHUB_REPO       owner/name of the private repository that receives the issues (wrangler.jsonc)
+ *   GITHUB_TOKEN      fine-grained token with "Issues: read and write" on that repository only
+ *                     (secret: Worker › Settings › Variables and Secrets)
+ *   FEEDBACK_LIMITER  messages per address and minute (wrangler.jsonc `ratelimits`; optional)
+ *
+ * What people type is shown as text, never as Markdown: no mentions, links or images reach the
+ * issue (an image would be fetched by GitHub, a mention would notify someone).
  *
  * The app asks GET first and only offers "Send" when this answers { ok: true }; on any other host
  * (on-premise, air-gapped, plain static hosting) it falls back to email or copying.
  */
 
+import { withinLimit, type RateLimiter } from './ratelimit';
+
 export interface FeedbackEnv {
   GITHUB_REPO?: string;
   GITHUB_TOKEN?: string;
+  FEEDBACK_LIMITER?: RateLimiter;
 }
 
 export const FEEDBACK_KINDS = ['idea', 'problem', 'question', 'praise'] as const;
@@ -29,7 +36,10 @@ const TITLES: Record<(typeof FEEDBACK_KINDS)[number], string> = {
   praise: 'Praise',
 };
 
-/** GitHub refuses issue bodies over 65 536 characters: the fields together stay below. */
+/**
+ * GitHub refuses issue bodies over 65 536 characters: the fields together stay below. `request`
+ * counts bytes (UTF-8 JSON), the others characters.
+ */
 export const LIMITS = { request: 96_000, message: 5000, contact: 200, details: 1000, link: 56_000 };
 
 export interface Feedback {
@@ -77,16 +87,27 @@ export function parseFeedback(raw: unknown, origin: string): Feedback | string {
   return { kind, message, contact, details, link: project };
 }
 
-/** The GitHub issue for a message: kind and first line as title, the rest as plain Markdown. */
+/** Text as a fenced code block, fenced by more backticks than any run inside, so it stays closed. */
+function fenced(text: string): string[] {
+  const longest = Math.max(2, ...(text.match(/`+/g) ?? []).map((run) => run.length));
+  const fence = '`'.repeat(longest + 1);
+  return [fence, text, fence];
+}
+
+/**
+ * The GitHub issue for a message: kind and first line as title (plain text on GitHub), and the
+ * sender's text as code, which renders literally.
+ */
 export function issueFor(fb: Feedback): { title: string; body: string; labels: string[] } {
   const firstLine = fb.message.split('\n')[0]!.slice(0, 80);
+  const contact = fb.contact.replace(/\s+/g, ' ').replaceAll('`', "'");
   const body = [
-    fb.message,
+    ...fenced(fb.message),
     '',
     '---',
-    `**Reply to:** ${fb.contact ? fb.contact.replaceAll('`', "'") : '_anonymous_'}`,
+    `**Reply to:** ${contact ? `\`${contact}\`` : '_anonymous_'}`,
     ...(fb.link ? ['', `**Project:** [open a copy in GrafcetMaker](<${fb.link}>)`] : []),
-    ...(fb.details ? ['', '```', fb.details.replaceAll('```', "'''"), '```'] : []),
+    ...(fb.details ? ['', ...fenced(fb.details)] : []),
   ].join('\n');
   return { title: `[${TITLES[fb.kind]}] ${firstLine}`, body, labels: ['feedback', fb.kind] };
 }
@@ -105,18 +126,48 @@ export async function handleFeedback(request: Request, env: FeedbackEnv): Promis
   return new Response(null, { status: 405, headers: { Allow: 'GET, POST' } });
 }
 
+/**
+ * The body as text, reading no more than `max` bytes of it: null when it is larger. Throws when
+ * it is not UTF-8.
+ */
+export async function readCapped(request: Request, max: number): Promise<string | null> {
+  if (!request.body) return '';
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > max) {
+      await reader.cancel().catch(() => undefined);
+      return null;
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(size);
+  let at = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, at);
+    at += chunk.byteLength;
+  }
+  return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+}
+
 async function post(request: Request, env: FeedbackEnv): Promise<Response> {
   // Browsers name the page of every POST: only the app's own pages may send.
   const origin = new URL(request.url).origin;
   if (request.headers.get('Origin') !== origin) return json({ error: 'forbidden' }, 403);
   if (!env.GITHUB_REPO || !env.GITHUB_TOKEN) return json({ error: 'not configured' }, 503);
+  if (!(await withinLimit(env.FEEDBACK_LIMITER, request)))
+    return json({ error: 'too many messages' }, 429);
   if (Number(request.headers.get('Content-Length') ?? 0) > LIMITS.request) {
     return json({ error: 'too large' }, 413);
   }
-  const text = await request.text();
-  if (text.length > LIMITS.request) return json({ error: 'too large' }, 413);
   let raw: unknown;
   try {
+    const text = await readCapped(request, LIMITS.request);
+    if (text === null) return json({ error: 'too large' }, 413);
     raw = JSON.parse(text);
   } catch {
     return json({ error: 'invalid JSON' }, 400);

@@ -310,6 +310,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   endpoint only posts from them.
 - The on-premise relay (`server/relay.ts`) no longer stops on a request with a malformed path
   such as `//[`.
+- Live relays: only the people holding a room's key can replace its stored snapshot (a write token
+  derived from the key; relay protocol 2, older rooms keep working). Both relays limit the bytes
+  each participant sends, and refuse connections that name no page of the app. The on-premise
+  relay checks where connections come from (`RELAY_ALLOWED_ORIGINS`, same host by default), caps
+  rooms and connections in total and per address, and keeps snapshots within a memory budget,
+  letting go of the empty rooms changed least recently. The hosted relay writes a room's snapshot
+  at most every 5 s and limits connections per address.
+- Live sessions: a version far ahead of the others no longer pins a field (no later edit could
+  change it); a step number added twice at once moves to the next free number for everyone; and
+  a flood of messages from someone with the room id but not the key is dropped unopened.
+- Feedback: messages are limited per address, the body is read no further than its size limit,
+  and the text is filed literally (no mentions, links or images in the issue).
+- Export settings read back from the browser's storage are checked; anything the dialog does not
+  offer falls back to the default.
 
 ## [1.0.0] - 2026-10-22
 

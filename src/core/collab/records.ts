@@ -7,6 +7,7 @@
  * one wins). This is the model Excalidraw uses per element, applied per field so that one person
  * moving a step and another renaming it both keep their change. Deleting sets the `$d` field; the
  * record stays as a tombstone so the deletion reaches everyone, and an undo can bring it back.
+ * Versions far ahead of those held are lowered (MAX_VERSION_JUMP), so no one can pin a field.
  *
  * Merging is commutative, associative and idempotent: replicas that received the same registers
  * hold the same records in any order. The project shown is derived from the records by a
@@ -63,8 +64,25 @@ export type Fields = Record<string, Register>;
 export type Change = [RecordKey, Fields];
 
 const DELETED = '$d';
-const MAX_VERSION = 2 ** 31;
+const MAX_VERSION = Number.MAX_SAFE_INTEGER;
+/**
+ * How far ahead of the highest version this replica holds a version from elsewhere may be.
+ * Honest replicas stamp one more than the highest version they hold of the field, so they are
+ * ahead only by the edits of one field made while out of touch (a drag stamps 20 a second:
+ * 2^24 is more than 200 hours of it). A version further ahead is lowered to this bound, its
+ * value kept. Without the bound a participant could stamp the largest version and pin a field
+ * forever, as no later edit could win; with it, getting there takes 2^29 messages (the bound is
+ * taken before each merge, so repeating a record within one message gains nothing), and the next
+ * edit after a lowered register wins again.
+ * The lowered version depends on what the replica held, so replicas may keep the same value at
+ * different versions; their full states, exchanged on (re)connecting, raise the lower ones (they
+ * are within one jump of each other). Registers within the bound (every honest one) are never
+ * lowered, so merging them stays commutative and idempotent.
+ */
+export const MAX_VERSION_JUMP = 2 ** 24;
 const NONCES = 2 ** 32;
+/** The largest step number of the file format (stepSchema). */
+const MAX_STEP_NUMBER = 999_999;
 /** Records one replica keeps (tombstones included): twice what a project file may hold. */
 const MAX_RECORDS = 2 * LIMITS.elements;
 
@@ -179,11 +197,38 @@ function mapOf<T extends { id: Id }>(before: Record<Id, T> | undefined, items: T
 const share = <T>(before: T | undefined, next: T): T =>
   before !== undefined && sameJson(before, next) ? before : next;
 
+/**
+ * The steps of a grafcet with unique numbers (two people may add a step with the same number at
+ * once): the lowest id keeps a number, each other step with it takes, in id order, the first
+ * number above it that no step uses. The same array when no number repeats.
+ */
+function uniqueNumbers(steps: Step[], before: Grafcet | undefined): Step[] {
+  const used = new Set<number>();
+  const repeated: Step[] = [];
+  for (const s of [...steps].sort(byId)) {
+    if (used.has(s.number)) repeated.push(s);
+    else used.add(s.number);
+  }
+  if (!repeated.length) return steps;
+  const renumbered = new Map<Id, Step>();
+  for (const s of repeated) {
+    // Fewer steps than numbers (LIMITS.elements), so a free one exists.
+    let n = s.number;
+    do n = n >= MAX_STEP_NUMBER ? 0 : n + 1;
+    while (used.has(n));
+    used.add(n);
+    renumbered.set(s.id, share(before?.steps[s.id], { ...s, number: n }));
+  }
+  return steps.map((s) => renumbered.get(s.id) ?? s);
+}
+
 export class RecordStore {
   private readonly recs = new Map<string, Rec>();
   /** Assembled objects by key: null when deleted or incomplete. */
   private readonly cache = new Map<string, { rev: number; obj: Obj | null }>();
   private rev = 0;
+  /** The highest version of any register held (bounds the versions merged, MAX_VERSION_JUMP). */
+  private highest = 0;
   private readonly random: () => number;
 
   constructor(random: () => number = Math.random) {
@@ -217,10 +262,12 @@ export class RecordStore {
 
   /**
    * Merges registers from elsewhere (untrusted): malformed keys, unknown fields and invalid
-   * values are ignored. Returns how many records changed.
+   * values are ignored, and versions too far ahead are lowered (MAX_VERSION_JUMP). Returns how
+   * many records changed.
    */
   merge(changes: readonly unknown[]): number {
     let changed = 0;
+    const limit = this.highest + MAX_VERSION_JUMP;
     for (const c of changes) {
       if (!Array.isArray(c) || c.length !== 2 || !isRecordKey(c[0]) || !isObject(c[1])) continue;
       const key = c[0];
@@ -229,8 +276,10 @@ export class RecordStore {
       // Beyond the cap, records already known still merge; new ones are ignored.
       if (!rec && this.recs.size >= MAX_RECORDS) continue;
       let touched = false;
-      for (const [field, reg] of Object.entries(c[1])) {
-        if (!isRegister(reg) || !wins(reg, rec?.fields[field])) continue;
+      for (const [field, raw] of Object.entries(c[1])) {
+        if (!isRegister(raw)) continue;
+        const reg = raw.v > limit ? { ...raw, v: limit } : raw;
+        if (!wins(reg, rec?.fields[field])) continue;
         const kept = validField(key[0], field, reg);
         if (!kept) continue;
         if (!rec) {
@@ -238,6 +287,7 @@ export class RecordStore {
           this.recs.set(ks, rec);
         }
         rec.fields[field] = kept;
+        this.highest = Math.max(this.highest, kept.v);
         touched = true;
       }
       if (touched) {
@@ -263,6 +313,7 @@ export class RecordStore {
         this.recs.set(ks, rec);
       }
       const v = Math.min(MAX_VERSION, (rec.fields[field]?.v ?? 0) + 1);
+      this.highest = Math.max(this.highest, v);
       const reg: Register = { v, n: Math.floor(this.random() * NONCES) };
       if (value !== undefined) reg.x = value;
       rec.fields[field] = reg;
@@ -371,6 +422,7 @@ export class RecordStore {
    * replica derives the same project); `prev` supplies the id and the identity of unchanged parts.
    * Repairs: elements of deleted grafcets are hidden, transitions lose links to missing steps, an
    * action of a missing step is hidden, a macro-step to a missing grafcet loses its reference, a
+   * duplicate step number in a grafcet moves to the next free number (the lowest id keeps it), a
    * duplicate grafcet name gets a suffix (the lowest id keeps it), a duplicate variable name is
    * hidden (the lowest id is shown).
    */
@@ -437,12 +489,15 @@ export class RecordStore {
       const k = kids.get(gid) ?? { s: [], t: [], a: [], c: [] };
       const before = prev.grafcets[gid];
       const stepIds = new Set(k.s.map((s) => s.id));
-      const steps = k.s.map((s) => {
-        if (s.refGrafcetId === undefined || heads.has(s.refGrafcetId)) return s;
-        const rest = { ...s };
-        delete rest.refGrafcetId;
-        return share(before?.steps[s.id], rest);
-      });
+      const steps = uniqueNumbers(
+        k.s.map((s) => {
+          if (s.refGrafcetId === undefined || heads.has(s.refGrafcetId)) return s;
+          const rest = { ...s };
+          delete rest.refGrafcetId;
+          return share(before?.steps[s.id], rest);
+        }),
+        before,
+      );
       const transitions = k.t.map((t) => {
         const from = keepExisting(t.from, stepIds);
         const to = keepExisting(t.to, stepIds);

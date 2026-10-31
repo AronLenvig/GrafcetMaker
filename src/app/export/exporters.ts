@@ -8,6 +8,7 @@ import {
 } from '@/core/io/svgExport';
 import type { StDialect } from '@/core/codegen/dialect';
 import type { Grafcet, Id, Project } from '@/core/model/types';
+import { z } from 'zod';
 
 export type ExportFormat = 'pdf' | 'svg' | 'png' | 'webp' | 'csv' | 'xlsx' | 'st' | 'xml';
 export type ExportScope = 'grafcet' | 'selection' | 'all';
@@ -48,22 +49,75 @@ export const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
 
 const key = (projectId: Id) => `grafcetmaker.export.${projectId}`;
 
+/** Every dialect, listed here so that codegen stays out of this module (and the main bundle). */
+const DIALECTS: Record<StDialect, true> = {
+  iec: true,
+  siemens: true,
+  twincat: true,
+  rockwell: true,
+};
+
+/**
+ * Stored settings as they are read back: whatever another version, a hand edit or another script
+ * left in storage, each setting that is not one the dialog offers falls back to its default.
+ */
+const storedSettingsSchema = (() => {
+  const d = DEFAULT_EXPORT_SETTINGS;
+  const one = <T extends z.ZodType>(schema: T, fallback: z.output<T>) => schema.catch(fallback);
+  const scale = z.union([z.literal(1), z.literal(2), z.literal(4)]);
+  return z.object({
+    format: one(z.enum(['pdf', 'svg', 'png', 'webp', 'csv', 'xlsx', 'st', 'xml']), d.format),
+    scope: one(z.enum(['grafcet', 'selection', 'all']), d.scope),
+    theme: one(z.enum(['print', 'current']), d.theme),
+    textbook: one(z.boolean(), d.textbook),
+    png: one(
+      z.object({
+        scale: one(scale, d.png.scale),
+        transparent: one(z.boolean(), d.png.transparent),
+      }),
+      d.png,
+    ),
+    webp: one(
+      z.object({
+        scale: one(scale, d.webp.scale),
+        quality: one(z.number().min(0.5).max(1), d.webp.quality),
+        transparent: one(z.boolean(), d.webp.transparent),
+      }),
+      d.webp,
+    ),
+    svg: one(z.object({ embedFont: one(z.boolean(), d.svg.embedFont) }), d.svg),
+    pdf: one(
+      z.object({
+        paper: one(z.enum(['A4', 'A3']), d.pdf.paper),
+        orientation: one(z.enum(['portrait', 'landscape']), d.pdf.orientation),
+        scale: one(z.union([z.literal('fit'), z.number().min(10).max(400)]), d.pdf.scale),
+        titleBlock: one(z.boolean(), d.pdf.titleBlock),
+      }),
+      d.pdf,
+    ),
+    st: one(
+      z.object({
+        style: one(z.enum(['case', 'bits']), d.st.style),
+        stabilityLoop: one(z.boolean(), d.st.stabilityLoop),
+        dialect: one(z.enum(Object.keys(DIALECTS) as [StDialect, ...StDialect[]]), d.st.dialect),
+        holdStored: one(z.boolean(), d.st.holdStored),
+      }),
+      d.st,
+    ),
+    xml: one(
+      z.object({ taskInterval: one(z.int().min(1).max(10_000), d.xml.taskInterval) }),
+      d.xml,
+    ),
+  }) satisfies z.ZodType<ExportSettings>;
+})();
+
 /** Export settings are remembered per project, on this device. */
 export function loadExportSettings(projectId: Id): ExportSettings {
   try {
     const raw = localStorage.getItem(key(projectId));
     if (!raw) return DEFAULT_EXPORT_SETTINGS;
-    const s = JSON.parse(raw) as Partial<ExportSettings>;
-    return {
-      ...DEFAULT_EXPORT_SETTINGS,
-      ...s,
-      png: { ...DEFAULT_EXPORT_SETTINGS.png, ...s.png },
-      webp: { ...DEFAULT_EXPORT_SETTINGS.webp, ...s.webp },
-      svg: { ...DEFAULT_EXPORT_SETTINGS.svg, ...s.svg },
-      pdf: { ...DEFAULT_EXPORT_SETTINGS.pdf, ...s.pdf },
-      st: { ...DEFAULT_EXPORT_SETTINGS.st, ...s.st },
-      xml: { ...DEFAULT_EXPORT_SETTINGS.xml, ...s.xml },
-    };
+    const parsed = storedSettingsSchema.safeParse(JSON.parse(raw));
+    return parsed.success ? parsed.data : DEFAULT_EXPORT_SETTINGS;
   } catch {
     return DEFAULT_EXPORT_SETTINGS;
   }

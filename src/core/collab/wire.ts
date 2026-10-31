@@ -50,6 +50,27 @@ export function importRoomKey(key: string): Promise<CryptoKey> {
   ]);
 }
 
+/** Fixed input of the write token's HMAC; a new label would make a new token. */
+const WRITE_TOKEN_LABEL = 'GrafcetMaker room snapshot write token v1';
+
+/**
+ * The room's write token: HMAC-SHA-256 of a fixed label keyed with the room key, in base64url
+ * (43 characters). Only those holding the key can compute it, and it reveals nothing about the
+ * key, so the relay can be given it: it keeps its hash and accepts a new snapshot only with the
+ * same token (worker/room.ts).
+ */
+export async function roomWriteToken(key: string): Promise<string> {
+  const hmac = await crypto.subtle.importKey(
+    'raw',
+    fromBase64Url(key),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
+  const mac = await crypto.subtle.sign('HMAC', hmac, new TextEncoder().encode(WRITE_TOKEN_LABEL));
+  return toBase64Url(new Uint8Array(mac));
+}
+
 /** JSON → (deflate when large) → AES-GCM → base64url of IV and ciphertext. */
 export async function seal(key: CryptoKey, message: unknown): Promise<string> {
   const json = new TextEncoder().encode(JSON.stringify(message));

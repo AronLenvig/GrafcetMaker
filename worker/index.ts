@@ -9,6 +9,7 @@ import { CollabRoom, type CollabEnv } from './collab';
 import { withCountry } from './country';
 import { handleFeedback, type FeedbackEnv } from './feedback';
 import { secured } from './headers';
+import { withinLimit, type RateLimiter } from './ratelimit';
 import { PROBE_BODY, roomOfPath } from './room';
 
 export { CollabRoom };
@@ -16,15 +17,19 @@ export { CollabRoom };
 interface Env extends FeedbackEnv, CollabEnv {
   /** The static files of dist/ (assets binding). */
   ASSETS: { fetch(request: Request): Promise<Response> };
+  /** Connections to live rooms per address (wrangler.jsonc `ratelimits`; optional). */
+  ROOM_LIMITER?: RateLimiter;
 }
 
 /**
  * Browsers name the page that opens a WebSocket: only the app's own pages, or a development
- * server on this computer, may use the relay. Clients without the header are not browsers.
+ * server on this computer, may use the relay. Clients without the header are not browsers and
+ * are refused.
  */
 function allowedOrigin(request: Request): boolean {
   const origin = request.headers.get('Origin');
-  if (!origin || origin === new URL(request.url).origin) return true;
+  if (!origin) return false;
+  if (origin === new URL(request.url).origin) return true;
   try {
     return ['localhost', '127.0.0.1', '[::1]'].includes(new URL(origin).hostname);
   } catch {
@@ -32,19 +37,19 @@ function allowedOrigin(request: Request): boolean {
   }
 }
 
-function route(request: Request, env: Env): Promise<Response> {
+async function route(request: Request, env: Env): Promise<Response> {
   const { pathname } = new URL(request.url);
   if (pathname === '/api/feedback') return handleFeedback(request, env);
   const room = roomOfPath(pathname);
   if (room !== null && env.ROOMS) {
     // GET api/room: the app asks whether live collaboration is available here.
     if (room === '')
-      return Promise.resolve(
-        new Response(PROBE_BODY, {
-          headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-        }),
-      );
-    if (!allowedOrigin(request)) return Promise.resolve(new Response(null, { status: 403 }));
+      return new Response(PROBE_BODY, {
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+      });
+    if (!allowedOrigin(request)) return new Response(null, { status: 403 });
+    // Too many connections from one address: the browser tries again later.
+    if (!(await withinLimit(env.ROOM_LIMITER, request))) return new Response(null, { status: 429 });
     return env.ROOMS.get(env.ROOMS.idFromName(room)).fetch(request);
   }
   if (pathname === '/') {

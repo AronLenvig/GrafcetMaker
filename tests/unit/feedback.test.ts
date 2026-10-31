@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import worker from '../../worker';
-import { handleFeedback, LIMITS, parseFeedback } from '../../worker/feedback';
+import { handleFeedback, issueFor, LIMITS, parseFeedback, readCapped } from '../../worker/feedback';
 import { SECURITY_HEADERS } from '../../worker/headers';
 
 const env = { GITHUB_REPO: 'owner/feedback', GITHUB_TOKEN: 'secret' };
@@ -70,7 +70,7 @@ describe('feedback endpoint', () => {
     expect((init.headers as Record<string, string>).Authorization).toBe('Bearer secret');
     const issue = JSON.parse(init.body as string) as { title: string; body: string };
     expect(issue.title).toBe('[Problem] Undo lost');
-    expect(issue.body).toContain('**Reply to:** a@b.c');
+    expect(issue.body).toContain('**Reply to:** `a@b.c`');
     expect(issue.body).not.toContain('**Project:**');
   });
 
@@ -142,9 +142,59 @@ describe('feedback endpoint', () => {
         env2 as never,
       );
     expect((await join('https://evil.example')).status).toBe(403);
+    // Clients that name no page are not browsers.
+    const bare = new Request('https://grafcet.example/api/room/abcdefghij0123456789');
+    expect((await worker.fetch(bare, env2 as never)).status).toBe(403);
     expect(await (await join('https://grafcet.example')).text()).toBe('room');
     expect(await (await join('http://localhost:5173')).text()).toBe('room');
     expect(room).toHaveBeenCalledTimes(2);
+  });
+
+  it('files what people type as text: no mentions, links or images', () => {
+    const message =
+      'Hi @owner ![x](https://track.example/p.png) [click](javascript:alert(1))\n````\nend';
+    const { body } = issueFor({
+      kind: 'idea',
+      message,
+      contact: '@someone\n[me](https://evil.example)`',
+      details: '``` closes?',
+      link: '',
+    });
+    // The message sits in a fence longer than any run of backticks inside it.
+    expect(body.split('\n').slice(0, 5)).toEqual(['`````', ...message.split('\n'), '`````']);
+    expect(body).toContain("**Reply to:** `@someone [me](https://evil.example)'`");
+    expect(body).toContain('````\n``` closes?\n````');
+  });
+
+  it('limits messages per address, and reads no more of a body than it accepts', async () => {
+    const fetchMock = vi.fn(async () => new Response('{}', { status: 201 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const limit = vi.fn(async () => ({ success: false }));
+    const ok = { kind: 'idea', message: 'x' };
+    const sent = post(ok);
+    sent.headers.set('CF-Connecting-IP', '203.0.113.7');
+    expect((await handleFeedback(sent, { ...env, FEEDBACK_LIMITER: { limit } })).status).toBe(429);
+    expect(limit).toHaveBeenCalledWith({ key: '203.0.113.7' });
+    // A limiter that fails lets messages through.
+    const broken = { limit: async () => Promise.reject(new Error('down')) };
+    expect((await handleFeedback(post(ok), { ...env, FEEDBACK_LIMITER: broken })).status).toBe(200);
+    // A streamed body without Content-Length stops being read past the limit.
+    let pulled = 0;
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pulled++;
+        controller.enqueue(new Uint8Array(16_384).fill(32));
+      },
+    });
+    const streamed = new Request(URL_, {
+      method: 'POST',
+      headers: { Origin: SITE },
+      body: stream,
+      duplex: 'half',
+    } as RequestInit);
+    expect(await readCapped(streamed, LIMITS.request)).toBeNull();
+    expect(pulled).toBeLessThan(10);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it('reports a failed delivery', async () => {

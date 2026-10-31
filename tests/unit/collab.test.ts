@@ -1,6 +1,6 @@
 import { produce } from 'immer';
 import { describe, expect, it } from 'vitest';
-import { RecordStore, type Change } from '@/core/collab/records';
+import { MAX_VERSION_JUMP, RecordStore, type Change } from '@/core/collab/records';
 import {
   formatRoomHash,
   importRoomKey,
@@ -9,9 +9,11 @@ import {
   newRoomKey,
   parseRoomHash,
   readMessage,
+  roomWriteToken,
   seal,
   unseal,
 } from '@/core/collab/wire';
+import { snapshotWrite, tokenHash } from '../../worker/room';
 import { createGrafcet, createProject } from '@/core/model/factory';
 import { sameJson } from '@/core/model/json';
 import {
@@ -176,6 +178,61 @@ describe('live collaboration records', () => {
     expectValid(a.doc);
     expect(Object.keys(a.doc.variables)).toEqual(['va']);
     expect([a.doc.grafcets.ga!.name, a.doc.grafcets.gb!.name]).toEqual(['G2', 'G2_2']);
+  });
+
+  it('renumber a step number added twice at once, the same way everywhere', () => {
+    const p = createProject('P');
+    appendAfterStep(G(p), firstStep(p).id);
+    const a = Replica.first(p);
+    const b = Replica.join(a.store.all(), p.id);
+    const addTwo = (r: Replica, ids: [string, string]) =>
+      r.edit((d) => {
+        for (const id of ids) {
+          const s = addStep(G(d), { x: 300, y: 0 });
+          delete G(d).steps[s.id];
+          G(d).steps[id] = { ...s, id };
+        }
+      });
+    // Both add steps 2 and 3; 3 is also the number above a's 2 (taken: the next free is 4).
+    const ca = addTwo(a, ['sa2', 'sa3']);
+    const cb = addTwo(b, ['sb2', 'sb3']);
+    a.receive(cb);
+    b.receive(ca);
+    expectSame(a.doc, b.doc);
+    const numbers = Object.fromEntries(Object.values(G(a.doc).steps).map((s) => [s.id, s.number]));
+    expect(numbers).toMatchObject({ sa2: 2, sa3: 3, sb2: 4, sb3: 5 });
+    expect(new Set(Object.values(numbers)).size).toBe(Object.keys(numbers).length);
+    expectValid(a.doc);
+    // Deriving again keeps the repaired steps.
+    expect(a.store.derive(a.doc)).toBe(a.doc);
+  });
+
+  it('lower versions far ahead of those held, so an honest edit can always win', () => {
+    const a = Replica.first(createProject('P'));
+    const c = Replica.join(a.store.all(), a.doc.id);
+    const sid = firstStep(a.doc).id;
+    const gid = a.doc.grafcetOrder[0]!;
+    const label = (v: number, x: string): Change => [['s', gid, sid], { label: { v, n: 0, x } }];
+    const highest = (r: Replica) =>
+      Math.max(...r.store.all().flatMap(([, f]) => Object.values(f).map((reg) => reg.v)));
+    // Pinning the field at the largest version moves it only one jump ahead…
+    a.receive([label(Number.MAX_SAFE_INTEGER, 'pinned')]);
+    expect(G(a.doc).steps[sid]!.label).toBe('pinned');
+    expect(highest(a)).toBe(1 + MAX_VERSION_JUMP);
+    // …and repeating the record within one message gains nothing more.
+    a.receive([1, 2, 3].map((k) => label(Number.MAX_SAFE_INTEGER - k, `climb ${k}`)));
+    expect(G(a.doc).steps[sid]!.label).toBe('climb 1');
+    expect(highest(a)).toBe(1 + 2 * MAX_VERSION_JUMP);
+    // A local edit still wins, also for someone joining now (who lowers the version again).
+    const b = Replica.join(a.store.all(), a.doc.id);
+    expect(G(b.doc).steps[sid]!.label).toBe('climb 1');
+    b.receive(a.edit((d) => void (G(d).steps[sid]!.label = 'mine')));
+    expect(G(b.doc).steps[sid]!.label).toBe('mine');
+    expectSame(a.doc, b.doc);
+    // Edits made out of touch stay within the bound and merge as they are.
+    for (let i = 0; i < 500; i++) c.edit((d) => void (G(d).steps[sid]!.position.x += 10));
+    a.receive(c.store.all());
+    expect(G(a.doc).steps[sid]!.position).toEqual(G(c.doc).steps[sid]!.position);
   });
 
   it('converge on the same valid project after random concurrent edits', () => {
@@ -393,6 +450,26 @@ describe('live session links and messages', () => {
       sim: false,
     };
     expect(readMessage({ p: 1, s: p.schemaVersion, type: 'presence', presence })).toBeNull();
+  });
+
+  it('derive a write token from the room key that the relay checks', async () => {
+    const key = await newRoomKey();
+    const token = await roomWriteToken(key);
+    expect(token).toMatch(/^[\w-]{43}$/);
+    expect(await roomWriteToken(key)).toBe(token);
+    // Neither the key itself nor another room's token.
+    expect(token).not.toContain(key);
+    const other = await roomWriteToken(await newRoomKey());
+    expect(other).not.toBe(token);
+
+    // The first snapshot with a token claims the room; later ones need the same token.
+    const kept = await snapshotWrite(null, token);
+    expect(kept).toBe(await tokenHash(token));
+    expect(await snapshotWrite(kept as string, token)).toBe(kept);
+    expect(await snapshotWrite(kept as string, other)).toBe(false);
+    expect(await snapshotWrite(kept as string, undefined)).toBe(false);
+    // Rooms from before tokens accept snapshots without one until one comes with a token.
+    expect(await snapshotWrite(null, undefined)).toBeNull();
   });
 
   it('recognizes messages from a newer version', () => {

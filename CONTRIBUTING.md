@@ -25,6 +25,34 @@ npm run e2e        # Playwright smoke test (Chromium); first run: npx playwright
 
 CI runs the same steps.
 
+## Architecture
+
+The code is in layers; each imports only the layers below it (ESLint `no-restricted-imports`
+enforces it): `core` ← `ui` ← `editor` ← `panels` ← `app`. When a lower layer needs something only
+an upper one knows, the upper one fills it in (the app registers the commands the editor runs, see
+`src/editor/commands/command.ts`).
+
+- `src/core/` — pure TypeScript, runs in Node and Web Workers: `model` (types, Zod schema, editing
+  operations), `expr` (parser, checks), `layout` (geometry, link routing, auto-layout),
+  `validation`, `simulation`, `codegen`, `io` (file formats, SVG/PDF layout), `collab`.
+- `src/ui/` — the shared UI kit (primitives, icons, flags, splitter, glossary popovers) and small
+  app-wide stores (preferences, toasts, dialogs, help panel state). Knows nothing of the editor.
+- `src/editor/` — the diagram editor: `canvas` (SVG renderer, gestures, inline editors), `store`
+  (document with undo/redo, UI state, panel sheet, live presence), `commands` (editing operations
+  and the command lookup), `simulation` and `validation` (their stores, driving the workers), `tools`.
+- `src/panels/` — the cards and panels: properties, variables, problems, simulation, chronogram,
+  outline.
+- `src/app/` — the application shell and its features: layout islands, menus, the command registry
+  and shortcuts (`commands/`), persistence, export, help, start screen and tour, collaboration,
+  settings, feedback.
+- `src/theme/`, `src/i18n/` — theme tokens and switching; translations (any layer may use them).
+- `src/workers/` — the simulation and validation Web Workers (run `core`).
+- `src/site/` — the website pages (GRAFCET guide, help, home) rendered at build time.
+- `worker/` — the Cloudflare Worker of the hosted site (relay, feedback, language by country);
+  `server/relay.ts` is the on-premises relay.
+- `tests/unit/` (Vitest), `tests/e2e/` (Playwright), `docs/` (user guide, semantics, file format,
+  help pages and guide in every language).
+
 ## Ground rules
 
 - `src/core/` is pure TypeScript: no React, DOM, storage or i18n imports. It must run in Node and Web
@@ -41,6 +69,35 @@ CI runs the same steps.
   `src/core/io/migrations.ts`, and document it in `docs/file-format.md`.
 
 ## Recipes
+
+### Add a language
+
+Copy an existing language everywhere it appears (search the code for one, e.g. `'da'`):
+
+1. `src/i18n/<lang>.ts`, typed against `src/i18n/en.ts`, with the standard GRAFCET terms of that
+   language; in `src/i18n/index.ts` its name (`LANGUAGES`), loader (`LOAD`) and the countries whose
+   visitors start in it (`COUNTRIES`).
+2. Its flag in `src/ui/flags.ts`.
+3. The website: `LANGS` and `SITE_TEXT` in `src/site/locales.ts`, the figure words (`WORDS`) in
+   `src/site/figures.ts`, and an `hreflang` link in `index.html`.
+4. The help pages `docs/help/<lang>/` (every page of `docs/help/`), the GRAFCET guide
+   `docs/guide/<lang>.md` and the home page `docs/home/<lang>.md`; add the guide to the lists of
+   languages in `README.md` and `docs/home/en.md`.
+5. `LANGS` in `tests/unit/i18n.test.ts`, which checks the strings, their plurals and the help pages.
+
+### Add a validation rule
+
+1. Add its id to `RuleId` in `src/core/validation/types.ts` and write the rule as a pure function
+   in `src/core/validation/validate.ts`, called from `validateProject` (rules with graph logic go
+   with their helpers in `logic.ts` and are documented in `docs/semantics.md`). An issue names its
+   severity, the message key `problems.messages.<key>` with its parameters, and the elements to
+   highlight (the first one carries the badge).
+2. A quick fix: add it to `QuickFix` (`types.ts`), apply it in `applyQuickFix`
+   (`src/editor/validation/actions.ts`, one undo step) and label it `problems.fixes.<kind>`.
+3. Strings in `src/i18n/en.ts` and every other language; explain the problem and its fix in
+   `docs/help/troubleshooting.md` and the translated pages.
+4. Tests in `tests/unit/validation.test.ts` only for rules with graph logic (reachability,
+   exclusivity, transient loops).
 
 ### Add a step or action kind
 
@@ -92,5 +149,7 @@ The compiler and the linter find most of the places to change: every table over 
 
 ## Commit messages
 
-Short imperative summary, e.g. `simulation: handle edges in transient evolution`.
-Update `CHANGELOG.md` (Keep a Changelog format) for user-visible changes.
+One short sentence saying what changed for the user, as it now is, e.g. "A selected jump is
+highlighted as an arrow" (internal changes say what the code now does: "Export formats come from
+one descriptor table"). Add user-visible changes to `CHANGELOG.md` under `[Unreleased]` (Keep a
+Changelog).

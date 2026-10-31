@@ -519,6 +519,14 @@ Autonomous build log. Read this first in every session and resume from **Current
   and remote changes wait while they do; a shared simulation (one host broadcasting its state) is
   a later feature. The relay is an optional backend like the feedback endpoint; without it the
   share link button stays.
+- Layers (maintainability refactor): `core` ← `ui` ← `editor` ← `panels` ← `app`, enforced by
+  `no-restricted-imports` in `eslint.config.js`. The generic UI kit and small app-wide stores live
+  in `src/ui`; the command list is app wiring (`src/app/commands/registry.ts`) registered into
+  the editor's lookup (`src/editor/commands/command.ts`). Kinds of steps, actions and grafcets are
+  branched over with `Record` tables and switches checked by the type-aware
+  `switch-exhaustiveness-check`; export formats come from `EXPORT_FORMATS`
+  (`src/app/export/formats.ts`). Recipes for languages, rules, kinds and formats in
+  CONTRIBUTING.md.
 
 ## Known gaps
 

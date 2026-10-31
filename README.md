@@ -320,12 +320,16 @@ To try live sessions locally, run `npm run relay` and start the dev server with
 `GM_RELAY_URL=http://localhost:8081 npm run dev` (it proxies `api/room` to the relay); or run the
 Worker itself with `npm run build && npx wrangler dev`.
 
-Architecture overview:
+Architecture overview (layers `core` ← `ui` ← `editor` ← `panels` ← `app`, see
+[CONTRIBUTING.md](CONTRIBUTING.md#architecture)):
 
 ```
 src/core/{model,expr,validation,simulation,layout,codegen,io,collab}  pure TypeScript
-src/editor/{canvas,tools,commands}                              SVG editor
-src/panels  src/theme  src/i18n  src/workers  src/app           UI shell
+src/ui                                                          shared UI kit, small app-wide stores
+src/editor/{canvas,tools,commands,store}                        SVG editor
+src/panels                                                      cards and panels
+src/app                                                         application shell and features
+src/theme  src/i18n  src/workers                                theme, translations, workers
 src/site                                                        website guide pages (build time)
 worker/  server/relay.ts           Cloudflare Worker (feedback, live relay), on-premise relay
 docs/{user-guide,semantics,file-format}.md   docs/help/*.md (in-app help pages)

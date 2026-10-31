@@ -5,8 +5,6 @@ import { getProject, useDoc } from '@/editor/store/document';
 import { listSnapshots, type Snapshot } from '../persistence/db';
 import { restoreSnapshot } from '../persistence/session';
 import { SOURCE_URL } from '../source';
-import { FeedbackDialog } from '../feedback/FeedbackDialog';
-import { SettingsDialog } from '../settings/SettingsDialog';
 import { Button, Modal } from '../ui/primitives';
 import { closeDialog, useDialogs } from './dialogStore';
 import { TextDialog } from './TextDialog';
@@ -16,6 +14,12 @@ const ExportDialog = lazy(() => import('../export/ExportDialog'));
 // The start screen builds the example projects and their thumbnails.
 const StartScreen = lazy(() => import('../start/StartScreen'));
 const ChangelogDialog = lazy(() => import('../help/ChangelogDialog'));
+const SettingsDialog = lazy(() =>
+  import('../settings/SettingsDialog').then((m) => ({ default: m.SettingsDialog })),
+);
+const FeedbackDialog = lazy(() =>
+  import('../feedback/FeedbackDialog').then((m) => ({ default: m.FeedbackDialog })),
+);
 const LiveDialog = lazy(() =>
   import('../collab/LiveDialog').then((m) => ({ default: m.LiveDialog })),
 );
@@ -185,8 +189,16 @@ export function DialogHost() {
       {open === 'localHistory' && <LocalHistoryDialog onClose={close} />}
       {open === 'shortcuts' && <ShortcutsDialog onClose={close} />}
       {open === 'about' && <AboutDialog onClose={close} />}
-      {open === 'settings' && <SettingsDialog onClose={close} />}
-      {open === 'feedback' && <FeedbackDialog onClose={close} />}
+      {open === 'settings' && (
+        <Suspense fallback={null}>
+          <SettingsDialog onClose={close} />
+        </Suspense>
+      )}
+      {open === 'feedback' && (
+        <Suspense fallback={null}>
+          <FeedbackDialog onClose={close} />
+        </Suspense>
+      )}
       {open === 'live' && (
         <Suspense fallback={null}>
           <LiveDialog onClose={close} />

@@ -212,7 +212,7 @@ Autonomous build log. Read this first in every session and resume from **Current
   the `MenuDrawer`, canvas without split view, `BottomToolbar`, `PanelSheet` (panels as tabs,
   state in `src/editor/store/sheet.ts`; `showBottomTab` / `showSideTab` open it on phones), help full
   screen, compact `SimBar`. The main menu is data (`src/app/menus.tsx`) rendered as menu bar or
-  drawer. Touch in `useCanvasInteraction`: pinch (two pointers), one-finger pan on empty canvas,
+  drawer. Touch in `useCanvasInteraction` (gestures in `src/editor/canvas/gestures/`): pinch (two pointers), one-finger pan on empty canvas,
   double-tap, long-press frame, placing tools act on release, 8 px slop. `SelectionBar` on touch
   screens; link handles offset outside the element with a 24 px+ target; wider hit areas;
   touch hints; dialogs (start, export, settings, modal, inline editor) stack on phones. e2e: one

@@ -1,150 +1,49 @@
 import {
   useCallback,
-  useEffect,
   useRef,
+  useState,
   type PointerEvent as ReactPointerEvent,
   type RefObject,
 } from 'react';
-import {
-  actionDropAt,
-  elementBounds,
-  computeGeometry,
-  layoutActions,
-  rectsIntersect,
-  snap,
-  type Rect,
-  portPosition,
-  parseLinkKey,
-} from '@/core/layout/geometry';
-import { indexGrafcet, type GrafcetIndex } from '@/core/model/graph';
-import * as ops from '@/core/model/ops';
+import { snap } from '@/core/layout/geometry';
 import type { Id, Point } from '@/core/model/types';
 import { usePrefs } from '@/ui/prefs';
-import {
-  addActionAt,
-  addActionToSelection,
-  addCommentAt,
-  addStepAt,
-  addTransitionAt,
-  appendSequence,
-  appendTransition,
-  editActive,
-  editSelection,
-} from '../commands/edit';
+import { editActive, editSelection, addStepAt } from '../commands/edit';
 import { doc, getProject } from '../store/document';
 import { ui, useUi } from '../store/uiStore';
-import { useInteraction, type LinkDrag } from './interactionStore';
+import { useInteraction } from './interactionStore';
 import { openChild } from '../commands/hierarchy';
-import { cancelPending, completeLoop, jumpToStep } from '../commands/structure';
-import { toggleInput, useSim } from '../simulation/simStore';
-import { getViewport, panBy, screenToDiagram, zoomAt } from './viewport';
+import { cancelPending, completeLoop } from '../commands/structure';
+import { getViewport, panBy, screenToDiagram } from './viewport';
+import {
+  barTransition,
+  beginMove,
+  dropSelection,
+  moveSelection,
+  pressBar,
+  pressElement,
+} from './gestures/drag';
+import { createFrameThrottle } from './gestures/frame';
+import {
+  DRAG_THRESHOLD,
+  TOUCH_SLOP,
+  elementAt,
+  type Gesture,
+  type GestureContext,
+} from './gestures/gesture';
+import { endLink, moveLink, startLink } from './gestures/link';
+import { endMarquee, moveMarquee, startMarquee } from './gestures/marquee';
+import { useMenuReplay } from './gestures/menu';
+import { placingPress, updateCursor } from './gestures/place';
+import { endRoute, moveRoute, pressLink } from './gestures/route';
+import { endPinch, isDoubleTap, movePinch, panOrLongPress, pinchOf } from './gestures/touch';
+import { useWheel } from './gestures/wheel';
 
-type Gesture =
-  | { kind: 'idle' }
-  /**
-   * A finger that is a tap (double-tap; on the empty canvas also deselect) unless it moves, or the
-   * right button (`menu`), a click opening the context menu unless it moves.
-   */
-  | {
-      kind: 'pan';
-      last: Point;
-      start?: Point;
-      tap?: 'empty' | 'element';
-      menu?: true;
-      moved?: boolean;
-    }
-  /** Two fingers: zoom by their distance, pan by their midpoint. */
-  | { kind: 'pinch'; dist: number; mid: Point }
-  /** A finger with a placing tool: places on release, pans if it moves. */
-  | { kind: 'place'; start: Point; place: () => void }
-  /**
-   * A button or finger down on an element: a click unless it moves, then a drag of the selection,
-   * or of `moves` instead (an AND bar moves its transition).
-   */
-  | {
-      kind: 'press';
-      id: Id;
-      start: Point;
-      startD: Point;
-      reselect: boolean;
-      slop: number;
-      moves?: Id[];
-    }
-  /**
-   * Dragging the selection. An action is dragged alone (`action`: it and where it was, its step
-   * and place): unattached while dragged, attached to the step it is dropped on.
-   */
-  | {
-      kind: 'move';
-      startD: Point;
-      applied: Point;
-      ids: Id[];
-      action?: { id: Id; stepId: Id | null; index: number };
-      /** For where the action would be attached: the grafcet's index, made once per drag. */
-      drops?: GrafcetIndex;
-    }
-  | { kind: 'marquee'; startD: Point; additive: boolean }
-  | { kind: 'link'; drag: LinkDrag }
-  /**
-   * Dragging a loop link: its side lane sideways (routing.sideX) or its bottom line up and down
-   * (routing.dropY). `start` is the pointer and `value` the line's position, on that axis.
-   */
-  | {
-      kind: 'route';
-      transitionId: Id;
-      axis: 'x' | 'y';
-      start: number;
-      value: number;
-      moved: boolean;
-    };
-
-const DRAG_THRESHOLD = 3;
-/** Fingers jitter: movement below this is still a tap. */
-const TOUCH_SLOP = 8;
-const DOUBLE_TAP_MS = 350;
-const DOUBLE_TAP_DISTANCE = 24;
-/** Holding a finger still this long on the empty canvas starts a selection rectangle. */
-const LONG_PRESS_MS = 450;
-/** The browser's context menu event this soon after the right button is released belongs to it. */
-const MENU_AFTER_RELEASE_MS = 500;
-
-function pinchOf(points: Map<number, Point>): { kind: 'pinch'; dist: number; mid: Point } {
-  const [a, b] = [...points.values()];
-  return {
-    kind: 'pinch',
-    dist: Math.hypot(b!.x - a!.x, b!.y - a!.y),
-    mid: { x: (a!.x + b!.x) / 2, y: (a!.y + b!.y) / 2 },
-  };
-}
-
-function elementAt(
-  el: Element | null,
-): { kind: string; id: string | null; key: string | null; field: string | null } | null {
-  // Problem badges stand for the element they are attached to.
-  const hit = el?.closest('[data-el],[data-badge]');
-  if (!hit) return null;
-  return {
-    kind: hit.getAttribute('data-el') ?? hit.getAttribute('data-badge') ?? '',
-    id: hit.getAttribute('data-id'),
-    key: hit.getAttribute('data-key'),
-    // A part edited on its own: the step of a transition's jump.
-    field: hit.getAttribute('data-field'),
-  };
-}
-
-/** Tools that place an element with a click (the overlay shows its ghost under the pointer). */
-const PLACING = new Set(['step', 'transition', 'comment', 'action']);
-
-function rectFrom(a: Point, b: Point): Rect {
-  return {
-    x: Math.min(a.x, b.x),
-    y: Math.min(a.y, b.y),
-    width: Math.abs(a.x - b.x),
-    height: Math.abs(a.y - b.y),
-  };
-}
-
-/** Pointer/wheel handling for the canvas: select, move, marquee, link drag, pan, zoom, place. */
+/**
+ * Pointer/wheel handling for the canvas: select, move, marquee, link drag, pan, zoom, place. The
+ * gestures are in ./gestures; this hook tells them apart on press and passes moves and releases
+ * on to the one in progress.
+ */
 export function useCanvasInteraction(
   containerRef: RefObject<HTMLDivElement | null>,
   gid: Id | null,
@@ -157,31 +56,7 @@ export function useCanvasInteraction(
   const lastTap = useRef<{ time: number; p: Point } | null>(null);
   const lastPointer = useRef('mouse');
   const longPress = useRef<number | undefined>(undefined);
-  // The right button: held down, or when it was released; and the menu being opened by openMenu.
-  const rightButton = useRef({ down: false, upAt: -Infinity });
-  const replaying = useRef(false);
-  // A drag changes the document at most once per animation frame: the latest pointer position.
-  const frame = useRef<{ id: number; run: () => void } | null>(null);
-  const nextFrame = (run: () => void) => {
-    if (frame.current) {
-      frame.current.run = run;
-      return;
-    }
-    const f = { id: 0, run };
-    f.id = requestAnimationFrame(() => {
-      frame.current = null;
-      f.run();
-    });
-    frame.current = f;
-  };
-  /** Applies the pending drag step now (the drag ends). */
-  const settleFrame = () => {
-    const f = frame.current;
-    if (!f) return;
-    cancelAnimationFrame(f.id);
-    frame.current = null;
-    f.run();
-  };
+  const [frame] = useState(createFrameThrottle);
 
   const local = useCallback(
     (e: { clientX: number; clientY: number }): Point => {
@@ -199,11 +74,17 @@ export function useCanvasInteraction(
   const snapPoint = (p: Point): Point =>
     usePrefs.getState().snapToGrid ? { x: snap(p.x), y: snap(p.y) } : p;
 
+  const ctx: GestureContext = {
+    gesture,
+    readOnly,
+    toDiagram,
+    snapPoint,
+    nextFrame: frame.next,
+  };
+
   const cancelGesture = useCallback(() => {
     window.clearTimeout(longPress.current);
-    const f = frame.current;
-    if (f) cancelAnimationFrame(f.id);
-    frame.current = null;
+    frame.cancel();
     const g = gesture.current;
     if (g.kind === 'move' || (g.kind === 'route' && g.moved)) doc.cancel();
     gesture.current = { kind: 'idle' };
@@ -214,61 +95,10 @@ export function useCanvasInteraction(
       panning: false,
       dropTarget: null,
     });
-  }, []);
+  }, [frame]);
 
-  // Wheel: pan, Ctrl/Cmd (and trackpad pinch) zooms around the pointer. Must be non-passive.
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el || !gid) return;
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1;
-      const dx = e.deltaX * unit;
-      const dy = e.deltaY * unit;
-      if (e.ctrlKey || e.metaKey) zoomAt(gid, Math.exp(-dy * 0.002), local(e));
-      else if (e.shiftKey && dx === 0) panBy(gid, -dy, 0);
-      else panBy(gid, -dx, -dy);
-    };
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
-  }, [containerRef, gid, local]);
-
-  // The browser's own context menu event for the right button (on press, or on release on
-  // Windows) is not the menu: the menu opens on release, unless the button panned (openMenu).
-  useEffect(() => {
-    const swallow = (e: MouseEvent) => {
-      const right = rightButton.current;
-      if (replaying.current) return;
-      if (!right.down && e.timeStamp - right.upAt >= MENU_AFTER_RELEASE_MS) return;
-      e.preventDefault();
-      e.stopPropagation();
-    };
-    window.addEventListener('contextmenu', swallow, true);
-    return () => window.removeEventListener('contextmenu', swallow, true);
-  }, []);
-
-  /** Opens the context menu under the pointer, as the browser would: a right-click released. */
-  const openMenu = (clientX: number, clientY: number) => {
-    const container = containerRef.current;
-    const under = document.elementFromPoint(clientX, clientY);
-    const target = under && container?.contains(under) ? under : container;
-    if (!target) return;
-    replaying.current = true;
-    try {
-      target.dispatchEvent(
-        new MouseEvent('contextmenu', {
-          bubbles: true,
-          cancelable: true,
-          clientX,
-          clientY,
-          button: 2,
-          view: window,
-        }),
-      );
-    } finally {
-      replaying.current = false;
-    }
-  };
+  useWheel(containerRef, gid, local);
+  const { rightButton, openMenu } = useMenuReplay(containerRef);
 
   const onPointerDown = (e: ReactPointerEvent<SVGSVGElement>) => {
     if (!gid) return;
@@ -314,22 +144,7 @@ export function useCanvasInteraction(
 
     const handle = target.closest('[data-handle]');
     if (handle && !readOnly) {
-      const id = handle.getAttribute('data-id')!;
-      const port = handle.getAttribute('data-handle') as 'in' | 'out';
-      const origin = portPosition(g, id, port);
-      if (origin) {
-        const drag: LinkDrag = {
-          from: id,
-          fromKind: g.steps[id] ? 'step' : 'transition',
-          port,
-          origin,
-          current: d,
-          target: null,
-        };
-        gesture.current = { kind: 'link', drag };
-        useInteraction.setState({ link: drag });
-        capture();
-      }
+      startLink(ctx, g, handle, d, capture);
       return;
     }
 
@@ -342,202 +157,41 @@ export function useCanvasInteraction(
       else cancelPending();
       return;
     }
-    // With a finger, placing waits for the release: the finger may still pan or start a pinch.
-    const placeOrWait = (place: () => void) => {
+    const placing = placingPress(ctx, g, target, hit, tool, d, e.shiftKey);
+    if (placing && 'place' in placing) {
       e.preventDefault();
-      if (!touch) return place();
-      gesture.current = { kind: 'place', start: p, place };
+      // With a finger, placing waits for the release: the finger may still pan or start a pinch.
+      if (!touch) return placing.place();
+      gesture.current = { kind: 'place', start: p, place: placing.place };
       capture();
-    };
-    // Simulating: an input written in a receptivity or condition switches when clicked.
-    const input = readOnly ? target.closest('[data-input]')?.getAttribute('data-input') : null;
-    if (input) {
-      placeOrWait(() => toggleInput(input));
       return;
     }
-    // Simulating: the value of a numeric variable shown on the diagram is typed in place.
-    const value = readOnly ? target.closest('[data-value]') : null;
-    if (value) {
-      const name = value.getAttribute('data-value')!;
-      const at = {
-        x: Number(value.getAttribute('data-x')),
-        y: Number(value.getAttribute('data-y')),
-      };
-      placeOrWait(() => {
-        const sim = useSim.getState();
-        if (sim.on && !sim.replay && !sim.snapshot?.error)
-          useInteraction.setState({ valueEdit: { name, at } });
-      });
-      return;
-    }
-    // A ghost of the selection: add the action (and type its text), the transition alone, or the
-    // transition and step it shows; the new transition or step is selected, so its ghosts are next
-    // (Enter would type the receptivity).
-    const ghost = target.closest('[data-ghost]')?.getAttribute('data-ghost');
-    if (!readOnly && ghost) {
-      placeOrWait(() =>
-        ghost === 'action'
-          ? addActionToSelection()
-          : ghost === 'transition'
-            ? appendTransition()
-            : ghost === 'jump'
-              ? jumpToStep()
-              : appendSequence({ editReceptivity: false }),
-      );
-      return;
-    }
-    if (!readOnly && tool === 'action') {
-      // On a step (or one of its actions): attach. On empty canvas: unattached action.
-      const stepId =
-        hit?.kind === 'step' && hit.id
-          ? hit.id
-          : hit?.kind === 'action' && hit.id
-            ? (g.actions[hit.id]?.stepId ?? null)
-            : null;
-      if (stepId || !hit) {
-        const keep = e.shiftKey;
-        placeOrWait(() => {
-          // Back to Select first: changing tools closes the editor the new action opens.
-          if (!keep) ui.setTool('select');
-          addActionAt(snapPoint(d), stepId);
-        });
-      }
-      return;
-    }
-    if (!readOnly && (tool === 'step' || tool === 'transition' || tool === 'comment')) {
-      if (!hit) {
-        const keep = e.shiftKey;
-        placeOrWait(() => {
-          const at = snapPoint(d);
-          // Back to Select first: changing tools closes the editor a new comment opens.
-          if (!keep) ui.setTool('select');
-          if (tool === 'step') addStepAt(at);
-          else if (tool === 'transition') addTransitionAt(at);
-          else addCommentAt(at);
-        });
-      } else if (touch) {
+    if (placing) {
+      if (placing.panWithFinger && touch) {
         gesture.current = { kind: 'pan', last: p, start: p };
         capture();
       }
       return;
     }
     if (hit?.kind === 'link' && hit.key) {
-      ui.set({ selection: {}, selectedLink: hit.key });
-      const link = computeGeometry(g).links.find((l) => l.key === hit.key);
-      if (!readOnly && link?.loop) {
-        // Loop points: source, below it, the lane's foot, the lane's top, above the target, target.
-        const [, below, foot] = link.points;
-        const tolerance = (touch ? 16 : 8) / getViewport(gid).zoom;
-        const onBottom =
-          !!below &&
-          !!foot &&
-          Math.abs(d.y - below.y) <= tolerance &&
-          d.x >= Math.min(below.x, foot.x) - tolerance &&
-          d.x <= Math.max(below.x, foot.x) + tolerance;
-        gesture.current = onBottom
-          ? {
-              kind: 'route',
-              transitionId: link.transitionId,
-              axis: 'y',
-              start: d.y,
-              value: below.y,
-              moved: false,
-            }
-          : {
-              kind: 'route',
-              transitionId: link.transitionId,
-              axis: 'x',
-              start: d.x,
-              value: link.loop.sideX,
-              moved: false,
-            };
-        capture();
-      }
+      pressLink(ctx, gid, g, hit.key, d, touch, capture);
       return;
     }
-    // An AND bar: selected like a link (Del removes its links); dragged, it moves its transition.
-    const bar = hit?.kind === 'bar' && hit.key ? parseLinkKey(hit.key) : null;
-    if (bar?.kind === 'bar') {
-      ui.set({ selection: {}, selectedLink: hit?.key ?? null });
-      if (!readOnly) {
-        gesture.current = {
-          kind: 'press',
-          id: bar.transitionId,
-          start: p,
-          startD: d,
-          reselect: false,
-          slop: touch ? TOUCH_SLOP : DRAG_THRESHOLD,
-          moves: [bar.transitionId],
-        };
-        capture();
-      } else if (touch) {
-        gesture.current = { kind: 'pan', last: p, start: p, tap: 'element' };
-        capture();
-      }
+    const bar = hit?.kind === 'bar' ? barTransition(hit.key) : null;
+    if (bar) {
+      pressBar(ctx, hit?.key ?? null, bar, p, d, touch, capture);
       return;
     }
     if (hit?.id) {
-      const wasSelected = !!useUi.getState().selection[hit.id];
-      if (additive) ui.select([hit.id], 'toggle');
-      else if (!wasSelected) ui.select([hit.id]);
-      if (!readOnly) {
-        gesture.current = {
-          kind: 'press',
-          id: hit.id,
-          start: p,
-          startD: d,
-          reselect: wasSelected && !additive,
-          slop: touch ? TOUCH_SLOP : DRAG_THRESHOLD,
-        };
-        capture();
-      } else if (touch) {
-        gesture.current = { kind: 'pan', last: p, start: p, tap: 'element' };
-        capture();
-      }
+      pressElement(ctx, hit.id, p, d, touch, additive, capture);
       return;
     }
     if (touch) {
       // A finger on the empty canvas pans; held still, it draws a selection rectangle instead.
-      gesture.current = { kind: 'pan', last: p, start: p, tap: 'empty' };
-      capture();
-      window.clearTimeout(longPress.current);
-      longPress.current = window.setTimeout(() => {
-        const g1 = gesture.current;
-        if (g1.kind !== 'pan' || g1.tap !== 'empty' || g1.moved) return;
-        ui.clearSelection();
-        gesture.current = { kind: 'marquee', startD: d, additive: false };
-        useInteraction.setState({ marquee: rectFrom(d, d) });
-        navigator.vibrate?.(10);
-      }, LONG_PRESS_MS);
+      panOrLongPress(gesture, longPress, p, d, capture);
       return;
     }
-    if (!additive) ui.clearSelection();
-    gesture.current = { kind: 'marquee', startD: d, additive };
-    capture();
-  };
-
-  /**
-   * With a placing tool and a mouse or pen: where a click would place the element (the overlay
-   * draws its ghost there), or null over an element where a click places nothing.
-   */
-  const updateCursor = (e: ReactPointerEvent<SVGSVGElement>, hit: ReturnType<typeof elementAt>) => {
-    const tool = useUi.getState().tool;
-    const g = gid ? getProject().grafcets[gid] : undefined;
-    let next: { at: Point; stepId: Id | null } | null = null;
-    if (!readOnly && g && e.pointerType !== 'touch' && PLACING.has(tool)) {
-      const stepId =
-        tool !== 'action' || !hit?.id
-          ? null
-          : hit.kind === 'step'
-            ? hit.id
-            : hit.kind === 'action'
-              ? (g.actions[hit.id]?.stepId ?? null)
-              : null;
-      if (!hit || stepId) next = { at: snapPoint(toDiagram(local(e))), stepId };
-    }
-    const cur = useInteraction.getState().cursor;
-    if (cur?.stepId !== next?.stepId || cur?.at.x !== next?.at.x || cur?.at.y !== next?.at.y)
-      useInteraction.setState({ cursor: next });
+    startMarquee(ctx, d, additive, capture);
   };
 
   const onPointerMove = (e: ReactPointerEvent<SVGSVGElement>) => {
@@ -547,14 +201,9 @@ export function useCanvasInteraction(
     if (e.pointerType === 'touch' && touches.current.has(e.pointerId))
       touches.current.set(e.pointerId, p);
     switch (g0.kind) {
-      case 'pinch': {
-        if (touches.current.size < 2) return;
-        const next = pinchOf(touches.current);
-        panBy(gid, next.mid.x - g0.mid.x, next.mid.y - g0.mid.y);
-        if (g0.dist > 0 && next.dist > 0) zoomAt(gid, next.dist / g0.dist, next.mid);
-        gesture.current = next;
+      case 'pinch':
+        movePinch(gesture, gid, g0, touches.current);
         return;
-      }
       case 'place':
         if (Math.hypot(p.x - g0.start.x, p.y - g0.start.y) < TOUCH_SLOP) return;
         gesture.current = { kind: 'pan', last: p };
@@ -568,7 +217,14 @@ export function useCanvasInteraction(
           handle?.getAttribute('data-id') ??
           (hit && (hit.kind === 'step' || hit.kind === 'transition') ? hit.id : null);
         if (useInteraction.getState().hover !== id) useInteraction.setState({ hover: id });
-        updateCursor(e, hit);
+        updateCursor(
+          readOnly,
+          getProject().grafcets[gid],
+          useUi.getState().tool,
+          e.pointerType,
+          hit,
+          () => snapPoint(toDiagram(local(e))),
+        );
         return;
       }
       case 'pan':
@@ -582,163 +238,33 @@ export function useCanvasInteraction(
         panBy(gid, p.x - g0.last.x, p.y - g0.last.y);
         g0.last = p;
         return;
-      case 'press': {
+      case 'press':
         if (Math.hypot(p.x - g0.start.x, p.y - g0.start.y) < g0.slop) return;
-        const g = getProject().grafcets[gid];
-        const selected = g0.moves ?? ui.selectedIds();
-        // An action dragged on its own can be dropped on a step; dragged with other selected
-        // elements, a free action moves with them, and so does an attached one whose step is in
-        // the selection.
-        const pressed = g?.actions[g0.id];
-        const withOthers =
-          !!pressed &&
-          selected.length > 1 &&
-          selected.includes(pressed.id) &&
-          (pressed.stepId === null || selected.includes(pressed.stepId));
-        if (pressed && !withOthers) {
-          // Off its step while dragged, drawn where it was.
-          const step = pressed.stepId === null ? undefined : g!.steps[pressed.stepId];
-          const siblings = step ? (indexGrafcet(g!).actions.get(step.id) ?? []) : [];
-          const box = step && layoutActions(step, siblings).find((b) => b.id === pressed.id);
-          ui.select([pressed.id]);
-          doc.begin('history.moveAction');
-          if (box)
-            doc.update((proj) => {
-              const gd = proj.grafcets[gid];
-              if (gd) ops.detachAction(gd, pressed.id, { x: box.x, y: box.y });
-            });
-          gesture.current = {
-            kind: 'move',
-            startD: g0.startD,
-            applied: { x: 0, y: 0 },
-            ids: [pressed.id],
-            action: {
-              id: pressed.id,
-              stepId: pressed.stepId,
-              index: Math.max(0, siblings.indexOf(pressed)),
-            },
-          };
-          useInteraction.setState({ moving: true, hover: null });
-          onPointerMove(e);
-          return;
-        }
-        // Attached actions follow their step.
-        const ids = selected.filter(
-          (id) =>
-            g &&
-            (g.steps[id] || g.transitions[id] || g.comments[id] || g.actions[id]?.stepId === null),
-        );
-        if (!ids.length) {
-          gesture.current = { kind: 'idle' };
-          return;
-        }
-        doc.begin('history.move');
-        gesture.current = { kind: 'move', startD: g0.startD, applied: { x: 0, y: 0 }, ids };
-        useInteraction.setState({ moving: true, hover: null });
-        onPointerMove(e);
+        if (beginMove(ctx, gid, g0)) onPointerMove(e);
         return;
-      }
-      case 'move': {
-        const d = toDiagram(p);
-        nextFrame(() => {
-          if (gesture.current !== g0) return;
-          const delta = snapPoint({ x: d.x - g0.startD.x, y: d.y - g0.startD.y });
-          if (delta.x !== g0.applied.x || delta.y !== g0.applied.y) {
-            const dx = delta.x - g0.applied.x;
-            const dy = delta.y - g0.applied.y;
-            doc.update((proj) => {
-              const g = proj.grafcets[gid];
-              if (g) ops.moveElements(g, g0.ids, dx, dy);
-            });
-            g0.applied = delta;
-          }
-          // A dragged action shows the step and the place it would be attached to.
-          if (g0.action) {
-            const g = getProject().grafcets[gid];
-            if (g) g0.drops ??= indexGrafcet(g);
-            const target = g ? actionDropAt(g, g0.action.id, d, g0.drops) : null;
-            const cur = useInteraction.getState().dropTarget;
-            if (cur?.stepId !== target?.stepId || cur?.index !== target?.index)
-              useInteraction.setState({ dropTarget: target });
-          }
-        });
+      case 'move':
+        moveSelection(ctx, gid, g0, toDiagram(p));
         return;
-      }
       case 'marquee':
-        useInteraction.setState({ marquee: rectFrom(g0.startD, toDiagram(p)) });
+        moveMarquee(g0, toDiagram(p));
         return;
-      case 'route': {
-        const d = toDiagram(p);
-        const delta = g0.axis === 'x' ? d.x - g0.start : d.y - g0.start;
-        if (!g0.moved) {
-          if (Math.abs(delta) * getViewport(gid).zoom < DRAG_THRESHOLD) return;
-          g0.moved = true;
-          doc.begin('history.route');
-        }
-        const value = snap(g0.value + delta);
-        const key = g0.axis === 'x' ? 'sideX' : 'dropY';
-        nextFrame(() => {
-          if (gesture.current !== g0) return;
-          doc.update((proj) => {
-            const tr = proj.grafcets[gid]?.transitions[g0.transitionId];
-            if (tr && tr.routing?.[key] !== value) tr.routing = { ...tr.routing, [key]: value };
-          });
-        });
+      case 'route':
+        moveRoute(ctx, gid, g0, toDiagram(p));
         return;
-      }
-      case 'link': {
-        const d = toDiagram(p);
-        const g = getProject().grafcets[gid];
-        const hit = elementAt(document.elementFromPoint(e.clientX, e.clientY));
-        let target: Id | null = null;
-        if (g && hit?.id) {
-          const wanted = g0.drag.fromKind === 'step' ? 'transition' : 'step';
-          if (hit.kind === wanted && hit.id !== g0.drag.from) target = hit.id;
-        }
-        g0.drag = { ...g0.drag, current: d, target };
-        useInteraction.setState({ link: g0.drag });
+      case 'link':
+        moveLink(gid, g0, toDiagram(p), e);
         return;
-      }
-    }
-  };
-
-  const finishLink = (drag: LinkDrag, overElement: boolean) => {
-    if (drag.target) {
-      const [a, b] = drag.port === 'out' ? [drag.from, drag.target] : [drag.target, drag.from];
-      editActive('history.link', (g) => void ops.connect(g, a, b));
-      return;
-    }
-    if (overElement) return;
-    const at = snapPoint(drag.current);
-    let created: Id | null = null;
-    editActive('history.link', (g) => {
-      const el = drag.fromKind === 'step' ? ops.addTransition(g, at) : ops.addStep(g, at);
-      created = el.id;
-      if (drag.port === 'out') ops.connect(g, drag.from, el.id);
-      else ops.connect(g, el.id, drag.from);
-    });
-    if (created) {
-      ui.select([created]);
-      if (drag.fromKind === 'step') ui.edit({ id: created, field: 'receptivity' });
     }
   };
 
   /** A finger lifted without moving: a second tap close in time and place is a double-tap. */
   const tapped = (e: ReactPointerEvent<SVGSVGElement>) => {
     const p = local(e);
-    const prev = lastTap.current;
-    if (
-      prev &&
-      e.timeStamp - prev.time < DOUBLE_TAP_MS &&
-      Math.hypot(p.x - prev.p.x, p.y - prev.p.y) < DOUBLE_TAP_DISTANCE
-    ) {
-      lastTap.current = null;
-      doubleAt(e.clientX, e.clientY, p);
-    } else lastTap.current = { time: e.timeStamp, p };
+    if (isDoubleTap(lastTap, e.timeStamp, p)) doubleAt(e.clientX, e.clientY, p);
   };
 
   const onPointerUp = (e: ReactPointerEvent<SVGSVGElement>) => {
-    settleFrame();
+    frame.settle();
     const g0 = gesture.current;
     const touch = e.pointerType === 'touch';
     if (touch) touches.current.delete(e.pointerId);
@@ -747,10 +273,7 @@ export function useCanvasInteraction(
     if (e.currentTarget.hasPointerCapture(e.pointerId))
       e.currentTarget.releasePointerCapture(e.pointerId);
     if (g0.kind === 'pinch') {
-      // One finger lifted: the other one keeps panning.
-      const rest = [...touches.current.values()][0];
-      gesture.current = rest ? { kind: 'pan', last: rest, moved: true } : { kind: 'idle' };
-      if (!rest) useInteraction.setState({ panning: false });
+      endPinch(gesture, touches.current);
       return;
     }
     gesture.current = { kind: 'idle' };
@@ -762,51 +285,15 @@ export function useCanvasInteraction(
         if (g0.reselect) ui.select([g0.id]);
         if (touch) tapped(e);
         break;
-      case 'move': {
-        const target = useInteraction.getState().dropTarget;
-        const a = g0.action;
-        if (a && target?.stepId === a.stepId && target?.index === a.index) {
-          // Dropped back where it was.
-          doc.cancel();
-        } else {
-          if (a && target)
-            doc.update((proj) => {
-              const g = proj.grafcets[gid!];
-              if (g) ops.attachAction(g, a.id, target.stepId, target.index);
-            });
-          doc.commit();
-        }
-        useInteraction.setState({ moving: false, dropTarget: null });
+      case 'move':
+        dropSelection(gid, g0);
         break;
-      }
-      case 'marquee': {
-        const r = useInteraction.getState().marquee;
-        useInteraction.setState({ marquee: null });
-        const g = gid ? getProject().grafcets[gid] : undefined;
-        if (!r || !g || (r.width < 2 && r.height < 2)) break;
-        const geom = computeGeometry(g);
-        const ids = [
-          ...Object.keys(g.steps),
-          ...Object.keys(g.transitions),
-          ...Object.keys(g.comments),
-          ...Object.keys(g.actions),
-        ].filter((id) => {
-          const b = elementBounds(g, geom, id);
-          return b && rectsIntersect(b, r);
-        });
-        // A step brings all its actions, also those reaching beyond the box.
-        const boxed = new Set(ids);
-        for (const a of Object.values(g.actions))
-          if (a.stepId !== null && boxed.has(a.stepId)) boxed.add(a.id);
-        ui.select([...boxed], g0.additive ? 'add' : 'replace');
+      case 'marquee':
+        endMarquee(gid, g0);
         break;
-      }
-      case 'link': {
-        useInteraction.setState({ link: null });
-        const over = elementAt(document.elementFromPoint(e.clientX, e.clientY));
-        finishLink(g0.drag, !!over);
+      case 'link':
+        endLink(ctx, g0, e);
         break;
-      }
       case 'pan':
         useInteraction.setState({ panning: false });
         if (g0.tap && !g0.moved) {
@@ -816,7 +303,7 @@ export function useCanvasInteraction(
         if (g0.menu && !g0.moved) openMenu(e.clientX, e.clientY);
         break;
       case 'route':
-        if (g0.moved) doc.commit();
+        endRoute(g0);
         break;
       case 'idle':
         break;

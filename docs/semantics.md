@@ -159,7 +159,9 @@ hand-verified charts (`tests/unit/simulation.test.ts`).
   for `t2` after `c` falls (and stays true if `c` rises again during that time).
 - Timers expire **exactly**: the simulator computes the next expiry and runs a cycle at that
   virtual time. Real-time mode advances virtual time with the wall clock × speed; fast mode jumps
-  from expiry to expiry; _Step_ jumps to the next expiry (or the next replayed input).
+  from expiry to expiry; _Step_ jumps to the next expiry (or the next replayed input). Timer
+  comparisons tolerate 10⁻⁶ ms so that fractional (real-time) times, where `(a + t) − a` can
+  round just below `t`, still expire at their deadline.
 
 ### Actions and variables
 
@@ -173,8 +175,12 @@ hand-verified charts (`tests/unit/simulation.test.ts`).
 - Continuous actions: a BOOL output is true when at least one active step sets it with a
   continuous action whose assignment condition (if any) is true; otherwise false. Variables driven
   by any continuous action are recomputed every cycle (a stored assignment to them is
-  overwritten). Assignment conditions are evaluated once per cycle on the stable situation; an
-  edge in such a condition gives a one-cycle pulse.
+  overwritten). Assignment conditions are evaluated on the stable situation; an edge in such a
+  condition gives a one-cycle pulse. A condition may read another continuous output (`H if K`,
+  `K if M`): outputs start false and every condition is re-evaluated on the previous pass's outputs
+  until none changes, so the result does not depend on the order of the actions. Conditions that
+  never settle (`M if /M`) stop after one pass per output; the result is deterministic but
+  arbitrary, so avoid such charts.
 - Stored actions keep their value until the next assignment. INT and TIME results are truncated to
   integers; division by zero gives 0. BOOL values count as 0/1 in arithmetic and comparisons.
 - Undeclared variables read as false / 0. A receptivity that does not parse never clears.
@@ -194,6 +200,8 @@ hand-verified charts (`tests/unit/simulation.test.ts`).
   situation, `G2{*}` keeps the current one. A forced grafcet **does not evolve** for the rest of
   the cycle. Orders are re-applied every cycle while the forcing step stays active; a forcing step
   that is only transient forces nothing.
+- A forced grafcet's own forcing orders apply to the grafcets below it, from its forced situation
+  (G1 forces G2{8}, step 8 of G2 holds G3{*}: G3 is frozen), so forcing passes down the hierarchy.
 - Stored actions of steps activated or deactivated by forcing run. Several orders on one grafcet in
   the same cycle are applied in order (the last one wins). A cycle in the forcing hierarchy is
   broken arbitrarily and reported.

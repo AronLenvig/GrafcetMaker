@@ -16,6 +16,12 @@ import type { CAction, CExpr, CForcing, Program } from './program';
 
 export const MAX_ITERATIONS = 1000;
 
+/**
+ * Tolerance (ms) of timer comparisons. Real-time mode feeds fractional times, and `(a + t) - a`
+ * can round below `t`: without it a timer would miss the deadline the clock was set to.
+ */
+const EPSILON = 1e-6;
+
 export type Value = boolean | number;
 
 interface TimerState {
@@ -240,7 +246,11 @@ export class Simulator {
     if (n.t2 === undefined && n.operand.type === 'step') {
       // Step timer: measured from the step's activation time.
       const idx = e.steps.get(n.operand.number);
-      return idx !== undefined && this.activeOf(idx) && this.time - this.activationOf(idx) >= n.t1;
+      return (
+        idx !== undefined &&
+        this.activeOf(idx) &&
+        this.time - this.activationOf(idx) >= n.t1 - EPSILON
+      );
     }
     const cur = this.eval(e, n.operand);
     const st = this.timers.get(key) ?? { c: cur, changedAt: this.time, out: false };
@@ -248,10 +258,10 @@ export class Simulator {
     const elapsed = this.time - changedAt;
     const out =
       n.t2 === undefined
-        ? cur && elapsed >= n.t1
+        ? cur && elapsed >= n.t1 - EPSILON
         : cur
-          ? st.out || elapsed >= n.t1
-          : st.out && elapsed < n.t2;
+          ? st.out || elapsed >= n.t1 - EPSILON
+          : st.out && elapsed < n.t2 - EPSILON;
     this.pendingTimers.set(key, { c: cur, changedAt, out });
     return out;
   }
@@ -448,17 +458,33 @@ export class Simulator {
     log.forced.push({ grafcet: g.id, active: [...want].map((s) => this.program.steps[s]!.id) });
   }
 
+  /**
+   * Continuous outputs, from all false. An assignment condition may read another continuous
+   * output, so every pass evaluates all conditions on the previous pass's outputs (independent of
+   * action order) until they no longer change. Conditions that depend on each other without
+   * reaching a fixed point (`M if /M`) stop after one pass per output, deterministically.
+   */
   private computeOutputs(): void {
     const p = this.program;
-    this.beginRound();
     for (const name of p.continuousTargets) this.values.set(name, false);
-    this.executing = [];
-    for (const a of p.actions) {
-      if (a.kind !== 'continuous' || !a.target) continue;
-      if (a.step !== null && !this.activeOf(a.step)) continue;
-      if (a.condition && !this.eval(a.condition)) continue;
-      this.values.set(a.target, true);
-      this.executing.push(a.id);
+    for (let pass = 0; ; pass++) {
+      this.beginRound();
+      const on = new Set<string>();
+      this.executing = [];
+      for (const a of p.actions) {
+        if (a.kind !== 'continuous' || !a.target) continue;
+        if (a.step !== null && !this.activeOf(a.step)) continue;
+        if (a.condition && !this.eval(a.condition)) continue;
+        on.add(a.target);
+        this.executing.push(a.id);
+      }
+      let changed = false;
+      for (const name of p.continuousTargets) {
+        if (this.values.get(name) === on.has(name)) continue;
+        this.values.set(name, on.has(name));
+        changed = true;
+      }
+      if (!changed || pass >= p.continuousTargets.size) break;
     }
     this.commitRound(this.outputNodes);
   }
@@ -480,13 +506,13 @@ export class Simulator {
     };
     const frozen = new Set<number>();
     for (const level of this.levels) {
-      const group = this.program.grafcets
-        .filter((g) => g.level === level && !frozen.has(g.idx))
-        .map((g) => g.idx);
+      const atLevel = this.program.grafcets.filter((g) => g.level === level).map((g) => g.idx);
+      const group = atLevel.filter((g) => !frozen.has(g));
       if (group.length) this.stabilize(group, log);
       if (this.error) break;
-      // Forcing orders of the (now stable) grafcets of this level.
-      for (const gi of group) {
+      // Forcing orders of the grafcets of this level, now stable or in their forced situation
+      // (a forced grafcet's own orders pass the forcing down the hierarchy).
+      for (const gi of atLevel) {
         for (const s of this.program.grafcets[gi]!.steps) {
           if (this.active[s] !== 1) continue;
           for (const a of this.program.actionsByStep[s]!) {
@@ -576,6 +602,8 @@ export class Simulator {
       if (a.condition && !this.eval(a.condition)) continue;
       this.assign(a);
     }
+    // Edges and timers observed by those conditions start from this state.
+    this.commitRound([]);
     return this.evolve('start', []);
   }
 
@@ -587,7 +615,7 @@ export class Simulator {
       const idx = s.expr.steps.get((node.operand as Extract<BoolNode, { type: 'step' }>).number);
       if (idx === undefined || !this.activeOf(idx)) continue;
       const d = this.activationOf(idx) + node.t1;
-      if (d > this.time) best = Math.min(best, d);
+      if (d > this.time + EPSILON) best = Math.min(best, d);
     }
     for (const [key, st] of this.timers) {
       const node = this.genericTimers.get(key)?.node as
@@ -596,7 +624,7 @@ export class Simulator {
       let d = Infinity;
       if (st.c && !st.out) d = st.changedAt + node.t1;
       else if (!st.c && st.out && node.t2 !== undefined) d = st.changedAt + node.t2;
-      if (d > this.time) best = Math.min(best, d);
+      if (d > this.time + EPSILON) best = Math.min(best, d);
     }
     return best === Infinity ? null : best;
   }
@@ -642,7 +670,11 @@ export class Simulator {
       if (this.activeOf(s.idx)) activatedAt[s.id] = this.activationOf(s.idx);
     }
     const enabled = p.transitions
-      .filter((t) => t.from.every((s) => this.active[s] === 1))
+      .filter(
+        (t) =>
+          t.from.every((s) => this.active[s] === 1) &&
+          (t.guard === undefined || this.activeOf(t.guard)),
+      )
       .map((t) => t.id);
     return {
       time: this.time,

@@ -82,7 +82,7 @@ export const actionKindSchema = z.enum([
 
 export const actionSchema = z.object({
   id,
-  /** The step it belongs to, or null for an action not attached to any step (never executed). */
+  /** The step it belongs to, or null for an action not attached to any step (always active, see docs/semantics.md). */
   stepId: id.nullable(),
   /** Top-left corner of an unattached action (attached actions are placed right of their step). */
   position: point.optional(),

@@ -577,6 +577,46 @@ describe('timers', () => {
     expect(X(sim)).toEqual(['G1.2']);
   });
 
+  it('timers expire at fractional times where (a + t) - a rounds below t', () => {
+    // Real-time mode feeds wall-clock times: 1099.4142857142856 + 3000 - 1099.4142857142856 < 3000.
+    const step = run(
+      build(
+        { start: 'in' },
+        {
+          name: 'G1',
+          initial: [0],
+          steps: [0, 1, 2],
+          transitions: [
+            [[0], 'start', [1]],
+            [[1], '3s/X1', [2]],
+          ],
+        },
+      ),
+    );
+    step.advanceTo(1099.4142857142856);
+    set(step, { start: true });
+    step.advanceTo(20_000);
+    expect(X(step)).toEqual(['G1.2']);
+    expect(step.nextDeadline()).toBeNull();
+
+    const generic = run(
+      build(
+        { a: 'in', M: 'out' },
+        {
+          name: 'G1',
+          initial: [0],
+          steps: [0],
+          transitions: [],
+          actions: [[0, 'continuous', 'M', '2s/a']],
+        },
+      ),
+    );
+    generic.advanceTo(48.57142857142857);
+    set(generic, { a: true });
+    generic.advanceTo(20_000);
+    expect(v(generic, 'M')).toBe(true);
+  });
+
   it('t1/c/t2 rises t1 after c and falls t2 after c falls', () => {
     const sim = run(
       build(
@@ -648,6 +688,44 @@ describe('actions', () => {
     expect(v(sim, 'M')).toBe(false);
     set(sim, { c: true });
     expect(v(sim, 'M')).toBe(true);
+  });
+
+  it('an assignment condition reading another continuous output does not depend on action order', () => {
+    const sim = run(
+      build(
+        { c: 'in', H: 'out', K: 'out', M: 'out' },
+        {
+          name: 'G1',
+          initial: [0],
+          steps: [0],
+          transitions: [],
+          actions: [
+            [0, 'continuous', 'H', 'K'],
+            [0, 'continuous', 'K', 'M'],
+            [0, 'continuous', 'M', 'c'],
+          ],
+        },
+      ),
+    );
+    expect([v(sim, 'H'), v(sim, 'K'), v(sim, 'M')]).toEqual([false, false, false]);
+    set(sim, { c: true });
+    expect([v(sim, 'H'), v(sim, 'K'), v(sim, 'M')]).toEqual([true, true, true]);
+    set(sim, { c: false });
+    expect([v(sim, 'H'), v(sim, 'K'), v(sim, 'M')]).toEqual([false, false, false]);
+  });
+
+  it('a continuous output conditioned on its own negation settles deterministically', () => {
+    const p = build(
+      { M: 'out' },
+      {
+        name: 'G1',
+        initial: [0],
+        steps: [0],
+        transitions: [],
+        actions: [[0, 'continuous', 'M', '/M']],
+      },
+    );
+    expect(v(run(p), 'M')).toBe(v(run(p), 'M'));
   });
 
   it('counts with stored actions and compares in receptivities', () => {
@@ -866,6 +944,33 @@ describe('several grafcets and forcing', () => {
     );
     set(sim, { a: true });
     expect(X(sim)).toEqual(['G1.2', 'G2.10']);
+  });
+
+  it('a forced grafcet passes its own forcing orders down the hierarchy', () => {
+    const sim = run(
+      build(
+        { a: 'in', b: 'in', c: 'in' },
+        {
+          name: 'G1',
+          initial: [0],
+          steps: [0, 1],
+          transitions: [[[0], 'a', [1]]],
+          actions: [[1, 'forcing', 'G2{11}']],
+        },
+        {
+          name: 'G2',
+          initial: [10],
+          steps: [10, 11],
+          transitions: [[[10], 'c', [11]]],
+          actions: [[11, 'forcing', 'G3{*}']],
+        },
+        { name: 'G3', initial: [20], steps: [20, 21], transitions: [[[20], 'b', [21]]] },
+      ),
+    );
+    set(sim, { a: true });
+    expect(X(sim)).toEqual(['G1.1', 'G2.11', 'G3.20']);
+    set(sim, { b: true });
+    expect(X(sim)).toEqual(['G1.1', 'G2.11', 'G3.20']);
   });
 
   it('events that occur while a grafcet is frozen are not seen after it is released', () => {

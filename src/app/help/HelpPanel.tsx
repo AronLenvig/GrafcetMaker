@@ -5,12 +5,33 @@ import { IconButton } from '../ui/primitives';
 import { Blocks } from './MarkdownView';
 import { closeHelp, HELP_HOME, openHelp, useHelp } from './helpStore';
 import { useLanguage } from '@/i18n';
-import { helpPages, ORDER, searchHelp } from './pages';
+import { loadedHelp, loadHelp, ORDER, searchHelp, type Help, type HelpPage } from './pages';
 
-function Results({ query }: { query: string }) {
-  const { t } = useTranslation();
+// The pages start loading with the panel itself.
+void loadHelp(useLanguage.getState().language).catch(() => undefined);
+
+const NO_HELP: Help = { pages: [], byId: new Map() };
+
+/** The help in the current language, loaded on first use (the help shown so far until then). */
+function useHelpPages(): Help {
   const language = useLanguage((s) => s.language);
-  const hits = useMemo(() => searchHelp(helpPages(language).pages, query), [language, query]);
+  const [help, setHelp] = useState(() => loadedHelp(language) ?? NO_HELP);
+  useEffect(() => {
+    let current = true;
+    loadHelp(language).then(
+      (h) => current && setHelp(h),
+      () => undefined,
+    );
+    return () => {
+      current = false;
+    };
+  }, [language]);
+  return help;
+}
+
+function Results({ query, pages }: { query: string; pages: HelpPage[] }) {
+  const { t } = useTranslation();
+  const hits = useMemo(() => searchHelp(pages, query), [pages, query]);
   if (!hits.length) return <p className="text-muted">{t('help.noResults', { query })}</p>;
   return (
     <ul className="flex flex-col gap-1.5">
@@ -39,20 +60,22 @@ export default function HelpPanel() {
   const { page: pageId, anchor } = useHelp();
   const [query, setQuery] = useState('');
   const body = useRef<HTMLDivElement>(null);
-  const { pages, byId: pageById } = helpPages(useLanguage((s) => s.language));
+  const help = useHelpPages();
+  const { pages, byId: pageById } = help;
   const page = pageById.get(pageId) ?? pageById.get(HELP_HOME) ?? pages[0];
   const index = page ? ORDER.indexOf(page.id) : -1;
   const prev = index > 0 ? pageById.get(ORDER[index - 1]!) : undefined;
   const next = index >= 0 ? pageById.get(ORDER[index + 1]!) : undefined;
 
+  useEffect(() => setQuery(''), [pageId, anchor]);
+  // Also once the pages have loaded (help opened at a section).
   useEffect(() => {
-    setQuery('');
     requestAnimationFrame(() => {
       const target = anchor ? document.getElementById(`help-${anchor}`) : null;
       if (target) target.scrollIntoView({ block: 'start' });
       else body.current?.scrollTo({ top: 0 });
     });
-  }, [pageId, anchor]);
+  }, [pageId, anchor, help]);
 
   return (
     <aside
@@ -113,7 +136,11 @@ export default function HelpPanel() {
         </div>
       </div>
       <div ref={body} className="min-h-0 flex-1 overflow-y-auto px-4 py-3 text-[13px]">
-        {query.trim() ? <Results query={query} /> : page && <Blocks blocks={page.blocks} />}
+        {query.trim() ? (
+          <Results query={query} pages={pages} />
+        ) : (
+          page && <Blocks blocks={page.blocks} />
+        )}
         {!query.trim() && (prev || next) && (
           <nav aria-label={t('help.pages')} className="mt-6 flex gap-2 border-t border-border pt-3">
             {prev && (

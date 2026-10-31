@@ -9,7 +9,7 @@
 import { EXAMPLES, type ExampleId } from '@/app/examples/examples';
 import { FIGURES } from '@/app/help/figures';
 import { inlineText, parseMarkdown, type Block, type Inline } from '@/app/help/markdown';
-import { helpPages, type HelpPage } from '@/app/help/pages';
+import { loadedHelp, loadHelp, type Help, type HelpPage } from '@/app/help/pages';
 import { SOURCE_URL } from '@/app/source';
 import { flagSvg } from '@/app/ui/flags';
 import { encodeTextHash } from '@/core/io/grafcetText';
@@ -70,6 +70,16 @@ const helpPath = (lang: Lang, id: string) => `${lang}/help/${id === 'index' ? ''
 
 /** From a page at `path` back to the site root. */
 const upFrom = (path: string) => '../'.repeat(path.split('/').filter(Boolean).length);
+
+// The help pages in every language, loaded with this module (vite.config.ts imports it through
+// a module runner that cannot load anything once the import is done).
+await Promise.all(LANGS.map((l) => loadHelp(l)));
+
+function helpPages(lang: Lang): Help {
+  const help = loadedHelp(lang);
+  if (!help) throw new Error(`The help in ${lang} is not loaded`);
+  return help;
+}
 
 const helpCenter = (lang: Lang) => helpPages(lang).byId.get('index')?.title ?? 'Help center';
 

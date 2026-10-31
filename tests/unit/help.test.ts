@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { FIGURES } from '@/app/help/figures';
 import { TERM_HELP } from '@/app/ui/TermHelp';
 import { parseInline, parseMarkdown, type Block, type Inline } from '@/app/help/markdown';
-import { helpPages, ORDER, PAGES, searchHelp } from '@/app/help/pages';
+import { loadHelp, ORDER, searchHelp } from '@/app/help/pages';
 import { grafcetToSvg } from '@/core/io/svgExport';
 
 function links(c: Inline[]): string[] {
@@ -26,7 +26,7 @@ function blockLinks(b: Block): string[] {
   }
 }
 
-const pageById = helpPages('en').byId;
+const { pages: PAGES, byId: pageById } = await loadHelp('en');
 
 describe('help pages', () => {
   it('loads every page in reading order', () => {

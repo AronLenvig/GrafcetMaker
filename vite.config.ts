@@ -226,5 +226,20 @@ export default defineConfig({
     target: 'es2022',
     sourcemap: false,
     chunkSizeWarningLimit: 700,
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          // The help pages (src/app/help/pages.ts): one chunk per language, loaded when needed.
+          groups: [
+            {
+              name: (id) => {
+                const m = /[\\/]docs[\\/]help[\\/](?:([a-z]{2})[\\/])?[\w-]+\.md\?raw$/.exec(id);
+                return m ? `help-${m[1] ?? 'en'}` : null;
+              },
+            },
+          ],
+        },
+      },
+    },
   },
 });

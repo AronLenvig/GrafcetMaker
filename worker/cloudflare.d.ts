@@ -16,6 +16,7 @@ declare module 'cloudflare:workers' {
   export interface DurableObjectStorage {
     get<T = unknown>(key: string): Promise<T | undefined>;
     put(key: string, value: unknown): Promise<void>;
+    put(entries: Record<string, unknown>): Promise<void>;
     deleteAll(): Promise<void>;
     setAlarm(scheduledTime: number): Promise<void>;
   }

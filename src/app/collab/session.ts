@@ -14,8 +14,11 @@
  * Connection: a WebSocket to the relay at api/room/<id> (worker/room.ts), reconnecting with
  * backoff. On (re)connecting, this side sends its full state asking for theirs, and one of the
  * others answers, so changes made offline merge both ways. The participant with the lowest relay
- * id stores the sealed room snapshot for latecomers, 2 s after changes settle. The records are
- * also kept in IndexedDB, so a reload rejoins with offline edits intact.
+ * id stores the sealed room snapshot for latecomers, 2 s after changes settle, with the room's
+ * write token so that only key holders can replace it. The records are also kept in IndexedDB,
+ * so a reload rejoins with offline edits intact. Incoming frames queue for opening up to a limit
+ * (beyond it they are dropped and the state is asked for again), and a participant whose message
+ * the key does not open is ignored from then on.
  */
 import i18next from 'i18next';
 import { RecordStore } from '@/core/collab/records';
@@ -27,6 +30,7 @@ import {
   newRoomId,
   newRoomKey,
   readMessage,
+  roomWriteToken,
   seal,
   unseal,
   type Message,
@@ -56,6 +60,10 @@ const PING_MS = 25_000;
 const JOIN_TIMEOUT_MS = 10_000;
 /** Presence waits while this much is still queued on the connection. */
 const BUSY_BYTES = 256 * 1024;
+/** Incoming frames waiting to be opened; beyond this, frames are dropped (see `missed`). */
+const MAX_BACKLOG = 100;
+/** The sender of a relayed message (the relay writes `t`, then `from`): read without parsing. */
+const SENDER = /^\{"t":"[mv]","from":"([^"]{1,32})"/;
 
 export type LiveError = 'brokenLink' | 'notFound' | 'failed' | 'newer' | 'full' | 'tooLarge';
 
@@ -100,6 +108,14 @@ class LiveSession {
   private retries = 0;
   /** Incoming frames are handled one after the other (opening them is asynchronous). */
   private frames: Promise<void> = Promise.resolve();
+  private backlog = 0;
+  /**
+   * Participants who sent a message this room's key does not open: someone with the room id but
+   * not the key. Their later messages are dropped unopened.
+   */
+  private readonly foreign = new Set<string>();
+  /** Lets the relay store snapshots for this room (wire.ts). */
+  private readonly writeToken: Promise<string>;
   private readonly timers = new Map<string, ReturnType<typeof setTimeout>>();
   private pingTimer: ReturnType<typeof setInterval> | undefined;
   private applyFrame: number | null = null;
@@ -120,6 +136,7 @@ class LiveSession {
     this.store = store;
     this.pid = pid;
     this.rejoining = store.size > 0;
+    this.writeToken = roomWriteToken(link.key);
     this.initial = new Promise((resolve) => {
       this.settle = resolve;
     });
@@ -167,7 +184,19 @@ class LiveSession {
     ws.onmessage = (e: MessageEvent) => {
       if (typeof e.data !== 'string') return;
       const frame = e.data;
-      this.frames = this.frames.then(() => this.onFrame(frame)).catch(() => undefined);
+      const sender = SENDER.exec(frame.slice(0, 64))?.[1];
+      if (sender !== undefined && this.foreign.has(sender)) return;
+      if (this.backlog >= MAX_BACKLOG) {
+        this.missed();
+        return;
+      }
+      this.backlog++;
+      this.frames = this.frames
+        .then(() => this.onFrame(frame))
+        .catch(() => undefined)
+        .finally(() => {
+          this.backlog--;
+        });
     };
     ws.onclose = (e) => {
       if (this.ws !== ws) return;
@@ -244,17 +273,7 @@ class LiveSession {
         }, PING_MS);
         // The stored snapshot first: whatever this side stores later includes it.
         if (typeof f.snapshot === 'string') await this.receive(f.snapshot, null);
-        // Our own state (edits made offline included) and a request for theirs.
-        const own = this.synced !== null || this.rejoining;
-        await this.send(
-          'm',
-          message({
-            type: 'sync',
-            pid: this.pid,
-            records: own ? this.store.all() : [],
-            want: true,
-          }),
-        );
+        await this.requestState();
         if (this.synced) this.pushPresence(true);
         const hasState = this.pid !== null && this.store.size > 0;
         if (!this.peers.size) {
@@ -274,6 +293,7 @@ class LiveSession {
         if (!id) return;
         this.peers.delete(id);
         this.heldFrom.delete(id);
+        this.foreign.delete(id);
         useLive.setState((s) => {
           const peers = { ...s.peers };
           delete peers[id];
@@ -299,13 +319,28 @@ class LiveSession {
     }
   }
 
+  /** Sends our own state (edits made offline included) and asks for the others'. */
+  private requestState(): Promise<void> {
+    const own = this.synced !== null || this.rejoining;
+    return this.send(
+      'm',
+      message({ type: 'sync', pid: this.pid, records: own ? this.store.all() : [], want: true }),
+    );
+  }
+
+  /** Incoming frames were dropped: everyone's state is asked for again in a moment. */
+  private missed(): void {
+    this.later('missed', 5000, () => void this.requestState());
+  }
+
   /** An opened message from `from` (null: the stored snapshot). */
   private async receive(data: string, from: string | null): Promise<void> {
     let msg: Message | 'newer' | null;
     try {
       msg = readMessage(await unseal(this.key, data));
     } catch {
-      // Not sealed with this room's key, or altered: ignored.
+      // Not sealed with this room's key, or altered: ignored, and so is the sender from now on.
+      if (from) this.foreign.add(from);
       return;
     }
     if (msg === 'newer') {
@@ -439,7 +474,9 @@ class LiveSession {
       this.warnedLarge = true;
       return;
     }
-    if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ t: 's', d }));
+    const w = await this.writeToken;
+    // Refused by the relay ('denied') only when someone else claimed the room's snapshot first.
+    if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ t: 's', d, w }));
   }
 
   async persist(): Promise<void> {

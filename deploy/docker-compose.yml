@@ -18,6 +18,10 @@ services:
     build:
       context: ..
       dockerfile: deploy/relay.Dockerfile
+    # Reached only through the app's nginx, which names the client (deploy/relay-proxy.conf).
+    # Other settings (allowed origins, caps, memory): see server/relay.ts.
+    environment:
+      RELAY_CLIENT_IP_HEADER: x-real-ip
     volumes:
       # Room snapshots (sealed: the server cannot read them), deleted 30 days after the last change.
       - relay-data:/data

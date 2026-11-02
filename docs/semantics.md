@@ -303,13 +303,17 @@ grafcet holds several sequences) holding the number of its active step, and a fl
    Only the active step's transitions are evaluated, so a sequence clears **at most one transition
    per scan**. Alternative branches become `IF … ELSIF …` in left-to-right order: the first true
    receptivity wins (IEC 60848 would clear both if both were true; make them exclusive). The
-   receptivity `1` needs no `IF`. Stored actions run inside the transition: on deactivation of the
-   step left, then the new step number, then on activation of the step entered (none when a
-   transition leads back to its own step, rule 5). A forced sequence's CASE is wrapped in
+   receptivity `1` needs no `IF`. The CASE holds nothing but these conditions and step numbers
+   (owner decision): actions are written after it. A forced sequence's CASE is wrapped in
    `IF order THEN step_G := n; ELSIF … ELSE CASE … END_IF` (the last order listed wins; `{*}`
    leaves the variable unchanged; `{}`, or `{n}` naming steps of another sequence, writes `-1`, "no
-   active step", which then gets its own empty CASE label). Stored actions of steps changed by
-   forcing do not run.
+   active step", which then gets its own empty CASE label).
+   After the CASE (or the forcing `IF`), the sequence's stored actions run when its step changed
+   since the previous scan, `step_G_M` (initialized to the initial step, updated at the end of the
+   scan): `IF step_G_M = n AND step_G <> n` for those on deactivation of step n, then
+   `IF step_G = m AND step_G_M <> m` for those on activation of step m. A transition leading back
+   to its own step changes nothing, so it runs none (rule 5); a step changed by forcing runs its
+   stored actions, as in the simulator. Without stored actions there is no `step_G_M`.
 4. Actions on events: `IF step_G = n AND event THEN …`.
 5. Outputs: each variable driven by continuous actions is one expression, the steps of a sequence
    as `step_G = 3 OR step_G = 4` and runs of three or more as `step_G >= 2 AND step_G <= 4`,
@@ -364,8 +368,8 @@ actions run per iteration, so transient steps execute their stored actions as in
 
 #### Stored actions: once (default) or held while the step is active
 
-By default a stored action runs **once**, when its step is activated or deactivated (inside the
-transition in the CASE style, on the change of `X` in the other), and the variable keeps its value
+By default a stored action runs **once**, when its step is activated or deactivated (after the CASE,
+on the change of the step variable, in the CASE style; on the change of `X` in the other), and the variable keeps its value
 afterwards: `Q1 := 1` on activation sets Q1 and Q1 stays TRUE after the step is left, until
 another action writes it, exactly as in the simulator. It only lasts one scan when the same
 variable is also driven by a continuous action, whose output line rewrites it every scan (as in
@@ -373,8 +377,8 @@ the simulator; validation warns about such mixes).
 
 The option **Hold stored actions with a constant value while their step is active** writes the
 stored actions that assign a constant (`Q := 1`, `Q := 0`, `M`, `N := 5`, without condition) as
-assignments repeated in **every scan while their step is active**: at the top of the step's CASE
-branch, before its transitions, or `IF X THEN …` after the stored actions that run once (one BOOL
+assignments repeated in **every scan while their step is active**: `IF step_G = n THEN …` after the
+CASE, or `IF X THEN …` after the stored actions that run once (one BOOL
 per step). Common PLC practice: an output set this way is re-asserted if something else writes
 it. Actions on deactivation are held too (assigned while the step is active, so earlier than IEC
 60848's "when the step is left"), except when the same step sets the same variable on activation

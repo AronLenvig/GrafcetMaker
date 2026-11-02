@@ -1141,9 +1141,10 @@ exports[`Structured Text, CASE style > OR divergence and convergence 1`] = `
 
   Execution: one INT variable per sequence holds the number of its active step. Its CASE runs
   the transitions of that step only, so a sequence clears at most one transition per scan and,
-  of alternative branches, the first true receptivity (left to right) wins. Stored actions run
-  in the transition that activates or deactivates their step; an active forcing order replaces
-  the CASE of the grafcet it forces.
+  of alternative branches, the first true receptivity (left to right) wins. The CASE only sets
+  the step: stored actions run after it when the step changed since the previous scan (also by
+  forcing), and outputs are assigned at the end. An active forcing order replaces the CASE of
+  the grafcet it forces.
   Timers and edges are updated at the start of the scan. Call this function block cyclically.
 *)
 FUNCTION_BLOCK FB_Test_cell
@@ -1191,9 +1192,10 @@ exports[`Structured Text, CASE style > enclosing step 1`] = `
 
   Execution: one INT variable per sequence holds the number of its active step. Its CASE runs
   the transitions of that step only, so a sequence clears at most one transition per scan and,
-  of alternative branches, the first true receptivity (left to right) wins. Stored actions run
-  in the transition that activates or deactivates their step; an active forcing order replaces
-  the CASE of the grafcet it forces.
+  of alternative branches, the first true receptivity (left to right) wins. The CASE only sets
+  the step: stored actions run after it when the step changed since the previous scan (also by
+  forcing), and outputs are assigned at the end. An active forcing order replaces the CASE of
+  the grafcet it forces.
   Sequences with parallel branches keep one BOOL per step, X := (X AND NOT out) OR in,
   with every transition computed from the situation at the start of the scan.
   Timers and edges are updated at the start of the scan. Call this function block cyclically.
@@ -1248,9 +1250,10 @@ exports[`Structured Text, CASE style > forcing orders 1`] = `
 
   Execution: one INT variable per sequence holds the number of its active step. Its CASE runs
   the transitions of that step only, so a sequence clears at most one transition per scan and,
-  of alternative branches, the first true receptivity (left to right) wins. Stored actions run
-  in the transition that activates or deactivates their step; an active forcing order replaces
-  the CASE of the grafcet it forces.
+  of alternative branches, the first true receptivity (left to right) wins. The CASE only sets
+  the step: stored actions run after it when the step changed since the previous scan (also by
+  forcing), and outputs are assigned at the end. An active forcing order replaces the CASE of
+  the grafcet it forces.
   Timers and edges are updated at the start of the scan. Call this function block cyclically.
 *)
 FUNCTION_BLOCK FB_Test_cell
@@ -1319,9 +1322,10 @@ exports[`Structured Text, CASE style > macro-step 1`] = `
 
   Execution: one INT variable per sequence holds the number of its active step. Its CASE runs
   the transitions of that step only, so a sequence clears at most one transition per scan and,
-  of alternative branches, the first true receptivity (left to right) wins. Stored actions run
-  in the transition that activates or deactivates their step; an active forcing order replaces
-  the CASE of the grafcet it forces.
+  of alternative branches, the first true receptivity (left to right) wins. The CASE only sets
+  the step: stored actions run after it when the step changed since the previous scan (also by
+  forcing), and outputs are assigned at the end. An active forcing order replaces the CASE of
+  the grafcet it forces.
   Timers and edges are updated at the start of the scan. Call this function block cyclically.
 *)
 FUNCTION_BLOCK FB_Test_cell
@@ -1368,9 +1372,10 @@ exports[`Structured Text, CASE style > sequence and loop 1`] = `
 
   Execution: one INT variable per sequence holds the number of its active step. Its CASE runs
   the transitions of that step only, so a sequence clears at most one transition per scan and,
-  of alternative branches, the first true receptivity (left to right) wins. Stored actions run
-  in the transition that activates or deactivates their step; an active forcing order replaces
-  the CASE of the grafcet it forces.
+  of alternative branches, the first true receptivity (left to right) wins. The CASE only sets
+  the step: stored actions run after it when the step changed since the previous scan (also by
+  forcing), and outputs are assigned at the end. An active forcing order replaces the CASE of
+  the grafcet it forces.
   Timers and edges are updated at the start of the scan. Call this function block cyclically.
 *)
 FUNCTION_BLOCK FB_Test_cell
@@ -1422,9 +1427,10 @@ exports[`Structured Text, CASE style > source and sink transitions 1`] = `
 
   Execution: one INT variable per sequence holds the number of its active step. Its CASE runs
   the transitions of that step only, so a sequence clears at most one transition per scan and,
-  of alternative branches, the first true receptivity (left to right) wins. Stored actions run
-  in the transition that activates or deactivates their step; an active forcing order replaces
-  the CASE of the grafcet it forces.
+  of alternative branches, the first true receptivity (left to right) wins. The CASE only sets
+  the step: stored actions run after it when the step changed since the previous scan (also by
+  forcing), and outputs are assigned at the end. An active forcing order replaces the CASE of
+  the grafcet it forces.
   Sequences with parallel branches keep one BOOL per step, X := (X AND NOT out) OR in,
   with every transition computed from the situation at the start of the scan.
   Timers and edges are updated at the start of the scan. Call this function block cyclically.
@@ -1466,9 +1472,10 @@ exports[`Structured Text, CASE style > stored actions, comparisons and types 1`]
 
   Execution: one INT variable per sequence holds the number of its active step. Its CASE runs
   the transitions of that step only, so a sequence clears at most one transition per scan and,
-  of alternative branches, the first true receptivity (left to right) wins. Stored actions run
-  in the transition that activates or deactivates their step; an active forcing order replaces
-  the CASE of the grafcet it forces.
+  of alternative branches, the first true receptivity (left to right) wins. The CASE only sets
+  the step: stored actions run after it when the step changed since the previous scan (also by
+  forcing), and outputs are assigned at the end. An active forcing order replaces the CASE of
+  the grafcet it forces.
   Timers and edges are updated at the start of the scan. Call this function block cyclically.
 *)
 FUNCTION_BLOCK FB_Test_cell
@@ -1488,6 +1495,7 @@ END_VAR
 VAR	// GRAFCET state
 	step_G1 : INT := 0;	// G1: number of the active step
 	step_G1_range_error : BOOL;	// step_G1 holds no step of G1
+	step_G1_M : INT := 0;	// step_G1 in the previous scan
 	Init : BOOL := TRUE;	// first scan
 	RE_reset : R_TRIG;	// ↑reset
 END_VAR
@@ -1505,26 +1513,37 @@ CASE step_G1 OF
 	0:
 		IF level > 80.5 OR C = 3 THEN
 			step_G1 := 1;
-			C := C + 1;
-			Motor := TRUE;
-			IF level < 10 THEN
-				Speed := Speed * 2.0;
-			END_IF;
 		END_IF;
 	1:
 		IF (C + 1) MOD 2 = 0 AND Done THEN
-			Motor := FALSE;
 			step_G1 := 0;
-			Done := C >= 3 AND NOT reset;
 		END_IF;
 	ELSE
 		step_G1_range_error := TRUE;
 END_CASE;
 
+// G1: stored actions of its steps
+IF step_G1_M = 1 AND step_G1 <> 1 THEN	// step 1 deactivated
+	Motor := FALSE;
+END_IF;
+IF step_G1 = 0 AND step_G1_M <> 0 THEN	// step 0 activated
+	Done := C >= 3 AND NOT reset;
+END_IF;
+IF step_G1 = 1 AND step_G1_M <> 1 THEN	// step 1 activated
+	C := C + 1;
+	Motor := TRUE;
+	IF level < 10 THEN
+		Speed := Speed * 2.0;
+	END_IF;
+END_IF;
+
 // Actions on events
 IF step_G1 = 1 AND RE_reset.Q THEN
 	C := 0;
 END_IF;
+
+// Step activity of this scan, for the next one
+step_G1_M := step_G1;
 
 Init := FALSE;
 
@@ -1540,9 +1559,10 @@ exports[`Structured Text, CASE style > timers and edges 1`] = `
 
   Execution: one INT variable per sequence holds the number of its active step. Its CASE runs
   the transitions of that step only, so a sequence clears at most one transition per scan and,
-  of alternative branches, the first true receptivity (left to right) wins. Stored actions run
-  in the transition that activates or deactivates their step; an active forcing order replaces
-  the CASE of the grafcet it forces.
+  of alternative branches, the first true receptivity (left to right) wins. The CASE only sets
+  the step: stored actions run after it when the step changed since the previous scan (also by
+  forcing), and outputs are assigned at the end. An active forcing order replaces the CASE of
+  the grafcet it forces.
   Timers and edges are updated at the start of the scan. Call this function block cyclically.
 *)
 FUNCTION_BLOCK FB_Test_cell
@@ -1608,9 +1628,10 @@ exports[`stored actions held while the step is active (option) > keeps set on ac
 
   Execution: one INT variable per sequence holds the number of its active step. Its CASE runs
   the transitions of that step only, so a sequence clears at most one transition per scan and,
-  of alternative branches, the first true receptivity (left to right) wins. Stored actions run
-  in the transition that activates or deactivates their step; an active forcing order replaces
-  the CASE of the grafcet it forces.
+  of alternative branches, the first true receptivity (left to right) wins. The CASE only sets
+  the step: stored actions run after it when the step changed since the previous scan (also by
+  forcing), and outputs are assigned at the end. An active forcing order replaces the CASE of
+  the grafcet it forces.
   Stored actions that assign a constant (Q := 1) are assigned in every scan while their step
   is active, those on deactivation too unless the step sets the same variable on activation.
   Timers and edges are updated at the start of the scan. Call this function block cyclically.
@@ -1632,6 +1653,7 @@ END_VAR
 VAR	// GRAFCET state
 	step_G1 : INT := 0;	// G1: number of the active step
 	step_G1_range_error : BOOL;	// step_G1 holds no step of G1
+	step_G1_M : INT := 0;	// step_G1 in the previous scan
 	Init : BOOL := TRUE;	// first scan
 	RE_reset : R_TRIG;	// ↑reset
 END_VAR
@@ -1649,26 +1671,39 @@ CASE step_G1 OF
 	0:
 		IF level > 80.5 OR C = 3 THEN
 			step_G1 := 1;
-			C := C + 1;
-			IF level < 10 THEN
-				Speed := Speed * 2.0;
-			END_IF;
 		END_IF;
 	1:
-		Motor := TRUE;
 		IF (C + 1) MOD 2 = 0 AND Done THEN
-			Motor := FALSE;
 			step_G1 := 0;
-			Done := C >= 3 AND NOT reset;
 		END_IF;
 	ELSE
 		step_G1_range_error := TRUE;
 END_CASE;
 
+// G1: stored actions of its steps
+IF step_G1_M = 1 AND step_G1 <> 1 THEN	// step 1 deactivated
+	Motor := FALSE;
+END_IF;
+IF step_G1 = 0 AND step_G1_M <> 0 THEN	// step 0 activated
+	Done := C >= 3 AND NOT reset;
+END_IF;
+IF step_G1 = 1 AND step_G1_M <> 1 THEN	// step 1 activated
+	C := C + 1;
+	IF level < 10 THEN
+		Speed := Speed * 2.0;
+	END_IF;
+END_IF;
+IF step_G1 = 1 THEN	// while step 1 is active
+	Motor := TRUE;
+END_IF;
+
 // Actions on events
 IF step_G1 = 1 AND RE_reset.Q THEN
 	C := 0;
 END_IF;
+
+// Step activity of this scan, for the next one
+step_G1_M := step_G1;
 
 Init := FALSE;
 
@@ -1849,9 +1884,10 @@ exports[`vendor dialects > rockwell 1`] = `
 
   Execution: one INT variable per sequence holds the number of its active step. Its CASE runs
   the transitions of that step only, so a sequence clears at most one transition per scan and,
-  of alternative branches, the first true receptivity (left to right) wins. Stored actions run
-  in the transition that activates or deactivates their step; an active forcing order replaces
-  the CASE of the grafcet it forces.
+  of alternative branches, the first true receptivity (left to right) wins. The CASE only sets
+  the step: stored actions run after it when the step changed since the previous scan (also by
+  forcing), and outputs are assigned at the end. An active forcing order replaces the CASE of
+  the grafcet it forces.
   Timers and edges are updated at the start of the scan. Call this routine every scan.
 
   Studio 5000 Logix Designer: create these tags (program scope), then paste the code
@@ -1933,9 +1969,10 @@ exports[`vendor dialects > rockwell 2`] = `
 
   Execution: one INT variable per sequence holds the number of its active step. Its CASE runs
   the transitions of that step only, so a sequence clears at most one transition per scan and,
-  of alternative branches, the first true receptivity (left to right) wins. Stored actions run
-  in the transition that activates or deactivates their step; an active forcing order replaces
-  the CASE of the grafcet it forces.
+  of alternative branches, the first true receptivity (left to right) wins. The CASE only sets
+  the step: stored actions run after it when the step changed since the previous scan (also by
+  forcing), and outputs are assigned at the end. An active forcing order replaces the CASE of
+  the grafcet it forces.
   Timers and edges are updated at the start of the scan. Call this routine every scan.
 
   Studio 5000 Logix Designer: create these tags (program scope), then paste the code
@@ -1951,6 +1988,7 @@ exports[`vendor dialects > rockwell 2`] = `
   Done                 BOOL         local
   step_G1              DINT         local   G1: number of the active step
   step_G1_range_error  BOOL         local   step_G1 holds no step of G1
+  step_G1_M            DINT         local   step_G1 in the previous scan
   Init                 BOOL         local   first scan
   RE_reset             FBD_ONESHOT  local   RE reset
 *)
@@ -1964,6 +2002,7 @@ IF S:FS THEN
 	Done := 0;
 	step_G1 := 0;
 	step_G1_range_error := 0;
+	step_G1_M := 0;
 	Init := 1;
 END_IF;
 
@@ -1981,26 +2020,37 @@ CASE step_G1 OF
 	0:
 		IF level > 80.5 OR C = 3 THEN
 			step_G1 := 1;
-			C := C + 1;
-			Motor := 1;
-			IF level < 10 THEN
-				Speed := Speed * 2.0;
-			END_IF;
 		END_IF;
 	1:
 		IF (C + 1) MOD 2 = 0 AND Done THEN
-			Motor := 0;
 			step_G1 := 0;
-			Done := C >= 3 AND NOT reset;
 		END_IF;
 	ELSE
 		step_G1_range_error := 1;
 END_CASE;
 
+// G1: stored actions of its steps
+IF step_G1_M = 1 AND step_G1 <> 1 THEN	// step 1 deactivated
+	Motor := 0;
+END_IF;
+IF step_G1 = 0 AND step_G1_M <> 0 THEN	// step 0 activated
+	Done := C >= 3 AND NOT reset;
+END_IF;
+IF step_G1 = 1 AND step_G1_M <> 1 THEN	// step 1 activated
+	C := C + 1;
+	Motor := 1;
+	IF level < 10 THEN
+		Speed := Speed * 2.0;
+	END_IF;
+END_IF;
+
 // Actions on events
 IF step_G1 = 1 AND RE_reset.OutputBit THEN
 	C := 0;
 END_IF;
+
+// Step activity of this scan, for the next one
+step_G1_M := step_G1;
 
 Init := 0;
 "
@@ -2016,9 +2066,10 @@ VERSION : 0.1
 //
 // Execution: one INT variable per sequence holds the number of its active step. Its CASE runs
 // the transitions of that step only, so a sequence clears at most one transition per scan and,
-// of alternative branches, the first true receptivity (left to right) wins. Stored actions run
-// in the transition that activates or deactivates their step; an active forcing order replaces
-// the CASE of the grafcet it forces.
+// of alternative branches, the first true receptivity (left to right) wins. The CASE only sets
+// the step: stored actions run after it when the step changed since the previous scan (also by
+// forcing), and outputs are assigned at the end. An active forcing order replaces the CASE of
+// the grafcet it forces.
 // Timers and edges are updated at the start of the scan. Call this function block cyclically.
 VAR_INPUT
 	b : BOOL;
@@ -2085,9 +2136,10 @@ VERSION : 0.1
 //
 // Execution: one INT variable per sequence holds the number of its active step. Its CASE runs
 // the transitions of that step only, so a sequence clears at most one transition per scan and,
-// of alternative branches, the first true receptivity (left to right) wins. Stored actions run
-// in the transition that activates or deactivates their step; an active forcing order replaces
-// the CASE of the grafcet it forces.
+// of alternative branches, the first true receptivity (left to right) wins. The CASE only sets
+// the step: stored actions run after it when the step changed since the previous scan (also by
+// forcing), and outputs are assigned at the end. An active forcing order replaces the CASE of
+// the grafcet it forces.
 // Timers and edges are updated at the start of the scan. Call this function block cyclically.
 VAR_INPUT
 	level : REAL;
@@ -2105,6 +2157,7 @@ END_VAR
 VAR	// GRAFCET state
 	step_G1 : INT := 0;	// G1: number of the active step
 	step_G1_range_error : BOOL;	// step_G1 holds no step of G1
+	step_G1_M : INT := 0;	// step_G1 in the previous scan
 	Init : BOOL := TRUE;	// first scan
 	RE_reset : R_TRIG;	// RE reset
 END_VAR
@@ -2123,26 +2176,37 @@ CASE #step_G1 OF
 	0:
 		IF #level > 80.5 OR #C = 3 THEN
 			#step_G1 := 1;
-			#C := #C + 1;
-			#Motor := TRUE;
-			IF #level < 10 THEN
-				#Speed := #Speed * 2.0;
-			END_IF;
 		END_IF;
 	1:
 		IF (#C + 1) MOD 2 = 0 AND #Done THEN
-			#Motor := FALSE;
 			#step_G1 := 0;
-			#Done := #C >= 3 AND NOT #reset;
 		END_IF;
 	ELSE
 		#step_G1_range_error := TRUE;
 END_CASE;
 
+// G1: stored actions of its steps
+IF #step_G1_M = 1 AND #step_G1 <> 1 THEN	// step 1 deactivated
+	#Motor := FALSE;
+END_IF;
+IF #step_G1 = 0 AND #step_G1_M <> 0 THEN	// step 0 activated
+	#Done := #C >= 3 AND NOT #reset;
+END_IF;
+IF #step_G1 = 1 AND #step_G1_M <> 1 THEN	// step 1 activated
+	#C := #C + 1;
+	#Motor := TRUE;
+	IF #level < 10 THEN
+		#Speed := #Speed * 2.0;
+	END_IF;
+END_IF;
+
 // Actions on events
 IF #step_G1 = 1 AND #RE_reset.Q THEN
 	#C := 0;
 END_IF;
+
+// Step activity of this scan, for the next one
+#step_G1_M := #step_G1;
 
 #Init := FALSE;
 
@@ -2162,9 +2226,10 @@ exports[`vendor dialects > twincat 1`] = `
 
   Execution: one INT variable per sequence holds the number of its active step. Its CASE runs
   the transitions of that step only, so a sequence clears at most one transition per scan and,
-  of alternative branches, the first true receptivity (left to right) wins. Stored actions run
-  in the transition that activates or deactivates their step; an active forcing order replaces
-  the CASE of the grafcet it forces.
+  of alternative branches, the first true receptivity (left to right) wins. The CASE only sets
+  the step: stored actions run after it when the step changed since the previous scan (also by
+  forcing), and outputs are assigned at the end. An active forcing order replaces the CASE of
+  the grafcet it forces.
   Timers and edges are updated at the start of the scan. Call this function block cyclically.
 *)
 VAR_INPUT
@@ -2235,9 +2300,10 @@ exports[`vendor dialects > twincat 2`] = `
 
   Execution: one INT variable per sequence holds the number of its active step. Its CASE runs
   the transitions of that step only, so a sequence clears at most one transition per scan and,
-  of alternative branches, the first true receptivity (left to right) wins. Stored actions run
-  in the transition that activates or deactivates their step; an active forcing order replaces
-  the CASE of the grafcet it forces.
+  of alternative branches, the first true receptivity (left to right) wins. The CASE only sets
+  the step: stored actions run after it when the step changed since the previous scan (also by
+  forcing), and outputs are assigned at the end. An active forcing order replaces the CASE of
+  the grafcet it forces.
   Timers and edges are updated at the start of the scan. Call this function block cyclically.
 *)
 VAR_INPUT
@@ -2256,6 +2322,7 @@ END_VAR
 VAR	// GRAFCET state
 	step_G1 : INT := 0;	// G1: number of the active step
 	step_G1_range_error : BOOL;	// step_G1 holds no step of G1
+	step_G1_M : INT := 0;	// step_G1 in the previous scan
 	Init : BOOL := TRUE;	// first scan
 	RE_reset : R_TRIG;	// ↑reset
 END_VAR
@@ -2274,26 +2341,37 @@ CASE step_G1 OF
 	0:
 		IF level > 80.5 OR C = 3 THEN
 			step_G1 := 1;
-			C := C + 1;
-			Motor := TRUE;
-			IF level < 10 THEN
-				Speed := Speed * 2.0;
-			END_IF;
 		END_IF;
 	1:
 		IF (C + 1) MOD 2 = 0 AND Done THEN
-			Motor := FALSE;
 			step_G1 := 0;
-			Done := C >= 3 AND NOT reset;
 		END_IF;
 	ELSE
 		step_G1_range_error := TRUE;
 END_CASE;
 
+// G1: stored actions of its steps
+IF step_G1_M = 1 AND step_G1 <> 1 THEN	// step 1 deactivated
+	Motor := FALSE;
+END_IF;
+IF step_G1 = 0 AND step_G1_M <> 0 THEN	// step 0 activated
+	Done := C >= 3 AND NOT reset;
+END_IF;
+IF step_G1 = 1 AND step_G1_M <> 1 THEN	// step 1 activated
+	C := C + 1;
+	Motor := TRUE;
+	IF level < 10 THEN
+		Speed := Speed * 2.0;
+	END_IF;
+END_IF;
+
 // Actions on events
 IF step_G1 = 1 AND RE_reset.Q THEN
 	C := 0;
 END_IF;
+
+// Step activity of this scan, for the next one
+step_G1_M := step_G1;
 
 Init := FALSE;]]></ST>
     </Implementation>

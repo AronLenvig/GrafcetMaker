@@ -421,6 +421,11 @@ Autonomous build log. Read this first in every session and resume from **Current
   `llms.txt` and the home page text; File › Open from text… (`TextDialog`, also shown for a
   `#text=` link that cannot be read) and File › Copy as text. Tests: every construct, round trip
   of every example, line errors, links, the guide's examples open without errors.
+- CASE style holds only transitions (owner request): stored actions after the CASE on the change of
+  the step variable (`step_G_M`, previous scan; also on forcing, as the simulator), held actions as
+  `IF step_G = n THEN` after it; CLAUDE.md codegen decision updated.
+- Fix: an action attached to a step can be copied on its own; pasted onto the selected step (or the
+  selected action's step), else its own step, else without a step at the view center.
 
 ## Decisions
 

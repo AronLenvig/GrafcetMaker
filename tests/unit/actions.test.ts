@@ -130,6 +130,35 @@ describe('unattached actions', () => {
     });
   });
 
+  it('a step’s action copied on its own: to the selected step, its own step, or no step', () => {
+    const { p, g, step } = setup();
+    addAction(g, step, 'continuous', 'Lamp');
+    const motor = addAction(g, step, 'storedOnActivation', 'Motor := 1');
+    const other = addStep(g, { x: 400, y: 100 });
+    addAction(g, other.id, 'continuous', 'Horn');
+    const payload = parseClipboard(serializeClipboard(copyElements(g, [motor.id])!))!;
+    expect(payload.steps).toEqual([]);
+    expect(payload.actions.map((a) => a.text)).toEqual(['Motor := 1']);
+
+    // A step selected: added at the end of its actions.
+    const [onOther] = pasteElements(p, g.id, payload, { x: 20, y: 20 }, { attachTo: other.id });
+    expect(g.actions[onOther!]).toMatchObject({ stepId: other.id, order: 1, text: 'Motor := 1' });
+    // Nothing selected: a copy on its own step, after the original.
+    const [again] = pasteElements(p, g.id, payload, { x: 20, y: 20 });
+    expect(g.actions[again!]).toMatchObject({ stepId: step, order: 2 });
+    // Another grafcet without that step: an action without a step where it is pasted.
+    const g2 = createGrafcet('G2');
+    p.grafcets[g2.id] = g2;
+    const [free] = pasteElements(
+      p,
+      g2.id,
+      payload,
+      { x: 20, y: 20 },
+      { freeAt: { x: 300, y: 200 } },
+    );
+    expect(g2.actions[free!]).toMatchObject({ stepId: null, position: { x: 320, y: 220 } });
+  });
+
   it('only warn when stored on deactivation (never deactivated)', () => {
     const { p, g } = setup();
     addFreeAction(g, { x: 400, y: 300 }, 'continuous', 'Horn');

@@ -26,8 +26,9 @@ const clipboardSchema = z.object({
 export type ClipboardPayload = z.infer<typeof clipboardSchema>;
 
 /**
- * Copies the given elements of a grafcet. Steps bring their actions; transitions keep only links
- * to copied steps. `referencedVariables` lets callers include variables used by expressions.
+ * Copies the given elements of a grafcet. Steps bring their actions; an action selected without
+ * its step is copied too (pasted on a step, see pasteElements); transitions keep only links to
+ * copied steps. `referencedVariables` lets callers include variables used by expressions.
  */
 export function copyElements(
   g: Grafcet,
@@ -58,11 +59,10 @@ export function copyElements(
       ...(jump && to.length === 1 ? { jump } : {}),
     });
   }
-  const actions: Action[] = Object.values(g.actions).filter((a) =>
-    a.stepId === null ? set.has(a.id) : stepIds.has(a.stepId),
+  const actions: Action[] = Object.values(g.actions).filter(
+    (a) => set.has(a.id) || (a.stepId !== null && stepIds.has(a.stepId)),
   );
-  const free = actions.some((a) => a.stepId === null);
-  if (!steps.length && !transitions.length && !comments.length && !free) return null;
+  if (!steps.length && !transitions.length && !comments.length && !actions.length) return null;
   return {
     format: CLIPBOARD_FORMAT,
     version: 1,
@@ -89,16 +89,22 @@ export function parseClipboard(text: string): ClipboardPayload | null {
   }
 }
 
+/** Vertical distance between actions pasted without a step, one under the other. */
+const FREE_PITCH = 60;
+
 /**
  * Pastes a payload into a grafcet with fresh ids, shifted by `offset`. Step numbers already used
  * in the target are renumbered; variables are added only when no variable of that name exists.
- * Returns the ids of the pasted diagram elements.
+ * An action copied without its step goes, at the end of its list, to `place.attachTo` (the step
+ * the user selected), else back to its own step if this grafcet has it, else it becomes an action
+ * without a step at `place.freeAt`. Returns the ids of the pasted diagram elements.
  */
 export function pasteElements(
   project: Project,
   grafcetId: Id,
   payload: ClipboardPayload,
   offset: { x: number; y: number },
+  place: { attachTo?: Id | null; freeAt?: { x: number; y: number } } = {},
 ): Id[] {
   const g = project.grafcets[grafcetId];
   if (!g) return [];
@@ -138,16 +144,40 @@ export function pasteElements(
     g.transitions[id] = tr;
     created.push(id);
   }
-  for (const a of payload.actions) {
+  const attachTo = place.attachTo && g.steps[place.attachTo] ? place.attachTo : null;
+  const nextOrder = (stepId: Id) =>
+    Object.values(g.actions).reduce(
+      (n, x) => (x.stepId === stepId ? Math.max(n, x.order + 1) : n),
+      0,
+    );
+  let freeCount = 0;
+  // In their order on the step, so actions copied together keep it.
+  for (const a of [...payload.actions].sort((x, y) => x.order - y.order)) {
     const id = newId();
     if (a.stepId === null) {
       g.actions[id] = { ...a, id, position: move(a.position ?? { x: 0, y: 0 }) };
       created.push(id);
       continue;
     }
-    const stepId = idMap.get(a.stepId);
-    if (!stepId) continue;
-    g.actions[id] = { ...a, id, stepId };
+    const copied = idMap.get(a.stepId);
+    if (copied) {
+      g.actions[id] = { ...a, id, stepId: copied };
+      continue;
+    }
+    const stepId = attachTo ?? (g.steps[a.stepId] ? a.stepId : null);
+    if (stepId) {
+      g.actions[id] = { ...a, id, stepId, order: nextOrder(stepId) };
+    } else {
+      const at = move(place.freeAt ?? { x: 0, y: 0 });
+      g.actions[id] = {
+        ...a,
+        id,
+        stepId: null,
+        order: 0,
+        position: { x: at.x, y: at.y + FREE_PITCH * freeCount++ },
+      };
+    }
+    created.push(id);
   }
   for (const c of payload.comments) {
     const id = newId();

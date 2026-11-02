@@ -145,7 +145,9 @@ A new project contains grafcet `G1` with initial step 0.
   `Shift`/`Ctrl`-click, or `Ctrl+A`. The links between selected elements are highlighted, and
   dragging any selected element moves the whole selection.
 - **Copy / paste**: `Ctrl+C`, `Ctrl+X`, `Ctrl+V` — between grafcets, projects and browser tabs.
-  Pasted steps are renumbered when their numbers are already taken.
+  Pasted steps are renumbered when their numbers are already taken. An action copied on its own
+  is pasted onto the selected step (or the step of the selected action), else onto its own step
+  when the grafcet has it, else as an action without a step in the middle of the view.
 - **Undo / redo**: `Ctrl+Z`, `Ctrl+Shift+Z` (or `Ctrl+Y`). A whole drag is one undo step. The Edit
   menu names the change that will be undone.
 
@@ -408,7 +410,7 @@ remembered per project on this device.
   source), **Beckhoff TwinCAT 3** (a `.TcPOU` file: Add › Existing Item) or **Allen-Bradley Studio
   5000** (a Structured Text routine: create the tags listed in its header, then paste it into an ST
   routine). Two code styles: **CASE per sequence** (default): one INT step variable per sequence
-  and a `CASE` with the transitions of each step, stored actions inside the transitions, then each
+  and a `CASE` holding only the transitions of each step, then the stored actions (run when the step changes), then each
   output as one expression of the steps (`M := step_G1 = 3 OR step_G1 = 4;`); sequences with
   parallel branches keep one BOOL per step. **One BOOL per step**: transitions, steps, timers and
   edges, then actions, once per PLC scan, optionally with a search for stability in each scan.

@@ -130,8 +130,7 @@ udklipsholderen, klar til at blive sat ind i en rapport.
 Structured Text findes i to stilarter:
 
 - **CASE pr. sekvens** (standard): én INT-variabel pr. sekvens holder nummeret på dens aktive trin,
-  og en `CASE` viser transitionerne for hvert trin (`IF receptivity THEN step_G1 := 2;`). Udgangene
-  følger med én linje hver, f.eks. `Motor := step_G1 >= 2 AND step_G1 <= 4;`. Sekvenser med
+  og en `CASE` viser transitionerne for hvert trin (`IF receptivity THEN step_G1 := 2;`). `CASE` sætter kun trinnummeret: derefter følger de lagrede aktioner, udført når trinnet skifter, og så udgangene med én linje hver, f.eks. `Motor := step_G1 >= 2 AND step_G1 <= 4;`. Sekvenser med
   parallelle grene beholder én BOOL pr. trin.
 - **Én BOOL pr. trin**: alle transitioner, så alle trin, så timere, flanker og aktioner, én gang pr.
   PLC-scanning; sæt flueben ved **Søg efter stabilitet i hver scanning** for at passere kæder af

@@ -10,11 +10,12 @@
  * enclosed grafcets) keep one BOOL per step with the equations of the step-bit generator (st.ts).
  *
  * Scan: (1) timers and edges, (2) first scan: actions on activation of the initial steps, (3) the
- * sequences, forcing grafcets before the grafcets they force: a CASE clears at most one transition
- * (the first true receptivity, left to right) and runs the stored actions of the steps it leaves
- * and enters; an active forcing order replaces the CASE, (4) actions on events, (5) outputs.
- * With `storedActions: 'whileActive'`, stored actions that assign a constant are held instead:
- * each scan, at the top of their step's CASE branch (or `IF X THEN` for one BOOL per step).
+ * sequences, forcing grafcets before the grafcets they force: a CASE only sets the step variable,
+ * clearing at most one transition (the first true receptivity, left to right); an active forcing
+ * order replaces the CASE; after it, the stored actions of the step left and the step entered
+ * (the step variable compared with its value in the previous scan), (4) actions on events,
+ * (5) outputs. With `storedActions: 'whileActive'`, stored actions that assign a constant are held
+ * instead: each scan, `IF step = n THEN` after the CASE (or `IF X THEN` for one BOOL per step).
  */
 import { compile, type CAction } from '../simulation/program';
 import type { BoolNode } from '../expr/ast';
@@ -54,6 +55,8 @@ interface Sequence {
   /** CASE sequences: the step variable and its range-error flag. */
   caseVar?: string;
   errorVar?: string;
+  /** CASE sequences with stored actions: the step variable in the previous scan. */
+  memoryVar?: string;
   /** The CASE needs a value for "no active step". */
   none: boolean;
 }
@@ -136,6 +139,7 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
   const enclosingOf = new Map<number, number>();
   for (const [enc, e] of p.enclosures) for (const m of e.members) enclosingOf.set(m, enc);
   const perGrafcet = new Map<number, number>();
+  const storedKinds = new Set(['storedOnActivation', 'storedOnDeactivation']);
   const caseable = (seq: Sequence) =>
     seq.initial.length <= 1 &&
     new Set(seq.steps.map(num)).size === seq.steps.length &&
@@ -157,6 +161,8 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
         : `step_${g}`;
     seq.caseVar = names.take(base);
     seq.errorVar = names.take(`${base}_range_error`);
+    if (seq.steps.some((s) => p.actionsByStep[s]!.some((a) => storedKinds.has(a.kind) && !held(a))))
+      seq.memoryVar = names.take(`${base}_M`);
   }
 
   // Forcing orders, and the steps each one leaves active in a sequence.
@@ -186,7 +192,6 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
       T[ti] = names.take(`${gName(t.grafcet)}_T${src.number ?? k + 1}`);
     });
   }
-  const storedKinds = new Set(['storedOnActivation', 'storedOnDeactivation']);
   const M: string[] = [];
   for (const s of p.steps) {
     const flags = X[s.idx] !== undefined;
@@ -332,32 +337,62 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
   const orderActive = (a: CAction) => (a.step === null ? 'TRUE' : ref(a.step));
 
   // ---- (3a) A sequence as a CASE ------------------------------------------------------------------
+  /**
+   * After the CASE: the stored actions of the step left and of the step entered, found by comparing
+   * the step variable with its value in the previous scan (also when forcing changed it), then the
+   * held assignments of the active step.
+   */
+  const stepActions = (seq: Sequence): string[] => {
+    const v = seq.caseVar!;
+    const m = seq.memoryVar;
+    const out: string[] = [];
+    if (m !== undefined) {
+      for (const s of seq.steps) {
+        const list = actionsOf(s, 'storedOnDeactivation');
+        if (list.length)
+          out.push(
+            `IF ${m} = ${num(s)} AND ${v} <> ${num(s)} THEN${TAB}// step ${num(s)} deactivated`,
+            ...list.flatMap((a) => stored(a, TAB)),
+            'END_IF;',
+          );
+      }
+      for (const s of seq.steps) {
+        const list = actionsOf(s, 'storedOnActivation');
+        if (list.length)
+          out.push(
+            `IF ${v} = ${num(s)} AND ${m} <> ${num(s)} THEN${TAB}// step ${num(s)} activated`,
+            ...list.flatMap((a) => stored(a, TAB)),
+            'END_IF;',
+          );
+      }
+    }
+    for (const s of seq.steps) {
+      const holding = heldLines(s, TAB);
+      if (holding.length)
+        out.push(
+          `IF ${v} = ${num(s)} THEN${TAB}// while step ${num(s)} is active`,
+          ...holding,
+          'END_IF;',
+        );
+    }
+    return out.length ? ['', `// ${gName(seq.grafcet)}: stored actions of its steps`, ...out] : out;
+  };
+
   const caseLines = (seq: Sequence): string[] => {
     const v = seq.caseVar!;
     const lines = [`CASE ${v} OF`];
-    const transitionBody = (ti: number, indent: string): string[] => {
-      const t = p.transitions[ti]!;
-      const from = t.from[0]!;
-      const to = t.to[0]!;
-      const out: string[] = [];
-      // A transition leading back to its own step keeps it active: no deactivation (rule 5).
-      if (from !== to)
-        for (const a of actionsOf(from, 'storedOnDeactivation')) out.push(...stored(a, indent));
-      out.push(`${indent}${v} := ${num(to)};`);
-      if (from !== to)
-        for (const a of actionsOf(to, 'storedOnActivation')) out.push(...stored(a, indent));
-      return out;
-    };
+    // The CASE only moves the step: actions run after it (stepActions) and outputs at the end.
+    const transitionBody = (ti: number, indent: string): string[] => [
+      `${indent}${v} := ${num(p.transitions[ti]!.to[0]!)};`,
+    ];
     for (const s of seq.steps) {
       const outs = p.outgoing[s]!;
       const inner = TAB + TAB;
-      const holding = heldLines(s, inner);
       if (!outs.length) {
-        lines.push(`${TAB}${num(s)}:${TAB}// no transition leaves this step`);
-        lines.push(...(holding.length ? holding : [`${inner};`]));
+        lines.push(`${TAB}${num(s)}:${TAB}// no transition leaves this step`, `${inner};`);
         continue;
       }
-      lines.push(`${TAB}${num(s)}:`, ...holding);
+      lines.push(`${TAB}${num(s)}:`);
       const branches = outs.map((ti) => {
         const r = p.transitions[ti]!.receptivity;
         return { ti, cond: !r ? 'FALSE' : isTrue(r.ast) ? 'TRUE' : bool(r) };
@@ -378,7 +413,7 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
 
     // Forcing orders replace the CASE while active; the last order listed wins.
     const orders = ordersOn(seq).reverse();
-    if (!orders.length) return lines;
+    if (!orders.length) return [...lines, ...stepActions(seq)];
     const out: string[] = [];
     orders.forEach((a, k) => {
       out.push(`${k ? 'ELSIF' : 'IF'} ${orderActive(a)} THEN${TAB}// ${forcingText(a)}`);
@@ -395,7 +430,7 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
       out.push(`${TAB}${v} := ${steps.length ? num(steps[0]!) : NONE};`);
     });
     out.push('ELSE', ...lines.map((l) => TAB + l), 'END_IF;');
-    return out;
+    return [...out, ...stepActions(seq)];
   };
 
   // ---- (3b) A sequence with one BOOL per step -------------------------------------------------
@@ -539,7 +574,10 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
     return `${varName(lower)} := ${anyOf(terms)};`;
   });
 
-  const memories = M.flatMap((m, i) => (m ? [`${m} := ${ref(i)};`] : []));
+  const memories = [
+    ...order.flatMap((seq) => (seq.memoryVar ? [`${seq.memoryVar} := ${seq.caseVar};`] : [])),
+    ...M.flatMap((m, i) => (m ? [`${m} := ${ref(i)};`] : [])),
+  ];
 
   const body: string[] = [];
   const section = (title: string, lines: string[]) => {
@@ -587,6 +625,13 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
       },
       { name: seq.errorVar!, type: 'BOOL', comment: `${seq.caseVar} holds no step of ${g}` },
     );
+    if (seq.memoryVar)
+      state.push({
+        name: seq.memoryVar,
+        type: 'INT',
+        init: start,
+        comment: `${seq.caseVar} in the previous scan`,
+      });
   }
   if (initName) state.push({ name: initName, type: 'BOOL', init: true, comment: 'first scan' });
   for (const seq of order) {
@@ -619,9 +664,10 @@ export function generateStCase(project: Project, opts: CodegenOptions): CodegenR
       ? [
           '  Execution: one INT variable per sequence holds the number of its active step. Its CASE runs',
           '  the transitions of that step only, so a sequence clears at most one transition per scan and,',
-          '  of alternative branches, the first true receptivity (left to right) wins. Stored actions run',
-          '  in the transition that activates or deactivates their step; an active forcing order replaces',
-          '  the CASE of the grafcet it forces.',
+          '  of alternative branches, the first true receptivity (left to right) wins. The CASE only sets',
+          '  the step: stored actions run after it when the step changed since the previous scan (also by',
+          '  forcing), and outputs are assigned at the end. An active forcing order replaces the CASE of',
+          '  the grafcet it forces.',
         ]
       : []),
     ...(flags

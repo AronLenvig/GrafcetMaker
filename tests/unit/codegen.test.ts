@@ -567,10 +567,22 @@ describe('Structured Text, CASE style', () => {
     expect(code).toContain('IF NOT a AND NOT (step_Main = 2) THEN');
   });
 
-  it('runs stored actions in the transitions and on events', () => {
+  it('keeps the CASE to the transitions: stored actions after it, when the step changed', () => {
     const code = stCase(STORED).code;
-    expect(code).toMatch(/\t\t\tstep_G1 := 1;\n\t\t\tC := C \+ 1;\n\t\t\tMotor := TRUE;\n/);
-    expect(code).toMatch(/\t\t\tMotor := FALSE;\n\t\t\tstep_G1 := 0;\n/);
+    const inCase = code.slice(code.indexOf('CASE step_G1 OF'), code.indexOf('END_CASE;'));
+    // Nothing but the conditions and the step assignments inside the CASE.
+    expect(inCase).not.toMatch(/\b(C|Motor|Done|Speed) :=/);
+    expect(inCase).toContain('\t\tIF level > 80.5 OR C = 3 THEN\n\t\t\tstep_G1 := 1;\n\t\tEND_IF;');
+    expect(code).toContain(
+      'END_CASE;\n\n// G1: stored actions of its steps\nIF step_G1_M = 1 AND step_G1 <> 1 THEN\t// step 1 deactivated\n\tMotor := FALSE;\nEND_IF;',
+    );
+    expect(code).toContain(
+      'IF step_G1 = 1 AND step_G1_M <> 1 THEN\t// step 1 activated\n\tC := C + 1;\n\tMotor := TRUE;\n',
+    );
+    expect(code).toContain('step_G1_M : INT := 0;');
+    expect(code).toContain(
+      '// Step activity of this scan, for the next one\nstep_G1_M := step_G1;',
+    );
     expect(code).toContain('IF step_G1 = 1 AND RE_reset.Q THEN');
     expect(code).toContain('IF Init THEN\n\tDone := C >= 3 AND NOT reset;\nEND_IF;');
   });
@@ -662,26 +674,36 @@ describe('stored actions held while the step is active (option)', () => {
     },
   );
 
-  it('runs once by default: the variable keeps the value assigned in the transition', () => {
+  it('runs once by default: the variable keeps the value assigned when the step is entered', () => {
     const code = generateStCase(HELD, OPTS).code;
-    expect(code).toContain('\t\t\tstep_G1 := 1;\n\t\t\tLamp := TRUE;\n');
+    expect(code).toContain(
+      'IF step_G1 = 1 AND step_G1_M <> 1 THEN\t// step 1 activated\n\tLamp := TRUE;\n',
+    );
     expect(code).not.toMatch(/\bLamp :=.*\n[\s\S]*\bLamp :=/);
   });
 
-  it('CASE: assigns constants at the top of the branch of their step, every scan', () => {
+  it('CASE: assigns constants after the CASE while their step is active, every scan', () => {
     const code = generateStCase(HELD, HOLD).code;
-    expect(code).toContain('\t1:\n\t\tLamp := TRUE;\n\t\tIF NOT a THEN');
-    // A step without outgoing transition holds its assignment instead of the empty statement.
-    expect(code).toContain('\t2:\t// no transition leaves this step\n\t\tHorn := FALSE;\n');
-    expect(code).toContain('\t\t\tstep_G1 := 1;\n\t\tEND_IF;');
+    expect(code).toContain('\t1:\n\t\tIF NOT a THEN');
+    expect(code).toContain('\t2:\t// no transition leaves this step\n\t\t;\n');
+    expect(code).toContain(
+      'IF step_G1 = 1 THEN\t// while step 1 is active\n\tLamp := TRUE;\nEND_IF;',
+    );
+    expect(code).toContain(
+      'IF step_G1 = 2 THEN\t// while step 2 is active\n\tHorn := FALSE;\nEND_IF;',
+    );
+    // Held only: no memory of the previous scan.
+    expect(code).not.toContain('step_G1_M');
     expect(code).toMatch(/assigned in every scan while their step/);
   });
 
   it('keeps set on activation / reset on deactivation of one step, and non-constants, once', () => {
     const code = generateStCase(STORED, HOLD).code;
-    expect(code).toContain('\t1:\n\t\tMotor := TRUE;\n');
-    expect(code).toMatch(/\t\t\tMotor := FALSE;\n\t\t\tstep_G1 := 0;\n/);
-    expect(code).toMatch(/\t\t\tstep_G1 := 1;\n\t\t\tC := C \+ 1;\n\t\t\tIF level < 10 THEN/);
+    expect(code).toContain('IF step_G1 = 1 THEN\t// while step 1 is active\n\tMotor := TRUE;\n');
+    expect(code).toContain(
+      'IF step_G1_M = 1 AND step_G1 <> 1 THEN\t// step 1 deactivated\n\tMotor := FALSE;',
+    );
+    expect(code).toMatch(/\/\/ step 1 activated\n\tC := C \+ 1;\n\tIF level < 10 THEN/);
     expect(generateStCase(STORED, HOLD).code).toMatchSnapshot();
   });
 

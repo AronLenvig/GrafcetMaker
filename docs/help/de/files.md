@@ -144,7 +144,7 @@ Structured Text gibt es in zwei Stilen:
 
 - **CASE pro Kette** (Standard): Eine INT-Variable pro Kette enthält die Nummer ihres aktiven
   Schritts, und ein `CASE` listet die Transitionen jedes Schritts auf
-  (`IF receptivity THEN step_G1 := 2;`). Die Ausgänge folgen mit je einer Zeile, z. B.
+  (`IF receptivity THEN step_G1 := 2;`). Das `CASE` setzt nur die Schrittnummer: Danach folgen die speichernd wirkenden Aktionen, ausgeführt, wenn sich der Schritt ändert, dann die Ausgänge mit je einer Zeile, z. B.
   `Motor := step_G1 >= 2 AND step_G1 <= 4;`. Ketten mit Parallelverzweigungen behalten ein BOOL pro
   Schritt.
 - **Ein BOOL pro Schritt**: jede Transition, dann jeder Schritt, dann die Zeitglieder, Flanken und

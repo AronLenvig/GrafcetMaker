@@ -141,7 +141,7 @@ El texto estructurado tiene dos estilos:
 
 - **CASE por secuencia** (predeterminado): una variable INT por secuencia guarda el número de su
   etapa activa, y un `CASE` enumera las transiciones de cada etapa
-  (`IF receptivity THEN step_G1 := 2;`). Después vienen las salidas, una línea cada una, p. ej.
+  (`IF receptivity THEN step_G1 := 2;`). El `CASE` solo cambia el número de etapa: después vienen las acciones memorizadas, ejecutadas cuando cambia la etapa, y luego las salidas, una línea cada una, p. ej.
   `Motor := step_G1 >= 2 AND step_G1 <= 4;`. Las secuencias con ramas paralelas mantienen un BOOL
   por etapa.
 - **Un BOOL por etapa**: todas las transiciones, luego todas las etapas, luego las temporizaciones,

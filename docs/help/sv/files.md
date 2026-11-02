@@ -132,7 +132,7 @@ Structured Text finns i två stilar:
 
 - **CASE per sekvens** (standard): en INT-variabel per sekvens håller numret på dess aktiva steg,
   och en `CASE` listar övergångarna från varje steg (`IF receptivity THEN step_G1 := 2;`).
-  Utgångarna följer med en rad var, t.ex. `Motor := step_G1 >= 2 AND step_G1 <= 4;`. Sekvenser med
+  `CASE` sätter bara stegnumret: sedan följer de lagrade aktionerna, utförda när steget byts, och därefter utgångarna med en rad var, t.ex. `Motor := step_G1 >= 2 AND step_G1 <= 4;`. Sekvenser med
   parallella grenar behåller en BOOL per steg.
 - **En BOOL per steg**: varje övergång, sedan varje steg, sedan timrarna, flankerna och aktionerna,
   en gång per PLC-cykel; kryssa i **Sök efter stabilitet i varje PLC-cykel** för att passera kedjor

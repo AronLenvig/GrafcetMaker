@@ -127,7 +127,7 @@ Structured Text comes in two styles:
 
 - **CASE per sequence** (default): one INT variable per sequence holds the number of its active
   step, and a `CASE` lists the transitions of each step (`IF receptivity THEN step_G1 := 2;`).
-  Outputs follow as one line each, e.g. `Motor := step_G1 >= 2 AND step_G1 <= 4;`. Sequences with
+  The `CASE` only sets the step number: stored actions follow it, run when the step changes, then the outputs, one line each, e.g. `Motor := step_G1 >= 2 AND step_G1 <= 4;`. Sequences with
   parallel branches keep one BOOL per step.
 - **One BOOL per step**: every transition, then every step, then the timers, edges and actions
   once per PLC scan; tick **Search for stability in each scan** to cross chains of true transitions

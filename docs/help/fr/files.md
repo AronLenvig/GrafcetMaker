@@ -149,7 +149,7 @@ Le texte structuré existe en deux styles :
 
 - **CASE par séquence** (par défaut) : une variable INT par séquence contient le numéro de son
   étape active, et un `CASE` liste les transitions de chaque étape
-  (`IF receptivity THEN step_G1 := 2;`). Les sorties suivent, une ligne chacune, p. ex.
+  (`IF receptivity THEN step_G1 := 2;`). Le `CASE` ne fait que changer le numéro d’étape : les actions mémorisées le suivent, exécutées quand l’étape change, puis les sorties, une ligne chacune, p. ex.
   `Motor := step_G1 >= 2 AND step_G1 <= 4;`. Les séquences avec branches parallèles gardent un
   BOOL par étape.
 - **Un BOOL par étape** : toutes les transitions, puis toutes les étapes, puis les

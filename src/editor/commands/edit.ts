@@ -379,9 +379,25 @@ export function pasteText(text: string | null): boolean {
   const payload = source ? parseClipboard(source) : null;
   if (!gid || !payload) return false;
   const n = useUi.getState().pasteCount + 1;
+  // An action copied on its own goes to the selected step, or to the step of the selected action.
+  const g = getProject().grafcets[gid];
+  const sel = ui.selectedIds();
+  const only = sel.length === 1 ? sel[0]! : null;
+  const attachTo = only && g ? (g.steps[only] ? only : (g.actions[only]?.stepId ?? null)) : null;
+  const c = viewCenter(gid);
+  const freeAt = { x: Math.round(c.x / GRID) * GRID, y: Math.round(c.y / GRID) * GRID };
   let created: Id[] = [];
   doc.execute('history.paste', (p) => {
-    created = pasteElements(p, gid, payload, { x: 2 * GRID * n, y: 2 * GRID * n });
+    created = pasteElements(
+      p,
+      gid,
+      payload,
+      { x: 2 * GRID * n, y: 2 * GRID * n },
+      {
+        attachTo,
+        freeAt,
+      },
+    );
   });
   ui.set({ pasteCount: n });
   ui.select(created);

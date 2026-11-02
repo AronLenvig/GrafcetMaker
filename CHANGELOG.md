@@ -145,6 +145,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- Structured Text, CASE style: the `CASE` holds nothing but the transition conditions and the new
+  step numbers. Stored actions follow it, run when the step changed since the previous scan (also
+  when a forcing order changed it, as in the simulator), then the outputs.
 - **Settings…** is its own entry in the main menu ☰, just below Help, instead of under File.
 - **Start screen and examples** has its own place in the main menu ☰, just before Help (it was
   inside Help), so the examples are easy to find.
@@ -240,6 +243,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- Copying a single action attached to a step did nothing: it is now copied, and pasted onto the
+  selected step (Ctrl+C, Ctrl+V on an action duplicates it on its step).
 - Simulation: a step timer such as `3s/X2` could never fire in real-time mode when its step was
   activated at certain fractional times (rounding put the expiry just past the deadline).
 - Simulation: a continuous action whose assignment condition reads another continuous output

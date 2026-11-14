@@ -167,6 +167,8 @@ Virkelige maskiner beskrives med flere grafcets, der arbejder sammen.
   aktuelle situation, og `G2{}` deaktiverer alle dens trin. En tvangsstyret grafcet kan ikke udvikle
   sig af sig selv. Tvangsstyring er standardmåden at beskrive nødstop og initialisering på.
 
+Et makrotrin betegnes med **M** og dets nummer (M5).
+
 <!-- figure: macro | Et makrotrin: to vandrette linjer inde i firkanten -->
 
 ## GRAFCET og SFC

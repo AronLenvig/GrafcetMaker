@@ -164,6 +164,8 @@ Real machines are described with several grafcets that work together.
   situation and `G2{}` deactivates all its steps. A forced grafcet cannot evolve by itself. Forcing
   is the standard way to describe emergency stops and initialisation.
 
+A macro-step is labelled **M** and its number (M5).
+
 <!-- figure: macro | A macro-step: two horizontal lines inside the square -->
 
 ## GRAFCET and SFC

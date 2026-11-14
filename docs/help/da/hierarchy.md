@@ -49,6 +49,11 @@ Det tegnes som et trin med to lodrette linjer.
 
 Faner med ekspansioner og omsluttede grafcets har et mærkat **M** eller **E**.
 
+**Rammer**: slå **Vis › Rammer om grafcets** til for at tegne en ramme om hver grafcet. Rammen om en
+indkapslet grafcet viser dens omsluttende trin øverst til venstre (`X4`) og dens navn nederst til
+venstre; rammen om en ekspansion viser dens makrotrin (`M5`). Sæt hak ved **Rammer om grafcets** i
+eksportdialogen for at udskrive dem.
+
 ## Tvangsstyringer {#forcing-orders}
 
 En **tvangsstyring** er en aktion, der påtvinger en anden delgrafcet en situation, mens dens trin er

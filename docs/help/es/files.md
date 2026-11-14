@@ -107,7 +107,7 @@ concreto.
 
 | Formato                | Úsalo para                                                                                                                    |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| **PDF**                | imprimir y documentar: vectorial, A4 o A3, ajustado a la página o en mosaico sobre varias hojas, con cajetín                  |
+| **PDF**                | imprimir y documentar: vectorial, A4 o A3, legible en varias hojas o ajustado a una página, con cajetín                       |
 | **SVG**                | documentos y la web: vectorial, nítido a cualquier tamaño                                                                     |
 | **PNG**                | presentaciones, chats e incidencias: resolución 1×, 2× o 4×, con fondo transparente opcional                                  |
 | **WebP**               | lo mismo que PNG, con archivos más pequeños                                                                                   |

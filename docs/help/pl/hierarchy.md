@@ -51,6 +51,11 @@ Rysuje się go jako krok z dwiema pionowymi liniami.
 
 Karty rozwinięć i grafcetów objętych mają oznaczenie **M** lub **E**.
 
+**Ramki**: włącz **Widok › Ramki grafcetów**, aby narysować ramkę wokół każdego grafcetu. Ramka
+grafcetu zamkniętego pokazuje w lewym górnym rogu jego krok obejmujący (`X4`), a w lewym dolnym jego
+nazwę; ramka rozwinięcia pokazuje jego makrokrok (`M5`). Zaznacz **Ramki grafcetów** w oknie
+eksportu, aby je wydrukować.
+
 ## Rozkazy wymuszania {#forcing-orders}
 
 **Rozkaz wymuszania** to akcja, która narzuca sytuację innemu grafcetowi częściowemu, dopóki jej

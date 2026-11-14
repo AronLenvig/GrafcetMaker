@@ -174,6 +174,8 @@ Las máquinas reales se describen con varios grafcets que trabajan juntos.
   sí mismo. El forzado es la forma normalizada de describir la parada de emergencia y la
   inicialización.
 
+Una macroetapa se identifica con **M** y su número (M5).
+
 <!-- figure: macro | Una macroetapa: dos líneas horizontales dentro del cuadrado -->
 
 ## GRAFCET y SFC

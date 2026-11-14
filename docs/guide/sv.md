@@ -166,6 +166,8 @@ Verkliga maskiner beskrivs med flera grafcetar som arbetar tillsammans.
   situation och `G2{}` avaktiverar alla dess steg. En tvångsstyrd grafcet kan inte utvecklas av sig
   själv. Tvångsstyrning är standardsättet att beskriva nödstopp och initiering.
 
+Ett makrosteg betecknas med **M** och sitt nummer (M5).
+
 <!-- figure: macro | Ett makrosteg: två vågräta linjer inne i kvadraten -->
 
 ## GRAFCET och SFC

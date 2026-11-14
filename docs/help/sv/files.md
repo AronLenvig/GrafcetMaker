@@ -99,7 +99,7 @@ projekt. **Arkiv › Exportera som** öppnar den direkt med ett visst format.
 
 | Format                | Används för                                                                                                        |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| **PDF**               | utskrift och dokumentation: vektor, A4 eller A3, anpassat till sidan eller fördelat över flera blad, med namnruta  |
+| **PDF**               | utskrift och dokumentation: vektor, A4 eller A3, läsbart över flera blad eller anpassat till en sida, med namnruta |
 | **SVG**               | dokument och webben: vektor, skarp i alla storlekar                                                                |
 | **PNG**               | presentationer, chattar och ärenden: upplösning 1×, 2× eller 4×, med transparent bakgrund om du vill               |
 | **WebP**              | samma som PNG med mindre filer                                                                                     |

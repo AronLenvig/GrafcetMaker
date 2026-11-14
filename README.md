@@ -74,7 +74,7 @@ branches, and macro-step or forcing inconsistencies. Most problems come with a q
 
 Structured Text comes as a `CASE` per sequence, the way you would write it by hand, or as one BOOL
 per step with an optional search for stability. For documents: vector PDF on A4 or A3 with a title
-block and tiling, SVG, PNG and WebP, copy to the clipboard, and the variable table to Excel and CSV.
+block, readable over as many sheets as a grafcet needs (cut between steps), optional grafcet frames, SVG, PNG and WebP, copy to the clipboard, and the variable table to Excel and CSV.
 Generated code is a starting point: always review it before it runs on a machine.
 
 ## Fast to draw, on any screen
@@ -126,7 +126,7 @@ toolbar.
 - **Simulation** by the IEC 60848 rules (search for stability, simultaneous clearing, edges, timers,
   forcing) with virtual time, tokens on the diagram, evolution log, chronogram with time travel and
   recorded scenarios.
-- **Exports**: vector PDF (A4/A3, title block, tiling), SVG, PNG, WebP, clipboard; variables to
+- **Exports**: vector PDF (A4/A3, title block, readable over several sheets, grafcet frames), SVG, PNG, WebP, clipboard; variables to
   Excel and CSV (and back); **Structured Text** (a CASE per sequence, as written by hand, or one
   BOOL per step) for IEC 61131-3, Siemens TIA Portal (SCL), Beckhoff TwinCAT 3 and Allen-Bradley
   Studio 5000, and **PLCopen XML** (SFC) generation.

@@ -177,6 +177,8 @@ Reale Maschinen werden mit mehreren Grafcets beschrieben, die zusammenarbeiten.
   Grafcet kann sich nicht selbst weiterentwickeln. Mit Zwangssteuerungen beschreibt man normgerecht
   Not-Halt und Initialisierung.
 
+Ein Makroschritt wird mit **M** und seiner Nummer bezeichnet (M5).
+
 <!-- figure: macro | Ein Makroschritt: zwei waagerechte Linien im Quadrat -->
 
 ## GRAFCET und SFC (Ablaufsprache)

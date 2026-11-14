@@ -49,6 +49,11 @@ with two vertical lines.
 
 Tabs of expansions and enclosed grafcets carry an **M** or **E** badge.
 
+**Frames**: turn on **View › Grafcet frames** to draw a frame around each grafcet. The frame of an
+enclosed grafcet shows its enclosing step at the top left (`X4`) and its name at the bottom left;
+the frame of an expansion shows its macro-step (`M5`). Tick **Grafcet frames** in the Export dialog
+to print them.
+
 ## Forcing orders
 
 A **forcing order** is an action that imposes a situation on another partial grafcet while its

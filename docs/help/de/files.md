@@ -107,16 +107,16 @@ Personen gleichzeitig dasselbe Projekt bearbeiten, jede an ihrem eigenen Rechner
 öffnet einen Dialog für alle Formate, mit Live-Vorschau. Seine Einstellungen werden pro Projekt
 gespeichert. **Datei › Exportieren als** öffnet ihn direkt mit einem bestimmten Format.
 
-| Format                | Wofür                                                                                                                    |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| **PDF**               | Drucken und Dokumentation: Vektor, A4 oder A3, an die Seite angepasst oder auf mehrere Blätter verteilt, mit Schriftfeld |
-| **SVG**               | Dokumente und Web: Vektor, in jeder Größe scharf                                                                         |
-| **PNG**               | Präsentationen, Chats und Tickets: Auflösung 1×, 2× oder 4×, wahlweise transparent                                       |
-| **WebP**              | wie PNG, mit kleineren Dateien                                                                                           |
-| **Variablen (Excel)** | die Variablentabelle als `.xlsx`-Arbeitsmappe                                                                            |
-| **Variablen (CSV)**   | die Variablentabelle für andere Werkzeuge                                                                                |
-| **Structured Text**   | SPS-Code, der jeden Grafcet ausführt: IEC 61131-3, Siemens TIA Portal (SCL), Beckhoff TwinCAT 3 oder Allen-Bradley Logix |
-| **PLCopen XML**       | Import der Grafcets als SFC-Programme in ein SPS-Werkzeug                                                                |
+| Format                | Wofür                                                                                                                      |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **PDF**               | Drucken und Dokumentation: Vektor, A4 oder A3, lesbar auf mehreren Blättern oder auf eine Seite angepasst, mit Schriftfeld |
+| **SVG**               | Dokumente und Web: Vektor, in jeder Größe scharf                                                                           |
+| **PNG**               | Präsentationen, Chats und Tickets: Auflösung 1×, 2× oder 4×, wahlweise transparent                                         |
+| **WebP**              | wie PNG, mit kleineren Dateien                                                                                             |
+| **Variablen (Excel)** | die Variablentabelle als `.xlsx`-Arbeitsmappe                                                                              |
+| **Variablen (CSV)**   | die Variablentabelle für andere Werkzeuge                                                                                  |
+| **Structured Text**   | SPS-Code, der jeden Grafcet ausführt: IEC 61131-3, Siemens TIA Portal (SCL), Beckhoff TwinCAT 3 oder Allen-Bradley Logix   |
+| **PLCopen XML**       | Import der Grafcets als SFC-Programme in ein SPS-Werkzeug                                                                  |
 
 Ein langer Grafcet wird **lesbar** auf mehreren PDF-Seiten gedruckt (Maßstab _Lesbar_, Standard),
 zwischen den Schritten getrennt; _An Seite anpassen_ bringt ihn auf eine Seite. **Grafcet-Rahmen**

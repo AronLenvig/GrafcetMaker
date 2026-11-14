@@ -53,6 +53,11 @@ _réglage_. Elle est dessinée comme une étape avec deux traits verticaux.
 
 Les onglets des expansions et des grafcets encapsulés portent un badge **M** ou **E**.
 
+**Cadres** : activez **Affichage › Cadres des grafcets** pour tracer un cadre autour de chaque
+grafcet. Le cadre d’un grafcet encapsulé indique son étape encapsulante en haut à gauche (`X4`) et
+son nom en bas à gauche ; celui d’une expansion indique sa macro-étape (`M5`). Cochez **Cadres des
+grafcets** dans la fenêtre d’export pour les imprimer.
+
 ## Ordres de forçage {#forcing-orders}
 
 Un **ordre de forçage** est une action qui impose une situation à un autre grafcet partiel tant

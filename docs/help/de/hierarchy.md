@@ -55,6 +55,11 @@ _Automatik_, _Hand_, _Einrichten_. Er wird als Schritt mit zwei senkrechten Lini
 
 Reiter von Expansionen und eingeschlossenen Grafcets tragen ein Kennzeichen **M** oder **E**.
 
+**Rahmen**: Schalten Sie **Ansicht › Grafcet-Rahmen** ein, um um jeden Grafcet einen Rahmen zu
+zeichnen. Der Rahmen eines eingeschlossenen Grafcets zeigt oben links seinen einschließenden Schritt
+(`X4`) und unten links seinen Namen; der Rahmen einer Expansion zeigt ihren Makroschritt (`M5`).
+Kreuzen Sie im Exportdialog **Grafcet-Rahmen** an, um sie zu drucken.
+
 ## Zwangssteuerungen {#forcing-orders}
 
 Eine **Zwangssteuerung** ist eine Aktion, die einem anderen Teil-Grafcet eine Situation vorgibt,

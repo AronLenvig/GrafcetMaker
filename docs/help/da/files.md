@@ -98,7 +98,7 @@ projekt. **Filer › Eksporter som** åbner den direkte på et bestemt format.
 
 | Format                | Brug det til                                                                                                           |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| **PDF**               | udskrivning og dokumentation: vektor, A4 eller A3, tilpasset siden eller fordelt over flere ark, med titelfelt         |
+| **PDF**               | udskrivning og dokumentation: vektor, A4 eller A3, læseligt over flere ark eller tilpasset én side, med titelfelt      |
 | **SVG**               | dokumenter og web: vektor, skarp i alle størrelser                                                                     |
 | **PNG**               | præsentationer, chats og sager: opløsning 1×, 2× eller 4×, eventuelt gennemsigtig                                      |
 | **WebP**              | det samme som PNG med mindre filer                                                                                     |

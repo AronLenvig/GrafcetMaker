@@ -104,7 +104,7 @@ formato.
 
 | Formato               | Use para                                                                                                                      |
 | --------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| **PDF**               | impressão e documentação: vetorial, A4 ou A3, ajustado à página ou dividido em várias folhas, com carimbo                     |
+| **PDF**               | impressão e documentação: vetorial, A4 ou A3, legível em várias folhas ou ajustado a uma página, com carimbo                  |
 | **SVG**               | documentos e web: vetorial, nítido em qualquer tamanho                                                                        |
 | **PNG**               | apresentações, chats e chamados: resolução 1×, 2× ou 4×, opcionalmente transparente                                           |
 | **WebP**              | o mesmo que PNG, com arquivos menores                                                                                         |

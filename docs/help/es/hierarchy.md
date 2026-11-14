@@ -52,6 +52,11 @@ _ajuste_. Se dibuja como una etapa con dos líneas verticales.
 
 Las pestañas de las expansiones y de los grafcets encapsulados llevan un distintivo **M** o **E**.
 
+**Marcos**: activa **Ver › Marcos de los grafcets** para dibujar un marco alrededor de cada grafcet.
+El marco de un grafcet encapsulado muestra arriba a la izquierda su etapa encapsulante (`X4`) y
+abajo a la izquierda su nombre; el de una expansión muestra su macroetapa (`M5`). Marca **Marcos de
+los grafcets** en el diálogo de exportación para imprimirlos.
+
 ## Órdenes de forzado {#forcing-orders}
 
 Una **orden de forzado** es una acción que impone una situación a otro grafcet parcial mientras su

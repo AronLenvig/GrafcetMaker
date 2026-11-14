@@ -101,7 +101,7 @@ każdego projektu. **Plik › Eksportuj jako** otwiera je od razu w wybranym for
 
 | Format              | Zastosowanie                                                                                                        |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| **PDF**             | druk i dokumentacja: wektor, A4 lub A3, dopasowany do strony lub podzielony na kilka arkuszy, z tabliczką           |
+| **PDF**             | druk i dokumentacja: wektor, A4 lub A3, czytelnie na kilku arkuszach lub dopasowany do jednej strony, z tabliczką   |
 | **SVG**             | dokumenty i WWW: wektor, ostry w każdym rozmiarze                                                                   |
 | **PNG**             | slajdy, czaty i zgłoszenia: rozdzielczość 1×, 2× lub 4×, opcjonalnie przezroczysty                                  |
 | **WebP**            | to samo co PNG, z mniejszymi plikami                                                                                |

@@ -51,6 +51,11 @@ enquanto a etapa encapsulante está ativa. Use-a para modos: _automático_, _man
 
 As abas de expansões e de grafcets encapsulados levam um selo **M** ou **E**.
 
+**Molduras**: ative **Exibir › Molduras dos grafcets** para desenhar uma moldura em volta de cada
+grafcet. A moldura de um grafcet encapsulado mostra no canto superior esquerdo a sua etapa
+encapsulante (`X4`) e no inferior esquerdo o seu nome; a de uma expansão mostra a sua macroetapa
+(`M5`). Marque **Molduras dos grafcets** na janela de exportação para imprimi-las.
+
 ## Ordens de forçamento {#forcing-orders}
 
 Uma **ordem de forçamento** é uma ação que impõe uma situação a outro grafcet parcial enquanto sua

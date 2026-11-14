@@ -115,7 +115,7 @@ mémorisés par projet. **Fichier › Exporter en** l'ouvre directement sur un f
 
 | Format                | Utilisation                                                                                                                    |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| **PDF**               | impression et documentation : vectoriel, A4 ou A3, ajusté à la page ou réparti sur plusieurs feuilles, avec un cartouche       |
+| **PDF**               | impression et documentation : vectoriel, A4 ou A3, lisible sur plusieurs feuilles ou ajusté à une page, avec un cartouche      |
 | **SVG**               | documents et web : vectoriel, net à toutes les tailles                                                                         |
 | **PNG**               | présentations, messageries et tickets : résolution 1×, 2× ou 4×, fond transparent en option                                    |
 | **WebP**              | comme PNG, avec des fichiers plus légers                                                                                       |

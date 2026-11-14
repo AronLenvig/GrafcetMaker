@@ -50,6 +50,11 @@ Det ritas som ett steg med två lodräta linjer.
 
 Flikar för expansioner och omslutna grafcetar har en etikett **M** eller **E**.
 
+**Ramar**: slå på **Visa › Ramar runt grafcet** för att rita en ram runt varje grafcet. Ramen runt
+ett inkapslat grafcet visar dess omslutande steg uppe till vänster (`X4`) och dess namn nere till
+vänster; ramen runt en expansion visar dess makrosteg (`M5`). Kryssa i **Ramar runt grafcet** i
+exportdialogen för att skriva ut dem.
+
 ## Tvångsstyrningar {#forcing-orders}
 
 En **tvångsstyrning** är en aktion som påtvingar en annan delgrafcet en situation medan dess steg är

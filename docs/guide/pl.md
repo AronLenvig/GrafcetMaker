@@ -168,6 +168,8 @@ Rzeczywiste maszyny opisuje się kilkoma współpracującymi grafcetami.
   ewoluować samodzielnie. Wymuszanie to standardowy sposób opisu zatrzymań awaryjnych i
   inicjalizacji.
 
+Makrokrok oznacza się literą **M** i jego numerem (M5).
+
 <!-- figure: macro | Makrokrok: dwie poziome linie wewnątrz kwadratu -->
 
 ## GRAFCET a SFC

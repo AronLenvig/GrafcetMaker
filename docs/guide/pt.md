@@ -170,6 +170,8 @@ Máquinas reais são descritas com vários grafcets que trabalham juntos.
   na sua situação atual e `G2{}` desativa todas as suas etapas. Um grafcet forçado não pode evoluir
   por si só. O forçamento é a forma padrão de descrever paradas de emergência e a inicialização.
 
+Uma macroetapa é identificada por **M** e seu número (M5).
+
 <!-- figure: macro | Uma macroetapa: duas linhas horizontais dentro do quadrado -->
 
 ## GRAFCET e SFC

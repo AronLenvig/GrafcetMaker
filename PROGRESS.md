@@ -533,6 +533,42 @@ Autonomous build log. Read this first in every session and resume from **Current
   (`src/app/export/formats.ts`). Recipes for languages, rules, kinds and formats in
   CONTRIBUTING.md.
 
+## Open requests
+
+Reported by the owner or users, not done yet. Each entry says what to build and how to check it.
+
+1. **PDF export cramps large grafcets (bug).** The default `scale: 'fit'` (`src/app/export/exporters.ts`)
+   shrinks a whole grafcet onto one A4 page, so a long sequence becomes unreadable; the fixed
+   percentage tiles it, but cuts fall anywhere (through steps and texts). Build: a readable
+   default in `src/core/io/pdfLayout.ts`: fit the width (never above 100 %, never below a
+   minimum where 13 px text stays about 2.5 mm high), then continue vertically on further pages,
+   cutting between rows (between a step and its next transition, never through an element), with
+   the title block on every page. Choose portrait or landscape from the diagram's shape when the
+   user has not set it. Keep "fit to one page" and fixed percentages as options. Check: a
+   40-step sequence on A4 stays readable over several pages, no element is cut, a small grafcet
+   still prints on one page, PDF and preview agree.
+2. **Copy/paste of several actions of one step (bug report).** Works on `main` since PR #4
+   (selecting two actions with Shift, then Ctrl+C, Ctrl+V adds two actions); the report most
+   likely came from grafcet.org, which has not been redeployed since the Cloudflare builds
+   started failing (item 6). Check again on the live site once it deploys; if it still fails,
+   note how the actions were selected (Shift, Ctrl, rectangle, touch).
+3. **Macro-step reference `M<n>` (user report).** Show `M5` instead of `5` inside a macro-step
+   (canvas, SVG/PNG/PDF export, Outline); the model keeps the number, `X5` still refers to it.
+   The two horizontal lines the report asks for are already drawn (`STEP_MARK.macro`).
+4. **Grafcet frames (user report).** Option in View and in the Export dialog (off by default),
+   derived, not stored: a rectangle around each grafcet's content, recomputed live. Labels: a
+   partial grafcet's name at the bottom left; an enclosed grafcet's enclosing step reference at
+   the top left and its name at the bottom left; a macro-step expansion's `M<n>` at the top left.
+   In the canvas (static layer, not selectable) and the SVG, PNG and PDF exports; contrast rules
+   in both themes; no effect on layout, hit testing or files; help in every language.
+5. **Enclosing step symbol (user report).** The report says IEC 60848 draws "a step containing a
+   second, slightly tilted square" instead of the two inner vertical lines (see Known gaps).
+   Check the standard's figure first; change `STEP_MARK.enclosing` and its drawings (canvas,
+   palette, export) only if it differs, citing the clause in `docs/semantics.md`.
+6. **Deployment.** The Cloudflare "Workers Builds" check fails instantly, before any build step,
+   on every pull request since #1, so grafcet.org may not show recent work (PRs #1 to #4). Read
+   the build log in the Cloudflare dashboard and fix the project's build settings.
+
 ## Known gaps
 
 - `404.html` sends people to the server root (`/`): an install under a sub-path behind a proxy

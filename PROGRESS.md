@@ -431,6 +431,8 @@ Autonomous build log. Read this first in every session and resume from **Current
   (default: one page while at least 70 %, else the page width over several pages) and
   orientation `auto`; stored export settings now carry a version, and unversioned ones holding
   the old default (A4 portrait, fit) read as the new one.
+- Command palette: an entry named exactly as typed ranks first, then matches in the label, then
+  in the group (typing "Copy" ran "Copy as text" before, so Paste then did nothing).
 - Macro-step reference `M<n>` (`stepReference`) on the canvas, in exports, Outline and the
   selection overview; grafcet frames (`core/layout/frame.ts`: labels and geometry) as a View
   pref, an Export setting and in Settings, derived, never stored (user report).
@@ -560,6 +562,9 @@ Reported by the owner or users, not done yet. Each entry says what to build and 
 
 ## Known gaps
 
+- PDF pages show only their own band (clip), but each page still carries the whole drawing:
+  text hidden outside a page's band stays in the PDF's text layer, so a search can find a step on
+  the page before the one that shows it. Emitting only each band's elements would fix it.
 - `404.html` sends people to the server root (`/`): an install under a sub-path behind a proxy
   keeps the 404 status but should point its own not-found page at the app.
 - Enclosing step symbol (vertical inner lines) not verified against the IEC 60848 figure; adjust

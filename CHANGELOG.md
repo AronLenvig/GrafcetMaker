@@ -253,6 +253,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- Command palette: typing a command's exact name (such as **Copy**) runs that command; "Copy" ran
+  "Copy as text" first, after which Paste did nothing.
 - Copying a single action attached to a step did nothing: it is now copied, and pasted onto the
   selected step (Ctrl+C, Ctrl+V on an action duplicates it on its step).
 - Simulation: a step timer such as `3s/X2` could never fire in real-time mode when its step was

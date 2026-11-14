@@ -3,12 +3,14 @@ import { useTranslation } from 'react-i18next';
 import {
   computeGeometry,
   elementBounds,
+  grafcetBounds,
   layoutActions,
   linkArrow,
   rectsIntersect,
   type ActionBox,
   type Rect,
 } from '@/core/layout/geometry';
+import { frameGeometry, frameLabels } from '@/core/layout/frame';
 import { useLive } from '../store/liveState';
 import { usePrefs } from '@/ui/prefs';
 import { useCoarsePointer, useCompact } from '@/ui/media';
@@ -25,6 +27,7 @@ import {
   ActionView,
   BarView,
   CommentView,
+  FrameView,
   LinkView,
   StepView,
   JumpView,
@@ -211,6 +214,15 @@ export function Canvas({
   const viewport = useUi((s) => (gid ? s.viewports[gid] : undefined)) ?? DEFAULT_VIEWPORT;
   const tool = useUi((s) => s.tool);
   const showGrid = usePrefs((s) => s.showGrid);
+  const showFrames = usePrefs((s) => s.showFrames);
+  // What the frame says also depends on other grafcets (the step this one details): a key that
+  // changes only when the labels do.
+  const frameKey = useDoc((s) => {
+    const gr = showFrames && gid ? s.project.grafcets[gid] : undefined;
+    if (!gr) return '';
+    const l = frameLabels(s.project, gr);
+    return JSON.stringify([l.topLeft ?? '', l.bottomLeft]);
+  });
   const panning = useInteraction((s) => s.panning);
   const pending = useUi((s) => s.pending);
   const compact = useCompact();
@@ -242,6 +254,12 @@ export function Canvas({
   }, [gid]);
 
   const geom = useMemo(() => (g ? computeGeometry(g) : null), [g]);
+  const frame = useMemo(() => {
+    const bounds = frameKey && g && geom ? grafcetBounds(g, geom) : null;
+    if (!bounds) return null;
+    const [topLeft, bottomLeft] = JSON.parse(frameKey) as [string, string];
+    return frameGeometry(bounds, { topLeft: topLeft || undefined, bottomLeft });
+  }, [frameKey, g, geom]);
 
   const w = size.width / viewport.zoom;
   const h = size.height / viewport.zoom;
@@ -498,6 +516,7 @@ export function Canvas({
               />
             </>
           )}
+          {frame && <FrameView frame={frame} />}
           <g>{content}</g>
           {live && g && geom && <PeerLayer g={g} geom={geom} zoom={viewport.zoom} />}
           {g && geom && !readOnly && <IssueBadges g={g} geom={geom} cull={cull} />}

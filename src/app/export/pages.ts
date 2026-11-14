@@ -24,12 +24,13 @@ export function planPages(targets: Target[], settings: ExportSettings): PlannedP
       palette,
       only: t.only,
       textbook: settings.textbook,
+      frame: settings.frames ? t.frame : undefined,
       latin1: true,
       fontFamily: PDF_FONT,
     });
-    const layout = pageLayout(diagram.box, settings.pdf);
-    for (let row = 0; row < layout.rows; row++) {
-      for (let col = 0; col < layout.cols; col++)
+    const layout = pageLayout(diagram.box, settings.pdf, diagram.parts);
+    for (let row = 0; row < layout.rows.length; row++) {
+      for (let col = 0; col < layout.columns.length; col++)
         pages.push({ grafcet: t.grafcet, diagram, layout, col, row });
     }
   }

@@ -16,6 +16,7 @@ import {
   arrowPath,
   commentRect,
   stepLabelAnchor,
+  stepReference,
   textWidth,
   transitionBar,
   transitionHitRect,
@@ -23,6 +24,7 @@ import {
   transitionTextAnchor,
   type JumpGeom,
 } from '@/core/layout/geometry';
+import type { FrameGeometry } from '@/core/layout/frame';
 import type { Action, Comment, Step, Transition } from '@/core/model/types';
 import type { EditField } from '../store/uiStore';
 import { ExprText } from './ExprText';
@@ -93,7 +95,7 @@ export const StepView = memo(function StepView({
       )}
       {editing !== 'number' && (
         <text className="gm-step-number" x={x} y={baseline(y, STEP_FONT_SIZE)} textAnchor="middle">
-          {step.number}
+          {stepReference(step)}
         </text>
       )}
       {label && editing !== 'label' && (
@@ -384,6 +386,21 @@ export const JumpView = memo(function JumpView({
           {label.text}
         </text>
       )}
+    </g>
+  );
+});
+
+/** The frame around the grafcet and its labels (View › Grafcet frames): drawing only. */
+export const FrameView = memo(function FrameView({ frame }: { frame: FrameGeometry }) {
+  const { rect, texts } = frame;
+  return (
+    <g className="gm-frame" aria-hidden="true">
+      <rect x={rect.x} y={rect.y} width={rect.width} height={rect.height} />
+      {texts.map((t) => (
+        <text key={t.text + t.y} className="gm-text" x={t.x} y={baseline(t.y, FONT_SIZE)}>
+          {t.text}
+        </text>
+      ))}
     </g>
   );
 });

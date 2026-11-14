@@ -23,6 +23,9 @@ aktiv ist).
 Ein **Makroschritt** steht für einen ausführlichen Ablauf, der auf einem eigenen Blatt gezeichnet
 ist, seine **Expansion**. Er wird als Schritt mit zwei waagerechten Linien gezeichnet.
 
+Seine Nummer wird mit einem **M** geschrieben (M5); in Transitionsbedingungen bezeichnet `X5`
+weiterhin seine Aktivität.
+
 <!-- figure: macro | Ein Makroschritt im Hauptablauf -->
 
 1. Wählen Sie einen Schritt aus und stellen Sie im Bereich Eigenschaften seine **Art** auf
@@ -51,6 +54,11 @@ _Automatik_, _Hand_, _Einrichten_. Er wird als Schritt mit zwei senkrechten Lini
    deaktiviert.
 
 Reiter von Expansionen und eingeschlossenen Grafcets tragen ein Kennzeichen **M** oder **E**.
+
+**Rahmen**: Schalten Sie **Ansicht › Grafcet-Rahmen** ein, um um jeden Grafcet einen Rahmen zu
+zeichnen. Der Rahmen eines eingeschlossenen Grafcets zeigt oben links seinen einschließenden Schritt
+(`X4`) und unten links seinen Namen; der Rahmen einer Expansion zeigt ihren Makroschritt (`M5`).
+Kreuzen Sie im Exportdialog **Grafcet-Rahmen** an, um sie zu drucken.
 
 ## Zwangssteuerungen {#forcing-orders}
 

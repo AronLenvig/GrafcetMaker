@@ -23,6 +23,8 @@ tant que l'étape 21 de G2 est active).
 Une **macro-étape** représente une séquence détaillée dessinée sur une feuille à part, son
 **expansion**. Elle est dessinée comme une étape avec deux traits horizontaux.
 
+Son numéro s’écrit avec un **M** (M5) ; dans les réceptivités, `X5` désigne toujours son activité.
+
 <!-- figure: macro | Une macro-étape dans la séquence principale -->
 
 1. Sélectionnez une étape et réglez son **Type** sur _Macro-étape_ dans le panneau Propriétés (ou
@@ -50,6 +52,11 @@ _réglage_. Elle est dessinée comme une étape avec deux traits verticaux.
    désactivées.
 
 Les onglets des expansions et des grafcets encapsulés portent un badge **M** ou **E**.
+
+**Cadres** : activez **Affichage › Cadres des grafcets** pour tracer un cadre autour de chaque
+grafcet. Le cadre d’un grafcet encapsulé indique son étape encapsulante en haut à gauche (`X4`) et
+son nom en bas à gauche ; celui d’une expansion indique sa macro-étape (`M5`). Cochez **Cadres des
+grafcets** dans la fenêtre d’export pour les imprimer.
 
 ## Ordres de forçage {#forcing-orders}
 

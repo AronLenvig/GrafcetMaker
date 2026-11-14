@@ -426,6 +426,19 @@ Autonomous build log. Read this first in every session and resume from **Current
   `IF step_G = n THEN` after it; CLAUDE.md codegen decision updated.
 - Fix: an action attached to a step can be copied on its own; pasted onto the selected step (or the
   selected action's step), else its own step, else without a step at the view center.
+- PDF readable layout (owner request): `pdfLayout` prints in bands (`columns`, `rows`) cut in gaps
+  between the drawing's parts (`grafcetParts`, returned by `grafcetToSvg`), scale `readable`
+  (default: one page while at least 70 %, else the page width over several pages) and
+  orientation `auto`; stored export settings now carry a version, and unversioned ones holding
+  the old default (A4 portrait, fit) read as the new one.
+- Export dialog (owner request): formats grouped, options as rows (`Segmented` radios, `Choice`
+  drop-downs), scope **All grafcets** by default (stored settings version 3 reads the old default
+  "current grafcet" as the new one), page navigation under the preview: labelled, bounded, ← / →.
+- Command palette: an entry named exactly as typed ranks first, then matches in the label, then
+  in the group (typing "Copy" ran "Copy as text" before, so Paste then did nothing).
+- Macro-step reference `M<n>` (`stepReference`) on the canvas, in exports, Outline and the
+  selection overview; grafcet frames (`core/layout/frame.ts`: labels and geometry) as a View
+  pref, an Export setting and in Settings, derived, never stored (user report).
 
 ## Decisions
 
@@ -533,8 +546,28 @@ Autonomous build log. Read this first in every session and resume from **Current
   (`src/app/export/formats.ts`). Recipes for languages, rules, kinds and formats in
   CONTRIBUTING.md.
 
+## Open requests
+
+Reported by the owner or users, not done yet. Each entry says what to build and how to check it.
+
+1. **Copy/paste of several actions of one step (bug report).** Works on `main` since PR #4
+   (selecting two actions with Shift, then Ctrl+C, Ctrl+V adds two actions); the report most
+   likely came from grafcet.org, which has not been redeployed since the Cloudflare builds
+   started failing (item 3). Check again on the live site once it deploys; if it still fails,
+   note how the actions were selected (Shift, Ctrl, rectangle, touch).
+2. **Enclosing step symbol (user report).** The report says IEC 60848 draws "a step containing a
+   second, slightly tilted square" instead of the two inner vertical lines (see Known gaps).
+   Check the standard's figure first; change `STEP_MARK.enclosing` and its drawings (canvas,
+   palette, export) only if it differs, citing the clause in `docs/semantics.md`.
+3. **Deployment.** The Cloudflare "Workers Builds" check fails instantly, before any build step,
+   on every pull request since #1, so grafcet.org may not show recent work. Read the build log
+   in the Cloudflare dashboard and fix the project's build settings.
+
 ## Known gaps
 
+- PDF pages show only their own band (clip), but each page still carries the whole drawing:
+  text hidden outside a page's band stays in the PDF's text layer, so a search can find a step on
+  the page before the one that shows it. Emitting only each band's elements would fix it.
 - `404.html` sends people to the server root (`/`): an install under a sub-path behind a proxy
   keeps the 404 status but should point its own not-found page at the app.
 - Enclosing step symbol (vertical inner lines) not verified against the IEC 60848 figure; adjust

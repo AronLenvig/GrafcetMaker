@@ -21,6 +21,8 @@ via trinvariabler (`X21` i G1 er sand, mens trin 21 i G2 er aktivt).
 Et **makrotrin** står for en detaljeret sekvens, der tegnes på sit eget ark, dets **ekspansion**.
 Det tegnes som et trin med to vandrette linjer.
 
+Dets nummer skrives med et **M** (M5); i transitionsbetingelser betegner `X5` stadig dets aktivitet.
+
 <!-- figure: macro | Et makrotrin i hovedsekvensen -->
 
 1. Vælg et trin, og sæt dets **Type** til _Makrotrin_ i panelet Egenskaber (eller
@@ -46,6 +48,11 @@ Det tegnes som et trin med to lodrette linjer.
 3. Når det omsluttende trin forlades, deaktiveres alle trin i den omsluttede grafcet.
 
 Faner med ekspansioner og omsluttede grafcets har et mærkat **M** eller **E**.
+
+**Rammer**: slå **Vis › Rammer om grafcets** til for at tegne en ramme om hver grafcet. Rammen om en
+indkapslet grafcet viser dens omsluttende trin øverst til venstre (`X4`) og dens navn nederst til
+venstre; rammen om en ekspansion viser dens makrotrin (`M5`). Sæt hak ved **Rammer om grafcets** i
+eksportdialogen for at udskrive dem.
 
 ## Tvangsstyringer {#forcing-orders}
 

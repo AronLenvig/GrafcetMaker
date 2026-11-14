@@ -22,6 +22,8 @@ stegvariabler (`X21` i G1 är sant medan steg 21 i G2 är aktivt).
 Ett **makrosteg** står för en detaljerad sekvens som ritas på ett eget blad, dess **expansion**. Det
 ritas som ett steg med två vågräta linjer.
 
+Dess nummer skrivs med ett **M** (M5); i övergångsvillkor betecknar `X5` fortfarande dess aktivitet.
+
 <!-- figure: macro | Ett makrosteg i huvudsekvensen -->
 
 1. Markera ett steg och ställ in dess **Typ** till _Makrosteg_ i panelen Egenskaper (eller
@@ -47,6 +49,11 @@ Det ritas som ett steg med två lodräta linjer.
 3. När det omslutande steget lämnas avaktiveras alla steg i den omslutna grafceten.
 
 Flikar för expansioner och omslutna grafcetar har en etikett **M** eller **E**.
+
+**Ramar**: slå på **Visa › Ramar runt grafcet** för att rita en ram runt varje grafcet. Ramen runt
+ett inkapslat grafcet visar dess omslutande steg uppe till vänster (`X4`) och dess namn nere till
+vänster; ramen runt en expansion visar dess makrosteg (`M5`). Kryssa i **Ramar runt grafcet** i
+exportdialogen för att skriva ut dem.
 
 ## Tvångsstyrningar {#forcing-orders}
 

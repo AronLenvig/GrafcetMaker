@@ -23,15 +23,19 @@ import {
   commentRect,
   computeGeometry,
   grafcetBounds,
+  grafcetParts,
   layoutActions,
   type ActionBox,
   type GrafcetGeometry,
   stepLabelAnchor,
+  stepReference,
+  textWidth,
   transitionBar,
   transitionNumberAnchor,
   transitionTextAnchor,
   type Rect,
 } from '../layout/geometry';
+import { frameGeometry, type FrameLabels } from '../layout/frame';
 import type { Grafcet, Id, Point } from '../model/types';
 import { xmlChars } from './xml';
 
@@ -68,6 +72,8 @@ export interface SvgOptions {
   margin?: number;
   /** Diagram title written into <title>. */
   title?: string;
+  /** A frame around the grafcet with these labels (not for a selection, see `only`). */
+  frame?: FrameLabels;
 }
 
 export interface SvgResult {
@@ -76,7 +82,12 @@ export interface SvgResult {
   body: string;
   /** Diagram-unit rectangle covered by the SVG (viewBox). */
   box: Rect;
+  /** What is drawn, as rectangles a printed page should not be cut through (grafcetParts). */
+  parts: Rect[];
 }
+
+/** Space between a grafcet's frame and the edge of the exported image. */
+const FRAME_MARGIN = 10;
 
 export const EXPORT_FONT_FAMILY = "'JetBrains Mono', 'Courier New', Courier, monospace";
 
@@ -276,7 +287,7 @@ function render(
       w.line(`M${n(x - r)} ${n(y - r + 6)}H${n(x + r)}M${n(x - r)} ${n(y + r - 6)}H${n(x + r)}`, 1);
     if (STEP_MARK[s.kind] === 'columns')
       w.line(`M${n(x - r + 6)} ${n(y - r)}V${n(y + r)}M${n(x + r - 6)} ${n(y - r)}V${n(y + r)}`, 1);
-    w.text(String(s.number), x, y, STEP_FONT_SIZE, { anchor: 'middle' });
+    w.text(stepReference(s), x, y, STEP_FONT_SIZE, { anchor: 'middle' });
     if (s.label) {
       const a = stepLabelAnchor(s);
       w.text(s.label, a.x, a.y, LABEL_FONT_SIZE, { anchor: 'end', color: pal.muted });
@@ -317,14 +328,25 @@ export function grafcetToSvg(g: Grafcet, opts: SvgOptions = {}): SvgResult {
     width: 100,
     height: 60,
   };
+  const frame = opts.frame && !opts.only ? frameGeometry(bounds, opts.frame) : null;
+  const drawn = frame?.rect ?? bounds;
+  const edge = frame ? FRAME_MARGIN : margin;
   const box = {
-    x: bounds.x - margin,
-    y: bounds.y - margin,
-    width: bounds.width + 2 * margin,
-    height: bounds.height + 2 * margin,
+    x: drawn.x - edge,
+    y: drawn.y - edge,
+    width: drawn.width + 2 * edge,
+    height: drawn.height + 2 * edge,
   };
   const w = new Writer(pal, opts);
   render(w, g, geom, opts.only);
+  const parts = grafcetParts(g, geom, opts.only);
+  if (frame) {
+    w.rect(frame.rect, 'none', pal.ink, 1);
+    for (const t of frame.texts) {
+      w.text(t.text, t.x, t.y, FONT_SIZE);
+      parts.push({ x: t.x, y: t.y - FONT_SIZE, width: textWidth(t.text), height: 2 * FONT_SIZE });
+    }
+  }
   const font = opts.fontFamily ?? EXPORT_FONT_FAMILY;
   const head = [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${n(box.width)}" height="${n(box.height)}" viewBox="${n(box.x)} ${n(box.y)} ${n(box.width)} ${n(box.height)}" font-family="${escapeXml(font)}">`,
@@ -335,5 +357,10 @@ export function grafcetToSvg(g: Grafcet, opts: SvgOptions = {}): SvgResult {
       : '',
   ];
   const body = w.parts.join('\n');
-  return { svg: [...head, body, '</svg>'].filter(Boolean).join('\n') + '\n', body, box };
+  return {
+    svg: [...head, body, '</svg>'].filter(Boolean).join('\n') + '\n',
+    body,
+    box,
+    parts,
+  };
 }

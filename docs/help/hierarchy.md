@@ -21,6 +21,8 @@ other through step variables (`X21` in G1 is true while step 21 of G2 is active)
 A **macro-step** stands for a detailed sequence drawn on its own sheet, its **expansion**. It is
 drawn as a step with two horizontal lines.
 
+Its number is written with an **M** (M5); in receptivities, `X5` is still its activity.
+
 <!-- figure: macro | A macro-step in the main sequence -->
 
 1. Select a step and set its **Kind** to _Macro-step_ in the Properties panel (or
@@ -46,6 +48,11 @@ with two vertical lines.
 3. When the enclosing step is left, every step of the enclosed grafcet is deactivated.
 
 Tabs of expansions and enclosed grafcets carry an **M** or **E** badge.
+
+**Frames**: turn on **View › Grafcet frames** to draw a frame around each grafcet. The frame of an
+enclosed grafcet shows its enclosing step at the top left (`X4`) and its name at the bottom left;
+the frame of an expansion shows its macro-step (`M5`). Tick **Grafcet frames** in the Export dialog
+to print them.
 
 ## Forcing orders
 

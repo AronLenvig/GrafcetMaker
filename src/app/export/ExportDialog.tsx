@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useId, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { variablesToCsv } from '@/core/io/csv';
 import { groupWarnings, type CodegenWarning } from '@/core/codegen/common';
@@ -9,7 +9,8 @@ import { useDoc } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
 import { downloadBlob } from '../persistence/fileAccess';
 import { toast } from '@/ui/toasts';
-import { Button, cx, Modal } from '@/ui/primitives';
+import { ChevronLeftIcon, ChevronRightIcon } from '@/ui/icons';
+import { Button, cx, Modal, Select } from '@/ui/primitives';
 import {
   copyToClipboard,
   loadExportSettings,
@@ -18,15 +19,38 @@ import {
   saveExportSettings,
   requestedFormat,
   requestExportFormat,
+  targetOf,
   UnsupportedFormatError,
   type ExportSettings,
   type Target,
 } from './exporters';
 import { EXPORT_FORMAT_IDS, EXPORT_FORMATS, isProjectWide, isRaster } from './formats';
 import { planPages, renderPage } from './pages';
+
+/** The headings the formats are listed under. */
+const FORMAT_GROUP = {
+  pages: 'drawing',
+  vector: 'drawing',
+  raster: 'drawing',
+  variables: 'variables',
+  code: 'code',
+} as const;
 import { generateCode } from './produce';
 
-function Radio<T extends string | number>({
+/** A label in the first column of the options grid, and its control in the second. */
+function Row({ label, id, children }: { label: string; id: string; children: ReactNode }) {
+  return (
+    <>
+      <span id={id} className="text-xs font-medium text-muted compact:mt-1">
+        {label}
+      </span>
+      <div className="min-w-0">{children}</div>
+    </>
+  );
+}
+
+/** A short choice as one row of buttons: native radios, so arrow keys and screen readers work. */
+function Segmented<T extends string | number>({
   name,
   value,
   options,
@@ -39,17 +63,28 @@ function Radio<T extends string | number>({
   onChange: (v: T) => void;
   label: string;
 }) {
+  const id = useId();
   return (
-    <fieldset className="flex flex-col gap-1">
-      <legend className="mb-1 text-xs font-medium text-muted">{label}</legend>
-      <div className="flex flex-wrap gap-x-4 gap-y-1">
+    <Row label={label} id={id}>
+      <div
+        role="radiogroup"
+        aria-labelledby={id}
+        // The gaps show the border color: separators also between rows when it wraps (phones).
+        className="inline-flex max-w-full flex-wrap gap-px overflow-hidden rounded-md border border-border bg-border"
+      >
         {options.map((o) => (
           <label
             key={String(o.value)}
-            className={cx('flex items-center gap-1.5', o.disabled && 'opacity-50')}
+            className={cx(
+              'flex flex-auto cursor-pointer items-center justify-center bg-surface px-2.5 py-1 hover:bg-surface-2',
+              'has-checked:bg-accent-soft has-checked:font-medium has-checked:text-text',
+              'has-focus-visible:outline-2 has-focus-visible:-outline-offset-2 has-focus-visible:outline-focus',
+              o.disabled && 'cursor-not-allowed text-muted hover:bg-surface',
+            )}
           >
             <input
               type="radio"
+              className="sr-only"
               name={name}
               checked={value === o.value}
               disabled={o.disabled}
@@ -59,7 +94,42 @@ function Radio<T extends string | number>({
           </label>
         ))}
       </div>
-    </fieldset>
+    </Row>
+  );
+}
+
+/** A longer list of choices as a drop-down. */
+function Choice({
+  value,
+  options,
+  onChange,
+  label,
+}: {
+  value: string;
+  options: { value: string; label: string }[];
+  onChange: (v: string) => void;
+  label: string;
+}) {
+  const id = useId();
+  return (
+    <Row label={label} id={id}>
+      {/* As wide as its longest choice, the chevron at its own edge. */}
+      <div className="inline-block max-w-full">
+        <Select
+          small
+          aria-labelledby={id}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-auto max-w-full pr-8"
+        >
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </Select>
+      </div>
+    </Row>
   );
 }
 
@@ -80,6 +150,11 @@ function Check({
   );
 }
 
+/** Explanation under an option, across both columns. */
+const Hint = ({ children }: { children: ReactNode }) => (
+  <p className="col-span-2 text-xs text-muted">{children}</p>
+);
+
 /** One dialog for every export format, with live preview; settings are remembered per project. */
 export default function ExportDialog({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation();
@@ -98,6 +173,8 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
     text?: string;
     info: string;
     warnings?: CodegenWarning[];
+    /** PDF: the page shown (from 0) and how many there are. */
+    pages?: { shown: number; count: number };
   } | null>(null);
   const [page, setPage] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -115,10 +192,10 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
   const targets: Target[] = useMemo(() => {
     if (scope === 'all')
       return project.grafcetOrder.flatMap((id) =>
-        project.grafcets[id] ? [{ grafcet: project.grafcets[id] }] : [],
+        project.grafcets[id] ? [targetOf(project, project.grafcets[id])] : [],
       );
     if (!grafcet) return [];
-    return [{ grafcet, only: scope === 'selection' ? selected : undefined }];
+    return [targetOf(project, grafcet, scope === 'selection' ? selected : undefined)];
   }, [scope, project, grafcet, selected]);
 
   const baseName = safeFileName(project.name, scope === 'all' ? '' : (grafcet?.name ?? ''));
@@ -157,7 +234,11 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
           new Blob([renderPage(project, pages, i, settings)], { type: 'image/svg+xml' }),
         );
         if (!cancelled)
-          setPreview({ url, info: t('export.pdfInfo', { page: i + 1, count: pages.length }) });
+          setPreview({
+            url,
+            info: t('export.pdfInfo', { page: i + 1, count: pages.length }),
+            pages: { shown: i, count: pages.length },
+          });
         return;
       }
       const res = await renderSvg(
@@ -215,64 +296,58 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
   const options: ReactNode = (() => {
     switch (settings.format) {
       case 'png':
+      case 'webp': {
+        const f = settings.format;
+        const raster = settings[f];
+        const set = (patch: Partial<typeof raster>) => update({ [f]: { ...raster, ...patch } });
         return (
           <>
-            <Radio
-              name="png-scale"
+            <Segmented
+              name={`${f}-scale`}
               label={t('export.resolution')}
-              value={settings.png.scale}
-              onChange={(v) => update({ png: { ...settings.png, scale: v } })}
+              value={raster.scale}
+              onChange={(v) => set({ scale: v })}
               options={[1, 2, 4].map((v) => ({ value: v as 1 | 2 | 4, label: `${v}×` }))}
             />
+            {f === 'webp' && (
+              <Segmented
+                name="webp-quality"
+                label={t('export.quality')}
+                value={String(settings.webp.quality)}
+                onChange={(v) => update({ webp: { ...settings.webp, quality: Number(v) } })}
+                options={[
+                  { value: '0.8', label: t('export.qualities.small') },
+                  { value: '0.92', label: t('export.qualities.high') },
+                  { value: '1', label: t('export.qualities.max') },
+                ]}
+              />
+            )}
+            <span />
             <Check
               label={t('export.transparent')}
-              checked={settings.png.transparent}
-              onChange={(v) => update({ png: { ...settings.png, transparent: v } })}
+              checked={raster.transparent}
+              onChange={(v) => set({ transparent: v })}
             />
           </>
         );
-      case 'webp':
-        return (
-          <>
-            <Radio
-              name="webp-scale"
-              label={t('export.resolution')}
-              value={settings.webp.scale}
-              onChange={(v) => update({ webp: { ...settings.webp, scale: v } })}
-              options={[1, 2, 4].map((v) => ({ value: v as 1 | 2 | 4, label: `${v}×` }))}
-            />
-            <Radio
-              name="webp-quality"
-              label={t('export.quality')}
-              value={String(settings.webp.quality)}
-              onChange={(v) => update({ webp: { ...settings.webp, quality: Number(v) } })}
-              options={[
-                { value: '0.8', label: t('export.qualities.small') },
-                { value: '0.92', label: t('export.qualities.high') },
-                { value: '1', label: t('export.qualities.max') },
-              ]}
-            />
-            <Check
-              label={t('export.transparent')}
-              checked={settings.webp.transparent}
-              onChange={(v) => update({ webp: { ...settings.webp, transparent: v } })}
-            />
-          </>
-        );
+      }
       case 'xlsx':
-        return <p className="text-muted">{t('export.xlsxHint')}</p>;
+        return <Hint>{t('export.xlsxHint')}</Hint>;
       case 'svg':
         return (
-          <Check
-            label={t('export.embedFont')}
-            checked={settings.svg.embedFont}
-            onChange={(v) => update({ svg: { embedFont: v } })}
-          />
+          <>
+            <span />
+            <Check
+              label={t('export.embedFont')}
+              checked={settings.svg.embedFont}
+              onChange={(v) => update({ svg: { embedFont: v } })}
+            />
+          </>
         );
       case 'pdf':
         return (
           <>
-            <Radio
+            <Segmented
               name="paper"
               label={t('export.paper')}
               value={settings.pdf.paper}
@@ -282,24 +357,30 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
                 { value: 'A3' as const, label: 'A3' },
               ]}
             />
-            <Radio
+            <Segmented
               name="orientation"
               label={t('export.orientation')}
               value={settings.pdf.orientation}
               onChange={(v) => update({ pdf: { ...settings.pdf, orientation: v } })}
               options={[
+                { value: 'auto' as const, label: t('export.orientationAuto') },
                 { value: 'portrait' as const, label: t('export.portrait') },
                 { value: 'landscape' as const, label: t('export.landscape') },
               ]}
             />
-            <Radio
-              name="scale"
+            <Choice
               label={t('export.scale')}
               value={String(settings.pdf.scale)}
               onChange={(v) =>
-                update({ pdf: { ...settings.pdf, scale: v === 'fit' ? 'fit' : Number(v) } })
+                update({
+                  pdf: {
+                    ...settings.pdf,
+                    scale: v === 'readable' || v === 'fit' ? v : Number(v),
+                  },
+                })
               }
               options={[
+                { value: 'readable', label: t('export.readable') },
                 { value: 'fit', label: t('export.fitPage') },
                 ...[100, 75, 50].map((v) => ({
                   value: String(v),
@@ -307,6 +388,7 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
                 })),
               ]}
             />
+            <span />
             <Check
               label={t('export.titleBlock')}
               checked={settings.pdf.titleBlock}
@@ -315,19 +397,20 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
           </>
         );
       case 'csv':
-        return <p className="text-muted">{t('export.csvHint')}</p>;
+        return <Hint>{t('export.csvHint')}</Hint>;
       case 'st':
         return (
           <>
-            <Radio
-              name="st-dialect"
+            <Choice
               label={t('export.stDialect')}
               value={settings.st.dialect}
-              onChange={(v) => update({ st: { ...settings.st, dialect: v } })}
+              onChange={(v) =>
+                update({ st: { ...settings.st, dialect: v as ExportSettings['st']['dialect'] } })
+              }
               options={ST_DIALECTS.map((d) => ({ value: d, label: t(`export.stDialects.${d}`) }))}
             />
-            <p className="text-muted">{t(`export.stDialectHints.${settings.st.dialect}`)}</p>
-            <Radio
+            <Hint>{t(`export.stDialectHints.${settings.st.dialect}`)}</Hint>
+            <Segmented
               name="st-style"
               label={t('export.stStyle')}
               value={settings.st.style}
@@ -337,28 +420,31 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
                 { value: 'bits', label: t('export.stStyles.bits') },
               ]}
             />
-            <p className="text-muted">
+            <Hint>
               {settings.st.style === 'case' ? t('export.stHintCase') : t('export.stHint')}
-            </p>
-            {settings.st.style === 'bits' && (
+            </Hint>
+            <span />
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              {settings.st.style === 'bits' && (
+                <Check
+                  label={t('export.stabilityLoop')}
+                  checked={settings.st.stabilityLoop}
+                  onChange={(v) => update({ st: { ...settings.st, stabilityLoop: v } })}
+                />
+              )}
               <Check
-                label={t('export.stabilityLoop')}
-                checked={settings.st.stabilityLoop}
-                onChange={(v) => update({ st: { ...settings.st, stabilityLoop: v } })}
+                label={t('export.holdStored')}
+                checked={settings.st.holdStored}
+                onChange={(v) => update({ st: { ...settings.st, holdStored: v } })}
               />
-            )}
-            <Check
-              label={t('export.holdStored')}
-              checked={settings.st.holdStored}
-              onChange={(v) => update({ st: { ...settings.st, holdStored: v } })}
-            />
+            </div>
           </>
         );
       case 'xml':
         return (
           <>
-            <p className="text-muted">{t('export.xmlHint')}</p>
-            <Radio
+            <Hint>{t('export.xmlHint')}</Hint>
+            <Segmented
               name="task-interval"
               label={t('export.taskInterval')}
               value={settings.xml.taskInterval}
@@ -372,68 +458,89 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
 
   const canCopy = EXPORT_FORMATS[settings.format].copy !== null;
 
+  const pages = EXPORT_FORMATS[settings.format].content === 'pages' ? preview?.pages : undefined;
+  const turn = (by: number) =>
+    setPage((p) => Math.max(0, Math.min((pages?.count ?? 1) - 1, (pages?.shown ?? p) + by)));
+  const scopeOptions = [
+    ...(EXPORT_FORMATS[settings.format].allGrafcets
+      ? [
+          {
+            value: 'all' as const,
+            label: t('export.scopes.all', { count: project.grafcetOrder.length }),
+          },
+        ]
+      : []),
+    {
+      value: 'grafcet' as const,
+      label: t('export.scopes.grafcet', { name: grafcet?.name ?? '' }),
+    },
+    {
+      value: 'selection' as const,
+      label: t('export.scopes.selection', { count: selected.size }),
+      disabled: !selected.size,
+    },
+  ];
+
   return (
-    <Modal open title={t('export.title')} onOpenChange={(o) => !o && onClose()} width={900}>
-      <div className="grid grid-cols-[180px_1fr] gap-4 compact:grid-cols-1">
+    <Modal open title={t('export.title')} onOpenChange={(o) => !o && onClose()} width={920}>
+      <div className="grid grid-cols-[170px_1fr] gap-4 compact:grid-cols-1">
         <div
           role="radiogroup"
           aria-label={t('export.format')}
-          className="flex flex-col gap-1 compact:grid compact:grid-cols-2"
+          className="flex flex-col gap-0.5 compact:grid compact:grid-cols-2"
         >
-          {EXPORT_FORMAT_IDS.map((f) => (
-            <button
-              key={f}
-              type="button"
-              role="radio"
-              aria-checked={settings.format === f}
-              onClick={() => {
-                setPage(0);
-                update({ format: f });
-              }}
-              className={cx(
-                'rounded-md border px-3 py-2 text-left',
-                settings.format === f
-                  ? 'border-accent bg-accent-soft'
-                  : 'border-border hover:bg-surface-2',
-              )}
-            >
-              <div className="font-medium">{t(`export.formats.${f}`)}</div>
-              <div className="text-xs text-muted compact:hidden">
-                {t(`export.formatHints.${f}`)}
-              </div>
-            </button>
-          ))}
+          {EXPORT_FORMAT_IDS.map((f, i) => {
+            const group = FORMAT_GROUP[EXPORT_FORMATS[f].content];
+            const first =
+              i === 0 || FORMAT_GROUP[EXPORT_FORMATS[EXPORT_FORMAT_IDS[i - 1]!].content] !== group;
+            return (
+              <Fragment key={f}>
+                {first && (
+                  <div
+                    aria-hidden="true"
+                    className="mt-2 mb-0.5 px-1 text-[11px] font-semibold tracking-wider text-muted uppercase first:mt-0 compact:col-span-2"
+                  >
+                    {t(`export.formatGroups.${group}`)}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={settings.format === f}
+                  title={t(`export.formatHints.${f}`)}
+                  onClick={() => {
+                    setPage(0);
+                    update({ format: f });
+                  }}
+                  className={cx(
+                    'rounded-md border px-2.5 py-1.5 text-left',
+                    settings.format === f
+                      ? 'border-accent bg-accent-soft font-medium'
+                      : 'border-transparent hover:bg-surface-2',
+                  )}
+                >
+                  {t(`export.formats.${f}`)}
+                </button>
+              </Fragment>
+            );
+          })}
         </div>
         <div className="flex min-w-0 flex-col gap-3">
-          {!isProjectWide(settings.format) && (
-            <>
-              <Radio
-                name="scope"
-                label={t('export.scope')}
-                value={scope}
-                onChange={(v) => update({ scope: v })}
-                options={[
-                  {
-                    value: 'grafcet' as const,
-                    label: t('export.scopes.grafcet', { name: grafcet?.name ?? '' }),
-                  },
-                  {
-                    value: 'selection' as const,
-                    label: t('export.scopes.selection', { count: selected.size }),
-                    disabled: !selected.size,
-                  },
-                  ...(EXPORT_FORMATS[settings.format].allGrafcets
-                    ? [
-                        {
-                          value: 'all' as const,
-                          label: t('export.scopes.all', { count: project.grafcetOrder.length }),
-                        },
-                      ]
-                    : []),
-                ]}
-              />
-              <div className="flex flex-wrap gap-4">
-                <Radio
+          <p className="text-xs text-muted">{t(`export.formatHints.${settings.format}`)}</p>
+          <div className="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2 compact:grid-cols-1 compact:gap-y-1">
+            {!isProjectWide(settings.format) && (
+              <>
+                <Segmented
+                  name="scope"
+                  label={t('export.scope')}
+                  value={scope}
+                  onChange={(v) => {
+                    setPage(0);
+                    update({ scope: v });
+                  }}
+                  options={scopeOptions}
+                />
+                <Segmented
                   name="theme"
                   label={t('export.appearance')}
                   value={settings.theme}
@@ -443,41 +550,29 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
                     { value: 'current' as const, label: t('export.currentTheme') },
                   ]}
                 />
-                <div className="self-end">
+                <span />
+                <div className="flex flex-wrap gap-x-4 gap-y-1">
                   <Check
                     label={t('export.textbook')}
                     checked={settings.textbook}
                     onChange={(v) => update({ textbook: v })}
                   />
+                  <Check
+                    label={t('export.frames')}
+                    checked={settings.frames}
+                    onChange={(v) => update({ frames: v })}
+                  />
                 </div>
+              </>
+            )}
+            {options}
+          </div>
+          <div className="flex flex-col overflow-hidden rounded-md border border-border bg-surface-2">
+            {!pages && (
+              <div className="border-b border-border px-2 py-1 text-xs text-muted">
+                {preview?.info ?? t('common.loading')}
               </div>
-            </>
-          )}
-          {options}
-          <div className="flex min-h-64 flex-col overflow-hidden rounded-md border border-border bg-surface-2">
-            <div className="flex items-center gap-2 border-b border-border px-2 py-1 text-xs text-muted">
-              <span className="flex-1">{preview?.info ?? t('common.loading')}</span>
-              {EXPORT_FORMATS[settings.format].content === 'pages' && (
-                <>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setPage((p) => Math.max(0, p - 1))}
-                    aria-label={t('export.prevPage')}
-                  >
-                    ‹
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setPage((p) => p + 1)}
-                    aria-label={t('export.nextPage')}
-                  >
-                    ›
-                  </Button>
-                </>
-              )}
-            </div>
+            )}
             {preview?.warnings && preview.warnings.length > 0 && (
               <ul
                 aria-label={t('export.warnings')}
@@ -491,7 +586,19 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
                 ))}
               </ul>
             )}
-            <div className="flex h-80 items-center justify-center overflow-auto p-3">
+            <div
+              className="flex h-80 items-center justify-center overflow-auto p-3 compact:h-60"
+              // With several pages, ← and → turn them while the preview has the focus.
+              tabIndex={pages && pages.count > 1 ? 0 : undefined}
+              aria-label={pages ? preview?.info : undefined}
+              onKeyDown={(e) => {
+                if (!pages) return;
+                if (e.key === 'ArrowLeft') turn(-1);
+                else if (e.key === 'ArrowRight') turn(1);
+                else return;
+                e.preventDefault();
+              }}
+            >
               {preview?.url && (
                 <img
                   src={preview.url}
@@ -503,6 +610,21 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
                 <pre className="h-full w-full overflow-auto font-mono text-xs">{preview.text}</pre>
               )}
             </div>
+            {pages && (
+              <div className="flex items-center justify-center gap-3 border-t border-border bg-surface px-2 py-1.5">
+                <Button disabled={pages.shown <= 0} onClick={() => turn(-1)}>
+                  <ChevronLeftIcon size={18} />
+                  {t('export.prevPage')}
+                </Button>
+                <span aria-live="polite" className="min-w-24 text-center tabular-nums">
+                  {preview?.info}
+                </span>
+                <Button disabled={pages.shown >= pages.count - 1} onClick={() => turn(1)}>
+                  {t('export.nextPage')}
+                  <ChevronRightIcon size={18} />
+                </Button>
+              </div>
+            )}
           </div>
           <div className="flex justify-end gap-2">
             <Button onClick={onClose}>{t('common.cancel')}</Button>

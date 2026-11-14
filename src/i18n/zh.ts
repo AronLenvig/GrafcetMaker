@@ -323,6 +323,7 @@ export const zh: Messages = {
       fit: '适应窗口',
       fitSelection: '适应所选内容',
       toggleGrid: '显示/隐藏网格',
+      toggleFrames: '显示/隐藏 grafcet 外框',
       toggleSnap: '开关对齐网格',
       toggleRight: '属性面板',
       themeSystem: '主题：跟随系统',
@@ -352,6 +353,7 @@ export const zh: Messages = {
       showSimulation: '显示仿真面板',
       showChronogram: '显示时序图',
       showGrid: '网格',
+      showFrames: 'grafcet 外框',
       snapToGrid: '对齐网格',
     },
     simulate: {
@@ -862,7 +864,15 @@ export const zh: Messages = {
     portrait: '纵向',
     landscape: '横向',
     scale: '比例',
+    orientationAuto: '自动',
+    readable: '清晰可读（需要时分多页）',
+    formatGroups: {
+      drawing: '图形',
+      variables: '变量',
+      code: 'PLC 代码',
+    },
     fitPage: '适应页面',
+    frames: 'grafcet 外框',
     percentTiled: '{{v}}%（分页平铺）',
     titleBlock: '标题栏（项目、作者、版本、日期、页码）',
     csvHint:

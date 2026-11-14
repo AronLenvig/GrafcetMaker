@@ -9,6 +9,7 @@ import { useInteraction } from '@/editor/canvas/interactionStore';
 import { useSim } from '@/editor/simulation/simStore';
 import { useDoc } from '@/editor/store/document';
 import { useUi } from '@/editor/store/uiStore';
+import { stepReference } from '@/core/layout/geometry';
 
 interface Row {
   key: string;
@@ -83,7 +84,7 @@ export function OutlinePanel() {
           key: sKey,
           level: 2,
           text: [
-            t('outline.step', { n: s.number }),
+            t('outline.step', { n: stepReference(s) }),
             s.kind !== 'normal' ? t(`outline.kinds.${s.kind}`) : '',
             s.label ?? '',
           ]

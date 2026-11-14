@@ -177,6 +177,8 @@ Les machines réelles sont décrites par plusieurs grafcets qui fonctionnent ens
   situation courante et `G2{}` désactive toutes ses étapes. Un grafcet forcé ne peut pas évoluer de
   lui-même. Le forçage est la manière normalisée de décrire l'arrêt d'urgence et l'initialisation.
 
+Une macro-étape est repérée par **M** suivi de son numéro (M5).
+
 <!-- figure: macro | Une macro-étape : deux traits horizontaux dans le carré -->
 
 ## GRAFCET et SFC

@@ -333,6 +333,7 @@ export const da: Messages = {
       fit: 'Tilpas til vinduet',
       fitSelection: 'Tilpas til markering',
       toggleGrid: 'Gitter til/fra',
+      toggleFrames: 'Rammer om grafcets til/fra',
       toggleSnap: 'Fastgør til gitter til/fra',
       toggleRight: 'Egenskabspanel',
       themeSystem: 'Tema: system',
@@ -362,6 +363,7 @@ export const da: Messages = {
       showSimulation: 'Vis simuleringspanel',
       showChronogram: 'Vis tidsdiagram',
       showGrid: 'Gitter',
+      showFrames: 'Rammer om grafcets',
       snapToGrid: 'Fastgør til gitter',
     },
     simulate: {
@@ -888,7 +890,15 @@ export const da: Messages = {
     portrait: 'Stående',
     landscape: 'Liggende',
     scale: 'Skala',
+    orientationAuto: 'Automatisk',
+    readable: 'Læselig (flere sider om nødvendigt)',
+    formatGroups: {
+      drawing: 'Tegning',
+      variables: 'Variabler',
+      code: 'PLC-kode',
+    },
     fitPage: 'Tilpas til siden',
+    frames: 'Rammer om grafcets',
     percentTiled: '{{v}} % (fordelt over flere sider)',
     titleBlock: 'Titelfelt (projekt, forfatter, revision, dato, ark)',
     csvHint:

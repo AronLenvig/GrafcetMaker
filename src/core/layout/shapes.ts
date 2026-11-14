@@ -273,6 +273,10 @@ export const STEP_MARK: Record<StepKind, 'none' | 'doubleFrame' | 'rows' | 'colu
   enclosing: 'columns',
 };
 
+/** What is written in a step's square: its number, `M` + number for a macro-step (IEC 60848). */
+export const stepReference = (s: Pick<Step, 'kind' | 'number'>): string =>
+  s.kind === 'macro' ? `M${s.number}` : String(s.number);
+
 /** Action boxes are chained left to right, starting ACTION_GAP right of the step. */
 export function layoutActions(s: Step, actions: readonly Action[]): ActionBox[] {
   let x = s.position.x + STEP_HALF + ACTION_GAP;

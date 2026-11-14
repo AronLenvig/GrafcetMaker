@@ -92,19 +92,24 @@ the same project at the same time, each on their own computer.
 **File › Export…** (<kbd>Ctrl+E</kbd>, or the **Export** button at the top right) opens one dialog for every format, with a live preview. Its
 settings are remembered per project. **File › Export as** opens it on a given format directly.
 
-| Format                | Use it for                                                                                                        |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| **PDF**               | printing and documentation: vector, A4 or A3, fitted to the page or tiled over several sheets, with a title block |
-| **SVG**               | documents and the web: vector, sharp at any size                                                                  |
-| **PNG**               | slides, chats and tickets: 1×, 2× or 4× resolution, optionally transparent                                        |
-| **WebP**              | the same as PNG with smaller files                                                                                |
-| **Variables (Excel)** | the variable table as an `.xlsx` workbook                                                                         |
-| **Variables (CSV)**   | the variable table for other tools                                                                                |
-| **Structured Text**   | PLC code running every grafcet: IEC 61131-3, Siemens TIA Portal (SCL), Beckhoff TwinCAT 3 or Allen-Bradley Logix  |
-| **PLCopen XML**       | importing the grafcets into a PLC tool as SFC programs                                                            |
+| Format                | Use it for                                                                                                       |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **PDF**               | printing and documentation: vector, A4 or A3, readable over several sheets or fitted to one, with a title block  |
+| **SVG**               | documents and the web: vector, sharp at any size                                                                 |
+| **PNG**               | slides, chats and tickets: 1×, 2× or 4× resolution, optionally transparent                                       |
+| **WebP**              | the same as PNG with smaller files                                                                               |
+| **Variables (Excel)** | the variable table as an `.xlsx` workbook                                                                        |
+| **Variables (CSV)**   | the variable table for other tools                                                                               |
+| **Structured Text**   | PLC code running every grafcet: IEC 61131-3, Siemens TIA Portal (SCL), Beckhoff TwinCAT 3 or Allen-Bradley Logix |
+| **PLCopen XML**       | importing the grafcets into a PLC tool as SFC programs                                                           |
+
+A long grafcet prints **readably** over several PDF pages (scale _Readable_, the default), cut
+between steps; _Fit to page_ puts it on one page. **Grafcet frames** draws a frame around each
+grafcet with its name, and `M5` or `X4` at the top for an expansion or an enclosed grafcet; it is
+also in **View › Grafcet frames**.
 
 Exports are black on white by default; choose **Current theme** to keep the screen colors.
-Export the current grafcet, the selection, or all grafcets.
+Export the current grafcet, the selection, or all grafcets (the default for PDF).
 
 **File › Copy diagram as PNG / SVG** puts the selection (or the whole grafcet) on the clipboard,
 ready to paste into a report.

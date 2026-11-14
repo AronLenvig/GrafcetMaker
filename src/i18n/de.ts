@@ -336,6 +336,7 @@ export const de: Messages = {
       fit: 'An Fenster anpassen',
       fitSelection: 'Auswahl einpassen',
       toggleGrid: 'Raster ein/aus',
+      toggleFrames: 'Grafcet-Rahmen ein/aus',
       toggleSnap: 'Am Raster ausrichten ein/aus',
       toggleRight: 'Eigenschaftenbereich',
       themeSystem: 'Farbschema: System',
@@ -365,6 +366,7 @@ export const de: Messages = {
       showSimulation: 'Simulationsbereich anzeigen',
       showChronogram: 'Zeitdiagramm anzeigen',
       showGrid: 'Raster',
+      showFrames: 'Grafcet-Rahmen',
       snapToGrid: 'Am Raster ausrichten',
     },
     simulate: {
@@ -907,7 +909,15 @@ export const de: Messages = {
     portrait: 'Hochformat',
     landscape: 'Querformat',
     scale: 'Maßstab',
+    orientationAuto: 'Automatisch',
+    readable: 'Lesbar (bei Bedarf mehrere Seiten)',
+    formatGroups: {
+      drawing: 'Zeichnung',
+      variables: 'Variablen',
+      code: 'SPS-Code',
+    },
     fitPage: 'An Seite anpassen',
+    frames: 'Grafcet-Rahmen',
     percentTiled: '{{v}} % (auf mehrere Seiten verteilt)',
     titleBlock: 'Schriftfeld (Projekt, Autor, Revision, Datum, Blatt)',
     csvHint:

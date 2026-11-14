@@ -104,7 +104,7 @@ formato.
 
 | Formato               | Use para                                                                                                                      |
 | --------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| **PDF**               | impressão e documentação: vetorial, A4 ou A3, ajustado à página ou dividido em várias folhas, com carimbo                     |
+| **PDF**               | impressão e documentação: vetorial, A4 ou A3, legível em várias folhas ou ajustado a uma página, com carimbo                  |
 | **SVG**               | documentos e web: vetorial, nítido em qualquer tamanho                                                                        |
 | **PNG**               | apresentações, chats e chamados: resolução 1×, 2× ou 4×, opcionalmente transparente                                           |
 | **WebP**              | o mesmo que PNG, com arquivos menores                                                                                         |
@@ -113,8 +113,13 @@ formato.
 | **Texto Estruturado** | código de CLP que executa todos os grafcets: IEC 61131-3, Siemens TIA Portal (SCL), Beckhoff TwinCAT 3 ou Allen-Bradley Logix |
 | **PLCopen XML**       | importar os grafcets em uma ferramenta de CLP como programas SFC                                                              |
 
+Um grafcet longo é impresso de forma **legível** em várias páginas PDF (escala _Legível_, padrão),
+cortado entre as etapas; _Ajustar à página_ o coloca numa só página. **Molduras dos grafcets**
+desenha uma moldura em volta de cada grafcet com seu nome e, no alto, `M5` ou `X4` para uma expansão
+ou um grafcet encapsulado; também está em **Exibir › Molduras dos grafcets**.
+
 Por padrão, as exportações são em preto no branco; escolha **Tema atual** para manter as cores da
-tela. Exporte o grafcet atual, a seleção ou todos os grafcets.
+tela. Exporte o grafcet atual, a seleção ou todos os grafcets (padrão em PDF).
 
 **Arquivo › Copiar diagrama como PNG / SVG** coloca a seleção (ou o grafcet inteiro) na área de
 transferência, pronta para colar em um relatório.

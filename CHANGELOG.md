@@ -8,6 +8,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- **Grafcet frames** (View › Grafcet frames, the Export dialog and Settings): a frame around the
+  grafcet with its name at the bottom left and, for an expansion or an enclosed grafcet, its
+  macro-step (`M5`) or enclosing step (`X4`) at the top left, in the editor and in SVG, PNG,
+  WebP and PDF exports.
 - Simulation shows each step for at least 0.1 s: when one change makes several transitions clear
   in a row, the token moves through every step instead of jumping to the last. Only the display
   waits; the simulation still follows IEC 60848 (unstable steps last no time).
@@ -145,6 +149,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- A more compact **Export** dialog: formats grouped under Drawing, Variables and PLC code, each
+  option on one row (short choices as one row of buttons, the PDF scale and the PLC as a list),
+  and **All grafcets** exported by default where the format allows it (PDF).
+- PDF export prints long grafcets **readably**: the new default scale keeps a grafcet on one page
+  while its text stays readable (70 % or more), otherwise prints it over as many pages as needed,
+  cut between steps and transitions, never through them (fixed percentages are cut the same way).
+  The new **Automatic** orientation picks the one that needs fewer pages. A project that kept
+  the old default (A4 portrait, fit to page) switches to the new one.
+- A macro-step reads **M** and its number (`M5`), as in IEC 60848.
 - Structured Text, CASE style: the `CASE` holds nothing but the transition conditions and the new
   step numbers. Stored actions follow it, run when the step changed since the previous scan (also
   when a forcing order changed it, as in the simulator), then the outputs.
@@ -243,6 +256,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- Export preview: the page buttons were tiny, and after clicking "next" past the last page
+  "previous" needed as many clicks to move. They are now labelled buttons that stop at the first
+  and last page, and ← / → turn pages on the preview.
+- Command palette: typing a command's exact name (such as **Copy**) runs that command; "Copy" ran
+  "Copy as text" first, after which Paste did nothing.
 - Copying a single action attached to a step did nothing: it is now copied, and pasted onto the
   selected step (Ctrl+C, Ctrl+V on an action duplicates it on its step).
 - Simulation: a step timer such as `3s/X2` could never fire in real-time mode when its step was

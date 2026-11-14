@@ -13,6 +13,7 @@ import { tDynamic } from '@/i18n/dynamic';
 import { ActionKindIcon } from './ActionKindPicker';
 import { Section } from './fields';
 import { StepKindIcon } from './StepKindPicker';
+import { stepReference } from '@/core/layout/geometry';
 
 interface Row {
   id: Id;
@@ -85,7 +86,7 @@ function RowContent({ g, row }: { g: Grafcet; row: Row }) {
     return (
       <>
         <StepKindIcon kind={step.kind} />
-        <span className="shrink-0">{t('outline.step', { n: step.number })}</span>
+        <span className="shrink-0">{t('outline.step', { n: stepReference(step) })}</span>
         {step.label && <span className="min-w-0 truncate text-muted">{step.label}</span>}
       </>
     );

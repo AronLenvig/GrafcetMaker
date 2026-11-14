@@ -301,7 +301,8 @@ Select a step and choose its **Kind** in the properties panel (or **Edit › Mak
 
 - **Macro-step**: a new tab holds its **expansion**, created with an entry step E and an exit step S
   linked by a transition. Draw the detailed sequence between them. The macro-step stands for the
-  whole expansion: it is active while any of its steps is.
+  whole expansion: it is active while any of its steps is. Its square reads **M** and its number
+  (M5), as IEC 60848 writes it; in receptivities `X5` is still its activity.
 - **Enclosing step**: a new tab holds the **enclosed grafcet**. Steps marked `*` there start when
   the enclosing step becomes active; everything in it stops when the enclosing step is left.
 
@@ -310,6 +311,11 @@ Double-click a macro-step or enclosing step (or press `Alt+↓`) to open its sub
 expansions and enclosed grafcets carry an **M** or **E** badge. Validation checks that every
 macro-step and enclosing step has exactly one sub-grafcet of the right kind and that
 expansions have one entry and one exit step.
+
+**View › Grafcet frames** (also in the Export dialog, and in Settings) draws a frame around the
+grafcet with its name at the bottom left; an expansion also shows its macro-step (`M5`) and an
+enclosed grafcet its enclosing step (`X4`) at the top left. Frames are drawing only: they are
+not saved in the file and cannot be selected.
 
 ### Forcing
 
@@ -390,13 +396,17 @@ simulator stops after 1000 iterations and reports a transient loop. The exact ru
 
 ## Exporting and sharing
 
-**File › Export…** (`Ctrl+E`, or the **Export** button at the top right) opens one dialog for every format, with a live preview. Settings are
-remembered per project on this device.
+**File › Export…** (`Ctrl+E`, or the **Export** button at the top right) opens one dialog for every format, with a live preview: formats are grouped (drawing, variables,
+PLC code) and each option is one row; for a PDF, **Previous page** / **Next page** under the
+preview (or ← and → on it) show each sheet. Settings are remembered per project on this device.
 
-- **PDF document**: vector, A4 or A3, portrait or landscape, fitted to the page or printed at a
-  fixed scale and tiled over several sheets, with a title block (project, grafcet, author,
-  company, revision, date, sheet number). Export the current grafcet, the selection, or all
-  grafcets one after another.
+- **PDF document**: vector, A4 or A3, portrait, landscape or **automatic** (the orientation
+  that needs fewer sheets), with a title block (project, grafcet, author, company, revision,
+  date, sheet number). Scale **Readable** (default) keeps a grafcet on one sheet while it stays
+  readable (at least 70 %), otherwise prints it as wide as the sheet allows over as many sheets as
+  it needs, cut between steps and transitions, never through them; **Fit to page** always puts it
+  on one sheet; a fixed percentage tiles it, cut the same way. Export all
+  grafcets one after another (the default), the current grafcet or the selection.
 - **SVG image**: vector, ideal for documents and the web; optionally embeds the diagram font so it
   looks the same everywhere.
 - **PNG image**: 1×, 2× or 4× resolution, optionally with a transparent background.

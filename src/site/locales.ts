@@ -43,7 +43,7 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     title: 'What is GRAFCET? Complete guide to IEC 60848 with examples',
     description:
       'GRAFCET explained: steps, transitions, receptivities, actions, the five evolution rules, OR and AND branches, macro-steps and forcing, with diagrams and examples.',
-    updated: '2026-10-23',
+    updated: '2026-11-14',
     updatedLabel: 'Updated',
     skip: 'Skip to content',
     contents: 'On this page',
@@ -67,7 +67,7 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     title: 'GRAFCET : cours complet (IEC 60848), règles et exemples',
     description:
       'Le GRAFCET expliqué : étapes, transitions, réceptivités, actions, les cinq règles d’évolution, divergences en OU et en ET, macro-étapes et forçage, avec exemples.',
-    updated: '2026-10-23',
+    updated: '2026-11-14',
     updatedLabel: 'Mis à jour le',
     skip: 'Aller au contenu',
     contents: 'Sur cette page',
@@ -91,7 +91,7 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     title: 'GRAFCET einfach erklärt: Grundlagen, Regeln und Beispiele',
     description:
       'GRAFCET nach DIN EN 60848 erklärt: Schritte, Transitionen, Aktionen, die fünf Ablaufregeln, Verzweigungen, Makroschritte und Zwangssteuerung mit Beispielen.',
-    updated: '2026-10-23',
+    updated: '2026-11-14',
     updatedLabel: 'Aktualisiert am',
     skip: 'Zum Inhalt springen',
     contents: 'Auf dieser Seite',
@@ -115,7 +115,7 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     title: 'GRAFCET: qué es, reglas y ejemplos (guía IEC 60848)',
     description:
       'El GRAFCET explicado: etapas, transiciones, receptividades, acciones, las cinco reglas de evolución, divergencias O e Y, macroetapas y forzado, con ejemplos.',
-    updated: '2026-10-23',
+    updated: '2026-11-14',
     updatedLabel: 'Actualizado el',
     skip: 'Ir al contenido',
     contents: 'En esta página',
@@ -139,7 +139,7 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     title: 'Hvad er GRAFCET? Komplet guide til IEC 60848 med eksempler',
     description:
       'GRAFCET (DS/EN 60848) forklaret: trin, transitioner, aktioner, de fem udviklingsregler, ELLER- og OG-grene, makrotrin og tvangsstyring, med eksempler.',
-    updated: '2026-10-24',
+    updated: '2026-11-14',
     updatedLabel: 'Opdateret',
     skip: 'Gå til indhold',
     contents: 'På denne side',
@@ -163,7 +163,7 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     title: 'Vad är GRAFCET? Komplett guide till IEC 60848 med exempel',
     description:
       'GRAFCET enligt SS-EN 60848 förklarat: steg, övergångar, aktioner, de fem utvecklingsreglerna, förgreningar, makrosteg och tvångsstyrning, med exempel.',
-    updated: '2026-10-24',
+    updated: '2026-11-14',
     updatedLabel: 'Uppdaterad',
     skip: 'Hoppa till innehållet',
     contents: 'På den här sidan',
@@ -187,7 +187,7 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     title: 'O que é GRAFCET? Guia completo da IEC 60848 com exemplos',
     description:
       'GRAFCET explicado: etapas, transições, receptividades, ações, as cinco regras de evolução, divergências OU e E, macroetapas e forçamento, com exemplos.',
-    updated: '2026-10-29',
+    updated: '2026-11-14',
     updatedLabel: 'Atualizado',
     skip: 'Ir para o conteúdo',
     contents: 'Nesta página',
@@ -211,7 +211,7 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     title: 'Czym jest GRAFCET? Pełny przewodnik po IEC 60848 z przykładami',
     description:
       'GRAFCET w pigułce: kroki, tranzycje, warunki, akcje, pięć reguł ewolucji, rozgałęzienia LUB i I, makrokroki i wymuszanie, z diagramami i przykładami.',
-    updated: '2026-10-29',
+    updated: '2026-11-14',
     updatedLabel: 'Zaktualizowano',
     skip: 'Przejdź do treści',
     contents: 'Na tej stronie',
@@ -235,7 +235,7 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     title: 'Что такое GRAFCET? Полное руководство по IEC 60848 с примерами',
     description:
       'GRAFCET простыми словами: шаги, переходы, условия переходов, действия, пять правил эволюции, ветвления ИЛИ и И, макрошаги и принудительная установка.',
-    updated: '2026-10-29',
+    updated: '2026-11-14',
     updatedLabel: 'Обновлено',
     skip: 'Перейти к содержанию',
     contents: 'На этой странице',
@@ -259,7 +259,7 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     title: '什么是 GRAFCET？IEC 60848 完整指南与示例',
     description:
       'GRAFCET 详解：步、转换、转换条件、动作、五条演变规则、选择分支与并行分支、宏步和强制，配有图示和示例。',
-    updated: '2026-10-29',
+    updated: '2026-11-14',
     updatedLabel: '更新于',
     skip: '跳到正文',
     contents: '本页内容',
@@ -283,7 +283,7 @@ export const SITE_TEXT: Record<Lang, SiteText> = {
     title: 'GRAFCET क्या है? उदाहरणों के साथ IEC 60848 की पूरी गाइड',
     description:
       'GRAFCET की सरल व्याख्या: स्टेप, ट्रांज़िशन, रिसेप्टिविटी, एक्शन, विकास के पाँच नियम, OR और AND शाखाएँ, मैक्रो-स्टेप और फ़ोर्सिंग, उदाहरणों सहित।',
-    updated: '2026-10-29',
+    updated: '2026-11-14',
     updatedLabel: 'अपडेट किया गया',
     skip: 'सामग्री पर जाएँ',
     contents: 'इस पेज पर',

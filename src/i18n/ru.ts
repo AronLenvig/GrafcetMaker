@@ -334,6 +334,7 @@ export const ru: Messages = {
       fit: 'По размеру окна',
       fitSelection: 'По размеру выделения',
       toggleGrid: 'Сетка вкл./выкл.',
+      toggleFrames: 'Рамки графсетов вкл./выкл.',
       toggleSnap: 'Привязка к сетке вкл./выкл.',
       toggleRight: 'Панель свойств',
       themeSystem: 'Тема: системная',
@@ -363,6 +364,7 @@ export const ru: Messages = {
       showSimulation: 'Показать панель моделирования',
       showChronogram: 'Показать временную диаграмму',
       showGrid: 'Сетка',
+      showFrames: 'Рамки графсетов',
       snapToGrid: 'Привязка к сетке',
     },
     simulate: {
@@ -921,7 +923,15 @@ export const ru: Messages = {
     portrait: 'Книжная',
     landscape: 'Альбомная',
     scale: 'Масштаб',
+    orientationAuto: 'Автоматически',
+    readable: 'Читаемый (несколько страниц при необходимости)',
+    formatGroups: {
+      drawing: 'Чертёж',
+      variables: 'Переменные',
+      code: 'Код ПЛК',
+    },
     fitPage: 'По размеру страницы',
+    frames: 'Рамки графсетов',
     percentTiled: '{{v}} % (на нескольких страницах)',
     titleBlock: 'Основная надпись (проект, автор, редакция, дата, лист)',
     csvHint:

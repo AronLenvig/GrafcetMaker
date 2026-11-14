@@ -7,6 +7,8 @@ export interface Prefs {
   /** Textbook display of expressions (overbar NOT, · and +) instead of the typed ASCII. */
   textbookNotation: boolean;
   showGrid: boolean;
+  /** A frame around the grafcet with its identification (core/layout/frame). */
+  showFrames: boolean;
   snapToGrid: boolean;
   /** Contextual hints under the toolbar. */
   showHints: boolean;
@@ -34,6 +36,7 @@ export const DEFAULT_PREFS: Prefs = {
   panelWidth: 420,
   textbookNotation: true,
   showGrid: true,
+  showFrames: false,
   snapToGrid: true,
   showHints: true,
   splitRatio: 0.5,

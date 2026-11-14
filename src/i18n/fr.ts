@@ -336,6 +336,7 @@ export const fr: Messages = {
       fit: 'Ajuster à la fenêtre',
       fitSelection: 'Ajuster à la sélection',
       toggleGrid: 'Afficher / masquer la grille',
+      toggleFrames: 'Afficher / masquer les cadres des grafcets',
       toggleSnap: "Activer / désactiver l'aimantation à la grille",
       toggleRight: 'Panneau des propriétés',
       themeSystem: 'Thème : système',
@@ -365,6 +366,7 @@ export const fr: Messages = {
       showSimulation: 'Afficher le panneau de simulation',
       showChronogram: 'Afficher le chronogramme',
       showGrid: 'Grille',
+      showFrames: 'Cadres des grafcets',
       snapToGrid: 'Aimanter à la grille',
     },
     simulate: {
@@ -902,7 +904,15 @@ export const fr: Messages = {
     portrait: 'Portrait',
     landscape: 'Paysage',
     scale: 'Échelle',
+    orientationAuto: 'Automatique',
+    readable: 'Lisible (plusieurs pages si besoin)',
+    formatGroups: {
+      drawing: 'Dessin',
+      variables: 'Variables',
+      code: 'Code automate',
+    },
     fitPage: 'Ajuster à la page',
+    frames: 'Cadres des grafcets',
     percentTiled: '{{v}} % (sur plusieurs pages)',
     titleBlock: 'Cartouche (projet, auteur, révision, date, feuille)',
     csvHint:

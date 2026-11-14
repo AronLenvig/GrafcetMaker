@@ -17,16 +17,24 @@ interface Entry {
   run: () => void;
 }
 
-/** Every word of the query must occur in the label (case-insensitive); earlier matches rank higher. */
-function score(label: string, query: string): number {
+/**
+ * Rank of an entry for the query, lower first; null when a word of the query is in neither its
+ * label nor its group (case-insensitive). The entry named exactly so comes first ("Copy" before
+ * "Copy share link"), then matches in the label (earlier, then shorter), then in the group only.
+ */
+export function score(label: string, group: string, query: string): number | null {
+  const q = query.trim().toLowerCase();
   const l = label.toLowerCase();
+  if (l === q) return -1;
+  const g = group.toLowerCase();
   let total = 0;
-  for (const word of query.toLowerCase().split(/\s+/).filter(Boolean)) {
+  for (const word of q.split(/\s+/).filter(Boolean)) {
     const i = l.indexOf(word);
-    if (i < 0) return -1;
-    total += i;
+    if (i >= 0) total += i;
+    else if (g.includes(word)) total += 1000;
+    else return null;
   }
-  return total;
+  return total + l.length / 1000;
 }
 
 /** Ctrl/Cmd+K: run any command or jump to a grafcet by typing. */
@@ -66,8 +74,8 @@ export function CommandPalette() {
   const results = useMemo(() => {
     if (!query.trim()) return entries;
     return entries
-      .map((e) => ({ e, s: score(`${e.group} ${e.label}`, query) }))
-      .filter((x) => x.s >= 0)
+      .map((e) => ({ e, s: score(e.label, e.group, query) }))
+      .filter((x): x is { e: Entry; s: number } => x.s !== null)
       .sort((a, b) => a.s - b.s)
       .map((x) => x.e);
   }, [entries, query]);

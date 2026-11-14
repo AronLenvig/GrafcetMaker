@@ -85,16 +85,16 @@ step 1 Running
 
 ### Grafcets and steps
 
-| Line                                   | Meaning                                                        |
-| -------------------------------------- | -------------------------------------------------------------- |
-| `grafcet <name>`                       | starts a grafcet (a page); optional if there is only one       |
-| `grafcet <name> expansion`             | the expansion of a macro-step (starts with an initial step)    |
-| `grafcet <name> enclosed`              | a grafcet enclosed by an enclosing step                        |
-| `step <n> [label]`                     | a step numbered n, with an optional label (the text beside it) |
-| `step <n> initial [label]`             | an initial step (active at the start); every grafcet needs one |
-| `step <n> macro [label] -> <name>`     | a macro-step, detailed by the grafcet `<name> expansion`       |
-| `step <n> enclosing [label] -> <name>` | an enclosing step, activating the grafcet `<name> enclosed`    |
-| `note <text>`                          | a comment box on the chart; `\n` starts a new line             |
+| Line                                   | Meaning                                                                    |
+| -------------------------------------- | -------------------------------------------------------------------------- |
+| `grafcet <name>`                       | starts a grafcet (a page); optional if there is only one                   |
+| `grafcet <name> expansion`             | the expansion of a macro-step (starts with an initial step)                |
+| `grafcet <name> enclosed`              | a grafcet enclosed by an enclosing step                                    |
+| `step <n> [label]`                     | a step numbered n, with an optional label (the text beside it)             |
+| `step <n> initial [label]`             | an initial step (active at the start); every grafcet needs one             |
+| `step <n> macro [label] -> <name>`     | a macro-step (shown as `M<n>`), detailed by the grafcet `<name> expansion` |
+| `step <n> enclosing [label] -> <name>` | an enclosing step, activating the grafcet `<name> enclosed`                |
+| `note <text>`                          | a comment box on the chart; `\n` starts a new line                         |
 
 Step numbers are unique within a grafcet. Write the kind (`initial`, `macro`, `enclosing`) in
 lower case right after the number.

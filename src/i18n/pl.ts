@@ -335,6 +335,7 @@ export const pl: Messages = {
       fit: 'Dopasuj do okna',
       fitSelection: 'Dopasuj do zaznaczenia',
       toggleGrid: 'Przełącz siatkę',
+      toggleFrames: 'Przełącz ramki grafcetów',
       toggleSnap: 'Przełącz przyciąganie do siatki',
       toggleRight: 'Panel właściwości',
       themeSystem: 'Motyw: systemowy',
@@ -364,6 +365,7 @@ export const pl: Messages = {
       showSimulation: 'Pokaż panel symulacji',
       showChronogram: 'Pokaż wykres czasowy',
       showGrid: 'Siatka',
+      showFrames: 'Ramki grafcetów',
       snapToGrid: 'Przyciągaj do siatki',
     },
     simulate: {
@@ -920,7 +922,15 @@ export const pl: Messages = {
     portrait: 'Pionowa',
     landscape: 'Pozioma',
     scale: 'Skala',
+    orientationAuto: 'Automatyczna',
+    readable: 'Czytelna (kilka stron w razie potrzeby)',
+    formatGroups: {
+      drawing: 'Rysunek',
+      variables: 'Zmienne',
+      code: 'Kod PLC',
+    },
     fitPage: 'Dopasuj do strony',
+    frames: 'Ramki grafcetów',
     percentTiled: '{{v}} % (na kilku stronach)',
     titleBlock: 'Tabliczka (projekt, autor, rewizja, data, arkusz)',
     csvHint:

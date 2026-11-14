@@ -23,6 +23,8 @@ está activa).
 Una **macroetapa** representa una secuencia detallada dibujada en su propia hoja, su **expansión**.
 Se dibuja como una etapa con dos líneas horizontales.
 
+Su número se escribe con una **M** (M5); en las receptividades, `X5` sigue designando su actividad.
+
 <!-- figure: macro | Una macroetapa en la secuencia principal -->
 
 1. Selecciona una etapa y pon su **Tipo** en _Macroetapa_ en el panel Propiedades (o
@@ -49,6 +51,11 @@ _ajuste_. Se dibuja como una etapa con dos líneas verticales.
 3. Cuando se abandona la etapa encapsulante, se desactivan todas las etapas del grafcet encapsulado.
 
 Las pestañas de las expansiones y de los grafcets encapsulados llevan un distintivo **M** o **E**.
+
+**Marcos**: activa **Ver › Marcos de los grafcets** para dibujar un marco alrededor de cada grafcet.
+El marco de un grafcet encapsulado muestra arriba a la izquierda su etapa encapsulante (`X4`) y
+abajo a la izquierda su nombre; el de una expansión muestra su macroetapa (`M5`). Marca **Marcos de
+los grafcets** en el diálogo de exportación para imprimirlos.
 
 ## Órdenes de forzado {#forcing-orders}
 

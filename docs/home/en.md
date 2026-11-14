@@ -25,7 +25,7 @@ AI assistants such as ChatGPT and Claude can make a chart for you and give it to
   every variable, and scenarios you record and replay.
 - **Structure** large applications with partial grafcets, macro-steps and their expansions,
   enclosing steps and forcing orders.
-- **Export** to PDF (A4 or A3, with a title block, tiled over several sheets if needed), SVG, PNG
+- **Export** to PDF (A4 or A3, with a title block, readable over several sheets if needed), SVG, PNG
   and WebP, the variable table to Excel and CSV, and generate Structured Text or PLCopen XML.
 - **Work together** live from a link: everyone sees the others' pointers and changes in real time,
   end-to-end encrypted.

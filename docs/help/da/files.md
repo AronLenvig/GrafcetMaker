@@ -98,7 +98,7 @@ projekt. **Filer › Eksporter som** åbner den direkte på et bestemt format.
 
 | Format                | Brug det til                                                                                                           |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| **PDF**               | udskrivning og dokumentation: vektor, A4 eller A3, tilpasset siden eller fordelt over flere ark, med titelfelt         |
+| **PDF**               | udskrivning og dokumentation: vektor, A4 eller A3, læseligt over flere ark eller tilpasset én side, med titelfelt      |
 | **SVG**               | dokumenter og web: vektor, skarp i alle størrelser                                                                     |
 | **PNG**               | præsentationer, chats og sager: opløsning 1×, 2× eller 4×, eventuelt gennemsigtig                                      |
 | **WebP**              | det samme som PNG med mindre filer                                                                                     |
@@ -107,8 +107,13 @@ projekt. **Filer › Eksporter som** åbner den direkte på et bestemt format.
 | **Structured Text**   | PLC-kode, der kører alle grafcets: IEC 61131-3, Siemens TIA Portal (SCL), Beckhoff TwinCAT 3 eller Allen-Bradley Logix |
 | **PLCopen XML**       | import af grafcets i et PLC-værktøj som SFC-programmer                                                                 |
 
+En lang grafcet udskrives **læseligt** på flere PDF-sider (skala _Læselig_, standard), delt mellem
+trinene; _Tilpas til siden_ sætter den på én side. **Rammer om grafcets** tegner en ramme om hver
+grafcet med dens navn og øverst `M5` eller `X4` for en ekspansion eller en indkapslet grafcet; det
+findes også under **Vis › Rammer om grafcets**.
+
 Eksporter er som standard sort på hvidt; vælg **Aktuelt tema** for at beholde skærmens farver.
-Eksporter den aktuelle grafcet, markeringen eller alle grafcets.
+Eksporter den aktuelle grafcet, markeringen eller alle grafcets (standard for PDF).
 
 **Filer › Kopier diagram som PNG / SVG** lægger markeringen (eller hele grafcetten) i
 udklipsholderen, klar til at blive sat ind i en rapport.

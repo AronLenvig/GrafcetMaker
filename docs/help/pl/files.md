@@ -101,7 +101,7 @@ każdego projektu. **Plik › Eksportuj jako** otwiera je od razu w wybranym for
 
 | Format              | Zastosowanie                                                                                                        |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| **PDF**             | druk i dokumentacja: wektor, A4 lub A3, dopasowany do strony lub podzielony na kilka arkuszy, z tabliczką           |
+| **PDF**             | druk i dokumentacja: wektor, A4 lub A3, czytelnie na kilku arkuszach lub dopasowany do jednej strony, z tabliczką   |
 | **SVG**             | dokumenty i WWW: wektor, ostry w każdym rozmiarze                                                                   |
 | **PNG**             | slajdy, czaty i zgłoszenia: rozdzielczość 1×, 2× lub 4×, opcjonalnie przezroczysty                                  |
 | **WebP**            | to samo co PNG, z mniejszymi plikami                                                                                |
@@ -110,8 +110,13 @@ każdego projektu. **Plik › Eksportuj jako** otwiera je od razu w wybranym for
 | **Structured Text** | kod PLC wykonujący każdy grafcet: IEC 61131-3, Siemens TIA Portal (SCL), Beckhoff TwinCAT 3 lub Allen-Bradley Logix |
 | **PLCopen XML**     | import grafcetów do narzędzia PLC jako programy SFC                                                                 |
 
+Długi grafcet drukuje się **czytelnie** na kilku stronach PDF (skala _Czytelna_, domyślna), z
+podziałem między krokami; _Dopasuj do strony_ mieści go na jednej stronie. **Ramki grafcetów**
+rysuje ramkę wokół każdego grafcetu z jego nazwą oraz u góry `M5` lub `X4` dla rozwinięcia lub
+grafcetu zamkniętego; opcja jest też w **Widok › Ramki grafcetów**.
+
 Eksporty są domyślnie czarne na białym; wybierz **Bieżący motyw**, aby zachować kolory ekranu.
-Eksportuj bieżący grafcet, zaznaczenie lub wszystkie grafcety.
+Eksportuj bieżący grafcet, zaznaczenie lub wszystkie grafcety (domyślnie w PDF).
 
 **Plik › Kopiuj diagram jako PNG / SVG** umieszcza zaznaczenie (lub cały grafcet) w schowku,
 gotowe do wklejenia do raportu.

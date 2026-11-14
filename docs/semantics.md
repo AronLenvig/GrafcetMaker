@@ -213,6 +213,13 @@ hand-verified charts (`tests/unit/simulation.test.ts`).
 - A macro-step (step kind `macro`) refers to an **expansion** grafcet (kind `macroExpansion`).
   The expansion has exactly one **entry step** E (no upstream transition) and one **exit step** S
   (no downstream transition); otherwise validation reports it. The editor marks them E and S.
+- A macro-step's square reads `M` and its number (`M5`), as IEC 60848 references macro-steps; the
+  model keeps the number only, and `X5` in an expression is still its activity.
+- **Frames** (View › Grafcet frames, and the exports): drawn around everything a grafcet draws,
+  with its name at the bottom left and, at the top left, its macro-step (`M5`) for an expansion or
+  `X` and the number of its enclosing step (`X4`) for an enclosed grafcet, the placement a user
+  report gives for IEC 60848 practice (not checked against the standard's figures; `X4` is our
+  choice of how to write the reference). Frames are derived, never stored.
 - Simulation inlines the expansion: a transition leading to the macro-step activates E; a
   transition leaving the macro-step is enabled when S is active and deactivates S.
 - The macro-step is **active** (its `Xn` is true, it shows a token) while any step of its

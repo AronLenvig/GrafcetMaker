@@ -896,6 +896,11 @@ export const es: Messages = {
     scale: 'Escala',
     orientationAuto: 'Automática',
     readable: 'Legible (varias páginas si hace falta)',
+    formatGroups: {
+      drawing: 'Dibujo',
+      variables: 'Variables',
+      code: 'Código de PLC',
+    },
     fitPage: 'Ajustar a la página',
     frames: 'Marcos de los grafcets',
     percentTiled: '{{v}} % (en mosaico sobre varias páginas)',

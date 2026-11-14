@@ -891,6 +891,11 @@ export const sv: Messages = {
     scale: 'Skala',
     orientationAuto: 'Automatisk',
     readable: 'Läsbar (flera sidor vid behov)',
+    formatGroups: {
+      drawing: 'Ritning',
+      variables: 'Variabler',
+      code: 'PLC-kod',
+    },
     fitPage: 'Anpassa till sidan',
     frames: 'Ramar runt grafcet',
     percentTiled: '{{v}} % (fördelat över flera sidor)',

@@ -900,6 +900,11 @@ export const pt: Messages = {
     scale: 'Escala',
     orientationAuto: 'Automática',
     readable: 'Legível (várias páginas se necessário)',
+    formatGroups: {
+      drawing: 'Desenho',
+      variables: 'Variáveis',
+      code: 'Código de CLP',
+    },
     fitPage: 'Ajustar à página',
     frames: 'Molduras dos grafcets',
     percentTiled: '{{v}} % (dividido em páginas)',

@@ -925,6 +925,11 @@ export const ru: Messages = {
     scale: 'Масштаб',
     orientationAuto: 'Автоматически',
     readable: 'Читаемый (несколько страниц при необходимости)',
+    formatGroups: {
+      drawing: 'Чертёж',
+      variables: 'Переменные',
+      code: 'Код ПЛК',
+    },
     fitPage: 'По размеру страницы',
     frames: 'Рамки графсетов',
     percentTiled: '{{v}} % (на нескольких страницах)',

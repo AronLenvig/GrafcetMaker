@@ -113,7 +113,7 @@ grafcet med dens navn og øverst `M5` eller `X4` for en ekspansion eller en indk
 findes også under **Vis › Rammer om grafcets**.
 
 Eksporter er som standard sort på hvidt; vælg **Aktuelt tema** for at beholde skærmens farver.
-Eksporter den aktuelle grafcet, markeringen eller alle grafcets.
+Eksporter den aktuelle grafcet, markeringen eller alle grafcets (standard for PDF).
 
 **Filer › Kopier diagram som PNG / SVG** lægger markeringen (eller hele grafcetten) i
 udklipsholderen, klar til at blive sat ind i en rapport.

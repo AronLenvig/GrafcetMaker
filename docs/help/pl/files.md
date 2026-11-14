@@ -116,7 +116,7 @@ rysuje ramkę wokół każdego grafcetu z jego nazwą oraz u góry `M5` lub `X4`
 grafcetu zamkniętego; opcja jest też w **Widok › Ramki grafcetów**.
 
 Eksporty są domyślnie czarne na białym; wybierz **Bieżący motyw**, aby zachować kolory ekranu.
-Eksportuj bieżący grafcet, zaznaczenie lub wszystkie grafcety.
+Eksportuj bieżący grafcet, zaznaczenie lub wszystkie grafcety (domyślnie w PDF).
 
 **Plik › Kopiuj diagram jako PNG / SVG** umieszcza zaznaczenie (lub cały grafcet) w schowku,
 gotowe do wklejenia do raportu.

@@ -109,7 +109,7 @@ grafcet with its name, and `M5` or `X4` at the top for an expansion or an enclos
 also in **View › Grafcet frames**.
 
 Exports are black on white by default; choose **Current theme** to keep the screen colors.
-Export the current grafcet, the selection, or all grafcets.
+Export the current grafcet, the selection, or all grafcets (the default for PDF).
 
 **File › Copy diagram as PNG / SVG** puts the selection (or the whole grafcet) on the clipboard,
 ready to paste into a report.

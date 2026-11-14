@@ -122,7 +122,7 @@ grafcets** dibuja un marco alrededor de cada grafcet con su nombre, y `M5` o `X4
 expansión o un grafcet encapsulado; también está en **Ver › Marcos de los grafcets**.
 
 Las exportaciones son en negro sobre blanco de forma predeterminada; elige **Tema actual** para
-conservar los colores de la pantalla. Exporta el grafcet actual, la selección o todos los grafcets.
+conservar los colores de la pantalla. Exporta el grafcet actual, la selección o todos los grafcets (por defecto en PDF).
 
 **Archivo › Copiar diagrama como PNG / SVG** pone la selección (o el grafcet completo) en el
 portapapeles, lista para pegarla en un informe.

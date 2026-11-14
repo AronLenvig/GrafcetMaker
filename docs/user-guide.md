@@ -396,16 +396,17 @@ simulator stops after 1000 iterations and reports a transient loop. The exact ru
 
 ## Exporting and sharing
 
-**File › Export…** (`Ctrl+E`, or the **Export** button at the top right) opens one dialog for every format, with a live preview. Settings are
-remembered per project on this device.
+**File › Export…** (`Ctrl+E`, or the **Export** button at the top right) opens one dialog for every format, with a live preview: formats are grouped (drawing, variables,
+PLC code) and each option is one row; for a PDF, **Previous page** / **Next page** under the
+preview (or ← and → on it) show each sheet. Settings are remembered per project on this device.
 
 - **PDF document**: vector, A4 or A3, portrait, landscape or **automatic** (the orientation
   that needs fewer sheets), with a title block (project, grafcet, author, company, revision,
   date, sheet number). Scale **Readable** (default) keeps a grafcet on one sheet while it stays
   readable (at least 70 %), otherwise prints it as wide as the sheet allows over as many sheets as
   it needs, cut between steps and transitions, never through them; **Fit to page** always puts it
-  on one sheet; a fixed percentage tiles it, cut the same way. Export the current grafcet, the selection, or all
-  grafcets one after another.
+  on one sheet; a fixed percentage tiles it, cut the same way. Export all
+  grafcets one after another (the default), the current grafcet or the selection.
 - **SVG image**: vector, ideal for documents and the web; optionally embeds the diagram font so it
   looks the same everywhere.
 - **PNG image**: 1×, 2× or 4× resolution, optionally with a transparent background.

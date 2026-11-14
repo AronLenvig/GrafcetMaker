@@ -39,7 +39,7 @@ export interface ExportSettings {
 
 export const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
   format: 'pdf',
-  scope: 'grafcet',
+  scope: 'all',
   theme: 'print',
   textbook: true,
   frames: false,
@@ -120,11 +120,11 @@ const storedSettingsSchema = (() => {
 })();
 
 /**
- * Version of the stored settings. Unversioned ones are from before the readable PDF layout: they
- * hold the default of the time, A4 portrait fitted to one page (cramped for a long grafcet),
- * which is read as the new default.
+ * Version of the stored settings. Settings stored before a default changed hold the old default,
+ * which is read as the new one: before version 2 the PDF was A4 portrait fitted to one page
+ * (cramped for a long grafcet), before version 3 the scope was the current grafcet.
  */
-const SETTINGS_VERSION = 2;
+const SETTINGS_VERSION = 3;
 
 /** Export settings are remembered per project, on this device. */
 export function loadExportSettings(projectId: Id): ExportSettings {
@@ -134,12 +134,14 @@ export function loadExportSettings(projectId: Id): ExportSettings {
     const json: unknown = JSON.parse(raw);
     const parsed = storedSettingsSchema.safeParse(json);
     if (!parsed.success) return DEFAULT_EXPORT_SETTINGS;
-    const s = parsed.data;
-    const versioned = typeof json === 'object' && json !== null && 'version' in json;
-    if (!versioned && s.pdf.scale === 'fit' && s.pdf.orientation === 'portrait') {
+    let s = parsed.data;
+    const stored =
+      typeof json === 'object' && json !== null && 'version' in json ? Number(json.version) : 1;
+    if (stored < 2 && s.pdf.scale === 'fit' && s.pdf.orientation === 'portrait') {
       const { orientation, scale } = DEFAULT_EXPORT_SETTINGS.pdf;
-      return { ...s, pdf: { ...s.pdf, orientation, scale } };
+      s = { ...s, pdf: { ...s.pdf, orientation, scale } };
     }
+    if (stored < 3 && s.scope === 'grafcet') s = { ...s, scope: DEFAULT_EXPORT_SETTINGS.scope };
     return s;
   } catch {
     return DEFAULT_EXPORT_SETTINGS;

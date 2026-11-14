@@ -431,6 +431,9 @@ Autonomous build log. Read this first in every session and resume from **Current
   (default: one page while at least 70 %, else the page width over several pages) and
   orientation `auto`; stored export settings now carry a version, and unversioned ones holding
   the old default (A4 portrait, fit) read as the new one.
+- Export dialog (owner request): formats grouped, options as rows (`Segmented` radios, `Choice`
+  drop-downs), scope **All grafcets** by default (stored settings version 3 reads the old default
+  "current grafcet" as the new one), page navigation under the preview: labelled, bounded, ← / →.
 - Command palette: an entry named exactly as typed ranks first, then matches in the label, then
   in the group (typing "Copy" ran "Copy as text" before, so Paste then did nothing).
 - Macro-step reference `M<n>` (`stepReference`) on the canvas, in exports, Outline and the

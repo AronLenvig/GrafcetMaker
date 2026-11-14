@@ -130,7 +130,7 @@ trace un cadre autour de chaque grafcet avec son nom, et `M5` ou `X4` en haut po
 un grafcet encapsulé ; l’option est aussi dans **Affichage › Cadres des grafcets**.
 
 Les exports sont en noir sur blanc par défaut ; choisissez **Thème actuel** pour garder les
-couleurs de l'écran. Exportez le grafcet courant, la sélection ou tous les grafcets.
+couleurs de l'écran. Exportez le grafcet courant, la sélection ou tous les grafcets (par défaut en PDF).
 
 **Fichier › Copier le diagramme en PNG / SVG** place la sélection (ou tout le grafcet) dans le
 presse-papiers, prête à être collée dans un rapport.

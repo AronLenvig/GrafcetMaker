@@ -924,6 +924,11 @@ export const pl: Messages = {
     scale: 'Skala',
     orientationAuto: 'Automatyczna',
     readable: 'Czytelna (kilka stron w razie potrzeby)',
+    formatGroups: {
+      drawing: 'Rysunek',
+      variables: 'Zmienne',
+      code: 'Kod PLC',
+    },
     fitPage: 'Dopasuj do strony',
     frames: 'Ramki grafcetów',
     percentTiled: '{{v}} % (na kilku stronach)',

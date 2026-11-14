@@ -911,6 +911,11 @@ export const de: Messages = {
     scale: 'Maßstab',
     orientationAuto: 'Automatisch',
     readable: 'Lesbar (bei Bedarf mehrere Seiten)',
+    formatGroups: {
+      drawing: 'Zeichnung',
+      variables: 'Variablen',
+      code: 'SPS-Code',
+    },
     fitPage: 'An Seite anpassen',
     frames: 'Grafcet-Rahmen',
     percentTiled: '{{v}} % (auf mehrere Seiten verteilt)',

@@ -892,6 +892,11 @@ export const da: Messages = {
     scale: 'Skala',
     orientationAuto: 'Automatisk',
     readable: 'Læselig (flere sider om nødvendigt)',
+    formatGroups: {
+      drawing: 'Tegning',
+      variables: 'Variabler',
+      code: 'PLC-kode',
+    },
     fitPage: 'Tilpas til siden',
     frames: 'Rammer om grafcets',
     percentTiled: '{{v}} % (fordelt over flere sider)',

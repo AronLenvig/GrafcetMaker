@@ -119,7 +119,7 @@ desenha uma moldura em volta de cada grafcet com seu nome e, no alto, `M5` ou `X
 ou um grafcet encapsulado; também está em **Exibir › Molduras dos grafcets**.
 
 Por padrão, as exportações são em preto no branco; escolha **Tema atual** para manter as cores da
-tela. Exporte o grafcet atual, a seleção ou todos os grafcets.
+tela. Exporte o grafcet atual, a seleção ou todos os grafcets (padrão em PDF).
 
 **Arquivo › Copiar diagrama como PNG / SVG** coloca a seleção (ou o grafcet inteiro) na área de
 transferência, pronta para colar em um relatório.

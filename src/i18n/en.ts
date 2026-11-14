@@ -883,6 +883,11 @@ export const en = {
     scale: 'Scale',
     orientationAuto: 'Automatic',
     readable: 'Readable (several pages if needed)',
+    formatGroups: {
+      drawing: 'Drawing',
+      variables: 'Variables',
+      code: 'PLC code',
+    },
     fitPage: 'Fit to page',
     frames: 'Grafcet frames',
     percentTiled: '{{v}} % (tiled over pages)',

@@ -866,6 +866,11 @@ export const zh: Messages = {
     scale: '比例',
     orientationAuto: '自动',
     readable: '清晰可读（需要时分多页）',
+    formatGroups: {
+      drawing: '图形',
+      variables: '变量',
+      code: 'PLC 代码',
+    },
     fitPage: '适应页面',
     frames: 'grafcet 外框',
     percentTiled: '{{v}}%（分页平铺）',

@@ -892,6 +892,11 @@ export const hi: Messages = {
     scale: 'स्केल',
     orientationAuto: 'स्वचालित',
     readable: 'पढ़ने योग्य (ज़रूरत हो तो कई पेज)',
+    formatGroups: {
+      drawing: 'ड्रॉइंग',
+      variables: 'वेरिएबल',
+      code: 'PLC कोड',
+    },
     fitPage: 'पेज में फ़िट करें',
     frames: 'grafcet फ़्रेम',
     percentTiled: '{{v}} % (कई पेजों पर टाइल किया गया)',

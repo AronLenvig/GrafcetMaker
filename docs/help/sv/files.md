@@ -114,7 +114,7 @@ grafcet med dess namn och överst `M5` eller `X4` för en expansion eller ett in
 finns också under **Visa › Ramar runt grafcet**.
 
 Exporterna är som standard svart på vitt; välj **Aktuellt tema** för att behålla skärmens färger.
-Exportera den aktuella grafceten, markeringen eller alla grafcetar.
+Exportera den aktuella grafceten, markeringen eller alla grafcetar (standard för PDF).
 
 **Arkiv › Kopiera diagrammet som PNG / SVG** lägger markeringen (eller hela grafceten) i urklipp,
 redo att klistras in i en rapport.

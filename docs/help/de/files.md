@@ -125,7 +125,7 @@ oder einen eingeschlossenen Grafcet; die Option gibt es auch unter **Ansicht ›
 
 Exporte sind standardmäßig schwarz auf weiß; wählen Sie **Aktuelles Farbschema**, um die
 Bildschirmfarben zu behalten. Exportieren Sie den aktuellen Grafcet, die Auswahl oder alle
-Grafcets.
+Grafcets (Standard bei PDF).
 
 **Datei › Diagramm als PNG / SVG kopieren** legt die Auswahl (oder den ganzen Grafcet) in die
 Zwischenablage, bereit zum Einfügen in einen Bericht.

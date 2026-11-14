@@ -906,6 +906,11 @@ export const fr: Messages = {
     scale: 'Échelle',
     orientationAuto: 'Automatique',
     readable: 'Lisible (plusieurs pages si besoin)',
+    formatGroups: {
+      drawing: 'Dessin',
+      variables: 'Variables',
+      code: 'Code automate',
+    },
     fitPage: 'Ajuster à la page',
     frames: 'Cadres des grafcets',
     percentTiled: '{{v}} % (sur plusieurs pages)',

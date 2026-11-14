@@ -149,6 +149,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- A more compact **Export** dialog: formats grouped under Drawing, Variables and PLC code, each
+  option on one row (short choices as one row of buttons, the PDF scale and the PLC as a list),
+  and **All grafcets** exported by default where the format allows it (PDF).
 - PDF export prints long grafcets **readably**: the new default scale keeps a grafcet on one page
   while its text stays readable (70 % or more), otherwise prints it over as many pages as needed,
   cut between steps and transitions, never through them (fixed percentages are cut the same way).
@@ -253,6 +256,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- Export preview: the page buttons were tiny, and after clicking "next" past the last page
+  "previous" needed as many clicks to move. They are now labelled buttons that stop at the first
+  and last page, and ← / → turn pages on the preview.
 - Command palette: typing a command's exact name (such as **Copy**) runs that command; "Copy" ran
   "Copy as text" first, after which Paste did nothing.
 - Copying a single action attached to a step did nothing: it is now copied, and pasted onto the

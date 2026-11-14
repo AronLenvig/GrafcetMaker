@@ -333,6 +333,7 @@ export const es: Messages = {
       fit: 'Ajustar a la ventana',
       fitSelection: 'Ajustar a la selección',
       toggleGrid: 'Mostrar u ocultar la cuadrícula',
+      toggleFrames: 'Mostrar u ocultar los marcos de los grafcets',
       toggleSnap: 'Activar o desactivar el ajuste a la cuadrícula',
       toggleRight: 'Panel de propiedades',
       themeSystem: 'Tema: sistema',
@@ -362,6 +363,7 @@ export const es: Messages = {
       showSimulation: 'Mostrar el panel de simulación',
       showChronogram: 'Mostrar el cronograma',
       showGrid: 'Cuadrícula',
+      showFrames: 'Marcos de los grafcets',
       snapToGrid: 'Ajustar a la cuadrícula',
     },
     simulate: {
@@ -892,7 +894,10 @@ export const es: Messages = {
     portrait: 'Vertical',
     landscape: 'Horizontal',
     scale: 'Escala',
+    orientationAuto: 'Automática',
+    readable: 'Legible (varias páginas si hace falta)',
     fitPage: 'Ajustar a la página',
+    frames: 'Marcos de los grafcets',
     percentTiled: '{{v}} % (en mosaico sobre varias páginas)',
     titleBlock: 'Cajetín (proyecto, autor, revisión, fecha, hoja)',
     csvHint:

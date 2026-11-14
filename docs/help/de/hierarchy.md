@@ -23,6 +23,9 @@ aktiv ist).
 Ein **Makroschritt** steht für einen ausführlichen Ablauf, der auf einem eigenen Blatt gezeichnet
 ist, seine **Expansion**. Er wird als Schritt mit zwei waagerechten Linien gezeichnet.
 
+Seine Nummer wird mit einem **M** geschrieben (M5); in Transitionsbedingungen bezeichnet `X5`
+weiterhin seine Aktivität.
+
 <!-- figure: macro | Ein Makroschritt im Hauptablauf -->
 
 1. Wählen Sie einen Schritt aus und stellen Sie im Bereich Eigenschaften seine **Art** auf

@@ -331,6 +331,7 @@ export const hi: Messages = {
       fit: 'विंडो में फ़िट करें',
       fitSelection: 'चयन फ़िट करें',
       toggleGrid: 'ग्रिड टॉगल करें',
+      toggleFrames: 'grafcet फ़्रेम टॉगल करें',
       toggleSnap: 'ग्रिड पर स्नैप टॉगल करें',
       toggleRight: 'प्रॉपर्टीज़ पैनल',
       themeSystem: 'थीम: सिस्टम',
@@ -360,6 +361,7 @@ export const hi: Messages = {
       showSimulation: 'सिम्युलेशन पैनल दिखाएँ',
       showChronogram: 'क्रोनोग्राम दिखाएँ',
       showGrid: 'ग्रिड',
+      showFrames: 'grafcet फ़्रेम',
       snapToGrid: 'ग्रिड पर स्नैप करें',
     },
     simulate: {
@@ -888,7 +890,10 @@ export const hi: Messages = {
     portrait: 'पोर्ट्रेट',
     landscape: 'लैंडस्केप',
     scale: 'स्केल',
+    orientationAuto: 'स्वचालित',
+    readable: 'पढ़ने योग्य (ज़रूरत हो तो कई पेज)',
     fitPage: 'पेज में फ़िट करें',
+    frames: 'grafcet फ़्रेम',
     percentTiled: '{{v}} % (कई पेजों पर टाइल किया गया)',
     titleBlock: 'टाइटल ब्लॉक (प्रोजेक्ट, लेखक, संशोधन, तारीख़, शीट)',
     csvHint:

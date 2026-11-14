@@ -21,6 +21,8 @@ other through step variables (`X21` in G1 is true while step 21 of G2 is active)
 A **macro-step** stands for a detailed sequence drawn on its own sheet, its **expansion**. It is
 drawn as a step with two horizontal lines.
 
+Its number is written with an **M** (M5); in receptivities, `X5` is still its activity.
+
 <!-- figure: macro | A macro-step in the main sequence -->
 
 1. Select a step and set its **Kind** to _Macro-step_ in the Properties panel (or

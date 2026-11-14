@@ -327,6 +327,7 @@ export const en = {
       fit: 'Fit to window',
       fitSelection: 'Fit selection',
       toggleGrid: 'Toggle grid',
+      toggleFrames: 'Toggle grafcet frames',
       toggleSnap: 'Toggle snap to grid',
       toggleRight: 'Properties panel',
       themeSystem: 'Theme: system',
@@ -356,6 +357,7 @@ export const en = {
       showSimulation: 'Show simulation panel',
       showChronogram: 'Show chronogram',
       showGrid: 'Grid',
+      showFrames: 'Grafcet frames',
       snapToGrid: 'Snap to grid',
     },
     simulate: {
@@ -879,7 +881,10 @@ export const en = {
     portrait: 'Portrait',
     landscape: 'Landscape',
     scale: 'Scale',
+    orientationAuto: 'Automatic',
+    readable: 'Readable (several pages if needed)',
     fitPage: 'Fit to page',
+    frames: 'Grafcet frames',
     percentTiled: '{{v}} % (tiled over pages)',
     titleBlock: 'Title block (project, author, revision, date, sheet)',
     csvHint:

@@ -8,6 +8,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- **Grafcet frames** (View › Grafcet frames, the Export dialog and Settings): a frame around the
+  grafcet with its name at the bottom left and, for an expansion or an enclosed grafcet, its
+  macro-step (`M5`) or enclosing step (`X4`) at the top left, in the editor and in SVG, PNG,
+  WebP and PDF exports.
 - Simulation shows each step for at least 0.1 s: when one change makes several transitions clear
   in a row, the token moves through every step instead of jumping to the last. Only the display
   waits; the simulation still follows IEC 60848 (unstable steps last no time).
@@ -145,6 +149,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- PDF export prints long grafcets **readably**: the new default scale keeps a grafcet on one page
+  while its text stays readable (70 % or more), otherwise prints it over as many pages as needed,
+  cut between steps and transitions, never through them (fixed percentages are cut the same way).
+  The new **Automatic** orientation picks the one that needs fewer pages. A project that kept
+  the old default (A4 portrait, fit to page) switches to the new one.
+- A macro-step reads **M** and its number (`M5`), as in IEC 60848.
 - Structured Text, CASE style: the `CASE` holds nothing but the transition conditions and the new
   step numbers. Stored actions follow it, run when the step changed since the previous scan (also
   when a forcing order changed it, as in the simulator), then the outputs.

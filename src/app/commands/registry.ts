@@ -486,6 +486,12 @@ export const COMMANDS: Command[] = [
     run: () => setPrefs({ showGrid: !usePrefs.getState().showGrid }),
   },
   {
+    id: 'view.toggleFrames',
+    label: 'view.toggleFrames',
+    group: 'view',
+    run: () => setPrefs({ showFrames: !usePrefs.getState().showFrames }),
+  },
+  {
     id: 'view.toggleSnap',
     label: 'view.toggleSnap',
     group: 'view',

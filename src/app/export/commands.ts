@@ -18,6 +18,7 @@ import {
   renderSvg,
   safeFileName,
   svgToPng,
+  targetOf,
 } from './exporters';
 import { EXPORT_FORMATS } from './formats';
 
@@ -95,7 +96,7 @@ export async function copyDiagram(kind: 'png' | 'svg'): Promise<void> {
   if (!g) return;
   const ids = Object.keys(useUi.getState().selection);
   const settings = loadExportSettings(getProject().id);
-  const target = { grafcet: g, only: ids.length ? new Set(ids) : undefined };
+  const target = targetOf(getProject(), g, ids.length ? new Set(ids) : undefined);
   try {
     const res = await renderSvg(target, settings, kind === 'png' || settings.svg.embedFont);
     const ok =

@@ -103,6 +103,11 @@ settings are remembered per project. **File › Export as** opens it on a given 
 | **Structured Text**   | PLC code running every grafcet: IEC 61131-3, Siemens TIA Portal (SCL), Beckhoff TwinCAT 3 or Allen-Bradley Logix  |
 | **PLCopen XML**       | importing the grafcets into a PLC tool as SFC programs                                                            |
 
+A long grafcet prints **readably** over several PDF pages (scale _Readable_, the default), cut
+between steps; _Fit to page_ puts it on one page. **Grafcet frames** draws a frame around each
+grafcet with its name, and `M5` or `X4` at the top for an expansion or an enclosed grafcet; it is
+also in **View › Grafcet frames**.
+
 Exports are black on white by default; choose **Current theme** to keep the screen colors.
 Export the current grafcet, the selection, or all grafcets.
 

@@ -108,6 +108,11 @@ projekt. **Arkiv › Exportera som** öppnar den direkt med ett visst format.
 | **Structured Text**   | PLC-kod som kör varje grafcet: IEC 61131-3, Siemens TIA Portal (SCL), Beckhoff TwinCAT 3 eller Allen-Bradley Logix |
 | **PLCopen XML**       | import av grafcetarna i ett PLC-verktyg som SFC-program                                                            |
 
+Ett långt grafcet skrivs ut **läsbart** på flera PDF-sidor (skala _Läsbar_, standard), delat mellan
+stegen; _Anpassa till sidan_ lägger det på en sida. **Ramar runt grafcet** ritar en ram runt varje
+grafcet med dess namn och överst `M5` eller `X4` för en expansion eller ett inkapslat grafcet; det
+finns också under **Visa › Ramar runt grafcet**.
+
 Exporterna är som standard svart på vitt; välj **Aktuellt tema** för att behålla skärmens färger.
 Exportera den aktuella grafceten, markeringen eller alla grafcetar.
 

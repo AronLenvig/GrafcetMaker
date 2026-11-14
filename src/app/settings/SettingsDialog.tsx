@@ -120,6 +120,11 @@ function Editor() {
         onChange={(v) => setPrefs({ showGrid: v })}
       />
       <SwitchRow
+        label={t('commands.view.showFrames')}
+        value={prefs.showFrames}
+        onChange={(v) => setPrefs({ showFrames: v })}
+      />
+      <SwitchRow
         label={t('commands.view.snapToGrid')}
         help={t('settings.snapHelp')}
         value={prefs.snapToGrid}

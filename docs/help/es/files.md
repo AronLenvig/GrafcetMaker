@@ -116,6 +116,11 @@ concreto.
 | **Texto estructurado** | código de PLC que ejecuta todos los grafcets: IEC 61131-3, Siemens TIA Portal (SCL), Beckhoff TwinCAT 3 o Allen-Bradley Logix |
 | **PLCopen XML**        | importar los grafcets en una herramienta de PLC como programas SFC                                                            |
 
+Un grafcet largo se imprime **de forma legible** en varias páginas PDF (escala _Legible_, por
+defecto), cortado entre etapas; _Ajustar a la página_ lo pone en una sola página. **Marcos de los
+grafcets** dibuja un marco alrededor de cada grafcet con su nombre, y `M5` o `X4` arriba para una
+expansión o un grafcet encapsulado; también está en **Ver › Marcos de los grafcets**.
+
 Las exportaciones son en negro sobre blanco de forma predeterminada; elige **Tema actual** para
 conservar los colores de la pantalla. Exporta el grafcet actual, la selección o todos los grafcets.
 

@@ -118,6 +118,11 @@ gespeichert. **Datei › Exportieren als** öffnet ihn direkt mit einem bestimmt
 | **Structured Text**   | SPS-Code, der jeden Grafcet ausführt: IEC 61131-3, Siemens TIA Portal (SCL), Beckhoff TwinCAT 3 oder Allen-Bradley Logix |
 | **PLCopen XML**       | Import der Grafcets als SFC-Programme in ein SPS-Werkzeug                                                                |
 
+Ein langer Grafcet wird **lesbar** auf mehreren PDF-Seiten gedruckt (Maßstab _Lesbar_, Standard),
+zwischen den Schritten getrennt; _An Seite anpassen_ bringt ihn auf eine Seite. **Grafcet-Rahmen**
+zeichnet um jeden Grafcet einen Rahmen mit seinem Namen und oben `M5` oder `X4` für eine Expansion
+oder einen eingeschlossenen Grafcet; die Option gibt es auch unter **Ansicht › Grafcet-Rahmen**.
+
 Exporte sind standardmäßig schwarz auf weiß; wählen Sie **Aktuelles Farbschema**, um die
 Bildschirmfarben zu behalten. Exportieren Sie den aktuellen Grafcet, die Auswahl oder alle
 Grafcets.

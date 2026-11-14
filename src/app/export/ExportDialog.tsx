@@ -18,6 +18,7 @@ import {
   saveExportSettings,
   requestedFormat,
   requestExportFormat,
+  targetOf,
   UnsupportedFormatError,
   type ExportSettings,
   type Target,
@@ -115,10 +116,10 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
   const targets: Target[] = useMemo(() => {
     if (scope === 'all')
       return project.grafcetOrder.flatMap((id) =>
-        project.grafcets[id] ? [{ grafcet: project.grafcets[id] }] : [],
+        project.grafcets[id] ? [targetOf(project, project.grafcets[id])] : [],
       );
     if (!grafcet) return [];
-    return [{ grafcet, only: scope === 'selection' ? selected : undefined }];
+    return [targetOf(project, grafcet, scope === 'selection' ? selected : undefined)];
   }, [scope, project, grafcet, selected]);
 
   const baseName = safeFileName(project.name, scope === 'all' ? '' : (grafcet?.name ?? ''));
@@ -288,6 +289,7 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
               value={settings.pdf.orientation}
               onChange={(v) => update({ pdf: { ...settings.pdf, orientation: v } })}
               options={[
+                { value: 'auto' as const, label: t('export.orientationAuto') },
                 { value: 'portrait' as const, label: t('export.portrait') },
                 { value: 'landscape' as const, label: t('export.landscape') },
               ]}
@@ -297,9 +299,15 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
               label={t('export.scale')}
               value={String(settings.pdf.scale)}
               onChange={(v) =>
-                update({ pdf: { ...settings.pdf, scale: v === 'fit' ? 'fit' : Number(v) } })
+                update({
+                  pdf: {
+                    ...settings.pdf,
+                    scale: v === 'readable' || v === 'fit' ? v : Number(v),
+                  },
+                })
               }
               options={[
+                { value: 'readable', label: t('export.readable') },
                 { value: 'fit', label: t('export.fitPage') },
                 ...[100, 75, 50].map((v) => ({
                   value: String(v),
@@ -448,6 +456,11 @@ export default function ExportDialog({ onClose }: { onClose: () => void }) {
                     label={t('export.textbook')}
                     checked={settings.textbook}
                     onChange={(v) => update({ textbook: v })}
+                  />
+                  <Check
+                    label={t('export.frames')}
+                    checked={settings.frames}
+                    onChange={(v) => update({ frames: v })}
                   />
                 </div>
               </div>

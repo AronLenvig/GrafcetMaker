@@ -74,6 +74,8 @@ ChatGPT 或 Claude 等 AI 助手可以为您绘制图表。请先让它阅读 [g
 | **结构化文本 ST** | 运行所有 grafcet 的 PLC 代码：IEC 61131-3、Siemens TIA Portal（SCL）、Beckhoff TwinCAT 3 或 Allen-Bradley Logix |
 | **PLCopen XML**   | 将 grafcet 作为 SFC 程序导入 PLC 工具                                                                           |
 
+较长的 grafcet 会**清晰地**打印在多页 PDF 上（比例 _清晰可读_，默认），在步之间分页；_适应页面_ 把它放在一页上。**grafcet 外框** 在每个 grafcet 周围画一个带名称的外框，展开图或被封装的 grafcet 还在顶部标出 `M5` 或 `X4`；也可在 **视图 › grafcet 外框** 中打开。
+
 导出默认为白底黑字；选择**当前主题**可保留屏幕上的颜色。可以导出当前 grafcet、所选内容或所有 grafcet。
 
 **文件 › 将图表复制为 PNG / SVG** 将所选内容（或整个 grafcet）放到剪贴板上，可直接粘贴到报告中。

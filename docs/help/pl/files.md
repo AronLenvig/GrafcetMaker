@@ -110,6 +110,11 @@ każdego projektu. **Plik › Eksportuj jako** otwiera je od razu w wybranym for
 | **Structured Text** | kod PLC wykonujący każdy grafcet: IEC 61131-3, Siemens TIA Portal (SCL), Beckhoff TwinCAT 3 lub Allen-Bradley Logix |
 | **PLCopen XML**     | import grafcetów do narzędzia PLC jako programy SFC                                                                 |
 
+Długi grafcet drukuje się **czytelnie** na kilku stronach PDF (skala _Czytelna_, domyślna), z
+podziałem między krokami; _Dopasuj do strony_ mieści go na jednej stronie. **Ramki grafcetów**
+rysuje ramkę wokół każdego grafcetu z jego nazwą oraz u góry `M5` lub `X4` dla rozwinięcia lub
+grafcetu zamkniętego; opcja jest też w **Widok › Ramki grafcetów**.
+
 Eksporty są domyślnie czarne na białym; wybierz **Bieżący motyw**, aby zachować kolory ekranu.
 Eksportuj bieżący grafcet, zaznaczenie lub wszystkie grafcety.
 

@@ -124,6 +124,11 @@ mémorisés par projet. **Fichier › Exporter en** l'ouvre directement sur un f
 | **Texte structuré**   | code automate qui exécute tous les grafcets : IEC 61131-3, Siemens TIA Portal (SCL), Beckhoff TwinCAT 3 ou Allen-Bradley Logix |
 | **PLCopen XML**       | import des grafcets dans un outil automate sous forme de programmes SFC                                                        |
 
+Un long grafcet s’imprime **lisiblement** sur plusieurs pages PDF (échelle _Lisible_, par défaut),
+coupé entre les étapes ; _Ajuster à la page_ le met sur une seule page. **Cadres des grafcets**
+trace un cadre autour de chaque grafcet avec son nom, et `M5` ou `X4` en haut pour une expansion ou
+un grafcet encapsulé ; l’option est aussi dans **Affichage › Cadres des grafcets**.
+
 Les exports sont en noir sur blanc par défaut ; choisissez **Thème actuel** pour garder les
 couleurs de l'écran. Exportez le grafcet courant, la sélection ou tous les grafcets.
 

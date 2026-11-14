@@ -22,6 +22,8 @@ jest aktywny).
 **Makrokrok** zastępuje szczegółową sekwencję narysowaną na osobnym arkuszu, jego **rozwinięcie**.
 Rysuje się go jako krok z dwiema poziomymi liniami.
 
+Jego numer zapisuje się z literą **M** (M5); w warunkach przejść `X5` nadal oznacza jego aktywność.
+
 <!-- figure: macro | Makrokrok w sekwencji głównej -->
 
 1. Zaznacz krok i ustaw jego **Rodzaj** na _Makrokrok_ w panelu Właściwości (lub

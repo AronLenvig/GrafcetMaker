@@ -337,6 +337,7 @@ export const pt: Messages = {
       fit: 'Ajustar à janela',
       fitSelection: 'Ajustar à seleção',
       toggleGrid: 'Alternar grade',
+      toggleFrames: 'Alternar molduras dos grafcets',
       toggleSnap: 'Alternar ajuste à grade',
       toggleRight: 'Painel de propriedades',
       themeSystem: 'Tema: sistema',
@@ -366,6 +367,7 @@ export const pt: Messages = {
       showSimulation: 'Mostrar painel de simulação',
       showChronogram: 'Mostrar cronograma',
       showGrid: 'Grade',
+      showFrames: 'Molduras dos grafcets',
       snapToGrid: 'Ajustar à grade',
     },
     simulate: {
@@ -896,7 +898,10 @@ export const pt: Messages = {
     portrait: 'Retrato',
     landscape: 'Paisagem',
     scale: 'Escala',
+    orientationAuto: 'Automática',
+    readable: 'Legível (várias páginas se necessário)',
     fitPage: 'Ajustar à página',
+    frames: 'Molduras dos grafcets',
     percentTiled: '{{v}} % (dividido em páginas)',
     titleBlock: 'Carimbo (projeto, autor, revisão, data, folha)',
     csvHint:

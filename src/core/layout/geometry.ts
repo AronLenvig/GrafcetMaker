@@ -71,6 +71,7 @@ export {
   STEP_MARK,
   stepLabelAnchor,
   stepRect,
+  stepReference,
   textWidth,
   transitionBar,
   transitionBox,
@@ -397,20 +398,20 @@ function unionInto(acc: { x1: number; y1: number; x2: number; y2: number }, r: R
   acc.y2 = Math.max(acc.y2, r.y + r.height);
 }
 
-/** Bounding box of everything drawn for a grafcet (optionally restricted to some element ids). */
-export function grafcetBounds(
-  g: Grafcet,
-  geom: GrafcetGeometry,
-  only?: ReadonlySet<Id>,
-): Rect | null {
-  const acc = { x1: Infinity, y1: Infinity, x2: -Infinity, y2: -Infinity };
+/**
+ * What a grafcet draws, as rectangles: steps and their labels, actions and their texts,
+ * transitions and their receptivities, comments, link points (empty) and jump marks. A printed
+ * page is cut between them (pdfLayout).
+ */
+export function grafcetParts(g: Grafcet, geom: GrafcetGeometry, only?: ReadonlySet<Id>): Rect[] {
+  const parts: Rect[] = [];
   const take = (id: Id) => !only || only.has(id);
   for (const s of Object.values(g.steps)) {
     if (!take(s.id)) continue;
-    unionInto(acc, stepRect(s));
+    parts.push(stepRect(s));
     if (s.label) {
       const a = stepLabelAnchor(s);
-      unionInto(acc, {
+      parts.push({
         x: a.x - textWidth(s.label, LABEL_FONT_SIZE),
         y: a.y - 8,
         width: 1,
@@ -423,11 +424,11 @@ export function grafcetBounds(
   for (const b of geom.freeActions) if (take(b.id)) actionInto(b);
   function actionInto(b: ActionBox): void {
     const below = g.actions[b.id]!.kind === 'storedOnDeactivation' ? 20 : 0;
-    unionInto(acc, { ...b, y: b.y - 20, height: b.height + 20 + below });
+    parts.push({ ...b, y: b.y - 20, height: b.height + 20 + below });
     const text = actionDecor(g.actions[b.id]!, b).text;
     if (text) {
       const w = expressionWidth(text.source);
-      unionInto(acc, {
+      parts.push({
         x: text.anchor === 'end' ? text.x - w : text.x,
         y: text.y - 8,
         width: w,
@@ -439,20 +440,20 @@ export function grafcetBounds(
     if (!take(t.id)) continue;
     const a = transitionTextAnchor(t);
     const bar = transitionBar(t);
-    unionInto(acc, { x: bar.x - 4, y: bar.y - 6.5, width: bar.width + 8, height: bar.height + 13 });
-    unionInto(acc, { x: a.x, y: a.y - 10, width: expressionWidth(t.receptivity), height: 20 });
+    parts.push({ x: bar.x - 4, y: bar.y - 6.5, width: bar.width + 8, height: bar.height + 13 });
+    parts.push({ x: a.x, y: a.y - 10, width: expressionWidth(t.receptivity), height: 20 });
   }
-  for (const c of Object.values(g.comments)) if (take(c.id)) unionInto(acc, commentRect(c));
+  for (const c of Object.values(g.comments)) if (take(c.id)) parts.push(commentRect(c));
   for (const l of geom.links) {
     if (only && !(only.has(l.stepId) && only.has(l.transitionId))) continue;
-    for (const p of l.points) unionInto(acc, { x: p.x, y: p.y, width: 0, height: 0 });
+    for (const p of l.points) parts.push({ x: p.x, y: p.y, width: 0, height: 0 });
   }
   for (const j of geom.jumps) {
     if (!take(j.elementId)) continue;
-    for (const p of j.points) unionInto(acc, { x: p.x - 5, y: p.y, width: 10, height: 0 });
+    for (const p of j.points) parts.push({ x: p.x - 5, y: p.y, width: 10, height: 0 });
     if (j.label) {
       const w = textWidth(j.label.text);
-      unionInto(acc, {
+      parts.push({
         x: j.label.anchor === 'end' ? j.label.x - w : j.label.x,
         y: j.label.y - 8,
         width: w,
@@ -460,6 +461,17 @@ export function grafcetBounds(
       });
     }
   }
+  return parts;
+}
+
+/** Bounding box of everything drawn for a grafcet (optionally restricted to some element ids). */
+export function grafcetBounds(
+  g: Grafcet,
+  geom: GrafcetGeometry,
+  only?: ReadonlySet<Id>,
+): Rect | null {
+  const acc = { x1: Infinity, y1: Infinity, x2: -Infinity, y2: -Infinity };
+  for (const r of grafcetParts(g, geom, only)) unionInto(acc, r);
   if (acc.x1 === Infinity) return null;
   return { x: acc.x1, y: acc.y1, width: acc.x2 - acc.x1, height: acc.y2 - acc.y1 };
 }

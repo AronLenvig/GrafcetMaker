@@ -1,5 +1,6 @@
 import fontUrl from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2?url';
 import type { PageOptions } from '@/core/io/pdfLayout';
+import { frameLabels, type FrameLabels } from '@/core/layout/frame';
 import {
   grafcetToSvg,
   PRINT_PALETTE,
@@ -19,6 +20,8 @@ export interface ExportSettings {
   /** Black on white (default), or the colors of the current theme. */
   theme: 'print' | 'current';
   textbook: boolean;
+  /** A frame around each grafcet with its identification (core/layout/frame). */
+  frames: boolean;
   png: { scale: 1 | 2 | 4; transparent: boolean };
   webp: { scale: 1 | 2 | 4; quality: number; transparent: boolean };
   svg: { embedFont: boolean };
@@ -39,10 +42,11 @@ export const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
   scope: 'grafcet',
   theme: 'print',
   textbook: true,
+  frames: false,
   png: { scale: 2, transparent: false },
   webp: { scale: 2, quality: 0.92, transparent: false },
   svg: { embedFont: true },
-  pdf: { paper: 'A4', orientation: 'portrait', scale: 'fit', titleBlock: true },
+  pdf: { paper: 'A4', orientation: 'auto', scale: 'readable', titleBlock: true },
   st: { style: 'case', stabilityLoop: false, dialect: 'iec', holdStored: false },
   xml: { taskInterval: 10 },
 };
@@ -70,6 +74,7 @@ const storedSettingsSchema = (() => {
     scope: one(z.enum(['grafcet', 'selection', 'all']), d.scope),
     theme: one(z.enum(['print', 'current']), d.theme),
     textbook: one(z.boolean(), d.textbook),
+    frames: one(z.boolean(), d.frames),
     png: one(
       z.object({
         scale: one(scale, d.png.scale),
@@ -89,8 +94,11 @@ const storedSettingsSchema = (() => {
     pdf: one(
       z.object({
         paper: one(z.enum(['A4', 'A3']), d.pdf.paper),
-        orientation: one(z.enum(['portrait', 'landscape']), d.pdf.orientation),
-        scale: one(z.union([z.literal('fit'), z.number().min(10).max(400)]), d.pdf.scale),
+        orientation: one(z.enum(['auto', 'portrait', 'landscape']), d.pdf.orientation),
+        scale: one(
+          z.union([z.literal('readable'), z.literal('fit'), z.number().min(10).max(400)]),
+          d.pdf.scale,
+        ),
         titleBlock: one(z.boolean(), d.pdf.titleBlock),
       }),
       d.pdf,
@@ -111,13 +119,28 @@ const storedSettingsSchema = (() => {
   }) satisfies z.ZodType<ExportSettings>;
 })();
 
+/**
+ * Version of the stored settings. Unversioned ones are from before the readable PDF layout: they
+ * hold the default of the time, A4 portrait fitted to one page (cramped for a long grafcet),
+ * which is read as the new default.
+ */
+const SETTINGS_VERSION = 2;
+
 /** Export settings are remembered per project, on this device. */
 export function loadExportSettings(projectId: Id): ExportSettings {
   try {
     const raw = localStorage.getItem(key(projectId));
     if (!raw) return DEFAULT_EXPORT_SETTINGS;
-    const parsed = storedSettingsSchema.safeParse(JSON.parse(raw));
-    return parsed.success ? parsed.data : DEFAULT_EXPORT_SETTINGS;
+    const json: unknown = JSON.parse(raw);
+    const parsed = storedSettingsSchema.safeParse(json);
+    if (!parsed.success) return DEFAULT_EXPORT_SETTINGS;
+    const s = parsed.data;
+    const versioned = typeof json === 'object' && json !== null && 'version' in json;
+    if (!versioned && s.pdf.scale === 'fit' && s.pdf.orientation === 'portrait') {
+      const { orientation, scale } = DEFAULT_EXPORT_SETTINGS.pdf;
+      return { ...s, pdf: { ...s.pdf, orientation, scale } };
+    }
+    return s;
   } catch {
     return DEFAULT_EXPORT_SETTINGS;
   }
@@ -125,7 +148,7 @@ export function loadExportSettings(projectId: Id): ExportSettings {
 
 export function saveExportSettings(projectId: Id, s: ExportSettings): void {
   try {
-    localStorage.setItem(key(projectId), JSON.stringify(s));
+    localStorage.setItem(key(projectId), JSON.stringify({ ...s, version: SETTINGS_VERSION }));
   } catch {
     // Not remembered; harmless.
   }
@@ -169,7 +192,16 @@ export function embeddedFontCss(): Promise<string> {
 export interface Target {
   grafcet: Grafcet;
   only?: ReadonlySet<Id>;
+  /** What its frame says, drawn when the settings ask for frames. */
+  frame?: FrameLabels;
 }
+
+/** A grafcet to export, with the labels of its frame. */
+export const targetOf = (p: Project, grafcet: Grafcet, only?: ReadonlySet<Id>): Target => ({
+  grafcet,
+  only,
+  frame: frameLabels(p, grafcet),
+});
 
 export async function renderSvg(
   target: Target,
@@ -181,6 +213,7 @@ export async function renderSvg(
     palette: paletteFor(settings, transparent),
     only: target.only,
     textbook: settings.textbook,
+    frame: settings.frames ? target.frame : undefined,
     fontFaceCss: embedFont ? await embeddedFontCss() : undefined,
   });
 }

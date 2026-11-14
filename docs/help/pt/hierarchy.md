@@ -22,6 +22,8 @@ etapa 21 de G2 está ativa).
 Uma **macroetapa** representa uma sequência detalhada desenhada em folha própria, sua
 **expansão**. Ela é desenhada como uma etapa com duas linhas horizontais.
 
+Seu número é escrito com um **M** (M5); nas receptividades, `X5` continua designando sua atividade.
+
 <!-- figure: macro | Uma macroetapa na sequência principal -->
 
 1. Selecione uma etapa e defina seu **Tipo** como _Macroetapa_ no painel Propriedades (ou

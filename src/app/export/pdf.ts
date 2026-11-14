@@ -11,8 +11,15 @@ export async function buildPdf(
   settings: ExportSettings,
 ): Promise<Blob> {
   const pages = planPages(targets, settings);
-  const { paper, orientation } = settings.pdf;
-  const doc = new jsPDF({ unit: 'mm', format: paper.toLowerCase(), orientation, compress: true });
+  const { paper } = settings.pdf;
+  // With automatic orientation, each grafcet's pages take the orientation chosen for it.
+  const orientation = (i: number) => pages[i]?.layout.orientation ?? 'portrait';
+  const doc = new jsPDF({
+    unit: 'mm',
+    format: paper.toLowerCase(),
+    orientation: orientation(0),
+    compress: true,
+  });
   doc.setProperties({
     title: project.name,
     subject: targets.map((t) => t.grafcet.name).join(', '),
@@ -25,7 +32,7 @@ export async function buildPdf(
   document.body.appendChild(host);
   try {
     for (let i = 0; i < pages.length; i++) {
-      if (i > 0) doc.addPage(paper.toLowerCase(), orientation);
+      if (i > 0) doc.addPage(paper.toLowerCase(), orientation(i));
       host.innerHTML = '';
       const el = new DOMParser().parseFromString(
         renderPage(project, pages, i, settings),

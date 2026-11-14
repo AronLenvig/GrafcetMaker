@@ -22,6 +22,8 @@ stegvariabler (`X21` i G1 är sant medan steg 21 i G2 är aktivt).
 Ett **makrosteg** står för en detaljerad sekvens som ritas på ett eget blad, dess **expansion**. Det
 ritas som ett steg med två vågräta linjer.
 
+Dess nummer skrivs med ett **M** (M5); i övergångsvillkor betecknar `X5` fortfarande dess aktivitet.
+
 <!-- figure: macro | Ett makrosteg i huvudsekvensen -->
 
 1. Markera ett steg och ställ in dess **Typ** till _Makrosteg_ i panelen Egenskaper (eller

@@ -23,6 +23,8 @@ tant que l'étape 21 de G2 est active).
 Une **macro-étape** représente une séquence détaillée dessinée sur une feuille à part, son
 **expansion**. Elle est dessinée comme une étape avec deux traits horizontaux.
 
+Son numéro s’écrit avec un **M** (M5) ; dans les réceptivités, `X5` désigne toujours son activité.
+
 <!-- figure: macro | Une macro-étape dans la séquence principale -->
 
 1. Sélectionnez une étape et réglez son **Type** sur _Macro-étape_ dans le panneau Propriétés (ou

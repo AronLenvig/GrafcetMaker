@@ -420,3 +420,18 @@
     transition: transform 90ms linear;
   }
 }
+
+/* View › Grafcet frames: a frame around the grafcet with its identification, drawing only. */
+.gm-frame {
+  pointer-events: none;
+}
+
+.gm-frame rect {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+
+.gm-canvas .gm-frame text {
+  fill: var(--ink);
+}

@@ -23,6 +23,8 @@ está activa).
 Una **macroetapa** representa una secuencia detallada dibujada en su propia hoja, su **expansión**.
 Se dibuja como una etapa con dos líneas horizontales.
 
+Su número se escribe con una **M** (M5); en las receptividades, `X5` sigue designando su actividad.
+
 <!-- figure: macro | Una macroetapa en la secuencia principal -->
 
 1. Selecciona una etapa y pon su **Tipo** en _Macroetapa_ en el panel Propiedades (o

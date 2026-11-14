@@ -333,6 +333,7 @@ export const sv: Messages = {
       fit: 'Anpassa till fönstret',
       fitSelection: 'Anpassa till markeringen',
       toggleGrid: 'Visa/dölj rutnät',
+      toggleFrames: 'Visa/dölj ramar runt grafcet',
       toggleSnap: 'Fäst vid rutnät av/på',
       toggleRight: 'Egenskapspanel',
       themeSystem: 'Tema: system',
@@ -362,6 +363,7 @@ export const sv: Messages = {
       showSimulation: 'Visa simuleringspanelen',
       showChronogram: 'Visa tidsdiagram',
       showGrid: 'Rutnät',
+      showFrames: 'Ramar runt grafcet',
       snapToGrid: 'Fäst vid rutnät',
     },
     simulate: {
@@ -887,7 +889,10 @@ export const sv: Messages = {
     portrait: 'Stående',
     landscape: 'Liggande',
     scale: 'Skala',
+    orientationAuto: 'Automatisk',
+    readable: 'Läsbar (flera sidor vid behov)',
     fitPage: 'Anpassa till sidan',
+    frames: 'Ramar runt grafcet',
     percentTiled: '{{v}} % (fördelat över flera sidor)',
     titleBlock: 'Namnruta (projekt, författare, revision, datum, blad)',
     csvHint:

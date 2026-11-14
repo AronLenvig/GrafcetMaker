@@ -23,7 +23,7 @@ import {
   Tip,
 } from '@/ui/primitives';
 
-type BoolPref = 'textbookNotation' | 'showGrid' | 'snapToGrid' | 'showHints';
+type BoolPref = 'textbookNotation' | 'showGrid' | 'showFrames' | 'snapToGrid' | 'showHints';
 
 /**
  * One entry of the main menu. `desktopOnly` entries make no sense on a phone (panels and split
@@ -155,6 +155,7 @@ const MAIN_MENU: (MenuSection | CommandNode)[] = [
       SEP,
       { pref: 'textbookNotation', label: 'commands.view.textbook' },
       { pref: 'showGrid', label: 'commands.view.showGrid' },
+      { pref: 'showFrames', label: 'commands.view.showFrames' },
       { pref: 'snapToGrid', label: 'commands.view.snapToGrid' },
       { pref: 'showHints', label: 'commands.view.hints', desktopOnly: true },
       SEP,
